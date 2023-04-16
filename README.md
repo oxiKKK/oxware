@@ -13,6 +13,7 @@ Please, before proceeding, **read this README**!
 
 ---
 
+- [Special thanks to](#special-thanks-to)
 - [Usage](#usage)
 - [Multi-platform support](#multi-platform-support)
 - [Anti-cheats](#anti-cheats)
@@ -20,6 +21,17 @@ Please, before proceeding, **read this README**!
 - [Building](#building)
 - [Features](#features)
 - [To be done](#to-be-done)
+
+## Special thanks to
+
+- [phnt](https://github.com/processhacker/phnt) for providing great collection of native Windows kernel API, definitions, and more.
+- [Microsoft Detours](https://github.com/microsoft/Detours) for their Detouring open-source library.
+- [GLFW](https://github.com/glfw/glfw) for their robust open-source OpenGL library.
+- [imgui](https://github.com/ocornut/imgui) for literally the best light-weight GUI out there.
+- [json](https://github.com/nlohmann/json) for the very mature json library.
+- [soil](https://github.com/littlstar/soil) for its functionality over simplifying the process of loading opengl images.
+- Voooolve for making an excelent decision of building their linux build of the game with debug symbols, making it easier to make cheats for their game 😉😆 Thanks Valve.
+- Anyone who plays using this cheat client or contributes to it somehow 😁
 
 ## Usage
 

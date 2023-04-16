@@ -1,7 +1,7 @@
-oxWARE
-=====
+<div align="center">
 
-<center>
+<img src="https://i.imgur.com/3ME1mzn.png" width="35%" height="35%"></img>
+
 
 Welcome to oxWARE, a free Counter-Strike 1.6 cheat. This cheat is still in <b>alpha stage</b> of development!<br>
 I will be contributing to it in the near future as much as possible, adding new features et cetera.<br>
@@ -9,7 +9,7 @@ So stay tuned! 😉<br>
 
 <h3>Please, before proceeding, read this README!</h3>
 
-</center>
+</div>
 
 ---
 

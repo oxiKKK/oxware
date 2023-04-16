@@ -13,6 +13,8 @@ Please, before proceeding, **read this README**!
 
 ---
 
+## Table of contents
+
 - [Special thanks to](#special-thanks-to)
 - [Usage](#usage)
 - [Multi-platform support](#multi-platform-support)
@@ -31,7 +33,7 @@ Please, before proceeding, **read this README**!
 - [json](https://github.com/nlohmann/json) for the very mature json library.
 - [soil](https://github.com/littlstar/soil) for its functionality over simplifying the process of loading opengl images.
 - Voooolve for making an excelent decision of building their linux build of the game with debug symbols, making it easier to make cheats for their game 😉😆 Thanks Valve.
-- Anyone who plays using this cheat client or contributes to it somehow 😁
+- Anyone who plays using this cheat client or contributes to it somehow. 😁
 
 ## Usage
 

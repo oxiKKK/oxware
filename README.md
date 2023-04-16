@@ -1,9 +1,9 @@
 <div align="center">
 
-<img src="https://i.imgur.com/rMxVH3j.png" width="35%" height="35%"></img>
+<img src="https://i.imgur.com/rMxVH3j.png" width="27%" height="27%"></img>
 
 
-Welcome to oxWARE, a free Counter-Strike 1.6 cheat. This cheat is still in <b>alpha stage</b> of development!<br>
+Welcome to **oxWARE**, a free Counter-Strike 1.6 cheat. This cheat is still in <b>alpha stage</b> of development!<br>
 I will be contributing to it in the near future as much as possible, adding new features et cetera.<br>
 So stay tuned! 😉<br><br>
 

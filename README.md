@@ -16,7 +16,6 @@ Please, before proceeding, **read this README**!
 ## Table of contents
 
 - [Special thanks to](#special-thanks-to)
-- [Download](#download)
 - [Usage](#usage)
 - [Multi-platform support](#multi-platform-support)
 - [Support on non-steam and older versions of the game](#support-on-non-steam-and-older-versions-of-the-game)
@@ -37,10 +36,6 @@ Please, before proceeding, **read this README**!
 - [soil](https://github.com/littlstar/soil) for its functionality over simplifying the process of loading opengl images.
 - Voooolve for making an excelent decision of building their linux build of the game with debug symbols, making it easier to make cheats for their game 😉 ... Thanks Valve.
 - Anyone who plays using this cheat client or contributes to it somehow. 😎
-
-## Download
-
-You can find compiled binaries inside this [unknowncheats.me thread](https://www.unknowncheats.me/forum/counterstrike-1-5-1-6-and-mods/580057-oxware.html) at the bottom. 
 
 ## Usage
 

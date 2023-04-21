@@ -18,6 +18,7 @@ Please, before proceeding, **read this README**!
 - [Special thanks to](#special-thanks-to)
 - [Usage](#usage)
 - [Multi-platform support](#multi-platform-support)
+- [Support on non-steam and older versions of the game](#support-on-non-steam-and-older-versions-of-the-game)
 - [Anti-cheats](#anti-cheats)
 	- [VAC](#vac)
 - [Building](#building)
@@ -32,8 +33,8 @@ Please, before proceeding, **read this README**!
 - [imgui](https://github.com/ocornut/imgui) for literally the best light-weight GUI out there.
 - [json](https://github.com/nlohmann/json) for the very mature json library.
 - [soil](https://github.com/littlstar/soil) for its functionality over simplifying the process of loading opengl images.
-- Voooolve for making an excelent decision of building their linux build of the game with debug symbols, making it easier to make cheats for their game 😉😆 Thanks Valve.
-- Anyone who plays using this cheat client or contributes to it somehow. 😁
+- Voooolve for making an excelent decision of building their linux build of the game with debug symbols, making it easier to make cheats for their game 😉 ... Thanks Valve.
+- Anyone who plays using this cheat client or contributes to it somehow. 😎
 
 ## Usage
 
@@ -41,12 +42,21 @@ The cheat is composed out of two parts: **the loader (oxware.exe)** and **the ch
 
 Both the cheat and loader have developer consoles built inside of them that you can access at any time. (inside the cheat it is the '~' key, below the escape key)
 
-![The loader on the left, cheat menu ingame on the right](https://i.imgur.com/27Lgnsg.png)
+## Cheat menu in-game
 
+![The cheat](https://i.imgur.com/KcBhkEW.png)
 
-# Multi-platform support
+## The loader
 
-This cheat is currently only available on **Windows**. `TODO: versions`
+![The loader](https://i.imgur.com/j0hOePU.png)
+
+# Support on other operating systems
+
+This cheat is currently only available on `Windows 10 and newer`.
+
+# Support on non-steam and older versions of the game
+
+This cheat currently supports `8684 steam version only`! However, that will change in the future.
 
 ## Anti-cheats
 
@@ -78,6 +88,8 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 
 - Removals
 	- screen shake
+- HUD removals
+	- weapon, crosshair, money, etc...
 - viewmodel offset
 - smoke visuals
 - flashbang fade modifier
@@ -94,6 +106,9 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 	- custom render distance
 	- re-enabling some renderer cvars (normally unable to set in SP & MP)
 	- allow SP-only cvars also in MP
+- Frame skipping/simulated framerate
+- instantaneous cheat unload (either via loader or cheat menu)
+- injection using manual mapping
 - configuration files
 
 ## To be done

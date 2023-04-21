@@ -84,6 +84,8 @@ bool CoXWARE::initialize_phase2()
 	{
 		return false;
 	}
+
+	g_devconsole_i->provide_hl_execute_cmd_pfn((m_hl_execute_cmd_pfn_t)CMemoryHookMgr::the().cl_enginefuncs().get()->pfnClientCmd);
 	
 	CFeatureManager::the().initialize();
 
@@ -224,7 +226,7 @@ bool CoXWARE::load_and_initialize_dependencies()
 		return false;
 	}
 
-	g_variablemgr_i->register_variables_per_module(&g_static_variable_container, MODULE_CHEAT);
+	g_variablemgr_i->register_variables_and_commands_per_module(&g_static_variable_container, &g_static_command_container, MODULE_CHEAT);
 
 	// after all modules have been loaded
 	if (!g_variablemgr_i->initialize())

@@ -74,7 +74,7 @@ bool COxUIModule::initialize(ModuleInitializationContext* context)
 
 	g_variablemgr_i = LocateExportedInterface<IVariableManager>(WMODULE_UTIL, IVARIABLEMANAGER_INTERFACEID);
 
-	g_variablemgr_i->register_variables_per_module(&g_static_variable_container, MODULE_GUI);
+	g_variablemgr_i->register_variables_and_commands_per_module(&g_static_variable_container, &g_static_command_container, MODULE_GUI);
 
 	return true;
 }

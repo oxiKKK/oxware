@@ -35,9 +35,10 @@ void CUIConsole::on_initialize()
 void CUIConsole::on_render()
 {
 	g_gui_widgets_i->set_next_window_size({ 700.0f, 400.0f }, ImGuiCond_Once);
+	g_gui_widgets_i->set_next_window_rounding(4.0f, ImDrawFlags_RoundCornersAll);
 
 	static constexpr auto window_flags = 
-		ImGuiWindowFlags_NoDecoration | 
+		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse |
 		ImGuiWindowFlags_NoSavedSettings | 
 		ImGuiWindowFlags_NoNav;
 

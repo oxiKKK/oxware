@@ -142,8 +142,11 @@ void CImGUIPlatformLayer::render()
 			//
 
 			ImGui::GetIO().MouseDrawCursor = m_should_render_cursor;
-
-			ImGui::SetMouseCursor(to_imgui_cursor(m_current_cursor));
+			
+			if (ImGui::GetMouseCursor() == ImGuiMouseCursor_Arrow)
+			{
+				ImGui::SetMouseCursor(to_imgui_cursor(m_current_cursor));
+			}
 		});
 }
 

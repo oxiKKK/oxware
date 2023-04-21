@@ -64,9 +64,14 @@ enum class EOutputModule : unsigned int
 	CHEAT,
 	UTIL,
 
+	// used by input inside the console 
+	CONSOLE,
+
 	COUNT
 };
 constexpr unsigned k_num_output_modules = (unsigned)EOutputModule::COUNT;
+
+typedef int(__cdecl*m_hl_execute_cmd_pfn_t)(const char* cmd);
 
 class IDeveloperConsole : public IBaseInterface
 {
@@ -83,6 +88,8 @@ public:
 	virtual void unregister_module(EOutputModule which) = 0;
 
 	virtual FilePath_t get_logfile_path() = 0;
+
+	virtual void provide_hl_execute_cmd_pfn(m_hl_execute_cmd_pfn_t pfn) = 0;
 
 protected:
 	template<typename T>
@@ -112,6 +119,7 @@ protected:
 		{ EOutputModule::MMAPPER,		{ 187, 245, 0, 255 }},
 		{ EOutputModule::CHEAT,			{ 120, 50, 165, 255 }},
 		{ EOutputModule::UTIL,			{ 68, 218, 73, 255 }},
+		{ EOutputModule::CONSOLE,		{ 100, 56, 176, 255 }},
 	};
 
 	static const char* outputcategory_as_string(EOutputCategory m)
@@ -137,6 +145,7 @@ protected:
 			case EOutputModule::MMAPPER:		return "MMapper";
 			case EOutputModule::CHEAT:			return "Cheat";
 			case EOutputModule::UTIL:			return "Util";
+			case EOutputModule::CONSOLE:		return "Console";
 		}
 
 		assert(0);

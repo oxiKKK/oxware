@@ -148,8 +148,8 @@ public:
 	virtual bool add_slider(const std::string& label, float* value, float* min, float* max, const char* format) = 0;
 	virtual bool add_slider(const std::string& label, int* value, int* min, int* max, const char* format) = 0;
 
-	virtual bool add_text_input(const std::string& label, char* buffer, size_t buffer_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr) = 0;
-	virtual bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr) = 0;
+	virtual bool add_text_input(const std::string& label, char* buffer, size_t buffer_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, bool no_title = false, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr) = 0;
+	virtual bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, bool no_title = false, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr) = 0;
 
 	virtual void add_padding(const Vector2D& size) = 0;
 	virtual void add_spacing() = 0;
@@ -167,6 +167,13 @@ public:
 	virtual void add_readmore_on_hover_widget(const char* text) = 0;
 
 	virtual void add_progress_bar(const std::string& id, const Vector2D& size, float current, float max) = 0;
+
+	//
+	// Input text buffer operations
+	//
+
+	virtual void delete_chars_on_textinput_buffer(ImGuiInputTextCallbackData* data, int pos, int bytes_count) = 0;
+	virtual void insert_chars_to_textinput_buffer(ImGuiInputTextCallbackData* data, int pos, const char* text, const char* text_end = NULL) = 0;
 
 	//
 	// Tabs

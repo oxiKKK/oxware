@@ -76,6 +76,10 @@ enum EGUIColor
 
 	GUICLR_ProgressBar,
 
+	GUICLR_ResizeGrip,
+	GUICLR_ResizeGripHovered,
+	GUICLR_ResizeGripActive,
+
 	GUICLR_MAX
 };
 

@@ -28,6 +28,53 @@
 
 #include "precompiled.h"
 
+BaseCommand command_list(
+	"command_list",
+	[&]()
+	{
+		int num = 0;
+		g_variablemgr_i->for_each_command(
+			[&](BaseCommand* cmd)
+			{
+				CConsole::the().info("{:<3}: {}", ++num, cmd->get_name());
+			});
+
+		CConsole::the().info("------------------------------");
+		CConsole::the().info("There is total of {} commands.", num);
+	}
+);
+
+BaseCommand variable_list(
+	"variable_list",
+	[&]()
+	{
+		CConsole::the().info("{:<3}: {:<32} {:<10} {:<10} {:<10}", "id", "name", "value", "min", "max");
+		int num = 0;
+		g_variablemgr_i->for_each_variable(
+			[&](BaseVariable* var)
+			{
+				bool bounds = var->has_bounds();
+				CConsole::the().info("{:<3}: {:<32} {:<10} {:<10} {:<10}", 
+									 ++num, var->get_name(), var->get_value_string(), bounds ? var->get_min_string() : " ", bounds ? var->get_max_string() : " ");
+			});
+
+		CConsole::the().info("------------------------------");
+		CConsole::the().info("There is total of {} variables.", num);
+	}
+);
+
+BaseCommand help(
+	"help",
+	[&]()
+	{
+		CConsole::the().info("Help:");
+		CConsole::the().info("To see the list of available commands, type \"variable_list\" and press enter.");
+		CConsole::the().info("");
+		CConsole::the().info("You can also execute in-game commands such as, e.g. \"fps_max\" etc.");
+		CConsole::the().info("Just type \"hl <command you want>\". So for example \"hl fps_max\"");
+	}
+);
+
 IVariableManager* g_variablemgr_i = nullptr;
 
 class CVariableManager : public IVariableManager
@@ -38,18 +85,23 @@ public:
 	
 	bool initialize();
 
-	// variable lookups
-	BaseVariable* get(const char* name);
+	// variable and command lookups
+	BaseVariable* query_variable(const char* name);
+	BaseCommand* query_command(const char* name);
 
-	void register_variables_per_module(StaticVariableContainer* container, const char* module_name);
+	void register_variables_and_commands_per_module(StaticVariableContainer* variable_container, StaticCommandContainer* command_container, const char* module_name);
 	void register_single_variable(BaseVariable* var);
+	void register_single_command(BaseCommand* var);
 
 	void for_each_variable(const std::function<void(BaseVariable*)>& callback);
+	void for_each_command(const std::function<void(BaseCommand*)>& callback);
 
 private:
 	std::unordered_set<BaseVariable*> m_registered_variables;
+	std::unordered_set<BaseCommand*> m_registered_commands;
 
-	bool did_overflow(BaseVariable* var);
+	bool did_overflow_vars(BaseVariable* var);
+	bool did_overflow_cmds(BaseCommand* cmd);
 };
 
 CVariableManager g_variablemgr;
@@ -73,15 +125,16 @@ CVariableManager::~CVariableManager()
 
 bool CVariableManager::initialize()
 {
-	register_variables_per_module(&g_static_variable_container, MODULE_UTIL);
+	register_variables_and_commands_per_module(&g_static_variable_container, &g_static_command_container, MODULE_UTIL);
 
 	CConsole::the().info("VariableManager initialized.");
 	CConsole::the().info("There are {} variables registered at initialization.", m_registered_variables.size());
+	CConsole::the().info("There are {} commands registered at initialization.", m_registered_commands.size());
 
 	return true;
 }
 
-BaseVariable* CVariableManager::get(const char* name)
+BaseVariable* CVariableManager::query_variable(const char* name)
 {
 	for (BaseVariable* var : m_registered_variables)
 	{
@@ -89,32 +142,64 @@ BaseVariable* CVariableManager::get(const char* name)
 			return reinterpret_cast<BaseVariable*>(var);
 	}
 
-	assert(0);
 	return nullptr;
 }
 
-void CVariableManager::register_variables_per_module(StaticVariableContainer* container, const char* module_name)
+BaseCommand* CVariableManager::query_command(const char* name)
 {
-	auto list = container->get_variable_list();
-
-	if (list.empty())
+	for (BaseCommand* cmd : m_registered_commands)
 	{
-		CConsole::the().info("Module {} has no variables to be registered.", module_name);
-		return;
+		if (!strcmp(cmd->get_name(), name))
+			return reinterpret_cast<BaseCommand*>(cmd);
 	}
 
-	CConsole::the().info("Registering {} variables from module {}...", list.size(), module_name);
+	return nullptr;
+}
 
-	// Merge cvars from other modules into one continuous list.
-	for (BaseVariable* var : list)
+void CVariableManager::register_variables_and_commands_per_module(StaticVariableContainer* variable_container, StaticCommandContainer* command_container, const char* module_name)
+{
+	// variables
 	{
-		register_single_variable(var);
+		auto list = variable_container->get_variable_list();
+
+		if (list.empty())
+		{
+			CConsole::the().info("Module {} has no variables to be registered.", module_name);
+			return;
+		}
+
+		CConsole::the().info("Registering {} variables from module {}...", list.size(), module_name);
+
+		// Merge vars from other modules into one continuous list.
+		for (BaseVariable* var : list)
+		{
+			register_single_variable(var);
+		}
+	}
+
+	// commands
+	{
+		auto list = command_container->get_command_list();
+
+		if (list.empty())
+		{
+			CConsole::the().info("Module {} has no commands to be registered.", module_name);
+			return;
+		}
+
+		CConsole::the().info("Registering {} commands from module {}...", list.size(), module_name);
+
+		// Merge cmds from other modules into one continuous list.
+		for (BaseCommand* cmd : list)
+		{
+			register_single_command(cmd);
+		}
 	}
 }
 
 void CVariableManager::register_single_variable(BaseVariable* var)
 {
-	if (did_overflow(var))
+	if (did_overflow_vars(var))
 	{
 		return;
 	}
@@ -122,9 +207,24 @@ void CVariableManager::register_single_variable(BaseVariable* var)
 	auto [iter, did_insert] = m_registered_variables.insert(var);
 
 	// same message is already inside BaseVariable.cpp, hence the "(2)"
-	assert(did_insert && "Failed to insert a variable because it's already in the list.. duplicated? (2)"); 
+	assert(did_insert && "Failed to insert a variable because it's already in the list.. duplicated? (2)");
 
 	CConsole::the().info("Registered variable '{}'.", var->get_name());
+}
+
+void CVariableManager::register_single_command(BaseCommand* cmd)
+{
+	if (did_overflow_cmds(cmd))
+	{
+		return;
+	}
+
+	auto [iter, did_insert] = m_registered_commands.insert(cmd);
+
+	// same message is already inside BaseVariable.cpp, hence the "(2)"
+	assert(did_insert && "Failed to insert a command because it's already in the list.. duplicated? (2)"); 
+
+	CConsole::the().info("Registered command '{}'.", cmd->get_name());
 }
 
 void CVariableManager::for_each_variable(const std::function<void(BaseVariable*)>& callback)
@@ -135,12 +235,32 @@ void CVariableManager::for_each_variable(const std::function<void(BaseVariable*)
 	}
 }
 
-bool CVariableManager::did_overflow(BaseVariable* var)
+void CVariableManager::for_each_command(const std::function<void(BaseCommand*)>& callback)
+{
+	for (BaseCommand* cmd : m_registered_commands)
+	{
+		callback(cmd);
+	}
+}
+
+bool CVariableManager::did_overflow_vars(BaseVariable* var)
 {
 	if (m_registered_variables.size() >= k_max_variables_absolute)
 	{
 		CConsole::the().error("Variable {} couldn't be added, because the absolute limit has already been reached. ({})", 
 							  var->get_name(), k_max_variables_absolute);
+		return true;
+	}
+
+	return false;
+}
+
+bool CVariableManager::did_overflow_cmds(BaseCommand* cmd)
+{
+	if (m_registered_variables.size() >= k_max_commands_absolute)
+	{
+		CConsole::the().error("Command {} couldn't be added, because the absolute limit has already been reached. ({})", 
+							  cmd->get_name(), k_max_commands_absolute);
 		return true;
 	}
 

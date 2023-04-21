@@ -31,14 +31,14 @@
 #pragma once
 
 // https://semver.org/
-// MAJOR version when you make incompatible API changes
-// MINOR version when you add functionality in a backwards compatible manner
-// PATCH version when you make backwards compatible bug fixes
+// MAJOR version when you make incompatible API changes, a lot of stuff changed/added
+// MINOR version when you add functionality, bigger improvements
+// PATCH version when you make bug fixes, small improvements
 
 #define OXVER_MAJOR		1
 #define OXVER_MINOR		0
-#define OXVER_PATCH		0
-#define OXVER_STRING	"1.0.0" // don't forget to change, too!
+#define OXVER_PATCH		1
+#define OXVER_STRING	"1.0.1" // don't forget to change, too!
 
 #if defined(_DEBUG)
 #define OX_BUILD "debug"

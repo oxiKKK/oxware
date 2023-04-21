@@ -5561,13 +5561,14 @@ struct ImGuiResizeBorderDef
     ImVec2 InnerDir;
     ImVec2 SegmentN1, SegmentN2;
     float  OuterAngle;
+    ImGuiMouseCursor Cursor; // oxware
 };
 static const ImGuiResizeBorderDef resize_border_def[4] =
 {
-    { ImVec2(+1, 0), ImVec2(0, 1), ImVec2(0, 0), IM_PI * 1.00f }, // Left
-    { ImVec2(-1, 0), ImVec2(1, 0), ImVec2(1, 1), IM_PI * 0.00f }, // Right
-    { ImVec2(0, +1), ImVec2(0, 0), ImVec2(1, 0), IM_PI * 1.50f }, // Up
-    { ImVec2(0, -1), ImVec2(1, 1), ImVec2(0, 1), IM_PI * 0.50f }  // Down
+    { ImVec2(+1, 0), ImVec2(0, 1), ImVec2(0, 0), IM_PI * 1.00f, ImGuiMouseCursor_ResizeEW }, // Left
+    { ImVec2(-1, 0), ImVec2(1, 0), ImVec2(1, 1), IM_PI * 0.00f, ImGuiMouseCursor_ResizeEW }, // Right
+    { ImVec2(0, +1), ImVec2(0, 0), ImVec2(1, 0), IM_PI * 1.50f, ImGuiMouseCursor_ResizeEW }, // Up
+    { ImVec2(0, -1), ImVec2(1, 1), ImVec2(0, 1), IM_PI * 0.50f, ImGuiMouseCursor_ResizeEW }  // Down
 };
 
 static ImRect GetResizeBorderRect(ImGuiWindow* window, int border_n, float perp_padding, float thickness)
@@ -5779,6 +5780,8 @@ static void ImGui::RenderWindowOuterBorders(ImGuiWindow* window)
         window->DrawList->PathArcTo(ImLerp(border_r.Min, border_r.Max, def.SegmentN1) + ImVec2(0.5f, 0.5f) + def.InnerDir * rounding, rounding, def.OuterAngle - IM_PI * 0.25f, def.OuterAngle);
         window->DrawList->PathArcTo(ImLerp(border_r.Min, border_r.Max, def.SegmentN2) + ImVec2(0.5f, 0.5f) + def.InnerDir * rounding, rounding, def.OuterAngle, def.OuterAngle + IM_PI * 0.25f);
         window->DrawList->PathStroke(GetColorU32(ImGuiCol_SeparatorActive), 0, ImMax(2.0f, border_size)); // Thicker than usual
+        
+        g.MouseCursor = def.Cursor;
     }
     if (g.Style.FrameBorderSize > 0 && !(window->Flags & ImGuiWindowFlags_NoTitleBar))
     {
@@ -11042,7 +11045,7 @@ float ImGui::GetNavTweakPressedAmount(ImGuiAxis axis)
 
 static void ImGui::NavUpdate()
 {
-    return; // oxware - hack hack :)
+    //return; // oxware - hack hack :)
     ImGuiContext& g = *GImGui;
     ImGuiIO& io = g.IO;
 
@@ -11688,6 +11691,7 @@ static void NavUpdateWindowingHighlightWindow(int focus_change_dir)
 // Gamepad:  Hold Menu/Square (change focus/move/resize), Tap Menu/Square (toggle menu layer)
 static void ImGui::NavUpdateWindowing()
 {
+    return; // oxware - nobody cares about this shit 
     ImGuiContext& g = *GImGui;
     ImGuiIO& io = g.IO;
 

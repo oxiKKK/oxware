@@ -36,7 +36,9 @@
 #include <unordered_set>
 #include <functional>
 
+class BaseCommand;
 class BaseVariable;
+
 typedef void(*OnVariableChangeFn)(BaseVariable* var);
 class VariableChangeCallbackContainer
 {
@@ -65,19 +67,23 @@ public:
 
 class LoadableModuleObject;
 class StaticVariableContainer;
+class StaticCommandContainer;
 
 class IVariableManager : public IBaseInterface
 {
 public:
 	virtual bool initialize() = 0;
 
-	// variable lookups
-	virtual BaseVariable* get(const char* name) = 0;
+	// variable and command lookups
+	virtual BaseVariable* query_variable(const char* name) = 0;
+	virtual BaseCommand* query_command(const char* name) = 0;
 
-	virtual void register_variables_per_module(StaticVariableContainer* container, const char* module_name) = 0;
+	virtual void register_variables_and_commands_per_module(StaticVariableContainer* variable_container, StaticCommandContainer* command_container, const char* module_name) = 0;
 	virtual void register_single_variable(BaseVariable* var) = 0;
+	virtual void register_single_command(BaseCommand* var) = 0;
 
 	virtual void for_each_variable(const std::function<void(BaseVariable*)>& callback) = 0;
+	virtual void for_each_command(const std::function<void(BaseCommand*)>& callback) = 0;
 };
 
 extern IVariableManager* g_variablemgr_i;

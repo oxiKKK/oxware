@@ -40,11 +40,15 @@
 #include "interface/gui/IGUIWidgets.h"
 #include <interface/gui/IGUIFontManager.h>
 #include <interface/IAppdataManager.h>
+#include <interface/IVariableManager.h>
 
 #include "tier/StringTools.h"
 #include "tier/MessageBox.h"
 
+#include "BaseVariable.h"
+
 #include <unordered_set>
+#include <deque>
 
 IDeveloperConsole* g_devconsole_i = nullptr;
 
@@ -67,16 +71,48 @@ public:
 
 	FilePath_t get_logfile_path();
 
+	void provide_hl_execute_cmd_pfn(m_hl_execute_cmd_pfn_t pfn)
+	{
+		m_hl_execute_cmd_pfn = pfn;
+	}
+
 private:
 	std::string generate_logfilename();
 
 	void prepare_log_directory();
+
+	static int text_edit_callback_stub(ImGuiInputTextCallbackData* data)
+	{
+		CDeveloperConsole* _this = (CDeveloperConsole*)data->UserData;
+		return _this->text_edit_callback(data);
+	}
+
+	int text_edit_callback(ImGuiInputTextCallbackData* data);
+
+	int execute_hl_command(const char* cmd)
+	{
+		if (m_hl_execute_cmd_pfn)
+		{
+			return m_hl_execute_cmd_pfn(cmd);
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	m_hl_execute_cmd_pfn_t m_hl_execute_cmd_pfn;
 
 private:
 	// used only within this file as a convenience
 	inline void print_locally(EOutputCategory category, const std::string& what)
 	{
 		print(EOutputModule::GUI, category, what);
+	}
+
+	inline void print_console(EOutputCategory category, const std::string& what)
+	{
+		print(EOutputModule::CONSOLE, category, what);
 	}
 
 	struct output_line_t
@@ -104,6 +140,9 @@ private:
 	std::string m_module_name;
 
 	std::string m_logfile_path_current;
+
+	// command history
+	std::deque<std::string> m_entered_commands;
 };
 
 CDeveloperConsole g_dev_console;
@@ -177,9 +216,11 @@ void CDeveloperConsole::shutdown()
 
 void CDeveloperConsole::render()
 {
+	const float footer_height_to_reserve = -32.0f;
+
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 4.0f, 4.0f });
 	g_gui_widgets_i->add_child(
-		"console", { 0.0f, 0.0f }, true, ImGuiWindowFlags_HorizontalScrollbar, [this]()
+		"console", { 0.0f, footer_height_to_reserve }, true, ImGuiWindowFlags_HorizontalScrollbar, [this]()
 		{
 			g_gui_widgets_i->render_clipped_contents(
 				m_contents.size(),
@@ -222,6 +263,77 @@ void CDeveloperConsole::render()
 				m_need_to_scroll_to_the_bottom = false;
 			}
 		});
+
+	static char buffer[256];
+	ImGuiInputTextFlags input_text_flags = 
+		ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | 
+		ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
+	bool reclaim_focus = false;
+	if (g_gui_widgets_i->add_text_input("Enter commands", buffer, sizeof(buffer), input_text_flags, true, &text_edit_callback_stub, (void*)this))
+	{
+		if (buffer[0])
+		{
+			bool add_to_history = false;
+			if (!strnicmp(buffer, "hl ", 3))
+			{
+				const char* s = buffer + 3;
+
+				if (s[0])
+				{
+					// hl command
+					if (!execute_hl_command(s))
+					{
+						print_console(EOutputCategory::ERROR, std::format("Bad HL command: {}", s));
+					}
+					else
+					{
+						print_console(EOutputCategory::INFO, std::format("HL command: {}", s));
+					}
+
+					add_to_history = true;
+				}
+			}
+			else
+			{
+				// our command
+
+				auto cmd = g_variablemgr_i->query_command(buffer);
+
+				if (cmd)
+				{
+					cmd->execute();
+					print_console(EOutputCategory::INFO, std::format("{}", buffer));
+				}
+				else
+				{
+					print_console(EOutputCategory::INFO, std::format("Unknown command '{}'", buffer));
+				}
+
+				add_to_history = true;
+			}
+
+			if (add_to_history)
+			{
+				if (m_entered_commands.size() > 20)
+				{
+					m_entered_commands.pop_front();
+				}
+
+				m_entered_commands.push_back(buffer);
+			}
+
+			strcpy(buffer, "");
+		}
+
+		reclaim_focus = true;
+	}
+
+	// Auto-focus on window apparition
+	g_gui_widgets_i->set_item_default_focus();
+	if (reclaim_focus)
+	{
+		g_gui_widgets_i->set_keyboard_focus_here(-1); // Auto focus previous widget
+	}
 
 	g_gui_widgets_i->pop_stylevar(1);
 }
@@ -369,6 +481,52 @@ void CDeveloperConsole::prepare_log_directory()
 	}
 
 	print_locally(EOutputCategory::INFO, "Done.");
+}
+
+int CDeveloperConsole::text_edit_callback(ImGuiInputTextCallbackData* data)
+{
+	switch (data->EventFlag)
+	{
+		case ImGuiInputTextFlags_CallbackCompletion:
+		{
+			break;
+		}
+		case ImGuiInputTextFlags_CallbackHistory:
+		{
+			static int history_pos = 0;
+			switch (data->EventKey)
+			{
+				case ImGuiKey_UpArrow:
+				{
+					history_pos++;
+
+					if (history_pos > m_entered_commands.size() - 1)
+					{
+						history_pos = 0;
+					}
+					break;
+				}
+				case ImGuiKey_DownArrow:
+				{
+					history_pos--;
+
+					if (history_pos < 0)
+					{
+						history_pos = m_entered_commands.size() - 1;
+					}
+					break;
+				}
+			}
+
+			auto& item = m_entered_commands.at(history_pos);
+
+			g_gui_widgets_i->delete_chars_on_textinput_buffer(data, 0, data->BufTextLen);
+			g_gui_widgets_i->insert_chars_to_textinput_buffer(data, 0, item.c_str());
+
+			break;
+		}
+	}
+	return 0;
 }
 
 std::string CDeveloperConsole::line_preamble(const output_line_t& line)

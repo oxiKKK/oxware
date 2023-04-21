@@ -133,6 +133,14 @@ void CGUIThemeManager::sync_with_imgui()
 	style.Colors[ImGuiCol_ScrollbarBg] = get_current_theme()->get_color<GUICLR_ScrollbarBackground>();
 	style.Colors[ImGuiCol_ScrollbarGrab] = get_current_theme()->get_color<GUICLR_ScrollbarGrab>();
 
+	style.Colors[ImGuiCol_Tab] = get_current_theme()->get_color<GUICLR_Tab>();
+	style.Colors[ImGuiCol_TabHovered] = get_current_theme()->get_color<GUICLR_TabHovered>();
+	style.Colors[ImGuiCol_TabActive] = get_current_theme()->get_color<GUICLR_TabActive>();
+
+	style.Colors[ImGuiCol_ResizeGrip] = get_current_theme()->get_color<GUICLR_ResizeGrip>();
+	style.Colors[ImGuiCol_ResizeGripHovered] = get_current_theme()->get_color<GUICLR_ResizeGripHovered>();
+	style.Colors[ImGuiCol_ResizeGripActive] = get_current_theme()->get_color<GUICLR_ResizeGripActive>();
+
 	style.ScrollbarSize = 9.f;
 	style.ChildRounding = style.FrameRounding = style.PopupRounding = 4.0f;
 	style.ScrollbarRounding = 0.f;
@@ -189,7 +197,11 @@ void CGUIThemeManager::add_themes()
 				CColor(112, 112, 112, 170), // GUICLR_TabHovered
 				CColor(112, 112, 112, 128), // GUICLR_TabActive
 
-				CColor(0, 136, 255, 255), // GUICLR_ProgressBar
+				CColor(0, 136, 255, 255),	// GUICLR_ProgressBar
+
+				CColor(112, 112, 112,  51), // GUICLR_ResizeGrip
+				CColor(112, 112, 112, 128), // GUICLR_ResizeGripHovered
+				CColor(112, 112, 112, 170), // GUICLR_ResizeGripActive
 			}
 		}});
 

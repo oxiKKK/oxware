@@ -438,4 +438,70 @@ private:
 	}
 };
 
+//--------------------------------------------------------------------------------------------------------------------
+// COMMANDS
+//
+
+using pfnCommandFunc_t = std::function<void()>;
+
+class BaseCommand
+{
+public:
+	BaseCommand(const std::string& name, const pfnCommandFunc_t& func) :
+		m_name(name), 
+		m_function(func)
+	{
+		add_to_global_list();
+	}
+
+	inline const char* get_name() const { return m_name.c_str(); }
+
+	void execute()
+	{
+		m_function();
+	}
+
+private:
+	void add_to_global_list();
+
+protected:
+	std::string m_name;
+
+	pfnCommandFunc_t m_function;
+};
+
+//--------------------------------------------------------------------------------------------------------------------
+
+// maximum amount of variables that our list can hold
+static constexpr size_t k_max_commands_per_module = 64;
+static constexpr size_t k_max_commands_absolute = 64 * 8; // used in VariableManager
+
+// This class is used in order to register/unregister all variables that are declared globally. Note that this is only
+// a "temporary" storage, and isn't really used for variable lookup. The VaraibleManager then collects all variables stored 
+// by this container and creates its own list.
+class StaticCommandContainer
+{
+public:
+	void add_command(BaseCommand* var);
+
+	inline auto& get_command_list() const { return m_commands; }
+
+private:
+	// call only once
+	void reserve_limit();
+
+	bool see_for_overflow(BaseCommand* current_var);
+
+private:
+	std::unordered_set<BaseCommand*> m_commands;
+};
+
+extern StaticCommandContainer g_static_command_container;
+
+// called once global variable is instantiated.
+inline void BaseCommand::add_to_global_list()
+{
+	g_static_command_container.add_command(this);
+}
+
 #endif // BASEVARIABLE_H

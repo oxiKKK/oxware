@@ -115,8 +115,8 @@ public:
 	bool add_slider(const std::string& label, float* value, float* min, float* max, const char* format);
 	bool add_slider(const std::string& label, int* value, int* min, int* max, const char* format);
 
-	bool add_text_input(const std::string& label, char* buffer, size_t buffer_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
-	bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
+	bool add_text_input(const std::string& label, char* buffer, size_t buffer_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, bool no_title = false, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
+	bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, bool no_title = false, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
 
 	void add_padding(const Vector2D& size);
 	void add_spacing();
@@ -134,6 +134,13 @@ public:
 	void add_readmore_on_hover_widget(const char* text);
 
 	void add_progress_bar(const std::string& id, const Vector2D& size, float current, float max);
+
+	//
+	// Input text buffer operations
+	//
+
+	void delete_chars_on_textinput_buffer(ImGuiInputTextCallbackData* data, int pos, int bytes_count);
+	void insert_chars_to_textinput_buffer(ImGuiInputTextCallbackData* data, int pos, const char* text, const char* text_end = NULL);
 
 	//
 	// Tabs
@@ -665,20 +672,27 @@ bool CGUIWidgets::add_slider(const std::string & label, int* value, int* min, in
 }
 
 bool CGUIWidgets::add_text_input(const std::string& label, char* buffer, size_t buffer_size, 
-								 ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
+								 ImGuiInputTextFlags flags, bool no_title, ImGuiInputTextCallback callback, void* user_data)
 {
-	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.0f, 1.0f));
+	if (!no_title)
+	{
+		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.0f, 1.0f));
 
-	add_text(label, TEXTPROP_ColorRegular);
+		add_text(label, TEXTPROP_ColorRegular);
+	}
 
-	bool ret = add_text_input_ex(label, buffer, buffer_size, Vector2D(-1, 0), flags, callback, user_data);
+	bool ret = add_text_input_ex(label, buffer, buffer_size, Vector2D(-1, 0), flags, no_title, callback, user_data);
 
-	PopStyleVar(1);
+	if (!no_title)
+	{
+		PopStyleVar(1);
+	}
 
 	return ret;
 }
 
-bool CGUIWidgets::add_text_input_ex(const std::string & label, char * buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void * user_data)
+bool CGUIWidgets::add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, 
+									ImGuiInputTextFlags flags, bool no_title, ImGuiInputTextCallback callback, void * user_data)
 {
 	PushStyleColor(ImGuiCol_FrameBg, get_color<GUICLR_InputTextBg>());
 
@@ -808,11 +822,18 @@ void CGUIWidgets::add_progress_bar(const std::string& id, const Vector2D& size, 
 	RenderFrame(bb1.Min, bb1.Max, clr1.as_u32(), true, 4.0f);
 }
 
+void CGUIWidgets::delete_chars_on_textinput_buffer(ImGuiInputTextCallbackData* data, int pos, int bytes_count)
+{
+	data->DeleteChars(pos, bytes_count);
+}
+
+void CGUIWidgets::insert_chars_to_textinput_buffer(ImGuiInputTextCallbackData* data, int pos, const char* text, const char* text_end)
+{
+	data->InsertChars(pos, text, text_end);
+}
+
 void CGUIWidgets::begin_tab(const std::string& label, ImGuiTabBarFlags flags)
 {
-	push_color(ImGuiCol_Tab, get_color<GUICLR_Tab>());
-	push_color(ImGuiCol_TabHovered, get_color<GUICLR_TabHovered>());
-	push_color(ImGuiCol_TabActive, get_color<GUICLR_TabActive>());
 	BeginTabBar(label.c_str(), flags);
 }
 
@@ -835,7 +856,6 @@ void CGUIWidgets::add_tab_item(const std::string& label, const std::function<voi
 void CGUIWidgets::end_tab()
 {
 	EndTabBar();
-	pop_color(3); // stuff pushed in begin_tab()
 }
 
 void CGUIWidgets::add_console()

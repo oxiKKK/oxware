@@ -30,6 +30,10 @@
 
 #include "BaseVariable.h"
 
+//--------------------------------------------------------------------------------------------------------------------
+// VARIABLES
+//
+
 StaticVariableContainer g_static_variable_container;
 
 void StaticVariableContainer::add_variable(BaseVariable* var)
@@ -64,6 +68,50 @@ bool StaticVariableContainer::see_for_overflow(BaseVariable* current_var)
 	{
 		CConsole::the().error("Variable {} couldn't be added, because the limit per this module has already been reached. ({})", 
 							  current_var->get_name(), k_max_variables_per_module);
+		return false;
+	}
+
+	return true;
+}
+
+//--------------------------------------------------------------------------------------------------------------------
+// COMMANDS
+//
+
+StaticCommandContainer g_static_command_container;
+
+void StaticCommandContainer::add_command(BaseCommand* var)
+{
+	static bool reserved = false;
+	if (!reserved)
+	{
+		reserve_limit();
+		reserved = true;
+	}
+
+	if (!see_for_overflow(var))
+	{
+		return;
+	}
+
+	auto [iter, did_insert] = m_commands.insert(var);
+
+	assert(did_insert && "Failed to insert a command because it's already in the list.. duplicated?");
+}
+
+void StaticCommandContainer::reserve_limit()
+{
+	m_commands.reserve(k_max_commands_per_module);
+
+	CConsole::the().info("Reserved {} slots for variables for current modules.", k_max_commands_per_module);
+}
+
+bool StaticCommandContainer::see_for_overflow(BaseCommand* current_var)
+{
+	if (m_commands.size() >= k_max_commands_per_module)
+	{
+		CConsole::the().error("Command {} couldn't be added, because the limit per this module has already been reached. ({})", 
+							  current_var->get_name(), k_max_commands_per_module);
 		return false;
 	}
 

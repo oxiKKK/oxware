@@ -1,0 +1,30 @@
+------------------------------------------------------------
+Lines of code
+Done by VSCodeCounter
+------------------------------------------------------------
+
+14-03-2023:
+under "./src/" excluding:
+"./src/external/"
+"./src/assets/"
+the total is 8,479 code; 2,131 comment; 2,532 blank; 13,142 total in 102 files.
+
+18-03-2023
+under "./src/" excluding:
+"./src/external/"
+"./src/assets/"
+the total is 9,730 code; 2,297 comment; 2,891 blank; 14,918 total in 117 files.
+
+30-03-2023
+under "./src/" excluding:
+"./src/external/"
+"./src/assets/"
+"./src/lib/"
+the total is 12,456 code; 2,297 comment; 2,660 blank; 18,683 total in 145 files.
+
+30-03-2023
+under "./src/" excluding:
+"./src/external/"
+"./src/assets/"
+"./src/lib/"
+the total is 14,448 code; 2,915 comment; 4,122 blank; 21,525 total in 166 files.

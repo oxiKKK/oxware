@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{03f9cbbf-394d-423c-940a-fd267782ce5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\manualmap">
+      <UniqueIdentifier>{07bed5d6-fb06-4337-b14a-2f6a154375f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\loadlibrary">
+      <UniqueIdentifier>{6ceba0b9-21c9-4a2e-829d-691a1e6838d5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="precompiled.cpp" />
+    <ClCompile Include="..\public\Console.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="PortableExecutableObject.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="VirtualMemoryManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="ManualMappedDll.cpp">
+      <Filter>src\manualmap</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadLibrareredDll.cpp">
+      <Filter>src\loadlibrary</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseInjector.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="InjectedDllCommunicationInterface.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="ManualMappedDllCurrentProcess.cpp">
+      <Filter>src\manualmap</Filter>
+    </ClCompile>
+    <ClCompile Include="shellcodes.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cheat\InjectedDllIPCLayerClient.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\BaseVariable.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="precompiled.h" />
+    <ClInclude Include="..\public\Console.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\injection\InjectedDllIPCInterface.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\injection\PortableExecutableObject.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\injection\VirtualMemoryManager.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\injection\IBaseInjector.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\injection\mmap\ManualMappedDll.h">
+      <Filter>src\manualmap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\injection\BaseInjector.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\injection\loadlibrary\LoadLibrareredDll.h">
+      <Filter>src\loadlibrary</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\injection\mmap\ManualMappedDllCurrentProcess.h">
+      <Filter>src\manualmap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\BaseVariable.h">
+      <Filter>public</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

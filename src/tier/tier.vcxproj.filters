@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{ca63dc75-9cae-4c66-9408-64f4fe08281e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="StringTools.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="precompiled.cpp" />
+    <ClCompile Include="GenericUtil.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageBox.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\public\tier\StringTools.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="precompiled.h" />
+    <ClInclude Include="..\public\tier\GenericUtil.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier\MessageBox.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

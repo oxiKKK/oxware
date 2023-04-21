@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{4fa1ccc5-962d-437b-a400-a17983cf265f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{58450628-cda8-42e6-abed-0dd412b3eb50}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="winmain.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="precompiled.cpp" />
+    <ClCompile Include="loader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="LoaderUI.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\interface.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\Console.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\DependencyLoader.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\LibraryLoader.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\DeveloperConsole.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\BaseVariable.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="precompiled.h" />
+    <ClInclude Include="loader.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="LoaderUI.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\interface.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Console.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\DependencyLoader.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\BaseVariable.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="resource\resource.h">
+      <Filter>resource</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resource\oxware.ico">
+      <Filter>resource</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resource\loader.aps">
+      <Filter>resource</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource\loader.rc">
+      <Filter>resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

@@ -24,6 +24,7 @@ Please, before proceeding, **read this README**!
 - [Building](#building)
 - [Features](#features)
 - [To be done](#to-be-done)
+- [Changelog](#changelog)
 
 ## Special thanks to
 
@@ -114,3 +115,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 ## To be done
 
 All of the things that are left to be done are inside our [trello board](https://trello.com/b/mmVAu6Gt/oxware).
+
+## Changelog
+
+See `changelog.md` for more information.

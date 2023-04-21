@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{1f922678-c967-491e-ac9b-94dd1226e001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\segoeui">
+      <UniqueIdentifier>{4b40a3e6-5f29-4fb0-879b-4108316dcf61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\proggy_clean">
+      <UniqueIdentifier>{4f52ff01-dbb1-4692-83ab-a688ad043534}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\icon">
+      <UniqueIdentifier>{524dc739-a6d5-4ff5-8d78-77dc23279969}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="segoeuib_c.cpp">
+      <Filter>src\segoeui</Filter>
+    </ClCompile>
+    <ClCompile Include="segoeuil_c.cpp">
+      <Filter>src\segoeui</Filter>
+    </ClCompile>
+    <ClCompile Include="proggy_clean_c.cpp">
+      <Filter>src\proggy_clean</Filter>
+    </ClCompile>
+    <ClCompile Include="compressed_font_data.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="segoeui_c.cpp">
+      <Filter>src\segoeui</Filter>
+    </ClCompile>
+    <ClCompile Include="oxware_48_c.cpp">
+      <Filter>src\icon</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\public\assets\compressed_font_data.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\assets\compressed_png_data.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

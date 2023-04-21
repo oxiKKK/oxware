@@ -1,0 +1,5 @@
+# general dirs we don't want git to handle at all.
+.vs/
+build/
+deploy/
+.vscode/

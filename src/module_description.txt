@@ -1,0 +1,6 @@
+cheat           -   The dll that hooks and controls the game.
+gui             -   The graphical layer for all modules powered by ImGui
+util            -   DLL including utils that anyone can use.
+loader          -   The base executable that will inject the dll into the game and that will control everything.
+injector	-   Static library that provides functionality of injecting and managing injected dlls.
+tier		-   Static lib, similar to util however, shared within modules, without interfaces. Common shared code.

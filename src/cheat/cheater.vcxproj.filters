@@ -1,0 +1,318 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{7f91d74f-cf44-430c-a6f9-87b96a94e3ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\communication">
+      <UniqueIdentifier>{97996760-b4da-4488-8316-f3b4692421ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\UI">
+      <UniqueIdentifier>{4d4f162f-b636-447d-ac2d-8d2472e35049}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\UI\rendering contexts">
+      <UniqueIdentifier>{a5235558-c385-4bc6-b462-3c1e8054a21f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\features">
+      <UniqueIdentifier>{3a40ca1c-00bb-4389-88ea-8ef8eccd4b4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\hooking">
+      <UniqueIdentifier>{9ea24afb-b44f-480e-80f5-dc23ef6b63ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\util">
+      <UniqueIdentifier>{51e6a141-6b21-478c-bf88-994fd2be00d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\hooking\client_dll">
+      <UniqueIdentifier>{b80666c8-3ccd-4396-ab20-abd432abdcbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\game">
+      <UniqueIdentifier>{f806d258-1df4-48e1-9fb6-42e070285963}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\game\model">
+      <UniqueIdentifier>{b3d90cf1-3b51-4bb8-8559-3d71cca399f1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="precompiled.cpp" />
+    <ClCompile Include="..\public\Console.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\interface.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="oxware.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="InjectedDllIPCLayerClient.cpp">
+      <Filter>src\communication</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\DependencyLoader.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\LibraryLoader.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\DeveloperConsole.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIConsole.cpp">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIFeatureList.cpp">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIMenu.cpp">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIMenuBackground.cpp">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\OxWareUI.cpp">
+      <Filter>src\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIMenuWidgets.cpp">
+      <Filter>src\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\HLInterfaceHook.cpp">
+      <Filter>src\hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\MemoryFnDetour.cpp">
+      <Filter>src\hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\MemoryFnHook.cpp">
+      <Filter>src\hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\MemoryHook.cpp">
+      <Filter>src\hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="features\FeatureManager.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="GameUtil.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="features\FieldOfViewChanger.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\client_dll\MemoryHookCBaseStuff.cpp">
+      <Filter>src\hooking\client_dll</Filter>
+    </ClCompile>
+    <ClCompile Include="game\GenericEnt.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\EntityManager.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\GenericPlayer.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\GenericMdl.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
+    <ClCompile Include="features\ESP.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIBackgroundRendering.cpp">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClCompile>
+    <ClCompile Include="game\model\StudioModelData.cpp">
+      <Filter>src\game\model</Filter>
+    </ClCompile>
+    <ClCompile Include="game\model\SpriteModelData.cpp">
+      <Filter>src\game\model</Filter>
+    </ClCompile>
+    <ClCompile Include="features\BypassGameConstrains.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="features\FlashbangFadeModifier.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="features\ModelChams.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="features\Removals.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\SVCFuncDetour.cpp">
+      <Filter>src\hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="HLNetMessageIO.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="features\ViewmodelOffset.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="MathUtil.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="features\ServerLiar.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="features\SmokeVisuals.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\BaseVariable.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="features\BulletTrace.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="build_num.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\UserMSGDetour.cpp">
+      <Filter>src\hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="features\FrameSkipper.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\code_performace_profile.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIPerformanceProfilerVisualization.cpp">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="precompiled.h" />
+    <ClInclude Include="..\public\Console.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\interface.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="oxware.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\DependencyLoader.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\IRendererContext.h">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\UIConsole.h">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\UIFeatureList.h">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\UIMenu.h">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\UIMenuBackground.h">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\OxWareUI.h">
+      <Filter>src\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\UIMenuWidgets.h">
+      <Filter>src\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\HLInterfaceHook.h">
+      <Filter>src\hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\MemoryFnDetour.h">
+      <Filter>src\hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\MemoryFnHook.h">
+      <Filter>src\hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\MemoryHook.h">
+      <Filter>src\hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="features\FeatureManager.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="GameUtil.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="features\FieldOfViewChanger.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\client_dll\MemoryHookCBaseStuff.h">
+      <Filter>src\hooking\client_dll</Filter>
+    </ClInclude>
+    <ClInclude Include="game\GenericEnt.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\EntityManager.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\GenericPlayer.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\GenericMdl.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="features\ESP.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\UIBackgroundRendering.h">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="game\model\StudioModelData.h">
+      <Filter>src\game\model</Filter>
+    </ClInclude>
+    <ClInclude Include="game\model\SpriteModelData.h">
+      <Filter>src\game\model</Filter>
+    </ClInclude>
+    <ClInclude Include="features\BypassGameConstrains.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="features\FlashbangFadeModifier.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="features\ModelChams.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="features\Removals.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\SVCFuncDetour.h">
+      <Filter>src\hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="HLNetMessageIO.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="features\ViewmodelOffset.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtil.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="features\ServerLiar.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="features\SmokeVisuals.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\BaseVariable.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="features\BulletTrace.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="build_num.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\UserMSGDetour.h">
+      <Filter>src\hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="features\FrameSkipper.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\code_performace_profile.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\UIPerformanceProfilerVisualization.h">
+      <Filter>src\UI\rendering contexts</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

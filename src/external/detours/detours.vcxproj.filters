@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{86e77c1e-10df-414a-9c42-1ff881f2b565}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="creatwth.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="detours.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="disasm.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="disolx86.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="image.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="modules.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="detours.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="detver.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile">
+      <Filter>src</Filter>
+    </None>
+  </ItemGroup>
+</Project>

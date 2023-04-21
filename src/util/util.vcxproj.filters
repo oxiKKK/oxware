@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{9d0f042c-eaec-4453-9417-18457ec96c0c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="precompiled.cpp" />
+    <ClCompile Include="..\public\interface.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\Console.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportBank.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="Registry.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="UserInput.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowMsgHandler.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\BaseVariable.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="VariableManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AppDataManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="CodePerformaceProfiler.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="precompiled.h" />
+    <ClInclude Include="..\public\interface.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Console.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\BaseVariable.h">
+      <Filter>public</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

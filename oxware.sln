@@ -1,0 +1,288 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33403.182
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cheater", "src\cheat\cheater.vcxproj", "{D8C77CFE-7681-4827-9985-309782508076}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oxUI", "src\gui\oxUI.vcxproj", "{0938F690-525E-4954-BE6A-091261D3D1A1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "loader", "src\loader\loader.vcxproj", "{F3DA2592-6E26-475C-91D3-27F8C89B1107}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "public", "public", "{F4728D12-12D0-4669-9EB0-1D59EF1AEC00}"
+	ProjectSection(SolutionItems) = preProject
+		src\public\basetypes.h = src\public\basetypes.h
+		src\public\BytePattern.h = src\public\BytePattern.h
+		src\public\color.h = src\public\color.h
+		src\public\commondefs.h = src\public\commondefs.h
+		src\public\ConfigFile.h = src\public\ConfigFile.h
+		src\public\custom_format.h = src\public\custom_format.h
+		src\public\KeyValue.h = src\public\KeyValue.h
+		src\public\platform.h = src\public\platform.h
+		src\public\source_location.h = src\public\source_location.h
+		src\public\vector.h = src\public\vector.h
+		src\public\version.h = src\public\version.h
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "util", "src\util\util.vcxproj", "{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "interface", "interface", "{B19331B2-F59B-43A4-8728-0861B8AD72B6}"
+	ProjectSection(SolutionItems) = preProject
+		src\public\interface\IAppDataManager.h = src\public\interface\IAppDataManager.h
+		src\public\interface\IBaseModule.h = src\public\interface\IBaseModule.h
+		src\public\interface\ICodePerformaceProfiler.h = src\public\interface\ICodePerformaceProfiler.h
+		src\public\interface\IConfigManager.h = src\public\interface\IConfigManager.h
+		src\public\interface\IDeveloperConsole.h = src\public\interface\IDeveloperConsole.h
+		src\public\interface\IFileSystem.h = src\public\interface\IFileSystem.h
+		src\public\interface\IImportBank.h = src\public\interface\IImportBank.h
+		src\public\interface\ILibraryLoader.h = src\public\interface\ILibraryLoader.h
+		src\public\interface\IRegistry.h = src\public\interface\IRegistry.h
+		src\public\interface\IUserInput.h = src\public\interface\IUserInput.h
+		src\public\interface\IVariableManager.h = src\public\interface\IVariableManager.h
+		src\public\interface\IWindowMsgHandler.h = src\public\interface\IWindowMsgHandler.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "external", "external", "{6F421B66-7A42-47C6-B9F6-EE61468B91FE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "src\external\imgui\imgui.vcxproj", "{5A3B4A84-8425-4DB2-9312-C515027730C9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tier", "src\tier\tier.vcxproj", "{C48D74D1-ED13-4627-850C-2A702B380715}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "detours", "src\external\detours\detours.vcxproj", "{E70ACAF8-E597-4474-8092-2268C5C69B55}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "editorconfig", "editorconfig", "{4316C609-C9F2-4EFE-B35B-254E6E0C0E2F}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "injector", "src\injector\injector.vcxproj", "{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "assets", "src\assets\assets.vcxproj", "{AD4E654D-2955-4CAD-BA42-C736A61699BA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gui", "gui", "{94B61C15-2EF3-4EB7-B943-434C6A3E9284}"
+	ProjectSection(SolutionItems) = preProject
+		src\public\interface\gui\IGLFWApp.h = src\public\interface\gui\IGLFWApp.h
+		src\public\interface\gui\IGUIFontManager.h = src\public\interface\gui\IGUIFontManager.h
+		src\public\interface\gui\IGUIThemeManager.h = src\public\interface\gui\IGUIThemeManager.h
+		src\public\interface\gui\IGUIWidgets.h = src\public\interface\gui\IGUIWidgets.h
+		src\public\interface\gui\IGUIWindowRendering.h = src\public\interface\gui\IGUIWindowRendering.h
+		src\public\interface\gui\IImGUIPlatformLayer.h = src\public\interface\gui\IImGUIPlatformLayer.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hlsdk", "hlsdk", "{5DBC2167-676B-4A7A-866F-837BFE2FE31A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{0EBABAF6-FE15-4F84-A196-E901F5AE0202}"
+	ProjectSection(SolutionItems) = preProject
+		src\external\hlsdk\common\filesystemdefs.h = src\external\hlsdk\common\filesystemdefs.h
+		src\external\hlsdk\common\goldsrclimits.h = src\external\hlsdk\common\goldsrclimits.h
+		src\external\hlsdk\common\protocol.h = src\external\hlsdk\common\protocol.h
+		src\external\hlsdk\common\VGuiVertex.h = src\external\hlsdk\common\VGuiVertex.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tier0", "tier0", "{E0AD5ECC-6A44-41D2-9619-C3B950C070EF}"
+	ProjectSection(SolutionItems) = preProject
+		src\external\hlsdk\tier0\basetypes.h = src\external\hlsdk\tier0\basetypes.h
+		src\external\hlsdk\tier0\commonmacros.h = src\external\hlsdk\tier0\commonmacros.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "engine", "engine", "{1B420AEF-0310-4D0C-B755-4F78F096B495}"
+	ProjectSection(SolutionItems) = preProject
+		src\external\hlsdk\engine\APIProxy.h = src\external\hlsdk\engine\APIProxy.h
+		src\external\hlsdk\engine\beamdef.h = src\external\hlsdk\engine\beamdef.h
+		src\external\hlsdk\engine\client_textmessage.h = src\external\hlsdk\engine\client_textmessage.h
+		src\external\hlsdk\engine\cl_entity.h = src\external\hlsdk\engine\cl_entity.h
+		src\external\hlsdk\engine\command.h = src\external\hlsdk\engine\command.h
+		src\external\hlsdk\engine\const.h = src\external\hlsdk\engine\const.h
+		src\external\hlsdk\engine\con_nprint.h = src\external\hlsdk\engine\con_nprint.h
+		src\external\hlsdk\engine\custom.h = src\external\hlsdk\engine\custom.h
+		src\external\hlsdk\engine\cvardef.h = src\external\hlsdk\engine\cvardef.h
+		src\external\hlsdk\engine\engine_math.h = src\external\hlsdk\engine\engine_math.h
+		src\external\hlsdk\engine\entity_state.h = src\external\hlsdk\engine\entity_state.h
+		src\external\hlsdk\engine\events.h = src\external\hlsdk\engine\events.h
+		src\external\hlsdk\engine\host.h = src\external\hlsdk\engine\host.h
+		src\external\hlsdk\engine\kbutton.h = src\external\hlsdk\engine\kbutton.h
+		src\external\hlsdk\engine\light.h = src\external\hlsdk\engine\light.h
+		src\external\hlsdk\engine\models.h = src\external\hlsdk\engine\models.h
+		src\external\hlsdk\engine\net.h = src\external\hlsdk\engine\net.h
+		src\external\hlsdk\engine\netbuf.h = src\external\hlsdk\engine\netbuf.h
+		src\external\hlsdk\engine\particledef.h = src\external\hlsdk\engine\particledef.h
+		src\external\hlsdk\engine\player_info.h = src\external\hlsdk\engine\player_info.h
+		src\external\hlsdk\engine\ref_params.h = src\external\hlsdk\engine\ref_params.h
+		src\external\hlsdk\engine\r_efx.h = src\external\hlsdk\engine\r_efx.h
+		src\external\hlsdk\engine\r_studioint.h = src\external\hlsdk\engine\r_studioint.h
+		src\external\hlsdk\engine\screenfade.h = src\external\hlsdk\engine\screenfade.h
+		src\external\hlsdk\engine\spritegn.h = src\external\hlsdk\engine\spritegn.h
+		src\external\hlsdk\engine\studio.h = src\external\hlsdk\engine\studio.h
+		src\external\hlsdk\engine\usercmd.h = src\external\hlsdk\engine\usercmd.h
+		src\external\hlsdk\engine\usermsg.h = src\external\hlsdk\engine\usermsg.h
+		src\external\hlsdk\engine\wad.h = src\external\hlsdk\engine\wad.h
+		src\external\hlsdk\engine\weaponinfo.h = src\external\hlsdk\engine\weaponinfo.h
+		src\external\hlsdk\engine\wrect.h = src\external\hlsdk\engine\wrect.h
+		src\external\hlsdk\engine\zone_cache.h = src\external\hlsdk\engine\zone_cache.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "interface", "interface", "{8DF7D839-FA63-4FD2-BBE6-CD8A7D641464}"
+	ProjectSection(SolutionItems) = preProject
+		src\external\hlsdk\interface\IEngineAPI.h = src\external\hlsdk\interface\IEngineAPI.h
+		src\external\hlsdk\interface\IFileSystem.h = src\external\hlsdk\interface\IFileSystem.h
+		src\external\hlsdk\interface\ISurface.h = src\external\hlsdk\interface\ISurface.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "vgui2", "vgui2", "{83DA753A-8871-4287-ACC0-39391F312D16}"
+	ProjectSection(SolutionItems) = preProject
+		src\external\hlsdk\vgui2\Cursor.h = src\external\hlsdk\vgui2\Cursor.h
+		src\external\hlsdk\vgui2\KeyCode.h = src\external\hlsdk\vgui2\KeyCode.h
+		src\external\hlsdk\vgui2\MouseCode.h = src\external\hlsdk\vgui2\MouseCode.h
+		src\external\hlsdk\vgui2\VGUI2.h = src\external\hlsdk\vgui2\VGUI2.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "vgui2", "vgui2", "{98717374-EA99-45D9-83C4-698D341AEC18}"
+	ProjectSection(SolutionItems) = preProject
+		src\external\hlsdk\interface\vgui2\IHTML.h = src\external\hlsdk\interface\vgui2\IHTML.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "appframework", "appframework", "{D715372E-B37D-41F2-B67D-F04BC45330A5}"
+	ProjectSection(SolutionItems) = preProject
+		src\external\hlsdk\interface\appframework\IAppSystem.h = src\external\hlsdk\interface\appframework\IAppSystem.h
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+		Retail|x64 = Retail|x64
+		Retail|x86 = Retail|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D8C77CFE-7681-4827-9985-309782508076}.Debug|x64.ActiveCfg = Debug|x64
+		{D8C77CFE-7681-4827-9985-309782508076}.Debug|x64.Build.0 = Debug|x64
+		{D8C77CFE-7681-4827-9985-309782508076}.Debug|x86.ActiveCfg = Debug|Win32
+		{D8C77CFE-7681-4827-9985-309782508076}.Debug|x86.Build.0 = Debug|Win32
+		{D8C77CFE-7681-4827-9985-309782508076}.Release|x64.ActiveCfg = Release|x64
+		{D8C77CFE-7681-4827-9985-309782508076}.Release|x64.Build.0 = Release|x64
+		{D8C77CFE-7681-4827-9985-309782508076}.Release|x86.ActiveCfg = Release|Win32
+		{D8C77CFE-7681-4827-9985-309782508076}.Release|x86.Build.0 = Release|Win32
+		{D8C77CFE-7681-4827-9985-309782508076}.Retail|x64.ActiveCfg = Retail|x64
+		{D8C77CFE-7681-4827-9985-309782508076}.Retail|x64.Build.0 = Retail|x64
+		{D8C77CFE-7681-4827-9985-309782508076}.Retail|x86.ActiveCfg = Retail|Win32
+		{D8C77CFE-7681-4827-9985-309782508076}.Retail|x86.Build.0 = Retail|Win32
+		{0938F690-525E-4954-BE6A-091261D3D1A1}.Debug|x64.ActiveCfg = Debug|x64
+		{0938F690-525E-4954-BE6A-091261D3D1A1}.Debug|x64.Build.0 = Debug|x64
+		{0938F690-525E-4954-BE6A-091261D3D1A1}.Debug|x86.ActiveCfg = Debug|Win32
+		{0938F690-525E-4954-BE6A-091261D3D1A1}.Debug|x86.Build.0 = Debug|Win32
+		{0938F690-525E-4954-BE6A-091261D3D1A1}.Release|x64.ActiveCfg = Release|x64
+		{0938F690-525E-4954-BE6A-091261D3D1A1}.Release|x64.Build.0 = Release|x64
+		{0938F690-525E-4954-BE6A-091261D3D1A1}.Release|x86.ActiveCfg = Release|Win32
+		{0938F690-525E-4954-BE6A-091261D3D1A1}.Release|x86.Build.0 = Release|Win32
+		{0938F690-525E-4954-BE6A-091261D3D1A1}.Retail|x64.ActiveCfg = Retail|x64
+		{0938F690-525E-4954-BE6A-091261D3D1A1}.Retail|x64.Build.0 = Retail|x64
+		{0938F690-525E-4954-BE6A-091261D3D1A1}.Retail|x86.ActiveCfg = Retail|Win32
+		{0938F690-525E-4954-BE6A-091261D3D1A1}.Retail|x86.Build.0 = Retail|Win32
+		{F3DA2592-6E26-475C-91D3-27F8C89B1107}.Debug|x64.ActiveCfg = Debug|x64
+		{F3DA2592-6E26-475C-91D3-27F8C89B1107}.Debug|x64.Build.0 = Debug|x64
+		{F3DA2592-6E26-475C-91D3-27F8C89B1107}.Debug|x86.ActiveCfg = Debug|Win32
+		{F3DA2592-6E26-475C-91D3-27F8C89B1107}.Debug|x86.Build.0 = Debug|Win32
+		{F3DA2592-6E26-475C-91D3-27F8C89B1107}.Release|x64.ActiveCfg = Release|x64
+		{F3DA2592-6E26-475C-91D3-27F8C89B1107}.Release|x64.Build.0 = Release|x64
+		{F3DA2592-6E26-475C-91D3-27F8C89B1107}.Release|x86.ActiveCfg = Release|Win32
+		{F3DA2592-6E26-475C-91D3-27F8C89B1107}.Release|x86.Build.0 = Release|Win32
+		{F3DA2592-6E26-475C-91D3-27F8C89B1107}.Retail|x64.ActiveCfg = Retail|x64
+		{F3DA2592-6E26-475C-91D3-27F8C89B1107}.Retail|x64.Build.0 = Retail|x64
+		{F3DA2592-6E26-475C-91D3-27F8C89B1107}.Retail|x86.ActiveCfg = Retail|Win32
+		{F3DA2592-6E26-475C-91D3-27F8C89B1107}.Retail|x86.Build.0 = Retail|Win32
+		{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}.Debug|x64.ActiveCfg = Debug|x64
+		{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}.Debug|x64.Build.0 = Debug|x64
+		{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}.Debug|x86.ActiveCfg = Debug|Win32
+		{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}.Debug|x86.Build.0 = Debug|Win32
+		{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}.Release|x64.ActiveCfg = Release|x64
+		{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}.Release|x64.Build.0 = Release|x64
+		{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}.Release|x86.ActiveCfg = Release|Win32
+		{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}.Release|x86.Build.0 = Release|Win32
+		{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}.Retail|x64.ActiveCfg = Retail|x64
+		{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}.Retail|x64.Build.0 = Retail|x64
+		{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}.Retail|x86.ActiveCfg = Retail|Win32
+		{E2AF1A5F-6A15-4787-AB9D-6ACD9460CB6D}.Retail|x86.Build.0 = Retail|Win32
+		{5A3B4A84-8425-4DB2-9312-C515027730C9}.Debug|x64.ActiveCfg = Debug|x64
+		{5A3B4A84-8425-4DB2-9312-C515027730C9}.Debug|x64.Build.0 = Debug|x64
+		{5A3B4A84-8425-4DB2-9312-C515027730C9}.Debug|x86.ActiveCfg = Debug|Win32
+		{5A3B4A84-8425-4DB2-9312-C515027730C9}.Debug|x86.Build.0 = Debug|Win32
+		{5A3B4A84-8425-4DB2-9312-C515027730C9}.Release|x64.ActiveCfg = Release|x64
+		{5A3B4A84-8425-4DB2-9312-C515027730C9}.Release|x64.Build.0 = Release|x64
+		{5A3B4A84-8425-4DB2-9312-C515027730C9}.Release|x86.ActiveCfg = Release|Win32
+		{5A3B4A84-8425-4DB2-9312-C515027730C9}.Release|x86.Build.0 = Release|Win32
+		{5A3B4A84-8425-4DB2-9312-C515027730C9}.Retail|x64.ActiveCfg = Retail|x64
+		{5A3B4A84-8425-4DB2-9312-C515027730C9}.Retail|x64.Build.0 = Retail|x64
+		{5A3B4A84-8425-4DB2-9312-C515027730C9}.Retail|x86.ActiveCfg = Retail|Win32
+		{5A3B4A84-8425-4DB2-9312-C515027730C9}.Retail|x86.Build.0 = Retail|Win32
+		{C48D74D1-ED13-4627-850C-2A702B380715}.Debug|x64.ActiveCfg = Debug|x64
+		{C48D74D1-ED13-4627-850C-2A702B380715}.Debug|x64.Build.0 = Debug|x64
+		{C48D74D1-ED13-4627-850C-2A702B380715}.Debug|x86.ActiveCfg = Debug|Win32
+		{C48D74D1-ED13-4627-850C-2A702B380715}.Debug|x86.Build.0 = Debug|Win32
+		{C48D74D1-ED13-4627-850C-2A702B380715}.Release|x64.ActiveCfg = Release|x64
+		{C48D74D1-ED13-4627-850C-2A702B380715}.Release|x64.Build.0 = Release|x64
+		{C48D74D1-ED13-4627-850C-2A702B380715}.Release|x86.ActiveCfg = Release|Win32
+		{C48D74D1-ED13-4627-850C-2A702B380715}.Release|x86.Build.0 = Release|Win32
+		{C48D74D1-ED13-4627-850C-2A702B380715}.Retail|x64.ActiveCfg = Retail|x64
+		{C48D74D1-ED13-4627-850C-2A702B380715}.Retail|x64.Build.0 = Retail|x64
+		{C48D74D1-ED13-4627-850C-2A702B380715}.Retail|x86.ActiveCfg = Retail|Win32
+		{C48D74D1-ED13-4627-850C-2A702B380715}.Retail|x86.Build.0 = Retail|Win32
+		{E70ACAF8-E597-4474-8092-2268C5C69B55}.Debug|x64.ActiveCfg = Debug|x64
+		{E70ACAF8-E597-4474-8092-2268C5C69B55}.Debug|x64.Build.0 = Debug|x64
+		{E70ACAF8-E597-4474-8092-2268C5C69B55}.Debug|x86.ActiveCfg = Debug|Win32
+		{E70ACAF8-E597-4474-8092-2268C5C69B55}.Debug|x86.Build.0 = Debug|Win32
+		{E70ACAF8-E597-4474-8092-2268C5C69B55}.Release|x64.ActiveCfg = Release|x64
+		{E70ACAF8-E597-4474-8092-2268C5C69B55}.Release|x64.Build.0 = Release|x64
+		{E70ACAF8-E597-4474-8092-2268C5C69B55}.Release|x86.ActiveCfg = Release|Win32
+		{E70ACAF8-E597-4474-8092-2268C5C69B55}.Release|x86.Build.0 = Release|Win32
+		{E70ACAF8-E597-4474-8092-2268C5C69B55}.Retail|x64.ActiveCfg = Retail|x64
+		{E70ACAF8-E597-4474-8092-2268C5C69B55}.Retail|x64.Build.0 = Retail|x64
+		{E70ACAF8-E597-4474-8092-2268C5C69B55}.Retail|x86.ActiveCfg = Retail|Win32
+		{E70ACAF8-E597-4474-8092-2268C5C69B55}.Retail|x86.Build.0 = Retail|Win32
+		{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}.Debug|x64.ActiveCfg = Debug|x64
+		{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}.Debug|x64.Build.0 = Debug|x64
+		{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}.Debug|x86.ActiveCfg = Debug|Win32
+		{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}.Debug|x86.Build.0 = Debug|Win32
+		{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}.Release|x64.ActiveCfg = Release|x64
+		{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}.Release|x64.Build.0 = Release|x64
+		{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}.Release|x86.ActiveCfg = Release|Win32
+		{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}.Release|x86.Build.0 = Release|Win32
+		{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}.Retail|x64.ActiveCfg = Retail|x64
+		{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}.Retail|x64.Build.0 = Retail|x64
+		{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}.Retail|x86.ActiveCfg = Retail|Win32
+		{5E95DB18-B2A9-4264-97FC-0403D31AFBC4}.Retail|x86.Build.0 = Retail|Win32
+		{AD4E654D-2955-4CAD-BA42-C736A61699BA}.Debug|x64.ActiveCfg = Debug|x64
+		{AD4E654D-2955-4CAD-BA42-C736A61699BA}.Debug|x64.Build.0 = Debug|x64
+		{AD4E654D-2955-4CAD-BA42-C736A61699BA}.Debug|x86.ActiveCfg = Debug|Win32
+		{AD4E654D-2955-4CAD-BA42-C736A61699BA}.Debug|x86.Build.0 = Debug|Win32
+		{AD4E654D-2955-4CAD-BA42-C736A61699BA}.Release|x64.ActiveCfg = Release|x64
+		{AD4E654D-2955-4CAD-BA42-C736A61699BA}.Release|x64.Build.0 = Release|x64
+		{AD4E654D-2955-4CAD-BA42-C736A61699BA}.Release|x86.ActiveCfg = Release|Win32
+		{AD4E654D-2955-4CAD-BA42-C736A61699BA}.Release|x86.Build.0 = Release|Win32
+		{AD4E654D-2955-4CAD-BA42-C736A61699BA}.Retail|x64.ActiveCfg = Retail|x64
+		{AD4E654D-2955-4CAD-BA42-C736A61699BA}.Retail|x64.Build.0 = Retail|x64
+		{AD4E654D-2955-4CAD-BA42-C736A61699BA}.Retail|x86.ActiveCfg = Retail|Win32
+		{AD4E654D-2955-4CAD-BA42-C736A61699BA}.Retail|x86.Build.0 = Retail|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B19331B2-F59B-43A4-8728-0861B8AD72B6} = {F4728D12-12D0-4669-9EB0-1D59EF1AEC00}
+		{5A3B4A84-8425-4DB2-9312-C515027730C9} = {6F421B66-7A42-47C6-B9F6-EE61468B91FE}
+		{E70ACAF8-E597-4474-8092-2268C5C69B55} = {6F421B66-7A42-47C6-B9F6-EE61468B91FE}
+		{94B61C15-2EF3-4EB7-B943-434C6A3E9284} = {B19331B2-F59B-43A4-8728-0861B8AD72B6}
+		{5DBC2167-676B-4A7A-866F-837BFE2FE31A} = {6F421B66-7A42-47C6-B9F6-EE61468B91FE}
+		{0EBABAF6-FE15-4F84-A196-E901F5AE0202} = {5DBC2167-676B-4A7A-866F-837BFE2FE31A}
+		{E0AD5ECC-6A44-41D2-9619-C3B950C070EF} = {5DBC2167-676B-4A7A-866F-837BFE2FE31A}
+		{1B420AEF-0310-4D0C-B755-4F78F096B495} = {5DBC2167-676B-4A7A-866F-837BFE2FE31A}
+		{8DF7D839-FA63-4FD2-BBE6-CD8A7D641464} = {5DBC2167-676B-4A7A-866F-837BFE2FE31A}
+		{83DA753A-8871-4287-ACC0-39391F312D16} = {5DBC2167-676B-4A7A-866F-837BFE2FE31A}
+		{98717374-EA99-45D9-83C4-698D341AEC18} = {8DF7D839-FA63-4FD2-BBE6-CD8A7D641464}
+		{D715372E-B37D-41F2-B67D-F04BC45330A5} = {5DBC2167-676B-4A7A-866F-837BFE2FE31A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {61AAF24A-12CB-41AB-95DA-570F5D0CBFB6}
+	EndGlobalSection
+EndGlobal

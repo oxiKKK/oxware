@@ -48,6 +48,8 @@ private:
 	bool on_window_invoke();
 	void on_window_destroy();
 
+	bool check_supported_os_version();
+
 	void decide_injection_type();
 
 	bool run_frame();

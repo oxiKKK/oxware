@@ -60,6 +60,12 @@ enum
 
 int CMainLoader::run(HINSTANCE hinst)
 {
+	if (!check_supported_os_version())
+	{
+		CMessageBox::display_error("You are not running Windows 10 or newer. This cheat is not supported on your OS.");
+		return RET_FAILURE;
+	}
+
 	if (is_already_launched())
 	{
 		CMessageBox::display_error("Already running. Cannot not run multiple instances of the loader.");
@@ -158,6 +164,13 @@ bool CMainLoader::on_window_invoke()
 void CMainLoader::on_window_destroy()
 {
 	g_glfw_app_i->destroy_window();
+}
+
+bool CMainLoader::check_supported_os_version()
+{
+	auto ver = CGenericUtil::the().get_os_version();
+
+	return ver.dwMajorVersion == 10 && ver.dwMinorVersion == 0;
 }
 
 void CMainLoader::decide_injection_type()

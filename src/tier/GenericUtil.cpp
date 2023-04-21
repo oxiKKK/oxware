@@ -106,3 +106,25 @@ void CGenericUtil::open_link_inside_browser(const std::string& link)
 {
 	ShellExecuteA(0, 0, link.c_str(), 0, 0, SW_SHOW);
 }
+
+// https://stackoverflow.com/questions/36543301/detecting-windows-10-version/36545162#36545162
+typedef NTSTATUS(WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
+RTL_OSVERSIONINFOW CGenericUtil::get_os_version()
+{
+	HMODULE hMod = ::GetModuleHandleW(L"ntdll.dll");
+	if (hMod)
+	{
+		RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)::GetProcAddress(hMod, "RtlGetVersion");
+		if (fxPtr)
+		{
+			RTL_OSVERSIONINFOW rovi = { 0 };
+			rovi.dwOSVersionInfoSize = sizeof(rovi);
+			if (STATUS_SUCCESS == fxPtr(&rovi))
+			{
+				return rovi;
+			}
+		}
+	}
+	RTL_OSVERSIONINFOW rovi = { 0 };
+	return rovi;
+}

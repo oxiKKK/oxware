@@ -51,6 +51,10 @@ enum EGUIColor
 	GUICLR_ButtonHovered,
 	GUICLR_ButtonActive,
 
+	GUICLR_HyperTextLink,
+	GUICLR_HyperTextLinkHovered,
+	GUICLR_HyperTextLinkActive,
+
 	GUICLR_ScrollbarBackground,
 	GUICLR_ScrollbarGrab,
 

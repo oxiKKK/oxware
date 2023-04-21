@@ -107,6 +107,8 @@ public:
 	bool add_button(const std::string& label, const Vector2D& size, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None);
 	bool add_toggle_button(const std::string& label, const Vector2D& size, bool selected = false, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None);
 
+	bool add_hypertext_link(const std::string& label);
+
 	bool add_checkbox(const std::string& label, float* value);
 	bool add_checkbox_with_color(const std::string& label, float* value, float rgba[4], ImGuiColorEditFlags flags);
 
@@ -596,6 +598,60 @@ bool CGUIWidgets::add_toggle_button(const std::string& label, const Vector2D& si
 		pop_disabled();
 
 	return ret;
+}
+
+bool CGUIWidgets::add_hypertext_link(const std::string& label)
+{
+	ImGuiWindow* window = GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+	ImGuiID id = window->GetID(label.c_str());
+	ImVec2 label_size = CalcTextSize(label.c_str(), NULL, true);
+
+	ImVec2 pos = window->DC.CursorPos;
+	ImVec2 item_size = CalcItemSize({0.0f, 0.0f}, label_size.x + style.FramePadding.x, label_size.y + style.FramePadding.y);
+
+	const ImRect bb(pos, pos + item_size);
+	ItemSize(item_size, style.FramePadding.y);
+	if (!ItemAdd(bb, id))
+	{
+		return false;
+	}
+
+	bool hovered, held;
+	bool pressed = ButtonBehavior(bb, id, &hovered, &held, ImGuiButtonFlags_None);
+
+	// Render
+	CColor color_4f;
+	if (held && hovered)
+	{
+		color_4f = get_color<GUICLR_HyperTextLinkActive>();
+	}
+	else if (hovered)
+	{
+		color_4f = get_color<GUICLR_HyperTextLinkHovered>();
+	}
+	else
+	{
+		color_4f = get_color<GUICLR_HyperTextLink>();
+	}
+
+	push_color(ImGuiCol_Text, color_4f);
+
+	RenderTextClipped({ bb.Min.x + style.FramePadding.x, bb.Min.y },
+					  bb.Max, label.c_str(), NULL, &label_size, {0.f, 0.f}, &bb);
+
+	pop_color();
+
+	if (IsItemHovered())
+	{
+		g_imgui_platform_layer_i->override_cursor(GUICURSOR_Hand);
+	}
+
+	return pressed;
 }
 
 bool CGUIWidgets::add_checkbox(const std::string& label, float* value)

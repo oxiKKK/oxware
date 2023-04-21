@@ -97,7 +97,12 @@ bool CGenericUtil::is_alphabetical_or_number(char c)
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
 }
 
-std::string CGenericUtil::get_filename_from_path(const std::string & path)
+std::string CGenericUtil::get_filename_from_path(const std::string& path)
 {
 	return path.substr(path.find_last_of("/\\") + 1);
+}
+
+void CGenericUtil::open_link_inside_browser(const std::string& link)
+{
+	ShellExecuteA(0, 0, link.c_str(), 0, 0, SW_SHOW);
 }

@@ -300,7 +300,37 @@ void CUIMenu::on_render()
 			}
 		});
 
-	g_gui_widgets_i->pop_stylevar(1);
+	auto screen = g_imgui_platform_layer_i->get_screen_size();
+
+	auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_REGULAR, FONTDEC_Regular);
+
+	const char* label = "www.github.com/oxiKKK/oxware";
+	auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, label);
+
+	g_gui_widgets_i->set_next_window_pos({ screen.x - label_size.x, screen.y - label_size.y }, ImGuiCond_Always);
+
+	static constexpr auto window_flags1 = 
+		ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings | 
+		ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBackground |
+		ImGuiWindowFlags_NoMove;
+	g_gui_widgets_i->create_new_window(
+		"github_link", window_flags1, 
+		[&]()
+		{
+			if (g_gui_widgets_i->add_hypertext_link(label))
+			{
+				CGenericUtil::the().open_link_inside_browser(label);
+			}
+
+			// render github repository link
+			//g_gui_window_rendering_i->render_text(
+			//	g_gui_window_rendering_i->get_foreground_drawlist(),
+			//	font,
+			//	,
+			//	CColor(255, 255, 255, 255), label);
+		});
+
+	g_gui_widgets_i->pop_stylevar();
 }
 
 void CUIMenu::on_destroy()

@@ -48,7 +48,7 @@ public:
 	inline static constexpr Vector2D k_child_contents_padding = { 10.0f, 5.0f };
 	inline static constexpr float k_child_width = 210.0f;
 	inline static constexpr Vector2D k_about_button_padding = { 15.0f, 15.0f };
-	inline static constexpr Vector2D k_about_button_size = { 100.0f, 20.0f };
+	inline static constexpr Vector2D k_about_button_size = { 105.0f, 20.0f };
 	inline static constexpr Vector2D k_about_button_pos = { k_menu_rect_size.x - k_about_button_size.x - k_about_button_padding.x, k_about_button_padding.y };
 
 	inline static Vector2D calc_child_size(float height) { return { CMenuStyle::k_child_width, height }; }

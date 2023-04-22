@@ -33,6 +33,7 @@ bool CHLInterfaceHook::install_hooks()
 	// install individual hooks
 	if (!install_single_hook(&m_ISurface, L"hw.dll", VGUI_SURFACE_INTERFACE_VERSION)) return false;
 	if (!install_single_hook(&m_IGameUI, L"GameUI.dll", GAMEUI_INTERFACE_VERSION)) return false;
+	if (!install_single_hook(&m_IBaseUI, L"hw.dll", BASEUI_INTERFACE_VERSION)) return false;
 
 	return true;
 }

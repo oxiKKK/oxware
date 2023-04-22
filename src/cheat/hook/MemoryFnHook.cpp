@@ -34,7 +34,6 @@ bool CMemoryFnHookMgr::install_hooks()
 	if (!VGuiWrap2_IsConsoleVisible().install()) return false;
 	if (!VGuiWrap2_ConPrintf().install()) return false;
 	if (!ClearIOStates().install()) return false;
-	// build_number is already installed before.
 
 	return true;
 }

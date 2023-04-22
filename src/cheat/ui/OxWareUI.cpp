@@ -277,6 +277,12 @@ void COxWareUI::handle_ingame_mouseevents()
 {
 	// fucking GoldSrc's input handling
 
+	static int(__cdecl*SDL_SetRelativeMouseMode)(int enabled);
+	if (!SDL_SetRelativeMouseMode)
+	{
+		SDL_SetRelativeMouseMode = (decltype(SDL_SetRelativeMouseMode))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_SetRelativeMouseMode");
+	}
+
 	static bool last = m_is_any_interactible_rendering_context_active;
 	if (last != m_is_any_interactible_rendering_context_active)
 	{
@@ -311,6 +317,16 @@ void COxWareUI::handle_ingame_mouseevents()
 			CGameUtil::the().reset_all_in_states();
 			CMemoryFnHookMgr::the().ClearIOStates().call();
 		}
+
+		// This fixes #0001 mouse cursor stuck, see the issue for more information.
+		// 
+		// When raw input was on (m_rawinput 1), in game, the client dll input code called SDL_GetRelativeMouseState
+		// to get the mouse delta. However, with our menu and the way we handle this whole input situation, it failed
+		// to do so, because somehwere inside the engine code (presumably in BaseUISurface::SetCursor) the engine called
+		// SDL_SetRelativeMouseMode with bad state. Therefore, the function wasn't executed, because the relative mode
+		// wasn't "on", having the mouse cursor stuck, until the function (BaseUISurface::SetCursor) weren't ran again
+		// (by calling CBaseUI::ActivateGameUI)..
+		SDL_SetRelativeMouseMode(!m_is_any_interactible_rendering_context_active);
 
 		last = m_is_any_interactible_rendering_context_active;
 	}

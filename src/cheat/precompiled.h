@@ -193,6 +193,7 @@ namespace hl
 #include <hlsdk/interface/appframework/IAppSystem.h>
 #include <hlsdk/interface/ISurface.h>
 #include <hlsdk/interface/GameUI/IGameUI.h>
+#include <hlsdk/interface/GameUI/IBaseUI.h>
 
 // game_shared
 #include <hlsdk/game_shared/shareddefs.h>

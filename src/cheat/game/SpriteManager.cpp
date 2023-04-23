@@ -456,11 +456,14 @@ void CSpriteMgr::update()
 
 Sprite_t* CSpriteMgr::get_sprite(const std::string& name) const
 {
-	auto sprite = &s_sprite_map.at(name);
-	if (!sprite)
+	Sprite_t* sprite = nullptr;
+	try
 	{
-		CConsole::the().error("Couldn't find sprite '{}'!", name);
-		return nullptr;
+		sprite = &s_sprite_map.at(name);
+	}
+	catch (...)
+	{
+		CConsole::the().error("Tried to find unknown sprite: '{}'", name);
 	}
 
 	return sprite;
@@ -468,11 +471,14 @@ Sprite_t* CSpriteMgr::get_sprite(const std::string& name) const
 
 SpriteAtlas_t* CSpriteMgr::get_sprite_atlas(const std::string& name) const
 {
-	auto sprite_atlas = &s_sprite_atlas_map.at(name);
-	if (!sprite_atlas)
+	SpriteAtlas_t* sprite_atlas = nullptr;
+	try
 	{
-		CConsole::the().error("Couldn't find sprite atlas '{}'!", name);
-		return nullptr;
+		sprite_atlas = &s_sprite_atlas_map.at(name);
+	}
+	catch (...)
+	{
+		CConsole::the().error("Tried to find unknown sprite atlas: '{}'", name);
 	}
 
 	return sprite_atlas;

@@ -326,7 +326,21 @@ void COxWareUI::handle_ingame_mouseevents()
 		// SDL_SetRelativeMouseMode with bad state. Therefore, the function wasn't executed, because the relative mode
 		// wasn't "on", having the mouse cursor stuck, until the function (BaseUISurface::SetCursor) weren't ran again
 		// (by calling CBaseUI::ActivateGameUI)..
-		SDL_SetRelativeMouseMode(!m_is_any_interactible_rendering_context_active);
+		if (gameuifuncs)
+		{
+			if (gameuifuncs->IsGameUIActive())
+			{
+				// without this the cursor stays hidden if we're displaying GameUI and we close the UI.
+				if (m_is_any_interactible_rendering_context_active)
+				{
+					SDL_SetRelativeMouseMode(FALSE);
+				}
+			}
+			else
+			{
+				SDL_SetRelativeMouseMode(!m_is_any_interactible_rendering_context_active);
+			}
+		}
 
 		last = m_is_any_interactible_rendering_context_active;
 	}

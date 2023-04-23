@@ -101,7 +101,6 @@ public:
 			}
 		}
 
-		assert(0 && "The byte pattern wasn't found!");
 		return nullptr;
 	}
 

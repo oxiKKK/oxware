@@ -33,6 +33,8 @@
 #include <injection/IBaseInjector.h>
 #include <injection/BaseInjector.h>
 
+#include <BytePattern.h>
+
 //
 // shellcodes.cpp
 // 
@@ -255,6 +257,9 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 		}
 	}
 
+#if 0 // UPDATE: This was originally not disabled however, after the addition of exception handling, we need data from PE header..
+	  //		 Meh.. I don't wanna deal with this now.. TODO (Note: is this even needed?)
+
 	//
 	// Make a memory snapshot of the first 4064 bytes of the DLL file, if needed for later
 	//
@@ -268,6 +273,7 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 	auto snap_nt = (PIMAGE_NT_HEADERS)(snap_dos + dos->e_lfanew);
 	snap_dos->e_magic = 0;
 	snap_nt->OptionalHeader.Magic = 0;
+#endif
 
 	context->pfnOutputDebugStringA(context->debug_messages[1]);
 

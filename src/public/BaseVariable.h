@@ -410,7 +410,14 @@ private:
 		g_variablemgr_i->for_each_variable(
 			[&](BaseVariable* var)
 			{
-				var->set_from_string(m_json[var->get_current_module_name()][var->get_name()].get<std::string>());
+				try
+				{
+					var->set_from_string(m_json[var->get_current_module_name()][var->get_name()].get<std::string>());
+				}
+				catch (const nlohmann::json::exception& e)
+				{
+					CConsole::the().error("JSON error: {}", e.what());
+				}
 			});
 
 		if (!m_silent)
@@ -424,7 +431,15 @@ private:
 		g_variablemgr_i->for_each_variable(
 			[&](BaseVariable* var)
 			{
-				m_json[var->get_current_module_name()][var->get_name()] = var->get_value_string();
+				try
+				{
+					m_json[var->get_current_module_name()][var->get_name()] = var->get_value_string();
+				}
+				catch (const nlohmann::json::exception& e)
+				{
+					CConsole::the().error("JSON error: {}", e.what());
+				}
+
 				if (!m_silent)
 				{
 					CConsole::the().info("m_json[{}][{}] = {};", var->get_current_module_name(), var->get_name(), var->get_value_string());

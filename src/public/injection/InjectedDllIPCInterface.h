@@ -61,7 +61,7 @@ enum EInjector2Client
 // this procedure exists only within parent client modules that want to communicate with the injector.
 #define COMMUNICATIVEDLLENTRYPOINT_PROCNAME "CommunicativeDllEntryPoint"
 struct injector_information_package_t;
-typedef bool(APIENTRY*pfnCommunicativeDllEntryPoint_t)(injector_information_package_t* ifp);
+typedef bool(__cdecl*pfnCommunicativeDllEntryPoint_t)(injector_information_package_t* ifp);
 
 // generic dll entry point. used in mainly loadlibrary as an entry point.
 typedef BOOL(APIENTRY*pfnDllMain_t)(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);

@@ -102,6 +102,12 @@ std::string CGenericUtil::get_filename_from_path(const std::string& path)
 	return path.substr(path.find_last_of("/\\") + 1);
 }
 
+std::string CGenericUtil::remove_extension_from_path(const std::string& path)
+{
+	size_t lastindex = path.find_last_of(".");
+	return path.substr(0, lastindex);
+}
+
 void CGenericUtil::open_link_inside_browser(const std::string& link)
 {
 	ShellExecuteA(0, 0, link.c_str(), 0, 0, SW_SHOW);

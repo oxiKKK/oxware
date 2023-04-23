@@ -56,6 +56,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	if (!CEngine__Unload().install()) return false;
 	if (!SCR_CalcRefdef().install()) return false;
 	if (!SCR_UpdateScreen().install()) return false;
+	if (!SPR_Set().install()) return false;
 
 	return true;
 }
@@ -96,6 +97,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 
 	SCR_CalcRefdef().uninstall();
 	SCR_UpdateScreen().uninstall();
+	SPR_Set().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -362,6 +364,8 @@ int HUD_RedrawFnHook_t::HUD_Redraw(float time, int intermission)
 	
 	CRemovals::the().remove_hud_modifier();
 
+	CSpriteMgr::the().update();
+
 	return CMemoryFnDetourMgr::the().HUD_Redraw().call(time, intermission);
 }
 
@@ -576,6 +580,26 @@ void SCR_UpdateScreenFnHook_t::SCR_UpdateScreen()
 	}
 
 	CMemoryFnDetourMgr::the().SCR_UpdateScreen().call();
+}
+
+//---------------------------------------------------------------------------------
+
+bool SPR_SetFnHook_t::install()
+{
+	initialize("SPR_Set", L"hw.dll");
+	return generic_functionaddr_detour(SPR_Set, (uintptr_t*)CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_Set);
+}
+
+void SPR_SetFnHook_t::SPR_Set(hl::HSPRITE_t hSprite, int r, int g, int b)
+{
+	// Handles sprite color
+	
+	// there isn't any way around this (how to change all sprites color), because this function
+	// directly calls glColorf().
+
+	CSpriteMgr::the().handle_color_change(hSprite, r, g, b);
+
+	CMemoryFnDetourMgr::the().SPR_Set().call(hSprite, r, g, b);
 }
 
 //---------------------------------------------------------------------------------

@@ -321,13 +321,6 @@ void CUIMenu::on_render()
 			{
 				CGenericUtil::the().open_link_inside_browser(label);
 			}
-
-			// render github repository link
-			//g_gui_window_rendering_i->render_text(
-			//	g_gui_window_rendering_i->get_foreground_drawlist(),
-			//	font,
-			//	,
-			//	CColor(255, 255, 255, 255), label);
 		});
 
 	g_gui_widgets_i->pop_stylevar();
@@ -500,6 +493,21 @@ void CUIMenu::tab_render()
 			CUIMenuWidgets::the().add_checkbox("Blend", &mdlchams_blend);
 		});
 
+	add_menu_child(
+		"HUD rendering", CMenuStyle::calc_child_size(185), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			g_gui_widgets_i->add_padding({ 0, 5.0f });
+			g_gui_widgets_i->add_separtor_with_text("Custom rendering");
+
+			CUIMenuWidgets::the().add_checkbox("Enable", &hud_render);
+			CUIMenuWidgets::the().add_checkbox("Render current weapon", &hud_render_current_weapon);
+
+			g_gui_widgets_i->add_padding({ 0, 5.0f });
+			g_gui_widgets_i->add_separtor_with_text("Colors");
+
+			CUIMenuWidgets::the().add_checkbox_with_color("HUD Color", &hud_color_enable, &hud_color);
+		});
 
 	g_gui_widgets_i->end_columns(1);
 }

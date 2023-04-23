@@ -79,4 +79,7 @@
 #include <chrono>
 using namespace std::chrono_literals;
 
+// disable c++ exceptions in json
+#define JSON_NOEXCEPTION
+
 #endif // PLATFORM_H

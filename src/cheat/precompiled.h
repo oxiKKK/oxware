@@ -205,6 +205,9 @@ namespace hl
 #include <hlsdk/dlls/cstrike/weapons.h>
 } // namespace hl
 
+// include after hlsdk.
+#include "custom_format_cheat.h"
+
 //-------------------------------------------------------------------
 //
 // Current project
@@ -234,6 +237,7 @@ namespace hl
 #include "game/GenericEnt.h"
 #include "game/GenericPlayer.h"
 #include "game/EntityManager.h"
+#include "game/SpriteManager.h"
 
 // features
 #include "features/FeatureManager.h"

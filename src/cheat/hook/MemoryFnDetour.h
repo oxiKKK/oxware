@@ -410,6 +410,15 @@ public:
 	static void SCR_UpdateScreen();
 };
 
+// void SPR_Set(HSPRITE_t hSprite, int r, int g, int b)
+class SPR_SetFnHook_t final : public CGenericMemoryFnDetourCdecl<void, hl::HSPRITE_t, int, int, int>
+{
+public:
+	bool install();
+
+	static void SPR_Set(hl::HSPRITE_t hSprite, int r, int g, int b);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -452,6 +461,7 @@ public:
 	inline auto& CEngine__Unload() { static CEngine__UnloadFnHook_t fnhook; return fnhook; }
 	inline auto& SCR_CalcRefdef() { static SCR_CalcRefdefFnHook_t fnhook; return fnhook; }
 	inline auto& SCR_UpdateScreen() { static SCR_UpdateScreenFnHook_t fnhook; return fnhook; }
+	inline auto& SPR_Set() { static SPR_SetFnHook_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

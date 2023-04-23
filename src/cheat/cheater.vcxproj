@@ -372,6 +372,7 @@
     <ClCompile Include="game\GenericPlayer.cpp" />
     <ClCompile Include="game\model\SpriteModelData.cpp" />
     <ClCompile Include="game\model\StudioModelData.cpp" />
+    <ClCompile Include="game\SpriteManager.cpp" />
     <ClCompile Include="HLNetMessageIO.cpp" />
     <ClCompile Include="hook\client_dll\MemoryHookCBaseStuff.cpp" />
     <ClCompile Include="hook\HLInterfaceHook.cpp" />
@@ -419,6 +420,7 @@
     <ClInclude Include="..\public\DependencyLoader.h" />
     <ClInclude Include="..\public\interface.h" />
     <ClInclude Include="build_num.h" />
+    <ClInclude Include="custom_format_cheat.h" />
     <ClInclude Include="features\BulletTrace.h" />
     <ClInclude Include="features\BypassGameConstrains.h" />
     <ClInclude Include="features\ESP.h" />
@@ -438,6 +440,7 @@
     <ClInclude Include="game\GenericPlayer.h" />
     <ClInclude Include="game\model\SpriteModelData.h" />
     <ClInclude Include="game\model\StudioModelData.h" />
+    <ClInclude Include="game\SpriteManager.h" />
     <ClInclude Include="HLNetMessageIO.h" />
     <ClInclude Include="hook\client_dll\MemoryHookCBaseStuff.h" />
     <ClInclude Include="hook\HLInterfaceHook.h" />

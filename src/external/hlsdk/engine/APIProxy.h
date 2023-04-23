@@ -88,7 +88,7 @@ struct module_t
 };
 
 typedef int				HSPRITE_t;	// handle to graphics
-#define NULL_SPRITE		((HSPRITE_t)NULL)
+#define NULL_SPRITE		((hl::HSPRITE_t)NULL)
 
 //-----------------------------------------------------------------------------
 // Purpose: So that we don't have to include every single header file that 

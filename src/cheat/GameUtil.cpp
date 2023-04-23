@@ -235,6 +235,32 @@ double CGameUtil::get_engine_frametime()
 	return ft;
 }
 
+hl::SCREENINFO CGameUtil::get_engine_screen_info()
+{
+	hl::SCREENINFO info;
+	info.iSize = sizeof(hl::SCREENINFO); // must be set before you request it from the engine!
+
+	// the function fails if the size differs/isn't set orl when the pointer passed is null.
+	CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetScreenInfo(&info);
+
+	return info;
+}
+
+std::string CGameUtil::parse_viewmodel_name(hl::model_t* model)
+{
+	if (!model->name || !model->name[0])
+	{
+		return "empty";
+	}
+
+	// expect something like /models
+	std::string vm_str = CGenericUtil::the().remove_extension_from_path(model->name);
+
+	vm_str = std::filesystem::path(vm_str).filename().string();
+
+	return vm_str.substr(2);
+}
+
 void CGameUtil::locate_engine_compile_timestamp()
 {
 	if (!m_engine_compile_date.empty())

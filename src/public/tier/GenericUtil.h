@@ -53,10 +53,12 @@ public:
 	bool is_alphabetical_or_number(char c);
 
 	std::string get_filename_from_path(const std::string& path);
+	std::string remove_extension_from_path(const std::string& path);
 
 	void open_link_inside_browser(const std::string& link);
 
 	RTL_OSVERSIONINFOW get_os_version();
+
 };
 
 #endif // GENERICUTIL_H

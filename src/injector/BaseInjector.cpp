@@ -189,7 +189,7 @@ void CBaseInjector::update()
 			CMessageBox::display_error("Couldn't reach module {} while trying to communicate with it. The module probably crashed."
 										"\n\nYou may want to check the console log file for further information.\n{}",
 										it->first.string(),
-										g_devconsole_i->get_logfile_path().parent_path().string());
+										g_devconsole_i->get_logfile_path().parent_path() / "cheater_*");
 			it->second->unload(false);
 			goto erase_current_entry;
 		}
@@ -221,7 +221,7 @@ void CBaseInjector::update()
 				{
 					CMessageBox::display_error("The cheat failed to initialize while injecting. "
 											   "\n\nYou may want to check the console log file for further information.\n{}", 
-											   g_devconsole_i->get_logfile_path().parent_path().string());
+											   g_devconsole_i->get_logfile_path().parent_path() / "cheater_*");
 
 				}
 

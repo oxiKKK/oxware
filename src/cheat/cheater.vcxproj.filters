@@ -179,6 +179,9 @@
     <ClCompile Include="ui\UIPerformanceProfilerVisualization.cpp">
       <Filter>src\UI\rendering contexts</Filter>
     </ClCompile>
+    <ClCompile Include="game\SpriteManager.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -313,6 +316,12 @@
     </ClInclude>
     <ClInclude Include="ui\UIPerformanceProfilerVisualization.h">
       <Filter>src\UI\rendering contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="game\SpriteManager.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="custom_format_cheat.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

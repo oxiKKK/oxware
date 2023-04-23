@@ -120,6 +120,16 @@ public:
 		return { parse_color("r: "), parse_color("g: "), parse_color("b: "), parse_color("a: "), };
 	}
 
+	bool is_nonzero() const
+	{
+		return r != 0.0f && g != 0.0f && b != 0.0f && a != 0.0f;
+	}
+
+	bool is_nonzero_rgb() const
+	{
+		return r != 0.0f && g != 0.0f && b != 0.0f;
+	}
+
 private:
 	// Saturated, always output 0..255
 	constexpr uint8_t f32_to_int8_sat(float clr) const

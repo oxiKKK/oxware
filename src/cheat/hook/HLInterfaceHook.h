@@ -40,6 +40,7 @@ public:
 
 	inline auto ISurface() const { return m_ISurface; }
 	inline auto IGameUI() const { return m_IGameUI; }
+	inline auto IBaseUI() const { return m_IBaseUI; }
 
 private:
 	template<typename T>
@@ -48,6 +49,7 @@ private:
 private:
 	hl::vgui2::ISurface* m_ISurface;
 	hl::IGameUI* m_IGameUI;
+	hl::IBaseUI* m_IBaseUI;
 };
 
 template<typename T>

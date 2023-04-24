@@ -15,6 +15,7 @@ You can **read the change log** in order to keep up with the changes / additions
 	- "command_list"
 	- "clear"
 	- "help"
+- Added Server liar that allows you to lie to the server. (more information on that in the cheat menu)
 
 ## Bugfixes
 

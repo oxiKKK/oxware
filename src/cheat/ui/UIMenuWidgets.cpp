@@ -109,11 +109,8 @@ bool CUIMenuWidgets::add_slider(const std::string& label, const char* format, Va
 	return add_slider_t<VarInteger>(label, format, var, additional_desc);
 }
 
-/*
-void CUIMenuWidgets::add_pair_textinput(const std::string& label, BaseVariable* var, const char* first_column_header, const char* second_column_header)
+void CUIMenuWidgets::add_pair_textinput(const std::string& label, VarKeyValue* var, const char* first_column_header, const char* second_column_header)
 {
-	assert(var->get_type() == VARDT_KeyValue && "The variable that is used inside pair textinput widget must be key value!");
-
 	float left_textinput_width = CMenuStyle::get_child_width_w_padding() / 1.5f;
 
 	g_gui_widgets_i->begin_columns(label.c_str(), 2);
@@ -125,11 +122,11 @@ void CUIMenuWidgets::add_pair_textinput(const std::string& label, BaseVariable* 
 	}
 
 	bool reclaim_focus_value = false;
-	if (g_gui_widgets_i->add_text_input_ex(label + "1", (char*)var->get_keyvalue()->key().c_str(), var->get_keyvalue()->key().length(), Vector2D(-1.0f, 0.0f)))
+	if (g_gui_widgets_i->add_text_input_ex(label + "1", (char*)var->get_value().key().c_str(), var->get_value().key().length(), Vector2D(-1.0f, 0.0f)))
 	{
-		if (!var->get_keyvalue()->key().empty())
+		if (!var->get_value().key().empty())
 		{
-			var->set_keyvalue_directly(KeyValue(var->get_keyvalue()->key(), var->get_keyvalue()->value()));
+			var->set_value(KeyValue(var->get_value().key(), var->get_value().value()));
 		}
 		reclaim_focus_value = true;
 	};
@@ -148,26 +145,25 @@ void CUIMenuWidgets::add_pair_textinput(const std::string& label, BaseVariable* 
 	}
 
 	bool reclaim_focus_key = false;
-	if (g_gui_widgets_i->add_text_input_ex(label + "2", (char*)var->get_keyvalue()->value().c_str(), var->get_keyvalue()->value().length(), Vector2D(-1.0f, 0.0f)))
+	if (g_gui_widgets_i->add_text_input_ex(label + "2", (char*)var->get_value().value().c_str(), var->get_value().value().length(), Vector2D(-1.0f, 0.0f)))
 	{
-		if (!var->get_keyvalue()->value().empty())
+		if (!var->get_value().value().empty())
 		{
-			var->set_keyvalue_directly(KeyValue(var->get_keyvalue()->key(), var->get_keyvalue()->value()));
+			var->set_value(KeyValue(var->get_value().key(), var->get_value().value()));
 		}
 
 		reclaim_focus_key = true;
 	};
 
 	// Auto-focus on window apparition
-	//g_gui_widgets_i->set_item_default_focus();
+	g_gui_widgets_i->set_item_default_focus();
 	if (reclaim_focus_key)
 	{
-		g_gui_widgets_i->set_item_default_focus();
 		g_gui_widgets_i->set_keyboard_focus_here(-1); // Auto focus previous widget
 	}
 
 	g_gui_widgets_i->end_columns(1);
- }*/
+ }
 
 void CUIMenuWidgets::add_description_text(const char* additional_desc, const char* readmore_string)
 {

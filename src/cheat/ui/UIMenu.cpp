@@ -1,4 +1,4 @@
-/*
+﻿/*
 *	OXWARE developed by oxiKKK
 *	Copyright (c) 2023
 * 
@@ -564,16 +564,42 @@ void CUIMenu::tab_exploits()
 			CUIMenuWidgets::the().add_slider("FPS limit", "~%0.0f frames/sec", &frame_skip_maxfps);
 		});
 
-#if 0
+	g_gui_widgets_i->end_columns(1);
+
 	add_menu_child(
-		"Lie to the server", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Lie to the server", { -1.0f, 400.0f }, false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[this]()
 		{
-			CUIMenuWidgets::the().add_pair_textinput("fps_max", &cvarfilter_fps_max, "Cvar name", "Value");
-		});
-#endif
+			g_gui_widgets_i->begin_columns("server_liar_columns", 2);
+			g_gui_widgets_i->set_column_width(0, 200);
 
-	g_gui_widgets_i->end_columns(1);
+			CUIMenuWidgets::the().add_checkbox("Enable", &cvarfilter_enable);
+
+			g_gui_widgets_i->add_spacing();
+
+			CUIMenuWidgets::the().add_checkbox("Monitor server", &cvarfilter_monitor_server, 
+											   "This enables to see what cvars is the server requesting."
+											   " See the console after you join a server, to see what cvars it requests from you.");
+
+			g_gui_widgets_i->goto_next_column();
+
+			g_gui_widgets_i->add_text("Description");
+
+			CUIMenuWidgets::the().add_description_text(
+				"The \"server lying\" technique is used to \"fake\" the server with cvar values.", 
+
+				"Occasionally, some servers request cvar values from the client such as \"fps_max\" etc. and"
+				" they basically want to know the value - in order to kick you when the value is \"against the rules\"."
+				"\n\nUsing this technique, you can basically send whatever cvar values you want to the server, when it requests it."
+				"\n\nFor example, the server wants you to have \"fps_max\" set to \"100\", but you don't want to. Change the value here, "
+				"and when the server will request this cvar value, it will send him whatever value you've specified here, instead of the real one."
+			);
+
+			g_gui_widgets_i->end_columns(1);
+
+			// too much code to have inside of the menu...
+			CServerLiar::the().render_ui();
+		});
 }
 
 void CUIMenu::tab_miscellaneous2()
@@ -804,16 +830,16 @@ void CUIMenu::tab_config()
 				"status", { -1.0f, -1.0f }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
 				[&]()
 				{
-						float dur_sec = std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - status_tm).count();
-						auto [error, msg] = current_status;
-						if (!msg.empty() && dur_sec < 3.0f)
-						{
-							auto color = error ? CColor(112, 0, 0, 170) : CColor(0, 112, 0, 170);
+					float dur_sec = std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - status_tm).count();
+					auto [error, msg] = current_status;
+					if (!msg.empty() && dur_sec < 3.0f)
+					{
+						auto color = error ? CColor(112, 0, 0, 170) : CColor(0, 112, 0, 170);
 
-							g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
-							g_gui_widgets_i->add_colored_text(color, msg);
-							g_gui_widgets_i->pop_font();
-						}
+						g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
+						g_gui_widgets_i->add_colored_text(color, msg);
+						g_gui_widgets_i->pop_font();
+					}
 				});
 
 			g_gui_widgets_i->end_columns(1);

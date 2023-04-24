@@ -141,6 +141,8 @@ void CGUIThemeManager::sync_with_imgui()
 	style.Colors[ImGuiCol_ResizeGripHovered] = get_current_theme()->get_color<GUICLR_ResizeGripHovered>();
 	style.Colors[ImGuiCol_ResizeGripActive] = get_current_theme()->get_color<GUICLR_ResizeGripActive>();
 
+	style.Colors[ImGuiCol_TableHeaderBg] = get_current_theme()->get_color<GUICLR_TableHeaderBg>();
+
 	style.ScrollbarSize = 9.f;
 	style.ChildRounding = style.FrameRounding = style.PopupRounding = 4.0f;
 	style.ScrollbarRounding = 0.f;
@@ -201,11 +203,13 @@ void CGUIThemeManager::add_themes()
 				CColor(112, 112, 112, 170), // GUICLR_TabHovered
 				CColor(112, 112, 112, 128), // GUICLR_TabActive
 
-				CColor(0, 136, 255, 255),	// GUICLR_ProgressBar
+				CColor(   0, 136, 255, 255),// GUICLR_ProgressBar
 
 				CColor(112, 112, 112,  51), // GUICLR_ResizeGrip
 				CColor(112, 112, 112, 128), // GUICLR_ResizeGripHovered
 				CColor(112, 112, 112, 170), // GUICLR_ResizeGripActive
+
+				CColor(  0,   0,   0,   0), // GUICLR_TableHeaderBg
 			}
 		}});
 

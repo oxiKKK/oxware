@@ -44,7 +44,7 @@ public:
 	bool add_slider(const std::string& label, const char* format, VarFloat* var, const char* additional_desc = nullptr);
 	bool add_slider(const std::string& label, const char* format, VarInteger* var, const char* additional_desc = nullptr);
 
-	//void add_pair_textinput(const std::string& label, BaseVariable* var, const char* first_column_header = nullptr, const char* second_column_header = nullptr);
+	void add_pair_textinput(const std::string& label, VarKeyValue* var, const char* first_column_header = nullptr, const char* second_column_header = nullptr);
 
 	void add_description_text(const char* additional_desc, const char* readmore_string = nullptr);
 	

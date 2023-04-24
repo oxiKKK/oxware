@@ -2966,22 +2966,30 @@ void ImGui::TableHeader(const char* label)
     //GetForegroundDrawList()->AddRect(cell_r.Min, cell_r.Max, IM_COL32(255, 0, 0, 255)); // [DEBUG]
     //GetForegroundDrawList()->AddRect(bb.Min, bb.Max, IM_COL32(255, 0, 0, 255)); // [DEBUG]
 
+    // oxware
+    bool text_only_header = (table->Flags & ImGuiTableFlags_HeaderTextOnly);
+
     // Using AllowItemOverlap mode because we cover the whole cell, and we want user to be able to submit subsequent items.
-    bool hovered, held;
-    bool pressed = ButtonBehavior(bb, id, &hovered, &held, ImGuiButtonFlags_AllowItemOverlap);
-    if (g.ActiveId != id)
-        SetItemAllowOverlap();
-    if (held || hovered || selected)
+    bool hovered = false, held = false;
+    bool pressed = false;
+    
+    if (!text_only_header)
     {
-        const ImU32 col = GetColorU32(held ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
-        //RenderFrame(bb.Min, bb.Max, col, false, 0.0f);
-        TableSetBgColor(ImGuiTableBgTarget_CellBg, col, table->CurrentColumn);
-    }
-    else
-    {
-        // Submit single cell bg color in the case we didn't submit a full header row
-        if ((table->RowFlags & ImGuiTableRowFlags_Headers) == 0)
-            TableSetBgColor(ImGuiTableBgTarget_CellBg, GetColorU32(ImGuiCol_TableHeaderBg), table->CurrentColumn);
+        pressed = ButtonBehavior(bb, id, &hovered, &held, ImGuiButtonFlags_AllowItemOverlap);
+        if (g.ActiveId != id)
+            SetItemAllowOverlap();
+        if (held || hovered || selected)
+        {
+            const ImU32 col = GetColorU32(held ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
+            //RenderFrame(bb.Min, bb.Max, col, false, 0.0f);
+            TableSetBgColor(ImGuiTableBgTarget_CellBg, col, table->CurrentColumn);
+        }
+        else
+        {
+            // Submit single cell bg color in the case we didn't submit a full header row
+            if ((table->RowFlags & ImGuiTableRowFlags_Headers) == 0)
+                TableSetBgColor(ImGuiTableBgTarget_CellBg, GetColorU32(ImGuiCol_TableHeaderBg), table->CurrentColumn);
+        }
     }
     RenderNavHighlight(bb, id, ImGuiNavHighlightFlags_TypeThin | ImGuiNavHighlightFlags_NoRounding);
     if (held)
@@ -2995,7 +3003,7 @@ void ImGui::TableHeader(const char* label)
         // While moving a column it will jump on the other side of the mouse, so we also test for MouseDelta.x
         table->ReorderColumn = (ImGuiTableColumnIdx)column_n;
         table->InstanceInteracted = table->InstanceCurrent;
-
+    
         // We don't reorder: through the frozen<>unfrozen line, or through a column that is marked with ImGuiTableColumnFlags_NoReorder.
         if (g.IO.MouseDelta.x < 0.0f && g.IO.MousePos.x < cell_r.Min.x)
             if (ImGuiTableColumn* prev_column = (column->PrevEnabledColumn != -1) ? &table->Columns[column->PrevEnabledColumn] : NULL)
@@ -3026,7 +3034,7 @@ void ImGui::TableHeader(const char* label)
             }
             RenderArrow(window->DrawList, ImVec2(x, y), GetColorU32(ImGuiCol_Text), column->SortDirection == ImGuiSortDirection_Ascending ? ImGuiDir_Up : ImGuiDir_Down, ARROW_SCALE);
         }
-
+    
         // Handle clicking on column header to adjust Sort Order
         if (pressed && table->ReorderColumn != column_n)
         {
@@ -3035,14 +3043,20 @@ void ImGui::TableHeader(const char* label)
         }
     }
 
+    float text_max = cell_r.Max.x - w_arrow;
+    RenderTextClipped(label_pos, ImVec2(text_max, label_pos.y + label_height + g.Style.FramePadding.y), label, NULL, NULL);
+
     // Render clipped label. Clipping here ensure that in the majority of situations, all our header cells will
     // be merged into a single draw call.
-    //window->DrawList->AddCircleFilled(ImVec2(ellipsis_max, label_pos.y), 40, IM_COL32_WHITE);
-    RenderTextEllipsis(window->DrawList, label_pos, ImVec2(ellipsis_max, label_pos.y + label_height + g.Style.FramePadding.y), ellipsis_max, ellipsis_max, label, label_end, &label_size);
+    if (!text_only_header)
+    {
+        window->DrawList->AddCircleFilled(ImVec2(ellipsis_max, label_pos.y), 40, IM_COL32_WHITE);
+        RenderTextEllipsis(window->DrawList, label_pos, ImVec2(ellipsis_max, label_pos.y + label_height + g.Style.FramePadding.y), ellipsis_max, ellipsis_max, label, label_end, &label_size);
 
-    const bool text_clipped = label_size.x > (ellipsis_max - label_pos.x);
-    if (text_clipped && hovered && g.ActiveId == 0 && IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-        SetTooltip("%.*s", (int)(label_end - label), label);
+        const bool text_clipped = label_size.x > (ellipsis_max - label_pos.x);
+        if (text_clipped && hovered && g.ActiveId == 0 && IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            SetTooltip("%.*s", (int)(label_end - label), label);
+    }
 
     // We don't use BeginPopupContextItem() because we want the popup to stay up even after the column is hidden
     if (IsMouseReleased(1) && IsItemHovered())

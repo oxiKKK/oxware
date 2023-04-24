@@ -41,17 +41,6 @@ public:
 	{
 	}
 
-	KeyValue(const KeyValue& kv)
-	{
-		if (!kv.key().empty())
-		{
-			p.first = key();
-		}
-		if (!kv.value().empty())
-		{
-			p.second = value();
-		}
-	}
 	KeyValue(const std::string& key, const std::string& value)
 	{
 		if (!key.empty())

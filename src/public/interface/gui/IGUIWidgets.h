@@ -171,6 +171,27 @@ public:
 	virtual void add_progress_bar(const std::string& id, const Vector2D& size, float current, float max) = 0;
 
 	//
+	// Tables/lists
+	//
+	
+	// Adds new imgui table
+	virtual void add_table(const std::string& name, uint32_t columns, ImGuiTableFlags flags, const std::function<void()>& header_callback, const std::function<void()>& body_callback) = 0;
+
+	// Use for simple tables such as:
+	// 
+	// name       value
+	// name1      value1
+	// ...
+	// nameN      valueN
+	//
+	virtual void add_undecorated_simple_table(const std::string& name, uint32_t columns, const std::function<void()>& body_callback) = 0;
+
+	virtual void table_setup_column_fixed_width(const std::string& name, float width, ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None) = 0;
+	virtual void table_setup_column(const std::string& name, ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None) = 0;
+
+	virtual void table_next_column() = 0;
+
+	//
 	// Input text buffer operations
 	//
 

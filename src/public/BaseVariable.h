@@ -61,6 +61,27 @@ protected:
 	T m_value, m_default, m_min, m_max;
 };
 
+// use with bigger objects
+template<typename T>
+class VariableValueRef
+{
+public:
+	virtual void set_value(const T& value) = 0;
+
+	const T& get_value() const { return m_value; }
+	const T& get_default() const { return m_default; }
+	const T& get_min() const { return m_min; }
+	const T& get_max() const { return m_max; }
+
+	virtual std::string T_to_string(const T& v) const = 0;
+	virtual T string_to_T(const std::string& v) const = 0;
+
+	virtual void clamp_value_if_needed() {}
+
+protected:
+	T m_value, m_default, m_min, m_max;
+};
+
 class BaseVariable
 {
 public:
@@ -332,6 +353,46 @@ private:
 	CColor string_to_T(const std::string& v) const override
 	{
 		return CColor::parse_color_out_of_string(v);
+	}
+};
+
+class VarKeyValue final : public BaseVariable, public VariableValueRef<KeyValue>
+{
+public:	
+	VarKeyValue(const char* name, const char* description, const KeyValue& value)
+		: BaseVariable(name, description, T_to_string(value).c_str())
+	{
+		m_default = value;
+		set_value(value);
+	}
+
+	void set_value(const KeyValue& value) override
+	{
+		if (m_value != value)
+		{
+			m_value = value;
+			m_value_string = T_to_string(value);
+		}
+	}
+
+	void set_from_string(const std::string& new_value) override
+	{
+		if (m_value_string != new_value)
+		{
+			m_value_string = new_value;
+			m_value = string_to_T(new_value);
+		}
+	}
+
+private:
+	std::string T_to_string(const KeyValue& v) const override
+	{
+		return std::format("{}", v);
+	}
+	
+	KeyValue string_to_T(const std::string& v) const override
+	{
+		return KeyValue::parse_kv_out_of_string(v);
 	}
 };
 

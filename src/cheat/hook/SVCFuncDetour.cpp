@@ -72,7 +72,7 @@ void CSVCFuncDetourMgr::svc_time_f()
 
 void CSVCFuncDetourMgr::svc_sendcvarvalue_f()
 {
-	// we don't actually perform a silent read begin&end operation, because we'll basically detour
+	// we don't actually perform a silent read begin&end operation, because we'll basically reimplement
 	// the function completely. "Replace it"
 
 	// servers call this in order to request cvar value from the client.
@@ -81,7 +81,10 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue_f()
 
 	CHLNetMessageIO::the().write_byte(clc_cvarvalue);
 
-	CConsole::the().info("Server requested cvar value from '{}' (svc_sendcvarvalue)", requested_cvar);
+	if (cvarfilter_monitor_server.get_value())
+	{
+		CConsole::the().info("Server requested cvar value from '{}' (svc_sendcvarvalue)", requested_cvar);
+	}
 
 	if (strlen(requested_cvar) >= 255)
 	{
@@ -111,13 +114,24 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue_f()
 	}
 	else
 	{
-		CHLNetMessageIO::the().write_string(cvar->string);
+		const char* value = CServerLiar::the().filter_cvarvalue(requested_cvar);
+		if (value == nullptr)
+		{
+			value = cvar->string;
+		}
+
+		if (cvarfilter_monitor_server.get_value())
+		{
+			CConsole::the().info("Responding to server with.. '{}' (but have '{}')", value, cvar->string);
+		}
+
+		CHLNetMessageIO::the().write_string(value);
 	}
 }
 
 void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 {
-	// we don't actually perform a silent read begin&end operation, because we'll basically detour
+	// we don't actually perform a silent read begin&end operation, because we'll basically reimplement
 	// the function completely. "Replace it"
 
 	// servers call this in order to request cvar value from the client.
@@ -129,7 +143,10 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 	CHLNetMessageIO::the().write_long(request_id);
 	CHLNetMessageIO::the().write_string(requested_cvar);
 
-	CConsole::the().info("Server requested cvar value from '{}' (svc_sendcvarvalue2)", requested_cvar);
+	if (cvarfilter_monitor_server.get_value())
+	{
+		CConsole::the().info("Server requested cvar value from '{}' (svc_sendcvarvalue2)", requested_cvar);
+	}
 
 	if (strlen(requested_cvar) >= 255)
 	{
@@ -139,7 +156,7 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 
 	// Send back the cvar type to server
 	auto cvar = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer(requested_cvar);
-	//if (cvar == NULL)
+	if (cvar == NULL)
 	{
 		CHLNetMessageIO::the().write_string("Bad CVAR request");
 		return;
@@ -165,7 +182,10 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 			value = cvar->string;
 		}
 
-		CConsole::the().info("Responding to server with.. '{}'", value);
+		if (cvarfilter_monitor_server.get_value())
+		{
+			CConsole::the().info("Responding to server with.. '{}' (but have '{}')", value, cvar->string);
+		}
 
 		CHLNetMessageIO::the().write_string(value);
 	}

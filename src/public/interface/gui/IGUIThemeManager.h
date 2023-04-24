@@ -35,14 +35,14 @@
 
 enum EGUIColor
 {
-	GUICLR_NONE, 
+	GUICLR_NONE,
 
 	GUICLR_TextLight,
 	GUICLR_TextRegular,
 	GUICLR_TextDark,
 	GUICLR_TextBlack,
 	GUICLR_TextWhite,
-	
+
 	GUICLR_WindowBackground,
 	GUICLR_ChildBackground,
 	GUICLR_PopupBackground,
@@ -83,6 +83,8 @@ enum EGUIColor
 	GUICLR_ResizeGrip,
 	GUICLR_ResizeGripHovered,
 	GUICLR_ResizeGripActive,
+
+	GUICLR_TableHeaderBg,
 
 	GUICLR_MAX
 };

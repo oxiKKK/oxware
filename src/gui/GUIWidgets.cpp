@@ -138,6 +138,27 @@ public:
 	void add_progress_bar(const std::string& id, const Vector2D& size, float current, float max);
 
 	//
+	// Tables/lists
+	//
+	
+	// Adds new imgui table
+	void add_table(const std::string& name, uint32_t columns, ImGuiTableFlags flags, const std::function<void()>& header_callback, const std::function<void()>& body_callback);
+
+	// Use for simple tables such as:
+	// 
+	// name       value
+	// name1      value1
+	// ...
+	// nameN      valueN
+	//
+	void add_undecorated_simple_table(const std::string& name, uint32_t columns, const std::function<void()>& body_callback);
+
+	void table_setup_column_fixed_width(const std::string& name, float width, ImGuiTableColumnFlags flags);
+	void table_setup_column(const std::string& name, ImGuiTableColumnFlags flags);
+
+	void table_next_column();
+
+	//
 	// Input text buffer operations
 	//
 
@@ -876,6 +897,50 @@ void CGUIWidgets::add_progress_bar(const std::string& id, const Vector2D& size, 
 
 	RenderFrame(bb.Min, bb.Max, clr.as_u32(), true, 4.0f);
 	RenderFrame(bb1.Min, bb1.Max, clr1.as_u32(), true, 4.0f);
+}
+
+void CGUIWidgets::add_table(const std::string& name, uint32_t columns, ImGuiTableFlags flags, 
+							const std::function<void()>& header_callback, const std::function<void()>& body_callback)
+{
+	if (BeginTable(name.c_str(), columns, flags))
+	{
+		if (header_callback)
+		{
+			header_callback();
+			TableHeadersRow();
+		}
+
+		if (body_callback)
+			body_callback();
+
+		EndTable();
+	}
+}
+
+void CGUIWidgets::add_undecorated_simple_table(const std::string& name, uint32_t columns, const std::function<void()>& body_callback)
+{
+	const auto header_callback = [&]()
+	{
+		for (uint32_t i = 0; i < columns; i++)
+			table_setup_column(std::format("column{}", columns), ImGuiTableColumnFlags_None);
+	};
+
+	add_table(name, columns, ImGuiTableFlags_None, header_callback, body_callback);
+}
+
+void CGUIWidgets::table_setup_column_fixed_width(const std::string& name, float width, ImGuiTableColumnFlags flags)
+{
+	TableSetupColumn(name.c_str(), flags | ImGuiTableColumnFlags_WidthFixed, width);
+}
+
+void CGUIWidgets::table_setup_column(const std::string& name, ImGuiTableColumnFlags flags)
+{
+	TableSetupColumn(name.c_str(), flags);
+}
+
+void CGUIWidgets::table_next_column()
+{
+	TableNextColumn();
 }
 
 void CGUIWidgets::delete_chars_on_textinput_buffer(ImGuiInputTextCallbackData* data, int pos, int bytes_count)

@@ -117,3 +117,4 @@ bool StaticCommandContainer::see_for_overflow(BaseCommand* current_var)
 
 	return true;
 }
+

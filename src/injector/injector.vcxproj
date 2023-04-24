@@ -358,6 +358,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="RtlIIFT_bytepattern_search.cpp" />
     <ClCompile Include="shellcodes.cpp">
       <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</FunctionLevelLinking>
       <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</FunctionLevelLinking>
@@ -394,6 +395,7 @@
     <ClInclude Include="..\public\injection\PortableExecutableObject.h" />
     <ClInclude Include="..\public\injection\VirtualMemoryManager.h" />
     <ClInclude Include="precompiled.h" />
+    <ClInclude Include="RtlIIFT_bytepattern_search.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

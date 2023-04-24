@@ -35,6 +35,7 @@
 #pragma once
 
 #include "Console.h"
+#include "BytePattern.h"
 
 class CManualMappedDll : public IInjectableModuleObject
 {
@@ -90,7 +91,7 @@ private:
 	bool write_data_into_target_process();
 	bool execute_shellcode_in_target_process();
 
-	void update_shellcode_execution_context_data();
+	bool update_shellcode_execution_context_data();
 	manualmap_shellcode_execution_context_t m_shellcode_execution_context;
 
 	uintptr_t get_target_process_shellcode_execution_context_addr() const

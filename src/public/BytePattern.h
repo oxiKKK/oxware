@@ -37,35 +37,16 @@
 
 static constexpr size_t k_max_pattern_length = 128; // had to increase once.
 
-class CBytePattern
+class CBaseBytePattern
 {
 public:
-	CBytePattern() :
-		m_pattern(""), m_mask(""), 
+	CBaseBytePattern() :
+		m_pattern(""), m_mask(""),
 		m_offset(0)
 	{
 	}
 
-	template<size_t N> requires(N < k_max_pattern_length)
-	CBytePattern(const char(&pattern)[N], uintptr_t offset = 0x00000000) :
-		m_offset(offset)
-	{
-		m_mask = generate_mask_from_pattern(pattern);
-
-		// Does count the nullcharacter if we specify the length.
-		m_pattern = std::string(pattern, N);
-	}
-
 public:
-	template<size_t N> requires(N < k_max_pattern_length)
-	static inline auto generate_mask_from_pattern(const char(&pattern)[N])
-	{
-		std::string a;
-		for (size_t i = 0; i < N; i++)
-			a.push_back(pattern[i] == '\x00' ? '?' : 'x');
-		return a;
-	}
-
 	std::string pattern_as_string() const
 	{
 		std::string result;
@@ -78,6 +59,7 @@ public:
 	}
 
 	inline std::string get_mask() const { return m_mask; }
+	inline std::string get_pattern_raw() const { return m_pattern; }
 	inline uintptr_t get_offset() const { return m_offset; }
 
 	uintptr_t* search_in_loaded_address_space(uintptr_t start_addr, uintptr_t end_addr) const
@@ -104,9 +86,67 @@ public:
 		return nullptr;
 	}
 
-private:
+protected:
 	std::string m_pattern, m_mask; // the mask is automatically generated
 	uintptr_t m_offset;
 };
+
+template <size_t MaxLen>
+class CBytePatternWithLengthConstexpr : public CBaseBytePattern
+{
+public:
+	CBytePatternWithLengthConstexpr() : CBaseBytePattern()
+	{
+	}
+
+	template<size_t N> requires(N < MaxLen)
+	CBytePatternWithLengthConstexpr(const char(&pattern)[N], uintptr_t offset = 0x00000000)
+	{
+		m_offset = offset;
+
+		m_mask = generate_mask_from_pattern_constexpr(pattern);
+
+		// Does count the nullcharacter if we specify the length.
+		m_pattern = std::string(pattern, N);
+	}
+
+public:
+	template<size_t N> requires(N < k_max_pattern_length)
+	static inline auto generate_mask_from_pattern_constexpr(const char(&pattern)[N])
+	{
+		std::string a;
+		for (size_t i = 0; i < N; i++)
+			a.push_back(pattern[i] == '\x00' ? '?' : 'x');
+		return a;
+	}
+};
+
+class CBytePatternRuntime : public CBaseBytePattern
+{
+public:
+	CBytePatternRuntime() : CBaseBytePattern()
+	{
+	}
+
+	CBytePatternRuntime(const char* pattern, size_t length, uintptr_t offset = 0x00000000)
+	{
+		m_offset = offset;
+		m_mask = generate_mask_from_pattern_runtime(pattern, length);
+
+		// Does count the nullcharacter if we specify the length.
+		m_pattern = std::string(pattern, length);
+	}
+
+public:
+	static inline std::string generate_mask_from_pattern_runtime(const char* pattern, size_t length)
+	{
+		std::string a;
+		for (size_t i = 0; i < length; i++)
+			a.push_back(pattern[i] == '\x00' ? '?' : 'x');
+		return a;
+	}
+};
+
+using CBytePattern = CBytePatternWithLengthConstexpr<k_max_pattern_length>;
 
 #endif // BYTEPATTERN_H

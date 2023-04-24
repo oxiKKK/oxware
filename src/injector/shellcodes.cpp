@@ -26,7 +26,7 @@
 *	IN THE SOFTWARE.
 */
 
-#include <commondefs.h>
+#include <platform.h>
 
 #include <interface/IBaseModule.h>
 
@@ -161,7 +161,6 @@ DWORD CLoadLibrareredDll::shellcode_routine_end_marker()
 
 //------------------------------------------------------------------------------------------------------------------------
 
-
 //
 //	Policy of the shellcode routine code:
 // 
@@ -184,6 +183,8 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 
 	pfnCommunicativeDllEntryPoint_t pfnCommunicativeDllEntryPoint = nullptr;
 
+	context->pfnOutputDebugStringA(context->debug_messages[1]);
+
 	//
 	// manually re-set image imports corresponding to target process's address space addresses.
 	//
@@ -191,7 +192,6 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 	{
 		auto import_desc = (IMAGE_IMPORT_DESCRIPTOR*)(base + op->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
 
-		//context->pfnOutputDebugStringA(context->debug_messages[3]);
 		while (import_desc->Name)
 		{
 			char* module_name = (char*)(base + import_desc->Name);
@@ -226,6 +226,8 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 		}
 	}
 
+	context->pfnOutputDebugStringA(context->debug_messages[2]);
+
 	//
 	// watch for dll exports we want
 	//
@@ -257,6 +259,87 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 		}
 	}
 
+	//
+	// Find ntdll.dll base address
+	//
+
+	context->pfnOutputDebugStringA(context->debug_messages[3]);
+
+	uintptr_t ntdll_base = NULL;
+	auto topmost_entry = &peb->Ldr->InMemoryOrderModuleList;
+	auto front_link = topmost_entry->Flink;
+
+	do
+	{
+		auto module_entry = reinterpret_cast<PLDR_DATA_TABLE_ENTRY>((uint8_t*)front_link - (sizeof(LIST_ENTRY)));
+
+		if (!context->pfn_wcsicmp(module_entry->BaseDllName.Buffer, context->dll_names[0]))
+		{
+			ntdll_base = (uintptr_t)module_entry->DllBase;
+			break;
+		}
+
+		front_link = front_link->Flink;
+	} while (front_link != topmost_entry);
+
+	//
+	// Handle C++ exceptions in injected module for x86
+	// 
+	// Note that for x64 the process is completely different.
+	//
+
+	context->pfnOutputDebugStringA(context->debug_messages[4]);
+	
+	// byte pattern for RtlInsertInvertedFunctionTable inside ntdll.
+	auto BPattern_RtlIIFT = &context->byte_patterns[BPattern_RtlIIFT_Idx];
+
+	DWORD size_of_ntdll_image = (DWORD)((PIMAGE_NT_HEADERS)((uint8_t*)ntdll_base + ((PIMAGE_DOS_HEADER)ntdll_base)->e_lfanew))->OptionalHeader.SizeOfImage;
+
+	// Note that this function's declaration changes rapidly through various windows versions.
+	// On windows 7, this function has three parameters, but on windows 10 it has only two.
+	// The byte pattern for this function may change often, too...
+	//
+	// This function is normally called by the internal native loader api when loading a dll.
+	// Without this function call, we aren't able to use C++ exceptions inside of our code.
+	void(__fastcall * RtlInsertInvertedFunctionTable)(DWORD ImageBase, DWORD SizeOfImage);
+
+	context->pfnOutputDebugStringA(context->debug_messages[5]);
+
+	// search for the byte patter manually here...
+	uintptr_t* address = nullptr;
+	bool found = false;
+	for (uintptr_t i = ntdll_base; i < (ntdll_base + size_of_ntdll_image) - BPattern_RtlIIFT->length; i++)
+	{
+		found = true;
+		for (size_t k = 0; k < BPattern_RtlIIFT->length; k++)
+		{
+			if (BPattern_RtlIIFT->mask[k] == 'x' && BPattern_RtlIIFT->bytepattern[k] != *(char*)(i + k))
+			{
+				found = false;
+				break;
+			}
+		}
+
+		if (found)
+		{
+			address = (uintptr_t*)i;
+			break;
+		}
+	}
+
+	RtlInsertInvertedFunctionTable = (decltype(RtlInsertInvertedFunctionTable))address;
+
+	if (RtlInsertInvertedFunctionTable)
+	{
+		DWORD size_of_image_current = (DWORD)((PIMAGE_NT_HEADERS)((uint8_t*)base + ((PIMAGE_DOS_HEADER)base)->e_lfanew))->OptionalHeader.SizeOfImage;
+		RtlInsertInvertedFunctionTable((DWORD)base, size_of_image_current);
+	}
+	else
+	{
+		// this should not happen, as we test for the presence of the function inside of the loader already.
+		return NULL;
+	}
+
 #if 0 // UPDATE: This was originally not disabled however, after the addition of exception handling, we need data from PE header..
 	  //		 Meh.. I don't wanna deal with this now.. TODO (Note: is this even needed?)
 
@@ -275,7 +358,7 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 	snap_nt->OptionalHeader.Magic = 0;
 #endif
 
-	context->pfnOutputDebugStringA(context->debug_messages[1]);
+	context->pfnOutputDebugStringA(context->debug_messages[6]);
 
 	//
 	// call the generic initialization routine that gets called normally. (_DllMainCRTStartup(), usually)
@@ -284,6 +367,8 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 	{
 		return NULL;
 	}
+
+	context->pfnOutputDebugStringA(context->debug_messages[7]);
 
 	//
 	// if this module we're loading is the communicative one, we have to listen to it.

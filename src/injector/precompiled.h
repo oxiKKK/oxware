@@ -74,4 +74,6 @@
 #include <injection/VirtualMemoryManager.h>
 #include <injection/InjectedDllIPCInterface.h>
 
+#include "RtlIIFT_bytepattern_search.h"
+
 #endif // PRECOMPILED_H

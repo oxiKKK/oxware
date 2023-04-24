@@ -51,59 +51,18 @@ extern "C" DLLEXPORT bool CommunicativeDllEntryPoint(injector_information_packag
 
 #include "tier/MessageBox.h"
 
-bool insert_inverted_function_table(uintptr_t* module_base)
-{
-	// byte pattern for RtlInsertInvertedFunctionTable inside ntdll.
-	CBytePattern RltIIFT_pattern("\x8B\xFF\x55\x8B\xEC\x83\xEC\x0C\x53\x56\x57\x8D\x45\xF8\x8B\xFA");
-
-	DWORD ntdll_base = (DWORD)GetModuleHandleA("ntdll.dll");
-	DWORD ntdll_base_code = (DWORD)((PIMAGE_NT_HEADERS)((uint8_t*)ntdll_base + ((PIMAGE_DOS_HEADER)ntdll_base)->e_lfanew))->OptionalHeader.BaseOfCode;
-	DWORD size_of_ntdll_image_code = (DWORD)((PIMAGE_NT_HEADERS)((uint8_t*)ntdll_base + ((PIMAGE_DOS_HEADER)ntdll_base)->e_lfanew))->OptionalHeader.SizeOfCode;
-	DWORD size_of_ntdll_image = (DWORD)((PIMAGE_NT_HEADERS)((uint8_t*)ntdll_base + ((PIMAGE_DOS_HEADER)ntdll_base)->e_lfanew))->OptionalHeader.SizeOfImage;
-
-	// Note that this function's declaration changes rapidly through various windows versions.
-	// On windows 7, this function has three parameters, but on windows 10 it has only two.
-	// The byte pattern for this function may change often, too...
-	//
-	// This function is normally called by the internal native loader api when loading a dll.
-	// Without this function call, we aren't able to use C++ exceptions inside of our code.
-	void(__fastcall * RtlInsertInvertedFunctionTable)(DWORD ImageBase, DWORD SizeOfImage);
-	RtlInsertInvertedFunctionTable = (decltype(RtlInsertInvertedFunctionTable))RltIIFT_pattern.search_in_loaded_address_space(ntdll_base, ntdll_base + size_of_ntdll_image);
-
-	if (RtlInsertInvertedFunctionTable)
-	{
-		DWORD size_of_image_current = (DWORD)((PIMAGE_NT_HEADERS)((uint8_t*)module_base + ((PIMAGE_DOS_HEADER)module_base)->e_lfanew))->OptionalHeader.SizeOfImage;
-		RtlInsertInvertedFunctionTable((DWORD)module_base, size_of_image_current);
-	}
-	else
-	{
-		CMessageBox::display_error("Couldn't find RtlInsertInvertedFunctionTable function. This function is mandatory. Aborting injection...");
-		return false;
-	}
-
-	return true;
-}
-
 BOOL APIENTRY DllMain(HMODULE hModule,
 					  DWORD  ul_reason_for_call,
 					  LPVOID lpReserved)
 {
-	//
-	// Enable C++ exceptions on x86 module
-	//
-	if (!insert_inverted_function_table((uintptr_t*)hModule))
-	{
-		return false;
-	}
-
 #if 0
 	try
 	{
 		throw std::invalid_argument("received negative value");
 	}
-	catch (...)
+	catch (const std::invalid_argument& arg)
 	{
-		CMessageBox::display_error("error");
+		CMessageBox::display_error("error: {}", arg.what());
 	}
 #endif
 

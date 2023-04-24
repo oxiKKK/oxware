@@ -464,12 +464,25 @@ class BaseCommand
 public:
 	BaseCommand(const std::string& name, const pfnCommandFunc_t& func) :
 		m_name(name), 
+		m_usage(""),
+		m_function(func)
+	{
+		add_to_global_list();
+	}
+
+	BaseCommand(const std::string& name, const std::string& usage, const pfnCommandFunc_t& func) :
+		m_name(name), 
+		m_usage(usage), 
 		m_function(func)
 	{
 		add_to_global_list();
 	}
 
 	inline const char* get_name() const { return m_name.c_str(); }
+
+	// usage
+	inline bool has_usage() const { return !m_usage.empty(); }
+	inline const char* get_usage() const { return m_usage.c_str(); }
 
 	void execute()
 	{
@@ -480,7 +493,7 @@ private:
 	void add_to_global_list();
 
 protected:
-	std::string m_name;
+	std::string m_name, m_usage;
 
 	pfnCommandFunc_t m_function;
 };

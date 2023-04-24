@@ -282,6 +282,7 @@ void CDeveloperConsole::render()
 		if (buffer[0])
 		{
 			bool add_to_history = false;
+			bool cmd_buffer_tokenized = false;
 			if (!strnicmp(buffer, "hl ", 3))
 			{
 				const char* s = buffer + 3;
@@ -303,18 +304,30 @@ void CDeveloperConsole::render()
 			}
 			else
 			{
-				// our command
+				// feed the parser with new buffer
+				g_variablemgr_i->update_cmd_buffer(buffer);
+				cmd_buffer_tokenized = true;
 
-				auto cmd = g_variablemgr_i->query_command(buffer);
+				// our command - only the name before first space.
+				std::string str_buffer = buffer;
+				std::string command_name = buffer;
+
+				auto space = str_buffer.find(' ');
+				if (space != std::string::npos)
+				{
+					command_name = str_buffer.substr(0, space);
+				}
+
+				auto cmd = g_variablemgr_i->query_command(command_name.c_str());
 
 				if (cmd)
 				{
 					cmd->execute();
-					print_console(EOutputCategory::INFO, std::format("{}", buffer));
+					print_console(EOutputCategory::INFO, std::format("{}", str_buffer));
 				}
 				else
 				{
-					print_console(EOutputCategory::INFO, std::format("Unknown command '{}'", buffer));
+					print_console(EOutputCategory::INFO, std::format("Unknown command '{}'", command_name));
 				}
 
 				add_to_history = true;
@@ -325,6 +338,12 @@ void CDeveloperConsole::render()
 				if (m_entered_commands.size() > 20)
 				{
 					m_entered_commands.pop_front();
+				}
+
+				if (!cmd_buffer_tokenized)
+				{
+					// feed the parser with new buffer
+					g_variablemgr_i->update_cmd_buffer(buffer);
 				}
 
 				m_entered_commands.push_back(buffer);

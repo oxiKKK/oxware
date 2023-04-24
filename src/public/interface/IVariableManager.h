@@ -84,6 +84,20 @@ public:
 
 	virtual void for_each_variable(const std::function<void(BaseVariable*)>& callback) = 0;
 	virtual void for_each_command(const std::function<void(BaseCommand*)>& callback) = 0;
+
+	//
+	// command parsing
+	//
+
+	virtual const std::string& get_last_command_buffer() = 0;
+
+	// return empty string if not found.
+	virtual std::string get_token(size_t pos) = 0;
+
+	// call every time new command is entered
+	virtual void update_cmd_buffer(const std::string& new_buffer) = 0;
+
+	virtual void tokenize_last_cmdbuf() = 0;
 };
 
 extern IVariableManager* g_variablemgr_i;

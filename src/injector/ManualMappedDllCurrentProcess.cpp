@@ -302,7 +302,7 @@ bool CManualMappedDllCurrentProcess::execute_shellcode()
 	// silly to call it a "shellcode", but yea, whatever dude
 	if (NULL == shellcode_routine())
 	{
-		CConsole::the().info("Shellcode returned NULL.");
+		CMessageBox::display_error("Shellcode routine exited with error.");
 		return false;
 	}
 
@@ -327,10 +327,6 @@ DISABLE_SAFEBUFFERS HINSTANCE CManualMappedDllCurrentProcess::shellcode_routine(
 	auto peb = teb->ProcessEnvironmentBlock;
 
 	auto pfnDllMain = reinterpret_cast<pfnDllMain_t>(m_allocation_block_ptr + op->AddressOfEntryPoint);
-
-	pfnCommunicativeDllEntryPoint_t pfnCommunicativeDllEntryPoint = nullptr;
-
-	OutputDebugStringA("Shellcode begin");
 
 	//
 	// manually re-set image imports corresponding to target process's address space addresses.
@@ -371,6 +367,7 @@ DISABLE_SAFEBUFFERS HINSTANCE CManualMappedDllCurrentProcess::shellcode_routine(
 			import_desc++;
 		}
 	}
+
 	//
 	// watch for dll exports we want
 	//
@@ -396,19 +393,49 @@ DISABLE_SAFEBUFFERS HINSTANCE CManualMappedDllCurrentProcess::shellcode_routine(
 				m_pfnGetInterfaceInstanceFn = reinterpret_cast<GetInterfaceInstanceFn>((uint8_t*)m_allocation_block_ptr + function_table_base[ordinal_table_base[i]]);
 				OutputDebugStringA("Found GetInterfaceInstanceFn");
 			}
-			else if (!_stricmp(export_procname, COMMUNICATIVEDLLENTRYPOINT_PROCNAME))
-			{
-				pfnCommunicativeDllEntryPoint = reinterpret_cast<pfnCommunicativeDllEntryPoint_t>((uint8_t*)m_allocation_block_ptr + function_table_base[ordinal_table_base[i]]);
-			}
 		}
+	}
+
+	//
+	// Resolve RtlInsertInvertedFunctionTable byte patterns.
+	//
+
+	// byte patterns
+	if (!RtlIIFT_BytePattern_Search::the().resolve_bytepatterns())
+	{
+		return NULL;
+	}
+
+	// byte pattern for RtlInsertInvertedFunctionTable inside ntdll.
+	CBytePatternRuntime RtlIIFT_pattern({ RtlIIFT_BytePattern_Search::the().m_RtlIIFT_bytepattern.c_str(), RtlIIFT_BytePattern_Search::the().m_RtlIIFT_bytepattern.length() });
+
+	DWORD ntdll_base = (DWORD)GetModuleHandleA("ntdll.dll");
+	DWORD size_of_ntdll_image = (DWORD)((PIMAGE_NT_HEADERS)((uint8_t*)ntdll_base + ((PIMAGE_DOS_HEADER)ntdll_base)->e_lfanew))->OptionalHeader.SizeOfImage;
+
+	// Note that this function's declaration changes rapidly through various windows versions.
+	// On windows 7, this function has three parameters, but on windows 10 it has only two.
+	// The byte pattern for this function may change often, too...
+	//
+	// This function is normally called by the internal native loader api when loading a dll.
+	// Without this function call, we aren't able to use C++ exceptions inside of our code.
+	void(__fastcall * RtlInsertInvertedFunctionTable)(DWORD ImageBase, DWORD SizeOfImage);
+	RtlInsertInvertedFunctionTable = (decltype(RtlInsertInvertedFunctionTable))RtlIIFT_pattern.search_in_loaded_address_space(ntdll_base, ntdll_base + size_of_ntdll_image);
+
+	if (RtlInsertInvertedFunctionTable)
+	{
+		DWORD size_of_image_current = (DWORD)((PIMAGE_NT_HEADERS)((uint8_t*)m_allocation_block_ptr + ((PIMAGE_DOS_HEADER)m_allocation_block_ptr)->e_lfanew))->OptionalHeader.SizeOfImage;
+		RtlInsertInvertedFunctionTable((DWORD)m_allocation_block_ptr, size_of_image_current);
+	}
+	else
+	{
+		CMessageBox::display_error("Couldn't find RtlInsertInvertedFunctionTable function. This function is mandatory. Aborting injection...");
+		return NULL;
 	}
 
 	//
 	// Clear DOS & NT headers + sections etc.
 	//
-	memset(m_allocation_block_ptr, 0x0, sizeof(0x1000));
-
-	OutputDebugStringA("Calling DllMain");
+	//memset(m_allocation_block_ptr, 0x0, sizeof(0x1000)); TODO: Resolve, see in regular manual map shellcode.
 
 	//
 	// call the generic initialization routine that gets called normally. (_DllMainCRTStartup(), usually)
@@ -417,8 +444,6 @@ DISABLE_SAFEBUFFERS HINSTANCE CManualMappedDllCurrentProcess::shellcode_routine(
 	{
 		return NULL;
 	}
-
-	OutputDebugStringA("Shellcode end");
 
 	return (HINSTANCE)m_allocation_block_ptr;
 }

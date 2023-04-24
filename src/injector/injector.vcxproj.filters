@@ -50,6 +50,9 @@
     <ClCompile Include="..\public\BaseVariable.cpp">
       <Filter>public</Filter>
     </ClCompile>
+    <ClCompile Include="RtlIIFT_bytepattern_search.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -82,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="..\public\BaseVariable.h">
       <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="RtlIIFT_bytepattern_search.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -32,7 +32,7 @@
 
 #include "resource/resource.h"
 
-#if defined(_RETAIL) || 1
+#if defined(_RETAIL)
 #define INJECTION_METHOD_MANUALMAP
 #endif
 

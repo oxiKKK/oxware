@@ -539,7 +539,7 @@ bool CManualMappedDll::execute_shellcode_in_target_process()
 	return true;
 }
 
-void CManualMappedDll::update_shellcode_execution_context_data()
+bool CManualMappedDll::update_shellcode_execution_context_data()
 {
 	m_shellcode_execution_context.module_base = m_target_dll_image_ptr;
 	m_shellcode_execution_context.pfnGetProcAddress = (pfnGetProcAddress_t)GetProcAddress;
@@ -547,6 +547,7 @@ void CManualMappedDll::update_shellcode_execution_context_data()
 	m_shellcode_execution_context.pfnOutputDebugStringA = (pfnOutputDebugStringA_t)OutputDebugStringA;
 	// this needs to be from ntdll.dll! we're lucky that it exports such functions anyways.. heh
 	m_shellcode_execution_context.pfn_stricmp = (pfn_stricmp_t)GetProcAddress(GetModuleHandleA("ntdll.dll"), "_stricmp");
+	m_shellcode_execution_context.pfn_wcsicmp = (pfn_wcsicmp_t)GetProcAddress(GetModuleHandleA("ntdll.dll"), "_wcsicmp");
 	m_shellcode_execution_context.pfnmemset = (pfnmemset_t)GetProcAddress(GetModuleHandleA("ntdll.dll"), "memset");
 	m_shellcode_execution_context.pfnmemcpy = (pfnmemcpy_t)GetProcAddress(GetModuleHandleA("ntdll.dll"), "memcpy");
 
@@ -554,19 +555,36 @@ void CManualMappedDll::update_shellcode_execution_context_data()
 	assert(m_shellcode_execution_context.pfnLoadLibraryA);
 	assert(m_shellcode_execution_context.pfnOutputDebugStringA);
 	assert(m_shellcode_execution_context.pfn_stricmp);
+	assert(m_shellcode_execution_context.pfn_wcsicmp);
 	assert(m_shellcode_execution_context.pfnmemset);
 	assert(m_shellcode_execution_context.pfnmemcpy);
 	// debug strings
 	strcpy_s(m_shellcode_execution_context.debug_messages[0], "Hello from shellcode.\n");
-	strcpy_s(m_shellcode_execution_context.debug_messages[1], "Calling DllMain.\n");
-	strcpy_s(m_shellcode_execution_context.debug_messages[2], "Shellcode finish.\n");
-	strcpy_s(m_shellcode_execution_context.debug_messages[3], "Loading imports...");
-	strcpy_s(m_shellcode_execution_context.debug_messages[4], "\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[1], "Resolving imports...\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[2], "Resolving exports\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[3], "Finding ntdll.dll base...\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[4], "Resolving C++ exceptions...");
+	strcpy_s(m_shellcode_execution_context.debug_messages[5], "Searching for RtlInsertInvertedFunctionTable...\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[6], "Calling DllMain...\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[7], "Calling Communicative Entry Point...\n");
 
 	// exported procnames
 	strcpy_s(m_shellcode_execution_context.export_names[0], EXPOSEMODULE_PROCNAME);
 	strcpy_s(m_shellcode_execution_context.export_names[1], INTERFACEINSTANCEGETTER_PROCNAME);
 	strcpy_s(m_shellcode_execution_context.export_names[2], COMMUNICATIVEDLLENTRYPOINT_PROCNAME);
+
+	// dll names
+	wcscpy_s(m_shellcode_execution_context.dll_names[0], L"ntdll.dll");
+
+	// byte patterns
+	if (!RtlIIFT_BytePattern_Search::the().resolve_bytepatterns())
+	{
+		return false;
+	}
+
+	strcpy_s(m_shellcode_execution_context.byte_patterns[BPattern_RtlIIFT_Idx].bytepattern, RtlIIFT_BytePattern_Search::the().m_RtlIIFT_bytepattern.c_str());
+	strcpy_s(m_shellcode_execution_context.byte_patterns[BPattern_RtlIIFT_Idx].mask, RtlIIFT_BytePattern_Search::the().m_RtlIIFT_bytepattern_mask.c_str());
+	m_shellcode_execution_context.byte_patterns[BPattern_RtlIIFT_Idx].length = RtlIIFT_BytePattern_Search::the().m_RtlIIFT_bytepattern.length();
 
 	if (is_communicative_dll())
 	{
@@ -581,5 +599,8 @@ void CManualMappedDll::update_shellcode_execution_context_data()
 
 	auto current_path = std::filesystem::current_path().wstring();
 	wcscpy_s(m_shellcode_execution_context.m_information_package.m_loader_path, current_path.c_str());
+
+	return true;
 }
+
 

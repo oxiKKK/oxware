@@ -66,10 +66,12 @@ protected:
 };
 
 typedef FARPROC(WINAPI*pfnGetProcAddress_t)(HMODULE hModule, LPCSTR lpProcName);
+typedef HANDLE(WINAPI*pfnGetModuleHandleA_t)(LPCSTR lpModuleName);
 typedef HMODULE(WINAPI*pfnLoadLibraryA_t)(LPCSTR lpLibFileName);
 typedef HMODULE(WINAPI*pfnLoadLibraryExA_t)(LPCSTR lpLibFileName, HANDLE hFile, DWORD dwFlags);
 typedef VOID(WINAPI*pfnOutputDebugStringA_t)(LPCSTR lpOutputString);
 typedef int(__cdecl*pfn_stricmp_t)(const char *String1, const char *String2);
+typedef int(__cdecl*pfn_wcsicmp_t)(const wchar_t *String1, const wchar_t *String2);
 typedef void*(__cdecl*pfnmemset_t)(void *, int Val, size_t Size);
 typedef void*(__cdecl*pfnmemcpy_t)(void *, const void *Src, size_t Size);
 
@@ -97,6 +99,18 @@ struct alignas(sizeof(uintptr_t)) injector_information_package_t
 	IPCInterface_t*					m_ipc_block_ptr = nullptr;
 };
 
+// byte patterns for manually mapped shellcode
+#define BPattern_RtlIIFT_Idx 0 // RtlInsertInvertedFunctionTable
+
+// you need to specify both length and the buffer because the byte pattern may contain null terminators.
+static constexpr size_t k_max_mmapper_pattern_length = 64; // had to increase once.
+struct bytepattern_string_t
+{
+	char bytepattern[k_max_mmapper_pattern_length];
+	char mask[k_max_mmapper_pattern_length];
+	size_t length;
+};
+
 // The data that we provide to the shellcode routine so it can operate correctly as
 // well as establishing communication between the mapper&module, if there'll be any.
 struct alignas(sizeof(uintptr_t)) manualmap_shellcode_execution_context_t
@@ -106,15 +120,19 @@ struct alignas(sizeof(uintptr_t)) manualmap_shellcode_execution_context_t
 
 	uint8_t*						module_base = nullptr;
 	pfnGetProcAddress_t				pfnGetProcAddress = nullptr;
+	pfnGetModuleHandleA_t			pfnGetModuleHandleA = nullptr;
 	pfnLoadLibraryA_t				pfnLoadLibraryA = nullptr;
 	pfnOutputDebugStringA_t			pfnOutputDebugStringA = nullptr;
 	pfn_stricmp_t					pfn_stricmp = nullptr;
+	pfn_wcsicmp_t					pfn_wcsicmp = nullptr;
 	pfnmemset_t						pfnmemset = nullptr;
 	pfnmemcpy_t						pfnmemcpy = nullptr;
 
 	// yes, the shellcode also cannot have any strings
-	char							debug_messages[5][64] = {};
+	char							debug_messages[8][64] = {};
 	char							export_names[3][64] = {};
+	wchar_t							dll_names[1][32] = {};
+	bytepattern_string_t			byte_patterns[1]; // see BPattern_* macros above
 
 	//------------------------------------------------------------------------
 	// stuff we receive while mapping the module.

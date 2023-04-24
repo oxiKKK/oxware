@@ -32,11 +32,12 @@ BaseCommand command_list(
 	"command_list",
 	[&]()
 	{
+		CConsole::the().info("{:<3}: {:<24} {}", "id", "name", "parameters");
 		int num = 0;
 		g_variablemgr_i->for_each_command(
 			[&](BaseCommand* cmd)
 			{
-				CConsole::the().info("{:<3}: {}", ++num, cmd->get_name());
+				CConsole::the().info("{:<3}: {:<24} {}", ++num, cmd->get_name(), cmd->has_usage() ? cmd->get_usage() : " ");
 			});
 
 		CConsole::the().info("------------------------------");
@@ -75,6 +76,35 @@ BaseCommand help(
 	}
 );
 
+BaseCommand tokenize(
+	"tokenize", "<token1> <token2> <token3>",
+	[&]()
+	{
+
+		{
+			std::string token = g_variablemgr_i->get_token(1);
+			if (!token.empty())
+			{
+				CConsole::the().info("1st token: '{}'", token);
+			}
+		}
+		{
+			std::string token = g_variablemgr_i->get_token(2);
+			if (!token.empty())
+			{
+				CConsole::the().info("2nd token: '{}'", token);
+			}
+		}
+		{
+			std::string token = g_variablemgr_i->get_token(3);
+			if (!token.empty())
+			{
+				CConsole::the().info("3rd token: '{}'", token);
+			}
+		}
+	}
+);
+
 IVariableManager* g_variablemgr_i = nullptr;
 
 class CVariableManager : public IVariableManager
@@ -96,12 +126,30 @@ public:
 	void for_each_variable(const std::function<void(BaseVariable*)>& callback);
 	void for_each_command(const std::function<void(BaseCommand*)>& callback);
 
+	//
+	// command parsing
+	//
+
+	const std::string& get_last_command_buffer() { return m_last_cmd_buffer; }
+
+	// return empty string if not found.
+	std::string get_token(size_t pos);
+
+	// call every time new command is entered
+	void update_cmd_buffer(const std::string& new_buffer);
+
+	void tokenize_last_cmdbuf();
+
 private:
 	std::unordered_set<BaseVariable*> m_registered_variables;
 	std::unordered_set<BaseCommand*> m_registered_commands;
 
 	bool did_overflow_vars(BaseVariable* var);
 	bool did_overflow_cmds(BaseCommand* cmd);
+
+	std::string m_last_cmd_buffer;
+
+	std::vector<std::string> m_cmd_tokens;
 };
 
 CVariableManager g_variablemgr;
@@ -265,4 +313,71 @@ bool CVariableManager::did_overflow_cmds(BaseCommand* cmd)
 	}
 
 	return false;
+}
+
+//--------------------------------------------------------------------------------------------------------------------
+// COMMAND PARSING
+// 
+
+std::string CVariableManager::get_token(size_t pos)
+{
+	std::string token;
+	try
+	{
+		token = m_cmd_tokens.at(pos);
+	}
+	catch (...)
+	{
+		CConsole::the().error("Failed to get token at position '{}'. Tokenized buffer size is {}.", pos, m_cmd_tokens.size());
+	}
+	return token;
+}
+
+void CVariableManager::update_cmd_buffer(const std::string& new_buffer)
+{
+	m_last_cmd_buffer = new_buffer;
+
+	tokenize_last_cmdbuf();
+}
+
+// The command buffer is a buffer containing tokens. Each token is separated by a space.
+void CVariableManager::tokenize_last_cmdbuf()
+{
+	if (m_last_cmd_buffer.empty())
+	{
+		return;
+	}
+
+	m_cmd_tokens.clear();
+
+	std::string current_token;
+	for (size_t i = 0; i < m_last_cmd_buffer.length(); i++)
+	{
+		const char c = m_last_cmd_buffer[i];
+
+		bool last = (i == m_last_cmd_buffer.length() - 1);
+
+		if (c == ' ' || last) // the last case, too
+		{
+			if (last)
+			{
+				current_token.push_back(c);
+			}
+
+			m_cmd_tokens.push_back(current_token);
+			current_token.clear();
+		}
+		else
+		{
+			current_token.push_back(c);
+		}
+	}
+
+#if 0
+	CConsole::the().info("Tokenized last command:");
+	for (const auto& token : m_cmd_tokens)
+	{
+		CConsole::the().info("{}", token);
+	}
+#endif
 }

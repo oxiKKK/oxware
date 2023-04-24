@@ -145,6 +145,14 @@ private:
 	std::deque<std::string> m_entered_commands;
 };
 
+BaseCommand clear(
+	"clear",
+	[&]()
+	{
+		g_devconsole_i->flush_screen();
+	}
+);
+
 CDeveloperConsole g_dev_console;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CDeveloperConsole, IDeveloperConsole, IDEVELOPERCONSOLE_INTERFACEID, g_dev_console);
 
@@ -369,7 +377,10 @@ void CDeveloperConsole::print(EOutputModule module, EOutputCategory category, co
 
 void CDeveloperConsole::flush_screen()
 {
+	size_t size = m_contents.size();
 	m_contents.clear();
+
+	print_console(EOutputCategory::INFO, std::format("Cleared {} lines", size));
 }
 
 void CDeveloperConsole::register_module(EOutputModule which)

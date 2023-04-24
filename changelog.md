@@ -10,6 +10,11 @@ You can **read the change log** in order to keep up with the changes / additions
 
 - Added link to github repository to the bottom right corner of the screen (when menu is up).
 - Added custom sprite and HUD rendering, including the option to change HUD colors. 🌈
+- Added command support and new prompt inside console for entering commands. See [this commit](https://github.com/oxiKKK/oxware/commit/0824fefd17c17c2a74621c15e5dea72aeea0e916). Some of the commands are:
+	- "variable_list"
+	- "command_list"
+	- "clear"
+	- "help"
 
 ## Bugfixes
 

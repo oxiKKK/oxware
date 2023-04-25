@@ -30,6 +30,14 @@
 #define GENERICUTIL_H
 #pragma once
 
+struct file_version_t
+{
+	// X.X.X.X
+	uint32_t w1, w2, w3, w4;
+
+	std::string to_string() { return std::format("{}.{}.{}.{}", w1, w2, w3, w4); }
+};
+
 class CGenericUtil
 {
 public:
@@ -59,6 +67,16 @@ public:
 
 	RTL_OSVERSIONINFOW get_os_version();
 
+	file_version_t get_file_version(const std::string& path);
+
+	// get C:\Windows directory
+	std::filesystem::path get_windows_directory(const std::filesystem::path& subdir);
+
+	// get "C:\Windows\system32" for x86 systems and "C:\Windows\SysWOW64" for x64 systems
+	std::filesystem::path get_system_directory(const std::filesystem::path& subdir);
+
+	// true if current process is running under WOW64 (is 32-bit)
+	bool running_32_bit_windows();
 };
 
 #endif // GENERICUTIL_H

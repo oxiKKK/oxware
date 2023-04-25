@@ -134,3 +134,79 @@ RTL_OSVERSIONINFOW CGenericUtil::get_os_version()
 	RTL_OSVERSIONINFOW rovi = { 0 };
 	return rovi;
 }
+
+// https://stackoverflow.com/questions/940707/how-do-i-programmatically-get-the-version-of-a-dll-or-exe-file
+file_version_t CGenericUtil::get_file_version(const std::string& path)
+{
+	DWORD  verHandle = 0;
+	UINT   size = 0;
+	LPBYTE lpBuffer = NULL;
+	DWORD  verSize = GetFileVersionInfoSizeA(path.c_str(), &verHandle);
+
+	if (verSize != NULL)
+	{
+		LPSTR verData = new char[verSize];
+
+		if (GetFileVersionInfoA(path.c_str(), verHandle, verSize, verData))
+		{
+			if (VerQueryValueA(verData, "\\", (VOID FAR * FAR*)&lpBuffer, &size))
+			{
+				if (size)
+				{
+					VS_FIXEDFILEINFO *verInfo = (VS_FIXEDFILEINFO *)lpBuffer;
+					if (verInfo->dwSignature == 0xfeef04bd)
+					{
+						// This returns product version, not file version. For more info see:
+						// https://stackoverflow.com/questions/38068477/why-does-getfileversioninfo-on-kernel32-dll-in-windows-10-return-version-6-2
+						file_version_t v = 
+						{ 
+							(verInfo->dwProductVersionMS >> 16) & 0xffff,
+							(verInfo->dwProductVersionMS >> 0) & 0xffff, 
+							(verInfo->dwProductVersionLS >> 16) & 0xffff, 
+							(verInfo->dwProductVersionLS >> 0) & 0xffff
+						};
+						delete[] verData;
+						return v;
+					}
+				}
+			}
+		}
+
+		delete[] verData;
+	}
+
+	CConsole::the().error("Couldn't get file version of '{}'. (last err: {})", path, get_last_win_error());
+	return {};
+}
+
+std::filesystem::path CGenericUtil::get_windows_directory(const std::filesystem::path& subdir)
+{
+	// NOTE: Duplicate inside LibraryLoader code
+
+	uintptr_t* volatile pNtSystemRoot = (uintptr_t*)0x7FFE0030;
+	return std::filesystem::path((const wchar_t*)pNtSystemRoot) / subdir; // cool, isn't it?
+
+}
+
+std::filesystem::path CGenericUtil::get_system_directory(const std::filesystem::path& subdir)
+{
+	if (running_32_bit_windows())
+	{
+		return get_windows_directory("system32") / subdir;
+	}
+	else
+	{
+		return get_windows_directory("SysWOW64") / subdir;
+	}
+}
+
+bool CGenericUtil::running_32_bit_windows()
+{
+	BOOL running = FALSE;
+	BOOL ret = IsWow64Process(get_current_process_handle(), &running);
+	if (!ret)
+	{
+		CConsole::the().error("IsWow64Process failed with {} error code.", get_last_win_error());
+	}
+	return running == FALSE;
+}

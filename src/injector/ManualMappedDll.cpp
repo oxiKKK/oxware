@@ -461,7 +461,10 @@ bool CManualMappedDll::write_data_into_target_process()
 		return false;
 	}
 
-	update_shellcode_execution_context_data();
+	if (!update_shellcode_execution_context_data())
+	{
+		return false;
+	}
 
 	// write the context, first
 	if (!CVirtualMemoryManager::the().write(

@@ -34,6 +34,9 @@
 
 bool RtlIIFT_BytePattern_Search::resolve_bytepatterns()
 {
+	// damn, it sucks that Microsoft didn't export this function.. Oh well, whatever. Now we need to do all this shit, 
+	// which isn't guaranteed that it will work every time...
+
 	if (!m_RtlIIFT_bytepattern.empty())
 	{
 		return true;
@@ -42,22 +45,48 @@ bool RtlIIFT_BytePattern_Search::resolve_bytepatterns()
 	// byte pattern for RtlInsertInvertedFunctionTable inside ntdll.
 	CBytePatternWithLengthConstexpr<k_max_mmapper_pattern_length> RtlIIFT_pattern;
 
-	// Windows 10
+	//-----------------------------------------------------
+	// Windows 10 - newer builds
+	// This byte pattern is the same on:
+	//	ntdll.dll (10.0.19041.2788)
+	//	ntdll.dll (10.0.18362.387)
+	//	ntdll.dll (10.0.17134.254)
 	RtlIIFT_pattern = CBytePatternWithLengthConstexpr<k_max_mmapper_pattern_length>("\x8B\xFF\x55\x8B\xEC\x83\xEC\x0C\x53\x56\x57\x8D\x45\xF8\x8B\xFA");
 	if (try_to_find_function_in_ntdll(RtlIIFT_pattern))
 	{
 		m_RtlIIFT_bytepattern = RtlIIFT_pattern.get_pattern_raw();
 		m_RtlIIFT_bytepattern_mask = RtlIIFT_pattern.get_mask();
-		goto found;
+		CConsole::the().info("Found byte pattern for newer Win10 RtlInsertInvertedFunctionTable: '{}'", RtlIIFT_pattern.pattern_as_string());
+		return true;
 	}
 
-	CMessageBox::display_error("Couldn't find RtlInsertInvertedFunctionTable function for your system."
-							   "\nThis function is mandatory. Aborting injection...");
-	return false;
+	//-----------------------------------------------------
+	// Windows 10 - older builds
+	// This byte pattern is the same on:
+	//	ntdll.dll (10.0.14393.0)
+	//	ntdll.dll (10.0.10586.20)
+	//	ntdll.dll (10.0.10240.16430)
+	RtlIIFT_pattern = CBytePatternWithLengthConstexpr<k_max_mmapper_pattern_length>("\x8B\xFF\x55\x8B\xEC\x83\xEC\x0C\x8D\x45\xF8\x53\x56\x57\x8B");
+	if (try_to_find_function_in_ntdll(RtlIIFT_pattern))
+	{
+		m_RtlIIFT_bytepattern = RtlIIFT_pattern.get_pattern_raw();
+		m_RtlIIFT_bytepattern_mask = RtlIIFT_pattern.get_mask();
+		CConsole::the().info("Found byte pattern for older Win10 RtlInsertInvertedFunctionTable: '{}'", RtlIIFT_pattern.pattern_as_string());
+		return true;
+	}
 
-found: // ik that this is ugly as hell but whaterver :D
-	CConsole::the().info("Found byte pattern for RtlInsertInvertedFunctionTable: '{}'", RtlIIFT_pattern.pattern_as_string());
-	return true;
+	auto ntdll_path = CGenericUtil::the().get_system_directory("ntdll.dll");
+
+	auto osver = CGenericUtil::the().get_os_version();
+	auto ntdll_ver = CGenericUtil::the().get_file_version(ntdll_path.string());
+
+	CMessageBox::display_error("Couldn't find RtlInsertInvertedFunctionTable function for your system."
+							   "\nThis function is mandatory. Aborting injection...\n\n"
+							   "Your windows verions is: {}.{} build {}\nntdll.dll version: {}\n\n"
+							   "Please, report this error to the developers of this cheat in order to make this cheat available for your system.", 
+							   osver.dwMajorVersion, osver.dwMinorVersion, osver.dwBuildNumber, 
+							   ntdll_ver.to_string());
+	return false;
 }
 
 bool RtlIIFT_BytePattern_Search::try_to_find_function_in_ntdll(const CBytePatternWithLengthConstexpr<k_max_mmapper_pattern_length>& pattern)

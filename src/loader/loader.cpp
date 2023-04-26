@@ -62,7 +62,8 @@ int CMainLoader::run(HINSTANCE hinst)
 {
 	if (!check_supported_os_version())
 	{
-		CMessageBox::display_error("You are not running Windows 10 or newer. This cheat is not supported on your OS.");
+		CMessageBox::display_error("You are not running Windows 10 or newer. This cheat is not supported on your OS." 
+								   "\n\nYour Windows version is: {}", CGenericUtil::the().get_os_version_str());
 		return RET_FAILURE;
 	}
 

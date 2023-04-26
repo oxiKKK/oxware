@@ -37,7 +37,7 @@ public:
 
 public:
 	bool add_checkbox(const std::string& label, VarBoolean* var, const char* additional_desc = nullptr);
-	bool add_checkbox_with_color(const std::string& label, VarBoolean* toggle_var, VarColor* colors_var, const char* additional_desc = nullptr);
+	bool add_checkbox_with_color(const std::string& label, VarBoolean* toggle_var, VarColor* colors_var, bool alpha = false, const char* additional_desc = nullptr);
 
 	bool add_color_edit(const std::string& label, VarColor* colors_var, const char* additional_desc = nullptr);
 

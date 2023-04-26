@@ -129,7 +129,7 @@ struct alignas(sizeof(uintptr_t)) manualmap_shellcode_execution_context_t
 	pfnmemcpy_t						pfnmemcpy = nullptr;
 
 	// yes, the shellcode also cannot have any strings
-	char							debug_messages[8][64] = {};
+	char							debug_messages[9][64] = {};
 	char							export_names[3][64] = {};
 	wchar_t							dll_names[1][32] = {};
 	bytepattern_string_t			byte_patterns[1]; // see BPattern_* macros above

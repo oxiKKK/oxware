@@ -383,7 +383,7 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 		}
 	}
 
-	context->pfnOutputDebugStringA(context->debug_messages[2]);
+	context->pfnOutputDebugStringA(context->debug_messages[8]);
 
 	//__debugbreak();
 

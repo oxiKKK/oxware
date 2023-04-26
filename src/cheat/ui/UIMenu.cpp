@@ -494,14 +494,15 @@ void CUIMenu::tab_render()
 		});
 
 	add_menu_child(
-		"HUD rendering", CMenuStyle::calc_child_size(185), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"HUD rendering", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			g_gui_widgets_i->add_padding({ 0, 5.0f });
 			g_gui_widgets_i->add_separtor_with_text("Custom rendering");
 
 			CUIMenuWidgets::the().add_checkbox("Enable", &hud_render);
-			CUIMenuWidgets::the().add_checkbox("Render current weapon", &hud_render_current_weapon);
+			CUIMenuWidgets::the().add_checkbox("Current weapon", &hud_render_current_weapon);
+			CUIMenuWidgets::the().add_checkbox("Velocity", &hud_render_velocity);
 
 			g_gui_widgets_i->add_padding({ 0, 5.0f });
 			g_gui_widgets_i->add_separtor_with_text("Colors");

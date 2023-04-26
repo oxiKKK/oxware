@@ -16,6 +16,8 @@ You can **read the change log** in order to keep up with the changes / additions
 	- "clear"
 	- "help"
 - Added Server liar that allows you to lie to the server. (more information on that in the cheat menu)
+- Added hud_render_velocity variable to display player velocity on the screen using vanilla sprites.
+- Improvements to various error dialogs.
 
 ## Bugfixes
 

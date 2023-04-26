@@ -135,6 +135,13 @@ RTL_OSVERSIONINFOW CGenericUtil::get_os_version()
 	return rovi;
 }
 
+std::string CGenericUtil::get_os_version_str()
+{
+	auto osver = CGenericUtil::the().get_os_version();
+
+	return std::format("{}.{} build {}", osver.dwMajorVersion, osver.dwMinorVersion, osver.dwBuildNumber);
+}
+
 // https://stackoverflow.com/questions/940707/how-do-i-programmatically-get-the-version-of-a-dll-or-exe-file
 file_version_t CGenericUtil::get_file_version(const std::string& path)
 {

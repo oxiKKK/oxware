@@ -40,7 +40,7 @@ void CViewmodelOffset::update()
 
 	auto local = CEntityMgr::the().get_local_player();
 	if (!local || !local->is_valid())
-		return ;
+		return;
 
 	auto& uptodate_state = local->cl_entity()->curstate;
 

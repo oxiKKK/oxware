@@ -101,6 +101,30 @@ public:
 		return out;
 	}
 
+	CColor as_255_based() const
+	{
+		if (r <= 1.0f && g <= 1.0f && b <= 1.0f && a <= 1.0f)
+		{
+			return CColor(r * 255.0f, g * 255.0f, b * 255.0f, a * 255.0f);
+		}
+		else
+		{
+			return *this;
+		}
+	}
+
+	CColor as_1_based() const
+	{
+		if (r > 1.0f && g > 1.0f && b > 1.0f && a > 1.0f)
+		{
+			return CColor(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+		}
+		else
+		{
+			return *this;
+		}
+	}
+
 	// expects [r: {} g: {} b: {} a: {}]
 	static CColor parse_color_out_of_string(const std::string& color_string)
 	{

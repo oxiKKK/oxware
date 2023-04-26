@@ -42,13 +42,13 @@ bool CUIMenuWidgets::add_checkbox(const std::string& label, VarBoolean* var, con
 	return ret;
 }
 
-bool CUIMenuWidgets::add_checkbox_with_color(const std::string& label, VarBoolean* toggle_var, VarColor* colors_var, const char* additional_desc)
+bool CUIMenuWidgets::add_checkbox_with_color(const std::string& label, VarBoolean* toggle_var, VarColor* colors_var, bool alpha, const char* additional_desc)
 {
 	auto color = colors_var->get_value();
 
 	float value = (float)toggle_var->get_value();
 	float c[4] = { color.r, color.g, color.b, color.a };
-	bool ret = g_gui_widgets_i->add_checkbox_with_color(label, &value, c);
+	bool ret = g_gui_widgets_i->add_checkbox_with_color(label, &value, c, alpha ? ImGuiColorEditFlags_AlphaBar : 0);
 
 	toggle_var->set_value((int)value);
 	colors_var->set_value(CColor(c[0], c[1], c[2], c[3]));

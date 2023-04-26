@@ -35,11 +35,17 @@
 
 #include "precompiled.h"
 
+#define MIN_ALPHA		100
+#define RGB_GREENISH	CColor(0, 160, 0)
+#define RGB_ORANGEISH	CColor(255, 160, 0)
+#define RGB_REDDISH		CColor(255, 16, 16)
+
 VarBoolean hud_render("hud_render", "Enables custom HUD sprite rendering", false);
 VarBoolean hud_render_current_weapon("hud_render_current_weapon", "Render currently held weapon on the screen", false);
+VarBoolean hud_render_velocity("hud_render_velocity", "Render current velocity", false);
 
 VarBoolean hud_color_enable("hud_color_enable", "Changes the in-game HUD color", false);
-VarColor hud_color("hud_color", "Specifies the hud color in rgb", CColor(0, 150, 0));
+VarColor hud_color("hud_color", "Specifies the hud color in rgb", RGB_GREENISH);
 
 std::unordered_map<std::string, SpriteAtlas_t> CSpriteMgr::s_sprite_atlas_map =
 {
@@ -193,7 +199,7 @@ std::unordered_map<std::string, Sprite_t> CSpriteMgr::s_sprite_map =
 	{ "autoaim_c",		{ "autoaim_c",		{ 96, 0 }, { 24, 24 }, &s_sprite_atlas_map.at("crosshairs") } },
 };
 
-void Sprite_t::render_additive(const Vector2D& position, const CColor& color, uint32_t frame) const
+void Sprite_t::render_additive(const Vector2D& position, const CColor& color, bool dim, uint32_t frame) const
 {
 	auto& [x, y] = m_screen_pos;
 	auto& [w, h] = m_screen_dimensions;
@@ -208,7 +214,10 @@ void Sprite_t::render_additive(const Vector2D& position, const CColor& color, ui
 
 	if (atlas_id != NULL_SPRITE)
 	{
-		CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_Set(atlas_id, color.r * 255.0f, color.g * 255.0f, color.b * 255.0f);
+		CColor new_color = { color.r * 255.0f, color.g * 255.0f, color.b * 255.0f };
+		CSpriteMgr::the().scale_hud_colors(new_color, dim);
+
+		CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_Set(atlas_id, new_color.r, new_color.g, new_color.b);
 		CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_DrawAdditive(frame, render_x, render_y, &rect);
 	}
 }
@@ -284,6 +293,14 @@ bool CSpriteMgr::initialize_engine_sprite_data()
 	return true;
 }
 
+void CSpriteMgr::scale_hud_colors(CColor& color, bool dim)
+{
+	float x = (float)(dim ? MIN_ALPHA : 255) / 255;
+	color.r = (int)(color.r * x);
+	color.g = (int)(color.g * x);
+	color.b = (int)(color.b * x);
+}
+
 void CSpriteMgr::render_current_weapon_sprite() const
 {
 	auto vm = &CMemoryHookMgr::the().cl().get()->viewent;
@@ -325,7 +342,7 @@ void CSpriteMgr::render_current_weapon_sprite() const
 		}
 
 		// default greenish color that most of the cstrike screen sprites have.
-		CColor color = { 0, 150, 0 };
+		CColor color = RGB_GREENISH;
 
 		auto clr = hud_color.get_value();
 		if (clr.is_nonzero())
@@ -335,13 +352,40 @@ void CSpriteMgr::render_current_weapon_sprite() const
 					  (uint8_t)(clr.b * 255.0f) };
 		}
 
-		spr->render_additive({ 10, CGameUtil::the().get_engine_screen_info().iHeight / 2.f - m_FontSize.x - 80 }, color);
+		spr->render_additive({ 10, CGameUtil::the().get_engine_screen_info().iHeight / 2.f - m_cstrike_sprite_font_size.x - 80 }, color, false);
 	}
+}
+
+void CSpriteMgr::render_velocity() const
+{
+	auto local = CEntityMgr::the().get_local_player();
+	if (!local || !local->is_valid())
+		return;
+
+	float velocity = CGameUtil::the().get_local_velocity_2d();
+
+	static float rolling_velocity = 0;
+
+	rolling_velocity = 0.9 * rolling_velocity + (1.0 - 0.9) * velocity;
+
+	// default orangeish color that most of the cstrike screen sprites have.
+	CColor color = RGB_ORANGEISH;
+
+	auto clr = hud_color.get_value();
+	if (clr.is_nonzero())
+	{
+		color = hud_color.get_value();
+	}
+
+	auto screen = CGameUtil::the().get_engine_screen_info();
+	Vector2D off = render_number((double)rolling_velocity, 
+								 Vector2D(screen.iWidth / 2, screen.iHeight - m_cstrike_sprite_font_size.y * 2 - 5 - 45), 
+								 color, true );
 }
 
 Vector2D CSpriteMgr::render_digit(uint8_t digit, const Vector2D& position, const CColor& color) const
 {
-	assert(digit > 9 && "The digit was >9!");
+	assert(digit <= 9 && "The digit was >9!");
 	if (digit > 9)
 	{
 		return {};
@@ -356,12 +400,12 @@ Vector2D CSpriteMgr::render_digit(uint8_t digit, const Vector2D& position, const
 		return {};
 	}
 
-	spr->render_additive(position, color);
+	spr->render_additive(position, color, true);
 
 	return position;
 }
 
-Vector2D CSpriteMgr::render_number(int64_t number, const Vector2D& position, const CColor& color) const
+Vector2D CSpriteMgr::render_number(int64_t number, const Vector2D& position, const CColor& color, bool centerize) const
 {
 	// Handle negative values
 	if (number < 0)
@@ -371,7 +415,7 @@ Vector2D CSpriteMgr::render_number(int64_t number, const Vector2D& position, con
 		{
 			return {};
 		}
-		minus->render_additive(position, color);
+		minus->render_additive(position, color, true);
 	}
 
 	std::function<std::vector<uint8_t>(int64_t)> render_foreach = [&](int64_t n) -> std::vector<uint8_t>
@@ -389,9 +433,11 @@ Vector2D CSpriteMgr::render_number(int64_t number, const Vector2D& position, con
 	Vector2D off;
 	uint32_t i = 0;
 	const auto nums = render_foreach(std::abs(number));
+	Vector2D initial_pos = { position.x - (centerize ? ((m_cstrike_sprite_font_size.x + 1) * nums.size()) / 2.0f : 0), position.y };
 	for (const auto& n : nums)
 	{
-		off = { position.x + i++ * m_FontSize.x + 1, position.y };
+		off = { initial_pos.x + i++ * m_cstrike_sprite_font_size.x + 1, initial_pos.y };
+
 		render_digit(n, off, color);
 	}
 
@@ -399,8 +445,11 @@ Vector2D CSpriteMgr::render_number(int64_t number, const Vector2D& position, con
 }
 
 template<uint8_t Precision> requires(Precision < std::numeric_limits<double>::max_digits10 && Precision > 0)
-Vector2D CSpriteMgr::render_float_number(double number, const Vector2D& position, const CColor& color) const
+Vector2D CSpriteMgr::render_float_number(double number, const Vector2D& position, const CColor& color, bool centerize) const
 {
+	// TODO: This isn't working properly (unfinished)
+	return {};
+
 	double base = std::round(number);
 	double fraction = (double)number - (int64_t)number;
 
@@ -435,6 +484,17 @@ void CSpriteMgr::initialize()
 		return;
 	}
 
+	// get random number and get the width&height out of it
+	auto number = get_sprite("number_0");
+	if (number)
+	{
+		m_cstrike_sprite_font_size = number->m_screen_dimensions;
+	}
+	else
+	{
+		m_cstrike_sprite_font_size = { 20, 25 }; // for some reason failed? this shouldn't happen...
+	}
+
 	CConsole::the().info("All sprites initialized.");
 
 	once = true;
@@ -447,10 +507,16 @@ void CSpriteMgr::update()
 	if (!hud_render.get_value())
 		return;
 	
-	// Render current weapon.
+	// render current weapon
 	if (hud_render_current_weapon.get_value())
 	{
 		render_current_weapon_sprite();
+	}
+	
+	// render velocity
+	if (hud_render_velocity.get_value())
+	{
+		render_velocity();
 	}
 }
 
@@ -463,7 +529,7 @@ Sprite_t* CSpriteMgr::get_sprite(const std::string& name) const
 	}
 	catch (...)
 	{
-		CConsole::the().error("Tried to find unknown sprite: '{}'", name);
+		//CConsole::the().error("Tried to find unknown sprite: '{}'", name);
 	}
 
 	return sprite;
@@ -478,7 +544,7 @@ SpriteAtlas_t* CSpriteMgr::get_sprite_atlas(const std::string& name) const
 	}
 	catch (...)
 	{
-		CConsole::the().error("Tried to find unknown sprite atlas: '{}'", name);
+		//CConsole::the().error("Tried to find unknown sprite atlas: '{}'", name);
 	}
 
 	return sprite_atlas;

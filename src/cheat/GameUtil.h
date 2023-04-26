@@ -74,6 +74,9 @@ public:
 
 	std::string parse_viewmodel_name(hl::model_t* model);
 
+	// get local player velocity calculated by playermove code
+	float get_local_velocity_2d();
+
 private:
 	void locate_engine_compile_timestamp();
 

@@ -261,6 +261,17 @@ std::string CGameUtil::parse_viewmodel_name(hl::model_t* model)
 	return vm_str.substr(2);
 }
 
+float CGameUtil::get_local_velocity_2d()
+{
+	auto pm = CMemoryHookMgr::the().pmove().get();
+	if (pm)
+	{
+		return pm->velocity.Length2D();
+	}
+
+	return 0.0f;
+}
+
 void CGameUtil::locate_engine_compile_timestamp()
 {
 	if (!m_engine_compile_date.empty())

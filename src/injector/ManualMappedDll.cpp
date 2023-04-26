@@ -570,6 +570,7 @@ bool CManualMappedDll::update_shellcode_execution_context_data()
 	strcpy_s(m_shellcode_execution_context.debug_messages[5], "Searching for RtlInsertInvertedFunctionTable...\n");
 	strcpy_s(m_shellcode_execution_context.debug_messages[6], "Calling DllMain...\n");
 	strcpy_s(m_shellcode_execution_context.debug_messages[7], "Calling Communicative Entry Point...\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[8], "Shellcode end.\n");
 
 	// exported procnames
 	strcpy_s(m_shellcode_execution_context.export_names[0], EXPOSEMODULE_PROCNAME);

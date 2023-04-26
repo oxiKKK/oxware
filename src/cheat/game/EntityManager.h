@@ -44,13 +44,16 @@ public:
 	CGenericPlayer* get_local_player()
 	{
 		int local_index = CMemoryHookMgr::the().cl().get()->playernum + 1;
-		if (local_index < 0 || local_index > m_known_players.size())
+
+		try
 		{
-			assert(0 && "Trying to get local player with invalid player index!");
+			return &m_known_players.at(local_index);
+		}
+		catch (/*const std::out_of_range& err*/...)
+		{
+			CConsole::the().error("Invalid player index when accessing known players: {}", local_index);
 			return nullptr;
 		}
-
-		return &m_known_players[local_index];
 	}
 
 	std::unordered_map<int, CGenericEnt> m_known_entities;

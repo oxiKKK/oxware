@@ -67,6 +67,11 @@ public:
 
 	RTL_OSVERSIONINFOW get_os_version();
 
+	// "{}.{} build {}" format
+	// e.g.
+	// ""
+	std::string get_os_version_str();
+
 	file_version_t get_file_version(const std::string& path);
 
 	// get C:\Windows directory

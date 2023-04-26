@@ -77,14 +77,13 @@ bool RtlIIFT_BytePattern_Search::resolve_bytepatterns()
 
 	auto ntdll_path = CGenericUtil::the().get_system_directory("ntdll.dll");
 
-	auto osver = CGenericUtil::the().get_os_version();
 	auto ntdll_ver = CGenericUtil::the().get_file_version(ntdll_path.string());
 
 	CMessageBox::display_error("Couldn't find RtlInsertInvertedFunctionTable function for your system."
 							   "\nThis function is mandatory. Aborting injection...\n\n"
-							   "Your windows verions is: {}.{} build {}\nntdll.dll version: {}\n\n"
+							   "Your Windows version is: {}\nntdll.dll version: {}\n\n"
 							   "Please, report this error to the developers of this cheat in order to make this cheat available for your system.", 
-							   osver.dwMajorVersion, osver.dwMinorVersion, osver.dwBuildNumber, 
+							   CGenericUtil::the().get_os_version_str(),
 							   ntdll_ver.to_string());
 	return false;
 }

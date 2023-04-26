@@ -212,15 +212,6 @@ public:
 	static void Key_Event(int key, hl::qboolean down);
 };
 
-// void __cdecl ClientDLL_MouseEvent(int mstate)
-class ClientDLL_MouseEventFnHook_t final : public CGenericMemoryFnDetourCdecl<void, int>
-{
-public:
-	bool install();
-
-	static void ClientDLL_MouseEvent(int mstate);
-};
-
 // void Host_Noclip_f(void)
 class Host_Noclip_fFnHook_t final : public CGenericMemoryFnDetourCdecl<void>
 {
@@ -419,6 +410,15 @@ public:
 	static void SPR_Set(hl::HSPRITE_t hSprite, int r, int g, int b);
 };
 
+// void __thiscall CGame__AppActivate(CGame *this, bool fActive)
+class CGame__AppActivateFnHook_t final : public CGenericMemoryFnDetourThiscall<void, void*, bool>
+{
+public:
+	bool install();
+
+	static void __thiscall CGame__AppActivate(void* ecx, bool fActive);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -439,7 +439,6 @@ public:
 	inline auto& wglSwapBuffers() { static wglSwapBuffersFnHook_t fnhook; return fnhook; }
 	inline auto& VGui_CallEngineSurfaceAppHandler() { static VGui_CallEngineSurfaceAppHandlerFnHook_t fnhook; return fnhook; }
 	inline auto& Key_Event() { static Key_EventFnHook_t fnhook; return fnhook; }
-	inline auto& ClientDLL_MouseEvent() { static ClientDLL_MouseEventFnHook_t fnhook; return fnhook; }
 	inline auto& Host_Noclip_f() { static Host_Noclip_fFnHook_t fnhook; return fnhook; }
 	inline auto& ClientDLL_CreateMove() { static ClientDLL_CreateMoveFnHook_t fnhook; return fnhook; }
 	inline auto& _Host_Frame() { static _Host_FrameFnHook_t fnhook; return fnhook; }
@@ -462,6 +461,7 @@ public:
 	inline auto& SCR_CalcRefdef() { static SCR_CalcRefdefFnHook_t fnhook; return fnhook; }
 	inline auto& SCR_UpdateScreen() { static SCR_UpdateScreenFnHook_t fnhook; return fnhook; }
 	inline auto& SPR_Set() { static SPR_SetFnHook_t fnhook; return fnhook; }
+	inline auto& CGame__AppActivate() { static CGame__AppActivateFnHook_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

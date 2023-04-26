@@ -34,7 +34,6 @@ bool CMemoryFnDetourMgr::install_hooks()
 	if (!wglSwapBuffers().install()) return false;
 	if (!VGui_CallEngineSurfaceAppHandler().install()) return false;
 	if (!Key_Event().install()) return false;
-	if (!ClientDLL_MouseEvent().install()) return false;
 	if (!Host_Noclip_f().install()) return false;
 	if (!ClientDLL_CreateMove().install()) return false;
 	if (!_Host_Frame().install()) return false;
@@ -57,6 +56,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	if (!SCR_CalcRefdef().install()) return false;
 	if (!SCR_UpdateScreen().install()) return false;
 	if (!SPR_Set().install()) return false;
+	if (!CGame__AppActivate().install()) return false;
 
 	return true;
 }
@@ -69,7 +69,6 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	wglSwapBuffers().uninstall();
 	VGui_CallEngineSurfaceAppHandler().uninstall();
 	Key_Event().uninstall();
-	ClientDLL_MouseEvent().uninstall();
 	Host_Noclip_f().uninstall();
 	ClientDLL_CreateMove().uninstall();
 	_Host_Frame().uninstall();
@@ -98,6 +97,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	SCR_CalcRefdef().uninstall();
 	SCR_UpdateScreen().uninstall();
 	SPR_Set().uninstall();
+	CGame__AppActivate().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -157,26 +157,6 @@ void Key_EventFnHook_t::Key_Event(int key, hl::qboolean down)
 	}
 
 	CMemoryFnDetourMgr::the().Key_Event().call(key, down);
-}
-
-//---------------------------------------------------------------------------------
-
-bool ClientDLL_MouseEventFnHook_t::install()
-{
-	initialize("ClientDLL_MouseEvent", L"hw.dll");
-	return generic_bytepattern_detour(ClientDLL_MouseEvent, "\x55\x8B\xEC\xA1\x00\x00\x00\x00\x85\xC0\x74\x12");
-}
-
-void ClientDLL_MouseEventFnHook_t::ClientDLL_MouseEvent(int mstate)
-{
-	// this function is responsible for handling mouse movements and cursors
-
-	if (COxWareUI::the().should_disable_ingame_input())
-	{
-		return;
-	}
-
-	CMemoryFnDetourMgr::the().ClientDLL_MouseEvent().call(mstate);
 }
 
 //---------------------------------------------------------------------------------
@@ -600,6 +580,27 @@ void SPR_SetFnHook_t::SPR_Set(hl::HSPRITE_t hSprite, int r, int g, int b)
 	CSpriteMgr::the().handle_color_change(hSprite, r, g, b);
 
 	CMemoryFnDetourMgr::the().SPR_Set().call(hSprite, r, g, b);
+}
+
+//---------------------------------------------------------------------------------
+
+bool CGame__AppActivateFnHook_t::install()
+{
+	initialize("CGame__AppActivate", L"hw.dll");
+	return generic_bytepattern_detour(CGame__AppActivate, { "\x55\x8B\xEC\x51\x53\x8B\x5D\x08\x56\x8B\xF1\x84" });
+}
+
+void __thiscall CGame__AppActivateFnHook_t::CGame__AppActivate(void* ecx, bool fActive)
+{
+	// is called when the window is focused/unfocused.
+
+	// if we let this called while the menu is up, it can override the ingame cursor that we hid.
+	if (COxWareUI::the().should_disable_ingame_input())
+	{
+		return;
+	}
+
+	CMemoryFnDetourMgr::the().CGame__AppActivate().call(ecx, fActive);
 }
 
 //---------------------------------------------------------------------------------

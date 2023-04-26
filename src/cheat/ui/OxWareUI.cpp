@@ -273,72 +273,120 @@ void COxWareUI::destroy_rendering_contexts()
 	}
 }
 
+// define this in order to debug the mouse event code below.
+//#define MOUSEINPUT_DEBUG
+
 void COxWareUI::handle_ingame_mouseevents()
 {
 	// fucking GoldSrc's input handling
 
 	static int(__cdecl*SDL_SetRelativeMouseMode)(int enabled);
-	if (!SDL_SetRelativeMouseMode)
+	static unsigned(__cdecl* SDL_GetRelativeMouseState)(int* x, int* y);
+	if (!SDL_SetRelativeMouseMode || !SDL_GetRelativeMouseState)
 	{
 		SDL_SetRelativeMouseMode = (decltype(SDL_SetRelativeMouseMode))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_SetRelativeMouseMode");
+		SDL_GetRelativeMouseState = (decltype(SDL_GetRelativeMouseState))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_GetRelativeMouseState");
 	}
 
 	static bool last = m_is_any_interactible_rendering_context_active;
 	if (last != m_is_any_interactible_rendering_context_active)
 	{
-		// can happen that this gets called before the interface hook is initialized.
+		// can happen that this gets called before the interface hook is initialized, hence it can crash.
+		// therefore, we need to check for every hook if it's installed, before we can use it.
 		auto gameuifuncs = CHLInterfaceHook::the().IGameUI();
 		auto surfacefuncs = CHLInterfaceHook::the().ISurface();
+		auto& enginefuncs_hook = CMemoryHookMgr::the().cl_enginefuncs();
 
+		// vgui2::ISurface::SurfaceSetCursorPos function just calls SDL_WarpMouseInWindow.
+		int wide = 0, tall = 0;
 		if (surfacefuncs)
 		{
-			int wide, tall;
 			surfacefuncs->GetScreenSize(wide, tall);
 			surfacefuncs->SurfaceSetCursorPos(wide / 2, tall / 2);
+#ifdef MOUSEINPUT_DEBUG
+			CConsole::the().info("center: [{}, {}]", wide / 2, tall / 2);
+#endif
 		}
 
+		// disable in-game crosshair (handled by vgui2)
 		if (m_is_any_interactible_rendering_context_active)
 		{
-			if (gameuifuncs && gameuifuncs->IsGameUIActive())
+			if (surfacefuncs && 
+				gameuifuncs && gameuifuncs->IsGameUIActive())
 			{
-				CHLInterfaceHook::the().ISurface()->SetCursor(hl::vgui2::dc_none);
+				surfacefuncs->SetCursor(hl::vgui2::dc_none);
 			}
 		}
 		else
 		{
-			if (gameuifuncs && gameuifuncs->IsGameUIActive())
+			if (surfacefuncs && 
+				gameuifuncs && gameuifuncs->IsGameUIActive())
 			{
-				CHLInterfaceHook::the().ISurface()->SetCursor(hl::vgui2::dc_arrow);
+				surfacefuncs->SetCursor(hl::vgui2::dc_arrow);
 			}
 		}
 
+		// clear all movement/shooting that we did before we have opened the menu
 		if (CGameUtil::the().is_fully_connected())
 		{
 			CGameUtil::the().reset_all_in_states();
 			CMemoryFnHookMgr::the().ClearIOStates().call();
 		}
 
-		// This fixes #0001 mouse cursor stuck, see the issue for more information.
+		// This fixes many mouse cursor stuck issues. For more information on this, see comments below.
 		// 
-		// When raw input was on (m_rawinput 1), in game, the client dll input code called SDL_GetRelativeMouseState
-		// to get the mouse delta. However, with our menu and the way we handle this whole input situation, it failed
-		// to do so, because somehwere inside the engine code (presumably in BaseUISurface::SetCursor) the engine called
-		// SDL_SetRelativeMouseMode with bad state. Therefore, the function wasn't executed, because the relative mode
-		// wasn't "on", having the mouse cursor stuck, until the function (BaseUISurface::SetCursor) weren't ran again
-		// (by calling CBaseUI::ActivateGameUI)..
+		// Issue #0001:
+		//	When raw input was on (m_rawinput 1), in game, the client dll input code called SDL_GetRelativeMouseState
+		//	to get the mouse delta. However, with our menu and the way we handle this whole input situation, it failed
+		//	to do so, because somehwere inside the engine code (presumably in BaseUISurface::SetCursor) the engine called
+		//	SDL_SetRelativeMouseMode with bad state. Therefore, the function wasn't executed, because the relative mode
+		//	wasn't "on", having the mouse cursor stuck, until the function (BaseUISurface::SetCursor) weren't ran again
+		//	(by calling CBaseUI::ActivateGameUI)..
 		if (gameuifuncs)
 		{
-			if (gameuifuncs->IsGameUIActive())
+			// all of this is caused when m_rawinput is on.
+			if (enginefuncs_hook.is_installed())
 			{
-				// without this the cursor stays hidden if we're displaying GameUI and we close the UI.
-				if (m_is_any_interactible_rendering_context_active)
+				auto m_rawinput = enginefuncs_hook.get()->pfnGetCvarPointer((char*)"m_rawinput");
+				if (m_rawinput && m_rawinput->value != 0.0f)
 				{
-					SDL_SetRelativeMouseMode(FALSE);
+					if (gameuifuncs->IsGameUIActive())
+					{
+						// without this the cursor stays hidden if we're displaying GameUI and we close the UI.
+						// we have to disable the relative mouse mode, because it's suppoed to be on only when
+						// we're ingame looking around with our camera.
+						if (m_is_any_interactible_rendering_context_active)
+						{
+							SDL_SetRelativeMouseMode(FALSE);
+
+							// centerize the cursor position, for convenience. This has to be called when the relative
+							// mode is off, because we'll use our cursor now (in UI).
+							surfacefuncs->SurfaceSetCursorPos(wide / 2, tall / 2); 
+						}
+					}
+					else
+					{
+						// enable the relative mode when we close UI, disable otherwise.
+						SDL_SetRelativeMouseMode(!m_is_any_interactible_rendering_context_active);
+
+						if (m_is_any_interactible_rendering_context_active)
+						{
+							// centerize the cursor pos once again, for convenience. This has to be again, 
+							// called when the relative mode is off.
+							surfacefuncs->SurfaceSetCursorPos(wide / 2, tall / 2);
+						}
+
+						// call this function for nothing before the engine. It seems that this resets the 
+						// delta internally somehow inside of SDL. I know that this is pretty diddly and wacky,
+						// but it works...
+						int deltaX, deltaY;
+						SDL_GetRelativeMouseState(&deltaX, &deltaY);
+
+#ifdef MOUSEINPUT_DEBUG
+						CConsole::the().info("delta: [{}, {}]", deltaX, deltaY);
+#endif
+					}
 				}
-			}
-			else
-			{
-				SDL_SetRelativeMouseMode(!m_is_any_interactible_rendering_context_active);
 			}
 		}
 

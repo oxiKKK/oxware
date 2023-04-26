@@ -4,8 +4,6 @@
 
 # v1.0.1
 
-You can **read the change log** in order to keep up with the changes / additions that were made! 😉
-
 ## Additions and improvements
 
 - Added link to github repository to the bottom right corner of the screen (when menu is up).

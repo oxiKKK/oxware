@@ -22,3 +22,4 @@
 - Added check to see whenever the user is using the supported Windows version.
 - Fixed mouse cursor stuck issue. ([#0001](https://github.com/oxiKKK/oxware/issues/1))
 - Added support for C++ exceptions when using manual mapping. See [this commit](https://github.com/oxiKKK/oxware/commit/c29da51696fd0c3c034d821f8261cba139566bfa) for more details.
+- Various crash fixes.

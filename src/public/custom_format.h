@@ -42,7 +42,7 @@ template <>
 struct std::formatter<CColor> : std::formatter<std::string> {
 	auto format(const CColor& clr, std::format_context& ctx) {
 		return std::formatter<string>::format(
-		  std::format("[r: {} g: {} b: {} a: {}]", (int)(clr.r * 255.f), (int)(clr.g * 255.f), (int)(clr.b * 255.f), (int)(clr.a * 255.f)), ctx);
+		  std::format("[r: {:.3f} g: {:.3f} b: {:.3f} a: {:.3f}]", clr.r, clr.g, clr.b, clr.a), ctx);
 	}
 };
 

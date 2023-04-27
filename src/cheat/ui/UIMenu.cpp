@@ -494,7 +494,7 @@ void CUIMenu::tab_render()
 		});
 
 	add_menu_child(
-		"HUD rendering", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"HUD rendering", CMenuStyle::calc_child_size(210), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			g_gui_widgets_i->add_padding({ 0, 5.0f });
@@ -508,6 +508,23 @@ void CUIMenu::tab_render()
 			g_gui_widgets_i->add_separtor_with_text("Colors");
 
 			CUIMenuWidgets::the().add_checkbox_with_color("HUD Color", &hud_color_enable, &hud_color);
+		});
+
+	add_menu_child(
+		"Custom vanilla crosshair", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			CUIMenuWidgets::the().add_checkbox("Enable", &crosshair_enable);
+			CUIMenuWidgets::the().add_checkbox("Dynamic", &crosshair_dynamic);
+			CUIMenuWidgets::the().add_checkbox("Translucent", &crosshair_translucent);
+			CUIMenuWidgets::the().add_checkbox("Static", &crosshair_static);
+
+			CUIMenuWidgets::the().add_slider("Size", "%0.0f", &crosshair_size, "vanilla");
+			CUIMenuWidgets::the().add_slider("Gap", "%0.0f", &crosshair_gap, "vanilla");
+			CUIMenuWidgets::the().add_slider("Thickness", "%0.0f pixels", &crosshair_thickness);
+			CUIMenuWidgets::the().add_slider("Type", "%0.0f", &crosshair_type);
+
+			CUIMenuWidgets::the().add_color_edit("Color", &crosshair_color);
 		});
 
 	g_gui_widgets_i->end_columns(1);

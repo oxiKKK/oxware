@@ -75,17 +75,26 @@ bool CUIMenuWidgets::add_color_edit(const std::string& label, VarColor* colors_v
 	return ret;
 }
 
-template bool CUIMenuWidgets::add_slider_t<VarFloat>(const std::string&, const char*, VarFloat*, const char*);
-template bool CUIMenuWidgets::add_slider_t<VarInteger>(const std::string&, const char*, VarInteger*, const char*);
+template bool CUIMenuWidgets::add_slider_t<VarFloat>(const std::string&, const char*, VarFloat*, const char*, const char*, const char*);
+template bool CUIMenuWidgets::add_slider_t<VarInteger>(const std::string&, const char*, VarInteger*, const char*, const char*, const char*);
 
 template<typename T>
-bool CUIMenuWidgets::add_slider_t(const std::string& label, const char* format, T* var, const char* additional_desc)
+bool CUIMenuWidgets::add_slider_t(const std::string& label, const char* format, T* var, const char* min_value_label, const char* max_value_label, const char* additional_desc)
 {
 	assert(var->has_bounds() && "Variable used in slider must have bounds.");
 
 	// get bounds
 	float min = var->get_min(), max = var->get_max();
 	float value = var->get_value();
+
+	if (min_value_label && value == min)
+	{
+		format = min_value_label;
+	}
+	else if (max_value_label && value == max)
+	{
+		format = max_value_label;
+	}
 
 	bool ret = g_gui_widgets_i->add_slider(label, &value, &min, &max, format);
 
@@ -99,14 +108,14 @@ bool CUIMenuWidgets::add_slider_t(const std::string& label, const char* format, 
 	return ret;
 }
 
-bool CUIMenuWidgets::add_slider(const std::string& label, const char* format, VarFloat* var, const char* additional_desc)
+bool CUIMenuWidgets::add_slider(const std::string& label, const char* format, VarFloat* var, const char* min_value_label, const char* max_value_label, const char* additional_desc)
 {
-	return add_slider_t<VarFloat>(label, format, var, additional_desc);
+	return add_slider_t<VarFloat>(label, format, var, min_value_label, max_value_label, additional_desc);
 }
 
-bool CUIMenuWidgets::add_slider(const std::string& label, const char* format, VarInteger* var, const char* additional_desc)
+bool CUIMenuWidgets::add_slider(const std::string& label, const char* format, VarInteger* var, const char* min_value_label, const char* max_value_label, const char* additional_desc)
 {
-	return add_slider_t<VarInteger>(label, format, var, additional_desc);
+	return add_slider_t<VarInteger>(label, format, var, min_value_label, max_value_label, additional_desc);
 }
 
 void CUIMenuWidgets::add_pair_textinput(const std::string& label, VarKeyValue* var, const char* first_column_header, const char* second_column_header)

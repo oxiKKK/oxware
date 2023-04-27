@@ -448,4 +448,20 @@ AmmoInfo;
 
 #define WEAPON_ACTIVITY_VOLUME			64
 
+// player data iuser3
+#define PLAYER_CAN_SHOOT					(1<<0)
+#define PLAYER_FREEZE_TIME_OVER				(1<<1)
+#define PLAYER_IN_BOMB_ZONE					(1<<2)
+#define PLAYER_HOLDING_SHIELD				(1<<3)
+#define PLAYER_PREVENT_DUCK					(1<<4)
+#define PLAYER_PREVENT_CLIMB				(1<<5) // The player can't climb ladder
+
+// accuracy flags
+#define ACCURACY_NONE						0
+#define ACCURACY_AIR						(1 << 0) // accuracy depends on FL_ONGROUND
+#define ACCURACY_SPEED						(1 << 1)
+#define ACCURACY_DUCK						(1 << 2) // more accurate when ducking
+#define ACCURACY_MULTIPLY_BY_14				(1 << 3) // accuracy multiply to 1.4
+#define ACCURACY_MULTIPLY_BY_14_2			(1 << 4) // accuracy multiply to 1.4
+
 #endif // WEAPONDEFS_H

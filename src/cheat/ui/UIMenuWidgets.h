@@ -41,8 +41,8 @@ public:
 
 	bool add_color_edit(const std::string& label, VarColor* colors_var, const char* additional_desc = nullptr);
 
-	bool add_slider(const std::string& label, const char* format, VarFloat* var, const char* additional_desc = nullptr);
-	bool add_slider(const std::string& label, const char* format, VarInteger* var, const char* additional_desc = nullptr);
+	bool add_slider(const std::string& label, const char* format, VarFloat* var, const char* min_value_label = nullptr, const char* max_value_label = nullptr, const char* additional_desc = nullptr);
+	bool add_slider(const std::string& label, const char* format, VarInteger* var, const char* min_value_label = nullptr, const char* max_value_label = nullptr, const char* additional_desc = nullptr);
 
 	void add_pair_textinput(const std::string& label, VarKeyValue* var, const char* first_column_header = nullptr, const char* second_column_header = nullptr);
 
@@ -52,7 +52,7 @@ private:
 	void handle_widget_hover(BaseVariable* var);
 
 	template<typename T>
-	bool add_slider_t(const std::string& label, const char* format, T* var, const char* additional_desc = nullptr);
+	bool add_slider_t(const std::string& label, const char* format, T* var, const char* min_value_label = nullptr, const char* max_value_label = nullptr, const char* additional_desc = nullptr);
 };
 
 #endif // UIMENUWIDGETS_H

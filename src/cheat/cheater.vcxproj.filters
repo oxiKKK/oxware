@@ -182,6 +182,9 @@
     <ClCompile Include="game\SpriteManager.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
+    <ClCompile Include="features\VanillaCrosshair.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -322,6 +325,9 @@
     </ClInclude>
     <ClInclude Include="custom_format_cheat.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="features\VanillaCrosshair.h">
+      <Filter>src\features</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -57,6 +57,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	if (!SCR_UpdateScreen().install()) return false;
 	if (!SPR_Set().install()) return false;
 	if (!CGame__AppActivate().install()) return false;
+	if (!CHudAmmo__DrawCrosshair().install()) return false;
 
 	return true;
 }
@@ -98,6 +99,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	SCR_UpdateScreen().uninstall();
 	SPR_Set().uninstall();
 	CGame__AppActivate().uninstall();
+	CHudAmmo__DrawCrosshair().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -601,6 +603,25 @@ void __thiscall CGame__AppActivateFnHook_t::CGame__AppActivate(void* ecx, bool f
 	}
 
 	CMemoryFnDetourMgr::the().CGame__AppActivate().call(ecx, fActive);
+}
+
+//---------------------------------------------------------------------------------
+
+bool CHudAmmo__DrawCrosshairFnHook_t::install()
+{
+	initialize("CHudAmmo__DrawCrosshair", L"client.dll");
+	return generic_bytepattern_detour(CHudAmmo__DrawCrosshair, { "\x83\xEC\x08\x8B\x44\x24\x10\x53\x55\x56\x57" });
+}
+
+int __thiscall CHudAmmo__DrawCrosshairFnHook_t::CHudAmmo__DrawCrosshair(void* ecx, float flTime, int weaponid)
+{
+	if (crosshair_enable.get_value())
+	{
+		CVanillaCrosshair::the().draw();
+		return 1;
+	}
+
+	return CMemoryFnDetourMgr::the().CHudAmmo__DrawCrosshair().call(ecx, flTime, weaponid);
 }
 
 //---------------------------------------------------------------------------------

@@ -94,7 +94,9 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - viewmodel offset
 - smoke visuals
 - flashbang fade modifier
+- built-in console with custom commands
 - fov changer
+- server liar (sending false cvar values to the server)
 - esp
 	- player
 	- entities
@@ -108,6 +110,10 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 	- re-enabling some renderer cvars (normally unable to set in SP & MP)
 	- allow SP-only cvars also in MP
 - Frame skipping/simulated framerate
+- Vanilla-like crosshair changer ➕
+- Custom HUD rendering 🌈 such as:
+	- displaying currently held weapon
+	- displaying current velocity
 - instantaneous cheat unload (either via loader or cheat menu)
 - injection using manual mapping
 - configuration files

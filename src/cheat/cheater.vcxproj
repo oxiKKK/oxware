@@ -362,6 +362,7 @@
     <ClCompile Include="features\Removals.cpp" />
     <ClCompile Include="features\ServerLiar.cpp" />
     <ClCompile Include="features\SmokeVisuals.cpp" />
+    <ClCompile Include="features\VanillaCrosshair.cpp" />
     <ClCompile Include="features\ViewmodelOffset.cpp" />
     <ClCompile Include="GameUtil.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -431,6 +432,7 @@
     <ClInclude Include="features\Removals.h" />
     <ClInclude Include="features\ServerLiar.h" />
     <ClInclude Include="features\SmokeVisuals.h" />
+    <ClInclude Include="features\VanillaCrosshair.h" />
     <ClInclude Include="features\ViewmodelOffset.h" />
     <ClInclude Include="GameUtil.h" />
     <ClInclude Include="features\FeatureManager.h" />

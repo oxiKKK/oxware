@@ -253,6 +253,7 @@ namespace hl
 #include "features/BulletTrace.h"
 #include "features/FrameSkipper.h"
 #include "features/ESP.h"
+#include "features/VanillaCrosshair.h"
 
 // ui
 #include "ui/IRendererContext.h"

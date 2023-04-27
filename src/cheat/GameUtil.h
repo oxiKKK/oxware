@@ -76,6 +76,21 @@ public:
 
 	// get local player velocity calculated by playermove code
 	float get_local_velocity_2d();
+	float get_local_velocity_3d();
+
+	// check if nullptr!
+	hl::CBasePlayerWeapon* get_current_weapon();
+
+	int get_weapon_accuracy_flags(int weapon_id, int weapon_flags);
+
+	hl::clientdata_t* get_current_frame_clientdata();
+
+	// returns g_iPlayerFlags (in original cstrike client dll)
+	// aka playermove flags (FL_ONGROUND etc - FL_* macros)
+	int get_player_flags();
+
+	void render_circle_opengl(float cx, float cy, float radius, int num_segments, float width, bool blend, int r, int g, int b, int a);
+	void render_line_opengl(const Vector2D& from, const Vector2D& to, float width, bool blend, int r, int g, int b, int a);
 
 private:
 	void locate_engine_compile_timestamp();

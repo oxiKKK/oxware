@@ -272,6 +272,165 @@ float CGameUtil::get_local_velocity_2d()
 	return 0.0f;
 }
 
+float CGameUtil::get_local_velocity_3d()
+{
+	auto pm = CMemoryHookMgr::the().pmove().get();
+	if (pm)
+	{
+		return pm->velocity.Length();
+	}
+
+	return 0.0f;
+}
+
+hl::CBasePlayerWeapon* CGameUtil::get_current_weapon()
+{
+	auto& client_wpns_hook = CMemoryHookCBaseStuff::the().ClientWeapons();
+	if (!client_wpns_hook.is_installed())
+	{
+		return NULL;
+	}
+
+	auto weapons = *client_wpns_hook.get();
+
+	auto cl = CMemoryHookMgr::the().cl().get();
+
+	return weapons[cl->frames[cl->parsecountmod].clientdata.m_iId];
+}
+
+int CGameUtil::get_weapon_accuracy_flags(int weapon_id, int weapon_flags)
+{
+	int flags = 0;
+
+	switch (weapon_id)
+	{
+		case hl::WEAPON_AUG:
+		case hl::WEAPON_GALIL:
+		case hl::WEAPON_M249:
+		case hl::WEAPON_SG552:
+		case hl::WEAPON_AK47:
+		case hl::WEAPON_P90:
+			flags = ACCURACY_AIR | ACCURACY_SPEED;
+
+			break;
+		case hl::WEAPON_P228:
+		case hl::WEAPON_FIVESEVEN:
+		case hl::WEAPON_DEAGLE:
+			flags = ACCURACY_AIR | ACCURACY_SPEED | ACCURACY_DUCK;
+
+			break;
+		case hl::WEAPON_GLOCK18:
+			if (flags & WPNSTATE_GLOCK18_BURST_MODE)
+				flags = ACCURACY_AIR | ACCURACY_SPEED | ACCURACY_DUCK;
+			else
+				flags = ACCURACY_AIR | ACCURACY_SPEED | ACCURACY_DUCK | ACCURACY_MULTIPLY_BY_14_2;
+
+			break;
+		case hl::WEAPON_MAC10:
+		case hl::WEAPON_UMP45:
+		case hl::WEAPON_MP5N:
+		case hl::WEAPON_TMP:
+			flags = ACCURACY_AIR;
+
+			break;
+		case hl::WEAPON_M4A1:
+			if (flags & WPNSTATE_USP_SILENCED)
+				flags = ACCURACY_AIR | ACCURACY_SPEED;
+			else
+				flags = ACCURACY_AIR | ACCURACY_SPEED | ACCURACY_MULTIPLY_BY_14;
+
+			break;
+		case hl::WEAPON_FAMAS:
+			if (flags & WPNSTATE_FAMAS_BURST_MODE)
+				flags = ACCURACY_AIR | ACCURACY_SPEED;
+			else
+				flags = ACCURACY_AIR | ACCURACY_SPEED | (1 << 4);
+
+			break;
+		case hl::WEAPON_USP:
+			if (flags & WPNSTATE_USP_SILENCED)
+				flags = ACCURACY_AIR | ACCURACY_SPEED | ACCURACY_DUCK;
+			else
+				flags = ACCURACY_AIR | ACCURACY_SPEED | ACCURACY_DUCK | ACCURACY_MULTIPLY_BY_14;
+	}
+
+	return flags;
+}
+
+hl::clientdata_t* CGameUtil::get_current_frame_clientdata()
+{
+	auto cl = CMemoryHookMgr::the().cl().get();
+
+	return &cl->frames[cl->parsecountmod].clientdata;
+}
+
+int CGameUtil::get_player_flags()
+{
+	auto cldata = get_current_frame_clientdata();
+	if (!cldata)
+		return 0;
+
+	return cldata->flags;
+}
+
+void CGameUtil::render_circle_opengl(float cx, float cy, float radius, int num_segments, float width, bool blend, int r, int g, int b, int a)
+{
+	// https://stackoverflow.com/questions/22444450/drawing-circle-with-opengl
+
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glBlendFunc(GL_SRC_ALPHA, blend ? GL_ONE_MINUS_SRC_ALPHA : GL_ONE);
+
+	glColor4ub(r, g, b, a);
+
+	glLineWidth(width);
+
+	glBegin(GL_LINE_LOOP);
+	for (int ii = 0; ii < num_segments; ii++)
+	{
+		float theta = 2.0f * std::numbers::pi * float(ii) / float(num_segments); // get the current angle
+
+		float x = radius * cosf(theta); // calculate the x component
+		float y = radius * sinf(theta); // calculate the y component
+
+		glVertex2f(x + cx, y + cy); // output vertex
+
+	}
+	glEnd();
+
+	glColor3ub(255, 255, 255);
+
+	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+}
+
+void CGameUtil::render_line_opengl(const Vector2D& from, const Vector2D& to, float width, bool blend, int r, int g, int b, int a)
+{
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glBlendFunc(GL_SRC_ALPHA, blend ? GL_ONE_MINUS_SRC_ALPHA : GL_ONE);
+
+	glColor4ub(r, g, b, a);
+
+	glLineWidth(width);
+
+	glBegin(GL_LINES);
+
+	glVertex2f(from.x, from.y);
+	glVertex2f(to.x, to.y);
+
+	glEnd();
+
+	glColor3ub(255, 255, 255);
+
+	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+}
+
 void CGameUtil::locate_engine_compile_timestamp()
 {
 	if (!m_engine_compile_date.empty())

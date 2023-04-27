@@ -247,6 +247,14 @@ public:
 	bool install() override;
 };
 
+// int g_iShotsFired;
+// obtained from CHudAmmo::DrawCrosshair
+class g_iShotsFiredHook final : public CGenericMemHook<int>
+{
+public: 
+	bool install() override;
+};
+
 //-----------------------------------------------------------------------------
 
 class CMemoryHookMgr
@@ -274,6 +282,7 @@ public:
 	inline static auto& cl_parsefuncs() { static cl_parsefuncsHook hook; return hook; };
 	inline static auto& pmove() { static pmoveHook hook; return hook; };
 	inline static auto& gClientUserMsgs() { static gClientUserMsgsHook hook; return hook; };
+	inline static auto& g_iShotsFired() { static g_iShotsFiredHook hook; return hook; };
 };
 
 #endif // MEMORYHOOK_H

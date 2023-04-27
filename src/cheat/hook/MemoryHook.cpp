@@ -45,6 +45,7 @@ bool CMemoryHookMgr::install_hooks()
 	if (!cl_parsefuncs().install()) return false;
 	if (!pmove().install()) return false;
 	if (!gClientUserMsgs().install()) return false;
+	if (!g_iShotsFired().install()) return false;
 
 	return true;
 }
@@ -66,6 +67,7 @@ void CMemoryHookMgr::uninstall_hooks()
 	cl_parsefuncs().uninstall();
 	pmove().uninstall();
 	gClientUserMsgs().uninstall();
+	g_iShotsFired().uninstall();
 }
 
 //-----------------------------------------------------------------------------
@@ -159,4 +161,10 @@ bool gClientUserMsgsHook::install()
 {
 	initialize("gClientUserMsgs", L"hw.dll", false);
 	return generic_bytepattern_installer({ "\x8B\x00\x00\x00\x00\x00\x85\xF6\x74\x00\x39", 0x2 });
+}
+
+bool g_iShotsFiredHook::install()
+{
+	initialize("g_iShotsFired", L"client.dll", false);
+	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x3D\x00\x00\x00\x00\x7E\x00\xB8", 0x1 });
 }

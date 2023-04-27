@@ -419,6 +419,15 @@ public:
 	static void __thiscall CGame__AppActivate(void* ecx, bool fActive);
 };
 
+// int __cdecl CHudAmmo__DrawCrosshair(CHudAmmo *const this, float flTime, int weaponid)
+class CHudAmmo__DrawCrosshairFnHook_t final : public CGenericMemoryFnDetourThiscall<int, void*, float, int>
+{
+public:
+	bool install();
+
+	static int __thiscall CHudAmmo__DrawCrosshair(void* ecx, float flTime, int weaponid);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -462,6 +471,7 @@ public:
 	inline auto& SCR_UpdateScreen() { static SCR_UpdateScreenFnHook_t fnhook; return fnhook; }
 	inline auto& SPR_Set() { static SPR_SetFnHook_t fnhook; return fnhook; }
 	inline auto& CGame__AppActivate() { static CGame__AppActivateFnHook_t fnhook; return fnhook; }
+	inline auto& CHudAmmo__DrawCrosshair() { static CHudAmmo__DrawCrosshairFnHook_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

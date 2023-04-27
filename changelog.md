@@ -33,7 +33,7 @@
 - Implemented playermodel head hitbox rendering of greenish color. 🟩
 
 <details><summary>See for yourself! 😉</summary>
-	<img src="https://i.imgur.com/bYzp8KD.png"></img>
+	<img src="https://i.imgur.com/bYzp8KD.png" width="50%" height="50%"></img>
 </details>
 
 ## Bugfixes

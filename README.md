@@ -92,11 +92,13 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - HUD removals
 	- weapon, crosshair, money, etc...
 - viewmodel offset
-- smoke visuals
+- smoke visuals 🚬
 - flashbang fade modifier
-- built-in console with custom commands
+- built-in console with custom commands 🖥
 - fov changer
 - server liar (sending false cvar values to the server)
+- skeletal chams 💀
+- playermodel head hitbox rendering 🟩
 - esp
 	- player
 	- entities
@@ -112,11 +114,11 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - Frame skipping/simulated framerate
 - Vanilla-like crosshair changer ➕
 - Custom HUD rendering 🌈 such as:
-	- displaying currently held weapon
-	- displaying current velocity
+	- displaying currently held weapon 🔫
+	- displaying current velocity 
 - instantaneous cheat unload (either via loader or cheat menu)
-- injection using manual mapping
-- configuration files
+- injection using manual mapping 🗺
+- configuration files ⚙
 
 ## To be done
 

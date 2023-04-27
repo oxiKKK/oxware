@@ -29,8 +29,15 @@
 ## Additions and improvements
 
 - Added vanilla-like crosshair changer! ➕
+- Implemented skeletal playermodel chams. 💀
+- Implemented playermodel head hitbox rendering of greenish color. 🟩
+
+<details><summary>See for yourself! 😉</summary>
+	<img src="https://i.imgur.com/bYzp8KD.png"></img>
+</details>
 
 ## Bugfixes
 
-- Changed formatting of CColor class from 0-255 to 0-1 to provide compatibility with the way imgui handle colors.
+- Changed formatting of CColor class from 0-255 to 0-1 to provide compatibility with the way imgui handle colors. 🌈
+- Fixed a bug in Visual Studio where if you would have the cheat inside a directory that has spaces in it such as "folder 1 2 3", the solution would not compile. 🐞
 

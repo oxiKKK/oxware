@@ -191,8 +191,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -221,8 +221,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">
@@ -251,8 +251,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -276,8 +276,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -305,8 +305,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
@@ -334,8 +334,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

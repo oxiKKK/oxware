@@ -178,8 +178,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
     <Lib>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
@@ -211,8 +211,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
     <Lib>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
@@ -244,8 +244,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
     <Lib>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
@@ -273,8 +273,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
     <Lib>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
@@ -305,8 +305,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
     <Lib>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
@@ -337,8 +337,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
     <Lib>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>

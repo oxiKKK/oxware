@@ -255,6 +255,32 @@ public:
 	bool install() override;
 };
 
+// model_t* r_model;
+// currently rendered model inside the studio code.
+// obtained from R_GLStudioDrawPoints
+class r_modelHook final : public CGenericMemHook<hl::model_t*>
+{
+public:
+	bool install() override;
+};
+
+// studiohdr_t* pstudiohdr;
+// header of currently rendered model inside the studio code.
+// obtained from 
+class pstudiohdrHook final : public CGenericMemHook<hl::studiohdr_t*>
+{
+public:
+	bool install() override;
+};
+
+// r_studio_interface_t* pStudioAPI;
+// obtained from 
+class pStudioAPIHook final : public CGenericMemHook<hl::r_studio_interface_t*>
+{
+public:
+	bool install() override;
+};
+
 //-----------------------------------------------------------------------------
 
 class CMemoryHookMgr
@@ -283,6 +309,9 @@ public:
 	inline static auto& pmove() { static pmoveHook hook; return hook; };
 	inline static auto& gClientUserMsgs() { static gClientUserMsgsHook hook; return hook; };
 	inline static auto& g_iShotsFired() { static g_iShotsFiredHook hook; return hook; };
+	inline static auto& r_model() { static r_modelHook hook; return hook; };
+	inline static auto& pstudiohdr() { static pstudiohdrHook hook; return hook; };
+	inline static auto& pStudioAPI() { static pStudioAPIHook hook; return hook; };
 };
 
 #endif // MEMORYHOOK_H

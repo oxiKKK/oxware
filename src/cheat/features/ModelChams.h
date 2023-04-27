@@ -42,6 +42,9 @@ extern VarInteger mdlchams_players_t_type;
 extern VarBoolean mdlchams_players_ct_enable;
 extern VarColor mdlchams_players_ct_color;
 extern VarInteger mdlchams_players_ct_type;
+extern VarBoolean mdlchams_player_skeleton;
+extern VarBoolean mdlchams_head_box_enable;
+extern VarColor mdlchams_head_box_color;
 
 enum EModelChamsType
 {
@@ -94,6 +97,16 @@ public:
 	void executeall_studio_post();
 
 	void executeall_color(float* lambert);
+
+	// replacement for R_StudioDrawPoints()
+	bool studio_draw_skeleton();
+
+	void render_playerhead_hitbox();
+
+	// returns model that is currently being rendered inside studio code.
+	// this is set by the client dll using engine_studio_api_t::SetRenderModel().
+	hl::model_t* get_currently_rendered_model();
+	hl::studiohdr_t* get_currently_rendered_model_header();
 
 private:
 	void intitialize_chammed_model(ChammedModel* model, VarBoolean* is_enabled, VarColor* color, VarInteger* type, const std::function<bool()>& should_render);

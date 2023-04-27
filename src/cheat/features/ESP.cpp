@@ -346,11 +346,11 @@ void CESP::render_sound()
 
 			if (CGameUtil::the().is_player_index(step.entid))
 			{
-				auto& player = CEntityMgr::the().m_known_players[step.entid];
+				auto player = CEntityMgr::the().get_player_by_id(step.entid);
 
-				if (player.is_valid())
+				if (player && player->is_valid())
 				{
-					step_color = player.get_color_based_on_team();
+					step_color = player->get_color_based_on_team();
 				}
 			}
 

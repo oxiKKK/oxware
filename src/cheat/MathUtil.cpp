@@ -62,3 +62,10 @@ void CMathUtil::angle_vectors(const Vector & angles, Vector & forward, Vector & 
 		up[2] = cr * cp;
 	}
 }
+
+void CMathUtil::vector_transform(const Vector& vector, const float(*transformation_matrix)[4], Vector& transformed)
+{
+	transformed[0] = DotProduct(vector, transformation_matrix[0]) + transformation_matrix[0][3];
+	transformed[1] = DotProduct(vector, transformation_matrix[1]) + transformation_matrix[1][3];
+	transformed[2] = DotProduct(vector, transformation_matrix[2]) + transformation_matrix[2][3];
+}

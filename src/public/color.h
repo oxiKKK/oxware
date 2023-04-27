@@ -125,6 +125,11 @@ public:
 		}
 	}
 
+	float* get_base()
+	{
+		return &r;
+	}
+
 	// expects [r: {} g: {} b: {} a: {}]
 	static CColor parse_color_out_of_string(const std::string& color_string)
 	{

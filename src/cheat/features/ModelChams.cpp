@@ -45,6 +45,11 @@ VarBoolean mdlchams_players_ct_enable("mdlchams_players_ct_enable", "Enables pla
 VarColor mdlchams_players_ct_color("mdlchams_players_ct_color", "Players chams CT color", CColor(50, 50, 230, 255));
 VarInteger mdlchams_players_ct_type("mdlchams_players_ct_type", "Players chams CT type", CHAMS_Flat, CHAMS_Flat, CHAMS_FlatTercial);
 
+VarBoolean mdlchams_player_skeleton("mdlchams_player_skeleton", "Disables playermodels but instead renders their skeleton", false);
+
+VarBoolean mdlchams_head_box_enable("mdlchams_head_box_enable", "Renders box at players heads", false);
+VarColor mdlchams_head_box_color("mdlchams_head_box_color", "Color of the player head box", CColor(0, 255, 0));
+
 void CModelChams::initialize()
 {
 	m_chammed_models.reserve(64);
@@ -139,6 +144,184 @@ void CModelChams::executeall_color(float* lambert)
 			chams->process_color(lambert);
 		}
 	}
+}
+
+bool CModelChams::studio_draw_skeleton()
+{
+	if (!mdlchams_player_skeleton.get_value())
+	{
+		return false; // render points instead.
+	}
+
+	auto engine_studio_api = CMemoryHookMgr::the().engine_studio_api().get();
+
+	auto current_ent = engine_studio_api->GetCurrentEntity();
+	if (current_ent->player == false)
+	{
+		return false;
+	}
+
+	auto pstudiohdr = get_currently_rendered_model_header();
+	if (!pstudiohdr)
+	{
+		// our hooks aren't initialized yet. Strange...
+		return false;
+	}
+
+	auto pbones = (hl::mstudiobone_t*)((byte*)pstudiohdr + pstudiohdr->boneindex);
+	auto pbboxes = (hl::mstudiobbox_t*)((byte*)pstudiohdr + pstudiohdr->hitboxindex);
+
+	// light or bone, doesn't matter.
+	float(*couple_of_pointers)[MAXSTUDIOBONES][3][4] = (float(*)[MAXSTUDIOBONES][3][4])engine_studio_api->StudioGetBoneTransform();
+
+	auto player = CEntityMgr::the().get_player_by_id(current_ent->index);
+
+	CColor color_based_on_team = CColor(170, 170, 170); // gray by default
+	if (player && player->is_valid())
+	{
+		color_based_on_team = player->get_color_based_on_team();
+	}
+
+	glDisable(GL_TEXTURE_2D);
+
+	//
+	// Loop through all parent bones and render concatenated lines.
+	//
+	for (int i = 0; i < pstudiohdr->numbones; i++)
+	{
+		if (pbones[i].parent == -1) // non-existent parent bone
+			continue;
+
+		int k = pbones[i].parent;
+
+		Vector bone_position = {
+			(*couple_of_pointers)[i][0][3],
+			(*couple_of_pointers)[i][1][3],
+			(*couple_of_pointers)[i][2][3] };
+
+		Vector parent_bone_position = {
+			(*couple_of_pointers)[k][0][3],
+			(*couple_of_pointers)[k][1][3],
+			(*couple_of_pointers)[k][2][3] };
+
+		glLineWidth(1);
+		glColor4fv(color_based_on_team.get_base());
+
+		glBegin(GL_LINES);
+
+		glVertex3f(bone_position.x, bone_position.y, bone_position.z);
+		glVertex3f(parent_bone_position.x, parent_bone_position.y, parent_bone_position.z);
+
+		glEnd();
+	}
+
+	glEnable(GL_TEXTURE_2D);
+
+	return true;
+}
+
+static int g_cubic_face_translation[6][4] =
+{
+	{ 0, 4, 6, 2 }, // +X
+	{ 0, 1, 5, 4 }, // +Y
+	{ 0, 2, 3, 1 }, // +Z
+	{ 7, 5, 1, 3 }, // -X
+	{ 7, 3, 2, 6 }, // -Y
+	{ 7, 6, 4, 5 }, // -Z
+};
+
+void CModelChams::render_playerhead_hitbox()
+{
+	if (!mdlchams_head_box_enable.get_value())
+	{
+		return;
+	}
+
+	auto engine_studio_api = CMemoryHookMgr::the().engine_studio_api().get();
+
+	if (engine_studio_api->GetCurrentEntity()->player == false)
+	{
+		return;
+	}
+
+	auto pstudiohdr = get_currently_rendered_model_header();
+	if (!pstudiohdr)
+	{
+		// our hooks aren't initialized yet. Strange...
+		return;
+	}
+
+	// light or bone, doesn't matter.
+	float(*couple_of_pointers)[MAXSTUDIOBONES][3][4] = (float(*)[MAXSTUDIOBONES][3][4])engine_studio_api->StudioGetBoneTransform();
+
+	auto bbox = (hl::mstudiobbox_t*)((byte*)pstudiohdr + pstudiohdr->hitboxindex);
+
+	Vector bbox_transformator, p[8];
+
+	glDisable(GL_TEXTURE_2D);
+
+	for (int i = 0; i < pstudiohdr->numhitboxes; i++)
+	{
+		// the infamous head hitbox
+		//
+		// This won't work for some models such as some huge crazyass zombie models etc. This is
+		// sort of a "standard" in the modelling sphere, where if you're a modeler and you're
+		// making a player model, you SHOULD make the hitgroup 1 the head, but not everyone does this.
+		// Therefor there isn't really a proper way to look for a head hitbox however, from what I've
+		// see and from my testing, this works for most regular models, and for the majority of zombie
+		// models, but that really depends..
+		if (bbox[i].group == hl::HITGROUP_HEAD)
+		{
+			// get all cube vertices
+			for (int j = 0; j < 8; j++)
+			{
+				bbox_transformator[0] = (j & 1) ? bbox[i].bbmin[0] : bbox[i].bbmax[0];
+				bbox_transformator[1] = (j & 2) ? bbox[i].bbmin[1] : bbox[i].bbmax[1];
+				bbox_transformator[2] = (j & 4) ? bbox[i].bbmin[2] : bbox[i].bbmax[2];
+
+				CMathUtil::the().vector_transform(bbox_transformator, (*couple_of_pointers)[bbox[i].bone], p[j]);
+			}
+
+			glBegin(GL_QUADS);
+			
+			glColor4fv(mdlchams_head_box_color.get_value().get_base());
+
+			// render all faces of a cube
+			for (int j = 0; j < 6; j++)
+			{
+				glVertex3fv(p[g_cubic_face_translation[j][0]]);
+				glVertex3fv(p[g_cubic_face_translation[j][1]]);
+				glVertex3fv(p[g_cubic_face_translation[j][2]]);
+				glVertex3fv(p[g_cubic_face_translation[j][3]]);
+			}
+
+			glEnd();
+		}
+	}
+
+	glEnable(GL_TEXTURE_2D);
+}
+
+hl::model_t* CModelChams::get_currently_rendered_model()
+{
+	auto& hook = CMemoryHookMgr::the().r_model();
+	if (hook.is_installed())
+	{
+		return *hook.get();
+	}
+
+	return nullptr;
+}
+
+hl::studiohdr_t* CModelChams::get_currently_rendered_model_header()
+{
+	auto& hook = CMemoryHookMgr::the().pstudiohdr();
+	if (hook.is_installed())
+	{
+		return *hook.get();
+	}
+
+	return nullptr;
 }
 
 void CModelChams::intitialize_chammed_model(ChammedModel* model, VarBoolean* is_enabled, VarColor* color, VarInteger* type, const std::function<bool()>& should_render)

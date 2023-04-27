@@ -58,6 +58,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	if (!SPR_Set().install()) return false;
 	if (!CGame__AppActivate().install()) return false;
 	if (!CHudAmmo__DrawCrosshair().install()) return false;
+	if (!R_StudioDrawPlayer().install()) return false;
 
 	return true;
 }
@@ -100,6 +101,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	SPR_Set().uninstall();
 	CGame__AppActivate().uninstall();
 	CHudAmmo__DrawCrosshair().uninstall();
+	R_StudioDrawPlayer().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -364,6 +366,13 @@ void R_StudioDrawPointsFnHook_t::R_StudioDrawPoints()
 	// function responsible for the actual rendering of the studio model
 	OX_PROFILE_SCOPE("studio_drawpoints");
 
+	CModelChams::the().render_playerhead_hitbox();
+
+	if (CModelChams::the().studio_draw_skeleton())
+	{
+		return;
+	}
+
 	CModelChams::the().executeall_studio_pre();
 
 	CMemoryFnDetourMgr::the().R_StudioDrawPoints().call();
@@ -622,6 +631,26 @@ int __thiscall CHudAmmo__DrawCrosshairFnHook_t::CHudAmmo__DrawCrosshair(void* ec
 	}
 
 	return CMemoryFnDetourMgr::the().CHudAmmo__DrawCrosshair().call(ecx, flTime, weaponid);
+}
+
+//---------------------------------------------------------------------------------
+
+bool R_StudioDrawPlayerFnHook_t::install()
+{
+	initialize("R_StudioDrawPlayer", L"hw.dll");
+	return generic_functionaddr_detour(R_StudioDrawPlayer, (uintptr_t*)(*CMemoryHookMgr::the().pStudioAPI().get())->StudioDrawPlayer);
+}
+
+int R_StudioDrawPlayerFnHook_t::R_StudioDrawPlayer(int flags, hl::entity_state_t* pplayer)
+{
+	if (mdlchams_player_skeleton.get_value())
+	{
+		// disable p_* models when using skeletal chams. This model gets merged into the playermodel, hence createing unecessary
+		// bones then we then render and that stays in the way.
+		pplayer->weaponmodel = 0;
+	}
+
+	return CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
 }
 
 //---------------------------------------------------------------------------------

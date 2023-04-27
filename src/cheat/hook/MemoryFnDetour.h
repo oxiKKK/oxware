@@ -428,6 +428,15 @@ public:
 	static int __thiscall CHudAmmo__DrawCrosshair(void* ecx, float flTime, int weaponid);
 };
 
+// int R_StudioDrawPlayer(int flags, entity_state_t* pplayer)
+class R_StudioDrawPlayerFnHook_t final : public CGenericMemoryFnDetourCdecl<int, int, hl::entity_state_t*>
+{
+public:
+	bool install();
+
+	static int R_StudioDrawPlayer(int flags, hl::entity_state_t* pplayer);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -472,6 +481,7 @@ public:
 	inline auto& SPR_Set() { static SPR_SetFnHook_t fnhook; return fnhook; }
 	inline auto& CGame__AppActivate() { static CGame__AppActivateFnHook_t fnhook; return fnhook; }
 	inline auto& CHudAmmo__DrawCrosshair() { static CHudAmmo__DrawCrosshairFnHook_t fnhook; return fnhook; }
+	inline auto& R_StudioDrawPlayer() { static R_StudioDrawPlayerFnHook_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

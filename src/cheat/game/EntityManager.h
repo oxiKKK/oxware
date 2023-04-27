@@ -56,6 +56,19 @@ public:
 		}
 	}
 
+	CGenericPlayer* get_player_by_id(int index)
+	{
+		try
+		{
+			return &m_known_players.at(index);
+		}
+		catch (/*const std::out_of_range& err*/...)
+		{
+			CConsole::the().error("Invalid player index when accessing known players: {} (2)", index);
+			return nullptr;
+		}
+	}
+
 	std::unordered_map<int, CGenericEnt> m_known_entities;
 	std::unordered_map<int, CGenericPlayer> m_known_players;
 };

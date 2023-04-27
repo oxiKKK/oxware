@@ -464,10 +464,26 @@ void CUIMenu::tab_render()
 			CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
 		});
 
+	add_menu_child(
+		"Studio renderer", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+
+		g_gui_widgets_i->add_padding({ 0, 5.0f });
+		g_gui_widgets_i->add_separtor_with_text("Player skeleton");
+
+		CUIMenuWidgets::the().add_checkbox("Enable ##skelly", &mdlchams_player_skeleton);
+
+		g_gui_widgets_i->add_padding({ 0, 5.0f });
+		g_gui_widgets_i->add_separtor_with_text("Player head hitbox");
+
+		CUIMenuWidgets::the().add_checkbox_with_color("Enable ##hbox", &mdlchams_head_box_enable, &mdlchams_head_box_color);
+		});
+
 	g_gui_widgets_i->goto_next_column();
 
 	add_menu_child(
-		"Model chams", CMenuStyle::calc_child_size(390), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Model chams", CMenuStyle::calc_child_size(400), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			CUIMenuWidgets::the().add_checkbox("Enable", &mdlchams_enable);
@@ -494,7 +510,7 @@ void CUIMenu::tab_render()
 		});
 
 	add_menu_child(
-		"HUD rendering", CMenuStyle::calc_child_size(210), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"HUD rendering", CMenuStyle::calc_child_size(205), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			g_gui_widgets_i->add_padding({ 0, 5.0f });

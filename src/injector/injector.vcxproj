@@ -155,8 +155,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -187,8 +187,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">
@@ -219,8 +219,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -248,8 +248,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -279,8 +279,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
@@ -310,8 +310,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

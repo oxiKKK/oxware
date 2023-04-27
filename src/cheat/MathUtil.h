@@ -34,6 +34,8 @@
 #define YAW		1
 #define ROLL	2
 
+#define DotProduct(x,y)			(x[0]*y[0]+x[1]*y[1]+x[2]*y[2])
+
 class CMathUtil
 {
 public:
@@ -41,6 +43,8 @@ public:
 
 public:
 	void angle_vectors(const Vector& angles, Vector& forward, Vector& right, Vector& up);
+
+	void vector_transform(const Vector& vector, const float(*transformation_matrix)[4], Vector& transformed);
 };
 
 #endif // MATHUTIL_H

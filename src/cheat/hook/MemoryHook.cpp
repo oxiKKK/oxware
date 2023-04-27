@@ -46,6 +46,9 @@ bool CMemoryHookMgr::install_hooks()
 	if (!pmove().install()) return false;
 	if (!gClientUserMsgs().install()) return false;
 	if (!g_iShotsFired().install()) return false;
+	if (!r_model().install()) return false;
+	if (!pstudiohdr().install()) return false;
+	if (!pStudioAPI().install()) return false;
 
 	return true;
 }
@@ -68,6 +71,9 @@ void CMemoryHookMgr::uninstall_hooks()
 	pmove().uninstall();
 	gClientUserMsgs().uninstall();
 	g_iShotsFired().uninstall();
+	r_model().uninstall();
+	pstudiohdr().uninstall();
+	pStudioAPI().uninstall();
 }
 
 //-----------------------------------------------------------------------------
@@ -167,4 +173,22 @@ bool g_iShotsFiredHook::install()
 {
 	initialize("g_iShotsFired", L"client.dll", false);
 	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x3D\x00\x00\x00\x00\x7E\x00\xB8", 0x1 });
+}
+
+bool r_modelHook::install()
+{
+	initialize("r_model", L"hw.dll", false);
+	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x50\xC7\x45\xD8\x00\x00\x00\x00", 0x1 });
+}
+
+bool pstudiohdrHook::install()
+{
+	initialize("pstudiohdr", L"hw.dll", false);
+	return generic_bytepattern_installer({ "\x8B\x0D\x00\x00\x00\x00\x83\xC4\x08\xC7\x45\xC0\x00\x00\x00\x00", 0x2 });
+}
+
+bool pStudioAPIHook::install()
+{
+	initialize("pStudioAPI", L"hw.dll", false);
+	return generic_bytepattern_installer({ "\x8B\x0D\x00\x00\x00\x00\x8B\x35\x00\x00\x00\x00\xD1\xEA", 0x2 });
 }

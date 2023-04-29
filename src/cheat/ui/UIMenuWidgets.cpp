@@ -179,9 +179,7 @@ void CUIMenuWidgets::add_description_text(const char* additional_desc, const cha
 	if (!additional_desc)
 		return;
 
-	g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Regular));
-	g_gui_widgets_i->add_text(additional_desc, TEXTPROP_Wrapped);
-	g_gui_widgets_i->pop_font();
+	g_gui_widgets_i->add_text(additional_desc, TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Regular));
 	if (!readmore_string)
 	{
 		g_gui_widgets_i->add_padding({ 0.0f, 3.0f });
@@ -189,6 +187,22 @@ void CUIMenuWidgets::add_description_text(const char* additional_desc, const cha
 	else
 	{
 		g_gui_widgets_i->add_readmore_on_hover_widget(readmore_string);
+	}
+}
+
+void CUIMenuWidgets::add_description_text_ex(const char* additional_desc, const std::function<void()>& callback)
+{
+	if (!additional_desc)
+		return;
+
+	g_gui_widgets_i->add_text(additional_desc, TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Regular));
+	if (!callback)
+	{
+		g_gui_widgets_i->add_padding({ 0.0f, 3.0f });
+	}
+	else
+	{
+		g_gui_widgets_i->add_readmore_on_hover_widget_ex(callback);
 	}
 }
 

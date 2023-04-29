@@ -99,7 +99,7 @@ public:
 	// Widgets
 	//
 
-	void add_text(const std::string& text, ETextProperties properties = TEXTPROP_None);
+	void add_text(const std::string& text, ETextProperties properties = TEXTPROP_None, FontObject_t* font = nullptr);
 	void add_colored_text(const CColor& color, const std::string& text, ETextProperties properties = TEXTPROP_None);
 	void add_window_centered_text(const std::string& text, FontObject_t* font = nullptr);
 	void add_window_centered_text_disabled(const std::string& text, FontObject_t* font = nullptr);
@@ -134,6 +134,7 @@ public:
 	void render_clipped_contents(size_t size, const std::function<void(int line_no)>& callback);
 
 	void add_readmore_on_hover_widget(const char* text);
+	void add_readmore_on_hover_widget_ex(const std::function<void()>& callback);
 
 	void add_progress_bar(const std::string& id, const Vector2D& size, float current, float max);
 
@@ -470,15 +471,15 @@ void CGUIWidgets::set_scroll_here_y(float center_y_ratio)
 	SetScrollHereY(center_y_ratio);
 }
 
-void CGUIWidgets::add_text(const std::string& text, ETextProperties properties)
+void CGUIWidgets::add_text(const std::string& text, ETextProperties properties, FontObject_t* font)
 {
 	//
 	// decorations
 	//
 
-	if (properties & TEXTPROP_Bigger)
+	if (font)
 	{
-		PushFont(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_BIG, FONTDEC_Bold));
+		PushFont(font->m_precached_font_object);
 	}
 
 	if (properties & TEXTPROP_Slim)
@@ -543,7 +544,7 @@ void CGUIWidgets::add_text(const std::string& text, ETextProperties properties)
 		PopStyleVar();
 	}
 
-	if (properties & TEXTPROP_Bigger)
+	if (font)
 	{
 		PopFont();
 	}
@@ -805,7 +806,13 @@ void CGUIWidgets::add_spacing()
 
 void CGUIWidgets::begin_columns(const std::string& label, int count_columns)
 {
+	// there's an initial column spacing that causes a slight offset on the left, we don't want that.
+	// it is caused by adding the item spacing.
+	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+
 	Columns(count_columns, label.c_str(), false);
+
+	PopStyleVar();
 }
 
 void CGUIWidgets::set_column_width(int column, float width)
@@ -851,14 +858,33 @@ void CGUIWidgets::render_clipped_contents(size_t size, const std::function<void(
 void CGUIWidgets::add_readmore_on_hover_widget(const char* text)
 {
 	push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Regular));
-	add_text("Read more...");
-	if (IsItemHovered(ImGuiHoveredFlags_DelayShort))
+	add_text("Read more...", TEXTPROP_None);
+	if (IsItemHovered(ImGuiHoveredFlags_DelayNormal))
 	{
 		set_next_window_rounding(4.0f, ImDrawFlags_RoundCornersAll);
 		BeginTooltip();
 		PushTextWrapPos(GetFontSize() * 25.0f);
 		add_text(text, TEXTPROP_Wrapped);
 		add_padding({ 0.0f, 3.0f });
+		PopTextWrapPos();
+		EndTooltip();
+	}
+	pop_font();
+}
+
+void CGUIWidgets::add_readmore_on_hover_widget_ex(const std::function<void()>& callback)
+{
+	push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Regular));
+	add_text("Read more...", TEXTPROP_None);
+	if (IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+	{
+		set_next_window_rounding(4.0f, ImDrawFlags_RoundCornersAll);
+		BeginTooltip();
+		PushTextWrapPos(GetFontSize() * 25.0f);
+		if (callback)
+		{
+			callback();
+		}
 		PopTextWrapPos();
 		EndTooltip();
 	}

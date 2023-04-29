@@ -125,21 +125,21 @@ void CServerLiar::render_ui()
 		[this]()
 		{
 			g_gui_widgets_i->add_table(
-			"server_liar_table", 3,
-			ImGuiTableFlags_HeaderTextOnly,
-			[&]()
-			{
-				static auto column_flags = ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_NoResize;
-				g_gui_widgets_i->table_setup_column_fixed_width("Cvar name", 200.0f, column_flags);
-				g_gui_widgets_i->table_setup_column_fixed_width("Value", 130.0f, column_flags);
-			},
-			[&]()
-			{
-				for (const auto& var : m_variables)
+				"server_liar_table", 3,
+				ImGuiTableFlags_HeaderTextOnly,
+				[&]()
 				{
-					render_cvarfilter_slot(var);
-				}
-			});
+					static auto column_flags = ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_NoResize;
+					g_gui_widgets_i->table_setup_column_fixed_width("Cvar name", 200.0f, column_flags);
+					g_gui_widgets_i->table_setup_column_fixed_width("Value", 130.0f, column_flags);
+				},
+				[&]()
+				{
+					for (const auto& var : m_variables)
+					{
+						render_cvarfilter_slot(var);
+					}
+				});
 		});
 
 	g_gui_widgets_i->add_padding({ 0.0f, 5.0f });

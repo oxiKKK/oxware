@@ -185,6 +185,9 @@
     <ClCompile Include="features\VanillaCrosshair.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
+    <ClCompile Include="features\StuffCMDFilter.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -327,6 +330,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="features\VanillaCrosshair.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="features\StuffCMDFilter.h">
       <Filter>src\features</Filter>
     </ClInclude>
   </ItemGroup>

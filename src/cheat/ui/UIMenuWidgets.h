@@ -47,6 +47,7 @@ public:
 	void add_pair_textinput(const std::string& label, VarKeyValue* var, const char* first_column_header = nullptr, const char* second_column_header = nullptr);
 
 	void add_description_text(const char* additional_desc, const char* readmore_string = nullptr);
+	void add_description_text_ex(const char* additional_desc, const std::function<void()>& callback = nullptr);
 	
 private:
 	void handle_widget_hover(BaseVariable* var);

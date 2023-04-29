@@ -370,19 +370,34 @@ void CDeveloperConsole::print(EOutputModule module, EOutputCategory category, co
 	m_output_lock.lock();
 
 	std::string fmt = what;
-	fmt.push_back('\n');
+
+	std::string fmt_final;
+	for (size_t i = 0; i < fmt.length(); i++)
+	{
+		unsigned char c = fmt[i];
+		if (!std::isprint(c))
+		{
+			fmt_final += std::format("\\x{:02X}", c);
+		}
+		else
+		{
+			fmt_final.push_back(c);
+		}
+	}
+
+	fmt_final.push_back('\n');
 
 	output_line_t new_line =
 	{
 		category,
 		module,
-		fmt,
+		fmt_final,
 		time
 	};
 
 	if (!printed_already)
 	{
-		OutputDebugStringA(("[ox]" + line_preamble(new_line) + fmt).c_str());
+		OutputDebugStringA(("[ox]" + line_preamble(new_line) + fmt_final).c_str());
 	}
 
 	m_contents.push_back(new_line);

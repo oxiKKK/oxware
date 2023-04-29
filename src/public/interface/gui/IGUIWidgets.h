@@ -41,18 +41,17 @@ enum ETextProperties
 	TEXTPROP_None = 0,
 
 	// decorations
-	TEXTPROP_Bigger = BIT(1),
-	TEXTPROP_Slim = BIT(2),
-	TEXTPROP_Disabled = BIT(3),
+	TEXTPROP_Slim = BIT(1),
+	TEXTPROP_Disabled = BIT(2),
 
 	// colors
-	TEXTPROP_ColorWhite = BIT(4),
-	TEXTPROP_ColorRegular = BIT(5),
-	TEXTPROP_ColorDark = BIT(6),
-	TEXTPROP_ColorBlack = BIT(7),
+	TEXTPROP_ColorWhite = BIT(3),
+	TEXTPROP_ColorRegular = BIT(4),
+	TEXTPROP_ColorDark = BIT(5),
+	TEXTPROP_ColorBlack = BIT(6),
 
 	// properties
-	TEXTPROP_Wrapped = BIT(8),
+	TEXTPROP_Wrapped = BIT(7),
 };
 
 enum EButtonFlags
@@ -132,7 +131,7 @@ public:
 	// Widgets
 	//
 
-	virtual void add_text(const std::string& text, ETextProperties properties = TEXTPROP_None) = 0;
+	virtual void add_text(const std::string& text, ETextProperties properties = TEXTPROP_None, FontObject_t* font = nullptr) = 0;
 	virtual void add_colored_text(const CColor& color, const std::string& text, ETextProperties properties = TEXTPROP_None) = 0;
 	virtual void add_window_centered_text(const std::string& text, FontObject_t* font = nullptr) = 0;
 	virtual void add_window_centered_text_disabled(const std::string& text, FontObject_t* font = nullptr) = 0;
@@ -167,6 +166,7 @@ public:
 	virtual void render_clipped_contents(size_t size, const std::function<void(int line_no)>& callback) = 0;
 
 	virtual void add_readmore_on_hover_widget(const char* text) = 0;
+	virtual void add_readmore_on_hover_widget_ex(const std::function<void()>& callback) = 0;
 
 	virtual void add_progress_bar(const std::string& id, const Vector2D& size, float current, float max) = 0;
 

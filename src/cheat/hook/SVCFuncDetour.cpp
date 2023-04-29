@@ -34,6 +34,7 @@ bool CSVCFuncDetourMgr::install_hooks()
 	//if (!svc_time_fn().install(svc_time_f, "svc_time", svc_time)) return false;
 	if (!svc_sendcvarvalue_fn().install(svc_sendcvarvalue_f, "svc_sendcvarvalue", svc_sendcvarvalue)) return false;
 	if (!svc_sendcvarvalue2_fn().install(svc_sendcvarvalue2_f, "svc_sendcvarvalue2", svc_sendcvarvalue2)) return false;
+	if (!svc_stufftext_fn().install(svc_stufftext_f, "svc_stufftext", svc_stufftext)) return false;
 
 	return true;
 }
@@ -44,6 +45,7 @@ void CSVCFuncDetourMgr::uninstall_hooks()
 	//svc_time_fn().uninstall();
 	svc_sendcvarvalue_fn().uninstall();
 	svc_sendcvarvalue2_fn().uninstall();
+	svc_stufftext_fn().uninstall();
 }
 
 void CSVCFuncDetourMgr::svc_sound_f()
@@ -189,4 +191,14 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 
 		CHLNetMessageIO::the().write_string(value);
 	}
+}
+
+void CSVCFuncDetourMgr::svc_stufftext_f()
+{
+	if (!CStuffCmdFilter::the().allow_command_to_be_executed())
+	{
+		return;
+	}
+
+	CSVCFuncDetourMgr::the().svc_stufftext_fn().call();
 }

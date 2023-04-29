@@ -34,7 +34,9 @@
 
 <details><summary>See for yourself! 😉</summary>
 	<img src="https://i.imgur.com/bYzp8KD.png" width="50%" height="50%"></img>
-</details>
+</details><br>
+
+- Added svc_stufftext filter (server command filter). See [this video](https://youtu.be/4u0LNqQbY4w) for demonstration.
 
 ## Bugfixes
 

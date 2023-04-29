@@ -132,6 +132,15 @@ void CHLNetMessageIO::end_silent_reading()
 	m_in_read = false;
 }
 
+void CHLNetMessageIO::end_silent_reading_no_restore()
+{
+	assert(m_in_read && "not in reading mode! forgot to call begin_silent_reading()?");
+
+	// don't restore engine read data.
+
+	m_in_read = false;
+}
+
 int8_t CHLNetMessageIO::read_int8()
 {
 	return MSG_ReadChar().call();

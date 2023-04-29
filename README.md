@@ -99,6 +99,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - server liar (sending false cvar values to the server)
 - skeletal chams 💀
 - playermodel head hitbox rendering 🟩
+- server command filter (svc_stufftext filter)
 - esp
 	- player
 	- entities

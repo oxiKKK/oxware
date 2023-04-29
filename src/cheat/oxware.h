@@ -68,9 +68,6 @@ private:
 	bool is_hardware();
 	bool validate_engine_build();
 
-	// function responsible for rendering the cheat gui
-	void on_render();
-
 	// updating main frame function inside of the cheat every time is expensive.
 	inline static size_t k_main_frame_update_interval_ms = 500;
 	bool can_update_frame() const { return std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - m_main_frame_update).count() > k_main_frame_update_interval_ms; }

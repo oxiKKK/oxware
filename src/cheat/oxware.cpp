@@ -457,21 +457,3 @@ bool CoXWARE::validate_engine_build()
 	CConsole::the().info("Your build number is {}.", build_num);
 	return true;
 }
-
-void CoXWARE::on_render()
-{
-	static constexpr auto window_flags =
-		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoResize |
-		ImGuiWindowFlags_NoScrollbar |
-		ImGuiWindowFlags_NoScrollWithMouse |
-		ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoCollapse |
-		ImGuiWindowFlags_NoNav;
-
-	g_gui_widgets_i->create_new_window(
-		"main_window", window_flags, [this]()
-		{
-			g_gui_widgets_i->add_text("Hello");
-		});
-}

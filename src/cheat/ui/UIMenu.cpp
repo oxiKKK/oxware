@@ -552,7 +552,94 @@ void CUIMenu::tab_visuals4()
 }
 
 void CUIMenu::tab_exploits()
-{
+{	
+	add_menu_child(
+		"Server command filter", { -1.0f, 210.0f }, false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			g_gui_widgets_i->begin_columns("server_cmd_filter", 3);
+			g_gui_widgets_i->set_column_width(0, 100);
+			g_gui_widgets_i->set_column_width(1, 150);
+
+			CUIMenuWidgets::the().add_checkbox("Enable", &cmdfilter_enable);
+			CUIMenuWidgets::the().add_checkbox("Filter all", &cmdfilter_filter_all);
+
+			g_gui_widgets_i->goto_next_column();
+
+			CUIMenuWidgets::the().add_checkbox("Print blocked cmds", &cmdfilter_print_blocked);
+
+			g_gui_widgets_i->goto_next_column();
+
+			CUIMenuWidgets::the().add_checkbox("Print every cmds", &cmdfilter_print_every);
+
+			g_gui_widgets_i->end_columns(1);
+
+			CUIMenuWidgets::the().add_description_text_ex(
+				"This filter allows you to block commands that are send to you from the server."
+				" You can add a list of commands separated by a comma \";\" that you want to block, such as:\n"
+				"\"fps_max; bind; exit\" and such.",
+
+				[&]()
+				{
+					g_gui_widgets_i->add_text(
+						"How does it work", 
+						TEXTPROP_Wrapped,
+						g_gui_fontmgr_i->get_font("segoeui", FONT_REGULAR, FONTDEC_Regular));
+
+					g_gui_widgets_i->add_text(
+						"For example, often the server sends command to you such as \"fps_max 100; developer 0\" etc."
+						" Therefore, you can add the command that you don't want to have executed by the server here."
+						" In theory, this is the same as cl_filterstuffcmd however, more customizable.", 
+						TEXTPROP_Wrapped);
+				}
+			);
+
+			g_gui_widgets_i->add_table(
+				"cmdfilter_table", 2,
+				ImGuiTableFlags_HeaderTextOnly,
+				[&]()
+				{
+					static auto column_flags = ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_NoResize;
+					g_gui_widgets_i->table_setup_column_fixed_width("Commands to be filtered", 350.0f, column_flags);
+				},
+				[&]()
+				{
+					g_gui_widgets_i->table_next_column();
+
+					static char cmd_buffer[1024];
+					static bool at_init = false;
+					if (!at_init)
+					{
+						strcpy_s(cmd_buffer, cmdfilter_filtered_commands.get_value_string());
+						at_init = true;
+					}
+
+					bool reclaim_focus_key = false;
+					if (g_gui_widgets_i->add_text_input_ex("Commands to be filtered", cmd_buffer, sizeof(cmd_buffer),
+														   Vector2D(-1.0f, 0.0f)))
+					{
+						reclaim_focus_key = true;
+					};
+
+					// Auto-focus on window apparition
+					g_gui_widgets_i->set_item_default_focus();
+					if (reclaim_focus_key)
+					{
+						g_gui_widgets_i->set_keyboard_focus_here(-1); // Auto focus previous widget
+					}
+
+					g_gui_widgets_i->table_next_column();
+
+					if (g_gui_widgets_i->add_button("Apply", { -1.0f, 25.0f }, false, BUTTONFLAG_CenterLabel))
+					{
+						if (cmd_buffer[0])
+						{
+							cmdfilter_filtered_commands.set_value(cmd_buffer);
+						}
+					}
+				});
+		});
+
 	g_gui_widgets_i->begin_columns(__FUNCTION__, 2);
 	
 	add_menu_child(
@@ -576,7 +663,7 @@ void CUIMenu::tab_exploits()
 											   "Some cvars can be only set in singleplayer. Set this to be able to control these cvars also in MP. "
 											   "See the console output for which cvars this affects.");
 		});
-
+	
 	g_gui_widgets_i->goto_next_column();
 	
 	add_menu_child(

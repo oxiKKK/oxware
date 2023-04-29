@@ -240,6 +240,7 @@ public:
 	// reading
 	void begin_silent_reading();
 	void end_silent_reading();
+	void end_silent_reading_no_restore(); // this may be handy if we aren't 100% sure if we'll handle the reading entirely by ourself.
 	int8_t read_int8();
 	uint8_t read_uint8();
 	int16_t read_int16();

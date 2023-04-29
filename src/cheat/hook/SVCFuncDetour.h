@@ -164,12 +164,14 @@ public:
 	inline auto& svc_time_fn() { static CGenericSVCFnDetour fnhook; return fnhook; }
 	inline auto& svc_sendcvarvalue_fn() { static CGenericSVCFnDetour fnhook; return fnhook; }
 	inline auto& svc_sendcvarvalue2_fn() { static CGenericSVCFnDetour fnhook; return fnhook; }
+	inline auto& svc_stufftext_fn() { static CGenericSVCFnDetour fnhook; return fnhook; }
 
 private:
 	static void svc_sound_f();
 	static void svc_time_f();
 	static void svc_sendcvarvalue_f();
 	static void svc_sendcvarvalue2_f();
+	static void svc_stufftext_f();
 };
 
 #endif // SVCFUNCDETOUR_H

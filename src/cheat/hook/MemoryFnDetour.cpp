@@ -650,7 +650,17 @@ int R_StudioDrawPlayerFnHook_t::R_StudioDrawPlayer(int flags, hl::entity_state_t
 		pplayer->weaponmodel = 0;
 	}
 
-	return CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
+	int ret = CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
+
+#if 0 // render cl_minmodels 1 player model with same entity state
+	CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer((char*)"cl_minmodels")->value = 1;
+	int ret1 = CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
+	CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer((char*)"cl_minmodels")->value = 0;
+
+	return ret && ret1;
+#else
+	return ret;
+#endif
 }
 
 //---------------------------------------------------------------------------------

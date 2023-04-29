@@ -200,36 +200,36 @@ void CVanillaCrosshair::draw()
 		}
 	}
 
-	if (!crosshair_static.get_value())
-	{
-		auto shots_fired_ptr = CMemoryHookMgr::the().g_iShotsFired().get();
+	auto shots_fired_ptr = CMemoryHookMgr::the().g_iShotsFired().get();
 
-		if (m_ammo_last_check >= *shots_fired_ptr)
+	if (m_ammo_last_check >= *shots_fired_ptr)
+	{
+		if (flip_every_1_ms)
 		{
-			if (flip_every_1_ms)
-			{
-				m_crosshair_gap -= (0.013f * m_crosshair_gap + 0.1f);
-			}
-			m_alpha += 2;
+			m_crosshair_gap -= (0.013f * m_crosshair_gap + 0.1f);
 		}
-		else
+		m_alpha += 2;
+	}
+	else
+	{
+		if (!crosshair_static.get_value())
 		{
 			m_crosshair_gap += delta_gap;
 			m_crosshair_gap =
 				std::min(m_crosshair_gap,
 						 use_vanilla_gap ? 15.0f : (crosshair_gap.get_value() * 3.0f));
-
-			m_alpha -= 40;
-			m_alpha = std::max(m_alpha, 120);
 		}
 
-		// reset the counter if it "overflows".
-		if (*shots_fired_ptr > 600)
-		{
-			*shots_fired_ptr = 1;
-		}
-		m_ammo_last_check = *shots_fired_ptr;
+		m_alpha -= 40;
+		m_alpha = std::max(m_alpha, 120);
 	}
+
+	// reset the counter if it "overflows".
+	if (*shots_fired_ptr > 600)
+	{
+		*shots_fired_ptr = 1;
+	}
+	m_ammo_last_check = *shots_fired_ptr;
 
 	// clamp before we render
 	if (m_crosshair_gap <= gap)

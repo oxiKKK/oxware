@@ -92,6 +92,12 @@ public:
 	void render_circle_opengl(float cx, float cy, float radius, int num_segments, float width, bool blend, int r, int g, int b, int a);
 	void render_line_opengl(const Vector2D& from, const Vector2D& to, float width, bool blend, int r, int g, int b, int a);
 
+	// iuser3 cstrike flags
+	bool player_can_shoot();
+	bool player_freeze_time_over();
+	bool player_in_bomb_zone();
+	bool player_holding_shield();
+
 private:
 	void locate_engine_compile_timestamp();
 

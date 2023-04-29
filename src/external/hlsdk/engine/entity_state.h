@@ -118,7 +118,7 @@ struct entity_state_t
 	// For mods
 	int			iuser1;
 	int			iuser2;
-	int			iuser3;
+	int			iuser3;		// cstrike bit flags: PLAYER_* macros (e.g. PLAYER_CAN_SHOOT, PLAYER_FREEZE_TIME_OVER, etc.)
 	int			iuser4;
 	float		fuser1; // smoke size in CS
 	float		fuser2;
@@ -139,8 +139,8 @@ struct clientdata_t
 
 	vec3_t				punchangle;
 
-	int					flags;
-	int					waterlevel;
+	int					flags;			// g_iPlayerFlags in cstrike
+	int					waterlevel;		// g_iWaterLevel in cstrike
 	int					watertype;
 
 	vec3_t				view_ofs;
@@ -179,7 +179,7 @@ struct clientdata_t
 	// For mods
 	int					iuser1;
 	int					iuser2;
-	int					iuser3;
+	int					iuser3;		// cstrike bit flags: PLAYER_* macros (e.g. PLAYER_CAN_SHOOT, PLAYER_FREEZE_TIME_OVER, etc.)
 	int					iuser4;
 	float				fuser1;
 	float				fuser2;

@@ -431,6 +431,42 @@ void CGameUtil::render_line_opengl(const Vector2D& from, const Vector2D& to, flo
 	glDisable(GL_BLEND);
 }
 
+bool CGameUtil::player_can_shoot()
+{
+	auto cldata = get_current_frame_clientdata();
+	if (!cldata)
+		return 0;
+
+	return cldata->iuser3 & PLAYER_CAN_SHOOT;
+}
+
+bool CGameUtil::player_freeze_time_over()
+{
+	auto cldata = get_current_frame_clientdata();
+	if (!cldata)
+		return 0;
+
+	return cldata->iuser3 & PLAYER_FREEZE_TIME_OVER;
+}
+
+bool CGameUtil::player_in_bomb_zone()
+{
+	auto cldata = get_current_frame_clientdata();
+	if (!cldata)
+		return 0;
+
+	return cldata->iuser3 & PLAYER_IN_BOMB_ZONE;
+}
+
+bool CGameUtil::player_holding_shield()
+{
+	auto cldata = get_current_frame_clientdata();
+	if (!cldata)
+		return 0;
+
+	return cldata->iuser3 & PLAYER_HOLDING_SHIELD;
+}
+
 void CGameUtil::locate_engine_compile_timestamp()
 {
 	if (!m_engine_compile_date.empty())

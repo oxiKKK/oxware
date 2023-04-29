@@ -174,7 +174,7 @@ void CUIMenuWidgets::add_pair_textinput(const std::string& label, VarKeyValue* v
 	g_gui_widgets_i->end_columns(1);
  }
 
-void CUIMenuWidgets::add_description_text(const char* additional_desc, const char* readmore_string)
+void CUIMenuWidgets::add_description_text(const char* additional_desc, const char* readmore_string, bool no_padding)
 {
 	if (!additional_desc)
 		return;
@@ -182,7 +182,10 @@ void CUIMenuWidgets::add_description_text(const char* additional_desc, const cha
 	g_gui_widgets_i->add_text(additional_desc, TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Regular));
 	if (!readmore_string)
 	{
-		g_gui_widgets_i->add_padding({ 0.0f, 3.0f });
+		if (!no_padding)
+		{
+			g_gui_widgets_i->add_padding({ 0.0f, 3.0f });
+		}
 	}
 	else
 	{
@@ -190,15 +193,19 @@ void CUIMenuWidgets::add_description_text(const char* additional_desc, const cha
 	}
 }
 
-void CUIMenuWidgets::add_description_text_ex(const char* additional_desc, const std::function<void()>& callback)
+void CUIMenuWidgets::add_description_text_ex(const char* additional_desc, const std::function<void()>& callback, bool no_padding)
 {
-	if (!additional_desc)
-		return;
+	if (additional_desc)
+	{
+		g_gui_widgets_i->add_text(additional_desc, TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Regular));
+	}
 
-	g_gui_widgets_i->add_text(additional_desc, TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Regular));
 	if (!callback)
 	{
-		g_gui_widgets_i->add_padding({ 0.0f, 3.0f });
+		if (!no_padding)
+		{
+			g_gui_widgets_i->add_padding({ 0.0f, 3.0f });
+		}
 	}
 	else
 	{

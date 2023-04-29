@@ -45,6 +45,10 @@ extern VarInteger mdlchams_players_ct_type;
 extern VarBoolean mdlchams_player_skeleton;
 extern VarBoolean mdlchams_head_box_enable;
 extern VarColor mdlchams_head_box_color;
+extern VarBoolean mdlchams_render_real_playermodel;
+
+// indicator when we're drawing real playermodel inside iuser1
+#define IUSER1_REAL_PLAYERMODEL 0xDEAD
 
 enum EModelChamsType
 {
@@ -108,6 +112,8 @@ public:
 	hl::model_t* get_currently_rendered_model();
 	hl::studiohdr_t* get_currently_rendered_model_header();
 
+	void toggle_rendering_real_playermodel() { m_rendering_real_playermodel ^= 1; }
+
 private:
 	void intitialize_chammed_model(ChammedModel* model, VarBoolean* is_enabled, VarColor* color, VarInteger* type, const std::function<bool()>& should_render);
 
@@ -115,6 +121,8 @@ private:
 	ChammedModel m_players_t, m_players_ct;
 
 	std::vector<ChammedModel*> m_chammed_models;
+
+	bool m_rendering_real_playermodel = false;
 };
 
 #endif // MODELCHAMS_H

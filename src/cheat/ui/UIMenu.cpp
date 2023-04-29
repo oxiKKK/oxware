@@ -307,7 +307,7 @@ void CUIMenu::on_render()
 	const char* label = "www.github.com/oxiKKK/oxware";
 	auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, label);
 
-	g_gui_widgets_i->set_next_window_pos({ screen.x - label_size.x, screen.y - label_size.y }, ImGuiCond_Always);
+	g_gui_widgets_i->set_next_window_pos({ screen.x - label_size.x + 10.0f, screen.y - label_size.y }, ImGuiCond_Always);
 
 	static constexpr auto window_flags1 = 
 		ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings | 
@@ -465,19 +465,32 @@ void CUIMenu::tab_render()
 		});
 
 	add_menu_child(
-		"Studio renderer", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Studio renderer", CMenuStyle::calc_child_size(310), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
+			g_gui_widgets_i->add_padding({ 0, 5.0f });
+			g_gui_widgets_i->add_separtor_with_text("Player skeleton");
 
-		g_gui_widgets_i->add_padding({ 0, 5.0f });
-		g_gui_widgets_i->add_separtor_with_text("Player skeleton");
+			CUIMenuWidgets::the().add_checkbox("Enable ##skelly", &mdlchams_player_skeleton);
 
-		CUIMenuWidgets::the().add_checkbox("Enable ##skelly", &mdlchams_player_skeleton);
+			g_gui_widgets_i->add_padding({ 0, 5.0f });
+			g_gui_widgets_i->add_separtor_with_text("Player head hitbox");
 
-		g_gui_widgets_i->add_padding({ 0, 5.0f });
-		g_gui_widgets_i->add_separtor_with_text("Player head hitbox");
+			CUIMenuWidgets::the().add_checkbox_with_color("Enable ##hbox", &mdlchams_head_box_enable, &mdlchams_head_box_color);
 
-		CUIMenuWidgets::the().add_checkbox_with_color("Enable ##hbox", &mdlchams_head_box_enable, &mdlchams_head_box_color);
+			g_gui_widgets_i->add_padding({ 0, 5.0f });
+			g_gui_widgets_i->add_separtor_with_text("Other");
+
+			CUIMenuWidgets::the().add_checkbox("Real player model ##skelly", &mdlchams_render_real_playermodel, 
+											   "Renders \"Real playermodel\". Hitboxes of this playermodel are used for hit registration, no matter what the acutal model is.");
+
+			CUIMenuWidgets::the().add_description_text_ex("You can see this why this is useful here:", nullptr, true);
+			g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Regular));
+			if (g_gui_widgets_i->add_hypertext_link("https://youtu.be/xMd9m3McNvo"))
+			{
+				CGenericUtil::the().open_link_inside_browser("https://youtu.be/xMd9m3McNvo");
+			}
+			g_gui_widgets_i->pop_font();
 		});
 
 	g_gui_widgets_i->goto_next_column();

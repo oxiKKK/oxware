@@ -118,8 +118,8 @@ struct entity_state_t
 	// For mods
 	int			iuser1;
 	int			iuser2;
-	int			iuser3;		// cstrike bit flags: PLAYER_* macros (e.g. PLAYER_CAN_SHOOT, PLAYER_FREEZE_TIME_OVER, etc.)
-	int			iuser4;
+	int			iuser3; // cstrike bit flags: PLAYER_* macros (e.g. PLAYER_CAN_SHOOT, PLAYER_FREEZE_TIME_OVER, etc.)
+	int			iuser4; // Light multiplier for CS:CZ
 	float		fuser1; // smoke size in CS
 	float		fuser2;
 	float		fuser3;

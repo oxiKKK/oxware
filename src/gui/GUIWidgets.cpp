@@ -634,10 +634,10 @@ bool CGUIWidgets::add_hypertext_link(const std::string& label)
 	ImVec2 label_size = CalcTextSize(label.c_str(), NULL, true);
 
 	ImVec2 pos = window->DC.CursorPos;
-	ImVec2 item_size = CalcItemSize({0.0f, 0.0f}, label_size.x + style.FramePadding.x, label_size.y + style.FramePadding.y);
+	ImVec2 item_size = CalcItemSize({0.0f, 0.0f}, label_size.x, label_size.y);
 
 	const ImRect bb(pos, pos + item_size);
-	ItemSize(item_size, style.FramePadding.y);
+	ItemSize(item_size, 0.0f);
 	if (!ItemAdd(bb, id))
 	{
 		return false;
@@ -663,7 +663,7 @@ bool CGUIWidgets::add_hypertext_link(const std::string& label)
 
 	push_color(ImGuiCol_Text, color_4f);
 
-	RenderTextClipped({ bb.Min.x + style.FramePadding.x, bb.Min.y },
+	RenderTextClipped({ bb.Min.x, bb.Min.y },
 					  bb.Max, label.c_str(), NULL, &label_size, {0.f, 0.f}, &bb);
 
 	pop_color();

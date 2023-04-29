@@ -363,6 +363,11 @@ bool R_StudioDrawPointsFnHook_t::install()
 
 void R_StudioDrawPointsFnHook_t::R_StudioDrawPoints()
 {
+	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
+	{
+		return;
+	}
+
 	// function responsible for the actual rendering of the studio model
 	OX_PROFILE_SCOPE("studio_drawpoints");
 
@@ -390,6 +395,11 @@ bool R_LightLambertFnHook_t::install()
 
 void R_LightLambertFnHook_t::R_LightLambert(float** light, float *normal, float *src, float *lambert)
 {
+	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
+	{
+		return;
+	}
+
 	// function called inside R_StudioDrawPoints() for modifying the color of the rendered model.
 
 	CMemoryFnDetourMgr::the().R_LightLambert().call(light, normal, src, lambert);
@@ -650,17 +660,24 @@ int R_StudioDrawPlayerFnHook_t::R_StudioDrawPlayer(int flags, hl::entity_state_t
 		pplayer->weaponmodel = 0;
 	}
 
+	// draw first so we don't clip through original model
+	if (mdlchams_render_real_playermodel.get_value())
+	{
+		auto cl_minmodels = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer((char*)"cl_minmodels");
+		cl_minmodels->value = 1;
+
+		CModelChams::the().toggle_rendering_real_playermodel();
+
+		CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
+
+		CModelChams::the().toggle_rendering_real_playermodel();
+
+		cl_minmodels->value = 0;
+	}
+
 	int ret = CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
 
-#if 0 // render cl_minmodels 1 player model with same entity state
-	CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer((char*)"cl_minmodels")->value = 1;
-	int ret1 = CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
-	CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer((char*)"cl_minmodels")->value = 0;
-
-	return ret && ret1;
-#else
 	return ret;
-#endif
 }
 
 //---------------------------------------------------------------------------------

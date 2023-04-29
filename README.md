@@ -92,14 +92,15 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - HUD removals
 	- weapon, crosshair, money, etc...
 - viewmodel offset
-- smoke visuals 🚬
+- smoke visuals, see [this video](https://youtu.be/PL2f-weiF84). 🚬
 - flashbang fade modifier
 - built-in console with custom commands 🖥
 - fov changer
 - server liar (sending false cvar values to the server)
 - skeletal chams 💀
-- playermodel head hitbox rendering 🟩
+- playermodel head hitbox rendering, see [this image](https://i.imgur.com/bYzp8KD.png). 🟩
 - server command filter (svc_stufftext filter)
+- ability to view "real" hit-able playermodel and its head hitbox. See [this image](https://i.imgur.com/weWGM5C.png) and [this youtube video](https://youtu.be/xMd9m3McNvo).
 - esp
 	- player
 	- entities

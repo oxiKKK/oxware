@@ -50,9 +50,11 @@ VarBoolean mdlchams_player_skeleton("mdlchams_player_skeleton", "Disables player
 VarBoolean mdlchams_head_box_enable("mdlchams_head_box_enable", "Renders box at players heads", false);
 VarColor mdlchams_head_box_color("mdlchams_head_box_color", "Color of the player head box", CColor(0, 255, 0));
 
+VarBoolean mdlchams_render_real_playermodel("mdlchams_render_real_model", "Renders real playermodel over the current one", false);
+
 void CModelChams::initialize()
 {
-	m_chammed_models.reserve(64);
+	m_chammed_models.reserve(6);
 
 	intitialize_chammed_model(
 		&m_viewmodel, &mdlchams_viewmodel_enable, &mdlchams_viewmodel_color, &mdlchams_viewmodel_type, 
@@ -96,16 +98,27 @@ void CModelChams::executeall_studio_pre()
 {
 	OX_PROFILE_SCOPE("studio_points_pre");
 	
-	if (!mdlchams_enable.get_value())
+	if (mdlchams_enable.get_value())
 	{
-		return;
-	}
-
-	for (auto chams : m_chammed_models)
-	{
-		if (chams->is_enabled() && chams->should_render())
+		for (auto chams : m_chammed_models)
 		{
-			chams->process_studio_pre();
+			if (chams->is_enabled() && chams->should_render())
+			{
+				chams->process_studio_pre();
+			}
+		}
+	}
+	else
+	{
+		if (mdlchams_render_real_playermodel.get_value() && !m_rendering_real_playermodel)
+		{
+			auto current_ent = CMemoryHookMgr::the().engine_studio_api().get()->GetCurrentEntity();
+			if (current_ent->player)
+			{
+				glBlendFunc(GL_ONE, GL_ONE);
+				glEnable(GL_BLEND);
+				glDepthMask(GL_FALSE);
+			}
 		}
 	}
 }
@@ -114,16 +127,26 @@ void CModelChams::executeall_studio_post()
 {
 	OX_PROFILE_SCOPE("studio_points_post");
 	
-	if (!mdlchams_enable.get_value())
+	if (mdlchams_enable.get_value())
 	{
-		return;
-	}
-
-	for (auto chams : m_chammed_models)
-	{
-		if (chams->is_enabled() && chams->should_render())
+		for (auto chams : m_chammed_models)
 		{
-			chams->process_studio_post();
+			if (chams->is_enabled() && chams->should_render())
+			{
+				chams->process_studio_post();
+			}
+		}
+	}
+	else
+	{
+		if (mdlchams_render_real_playermodel.get_value() && !m_rendering_real_playermodel)
+		{
+			auto current_ent = CMemoryHookMgr::the().engine_studio_api().get()->GetCurrentEntity();
+			if (current_ent->player)
+			{
+				glDisable(GL_BLEND);
+				glDepthMask(GL_TRUE);
+			}
 		}
 	}
 }
@@ -176,10 +199,15 @@ bool CModelChams::studio_draw_skeleton()
 
 	auto player = CEntityMgr::the().get_player_by_id(current_ent->index);
 
-	CColor color_based_on_team = CColor(170, 170, 170); // gray by default
+	CColor color_based_on_team = CColor(170, 170, 170, 255); // gray by default
 	if (player && player->is_valid())
 	{
 		color_based_on_team = player->get_color_based_on_team();
+	}
+
+	if (m_rendering_real_playermodel)
+	{
+		color_based_on_team = CColor(180, 196, 36, 255);
 	}
 
 	glDisable(GL_TEXTURE_2D);
@@ -258,6 +286,13 @@ void CModelChams::render_playerhead_hitbox()
 
 	Vector bbox_transformator, p[8];
 
+	CColor clr = mdlchams_head_box_color.get_value();
+
+	if (m_rendering_real_playermodel)
+	{
+		clr = CColor(clr.g, clr.b, clr.r, clr.a); // to distinguish
+	}
+
 	glDisable(GL_TEXTURE_2D);
 
 	for (int i = 0; i < pstudiohdr->numhitboxes; i++)
@@ -284,7 +319,7 @@ void CModelChams::render_playerhead_hitbox()
 
 			glBegin(GL_QUADS);
 			
-			glColor4fv(mdlchams_head_box_color.get_value().get_base());
+			glColor4fv(clr.get_base());
 
 			// render all faces of a cube
 			for (int j = 0; j < 6; j++)

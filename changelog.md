@@ -32,11 +32,17 @@
 - Implemented skeletal playermodel chams. 💀
 - Implemented playermodel head hitbox rendering of greenish color. 🟩
 
-<details><summary>See for yourself! 😉</summary>
+<details><summary>Spoiler</summary>
 	<img src="https://i.imgur.com/bYzp8KD.png" width="50%" height="50%"></img>
-</details><br>
+</details>
 
 - Added svc_stufftext filter (server command filter). See [this video](https://youtu.be/4u0LNqQbY4w) for demonstration.
+
+- Added the ability to view "real" hit-able playermodel + its head hitbox. See [this youtube video](https://youtu.be/xMd9m3McNvo).
+
+<details><summary>Spoiler</summary>
+	<img src="https://i.imgur.com/weWGM5C.png" width="50%" height="50%"></img>
+</details>
 
 ## Bugfixes
 

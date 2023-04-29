@@ -65,7 +65,7 @@ void COxWareUI::destroy()
 	{
 		CMemoryHookMgr::the().cldllfunc().get()->pfnHUD_IN_ActivateMouse();
 	}
-	else if (!CGameUtil::the().is_fully_connected() && CHLInterfaceHook::the().IGameUI()->IsGameUIActive())
+	else if (!CGameUtil::the().is_fully_connected()/* && CHLInterfaceHook::the().IGameUI()->IsGameUIActive()*/)
 	{
 		CHLInterfaceHook::the().ISurface()->SetCursor(hl::vgui2::dc_arrow);
 	}

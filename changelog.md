@@ -40,4 +40,6 @@
 
 - Changed formatting of CColor class from 0-255 to 0-1 to provide compatibility with the way imgui handle colors. 🌈
 - Fixed a bug in Visual Studio where if you would have the cheat inside a directory that has spaces in it such as "folder 1 2 3", the solution would not compile. 🐞
+- Fixed bug with static crosshair, where the alpha would softlock to 0 and would never change.
+- Fixed a crash on game close that would sometimes happen.
 

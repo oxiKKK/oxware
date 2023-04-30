@@ -85,24 +85,24 @@
 #include <vector.h>
 #include <color.h>
 
-#define IM_COLOR_CLASS_EXTRA                                                     \
-        constexpr ImColor(const CColor& c) : Value(c.r, c.g, c.b, c.a) {} \
-        operator CColor() const { return CColor(Value.x, Value.y, Value.z, Value.w); } \
+#define IM_COLOR_CLASS_EXTRA                                                                    \
+        constexpr ImColor(const CColor& c) : Value(c.r, c.g, c.b, c.a) {}                       \
+        operator CColor() const { return CColor(Value.x, Value.y, Value.z, Value.w); }          \
 
-#define IM_VEC2_CLASS_EXTRA                                                             \
-        constexpr ImVec2(const Vector2D& f) : x(f.x), y(f.y) {}                         \
-        operator Vector2D() const { return Vector2D(x,y); }                             \
-        ImVec2 operator+(const ImVec2& v) { return ImVec2(x + v.x, y + v.y); }          \
-        ImVec2 operator+(const Vector2D& v) { return ImVec2(x + v.x, y + v.y); }        \
-        ImVec2 operator-(const ImVec2& v) { return ImVec2(x - v.x, y - v.y); }          \
-        ImVec2 operator-(const Vector2D& v) { return ImVec2(x - v.x, y - v.y); }        \
-        ImVec2 operator*(const ImVec2& v) { return ImVec2(x * v.x, y * v.y); }          \
-        ImVec2 operator*(const Vector2D& v) { return ImVec2(x * v.x, y * v.y); }        \
+#define IM_VEC2_CLASS_EXTRA                                                                     \
+        constexpr ImVec2(const Vector2D& f) : x(f.x), y(f.y) {}                                 \
+        operator Vector2D() const { return Vector2D(x,y); }                                     \
+        ImVec2 operator+(const ImVec2& v) { return ImVec2(x + v.x, y + v.y); }                  \
+        ImVec2 operator+(const Vector2D& v) { return ImVec2(x + v.x, y + v.y); }                \
+        ImVec2 operator-(const ImVec2& v) { return ImVec2(x - v.x, y - v.y); }                  \
+        ImVec2 operator-(const Vector2D& v) { return ImVec2(x - v.x, y - v.y); }                \
+        ImVec2 operator*(const ImVec2& v) { return ImVec2(x * v.x, y * v.y); }                  \
+        ImVec2 operator*(const Vector2D& v) { return ImVec2(x * v.x, y * v.y); }                \
         ImVec2 operator/(const ImVec2& v) { if (v.x == 0.0f || v.y == 0.0f) return *this; return ImVec2(x / v.x, y / v.y); } \
         ImVec2 operator/(const Vector2D& v) { if (v.x == 0.0f || v.y == 0.0f) return *this; return ImVec2(x / v.x, y / v.y); } \
 
-#define IM_VEC4_CLASS_EXTRA                                                             \
-        constexpr ImVec4(const CColor& c) : x(c.r), y(c.g), z(c.b), w(c.a) {}   \
+#define IM_VEC4_CLASS_EXTRA                                                                     \
+        constexpr ImVec4(const CColor& c) : x(c.r), y(c.g), z(c.b), w(c.a) {}                   \
         operator CColor() const { return CColor(x,y,z,w); }
 
 // oxware: added here

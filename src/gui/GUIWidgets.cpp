@@ -95,6 +95,10 @@ public:
 
 	void set_scroll_here_y(float center_y_ratio = 0.5f);
 
+	void mark_last_as_edited();
+
+	void close_current_popup();
+
 	//
 	// Widgets
 	//
@@ -137,6 +141,11 @@ public:
 	void add_readmore_on_hover_widget_ex(const std::function<void()>& callback);
 
 	void add_progress_bar(const std::string& id, const Vector2D& size, float current, float max);
+
+	bool begin_listbox(const std::string& label, const std::string& preview_label, ImGuiComboFlags flags = 0);
+	void end_listbox();
+
+	bool add_selectable(const std::string& label, bool selected = false, ImGuiSelectableFlags flags = 0, const Vector2D& size = Vector2D(0, 0));
 
 	//
 	// Tables/lists
@@ -193,6 +202,8 @@ private:
 	bool color_picker_4_internal(const char* label, float rgba[4], ImGuiColorEditFlags flags, float* ref_col = NULL);
 	void color_picker_options_popup(const float* ref_col, ImGuiColorEditFlags flags);
 	bool color_button_internal(const char* desc_id, const ImVec4& col, ImGuiColorEditFlags flags, const ImVec2& size_arg = {});
+
+	bool begin_combo_internal(const char* label, const char* preview_label, ImGuiComboFlags flags = 0);
 
 	template<typename T>
 	bool add_slider_internal(const char* label, T* value, T* min, T* max, const char* format, ImGuiDataType data_type, ImGuiSliderFlags flags = ImGuiSliderFlags_None);
@@ -469,6 +480,19 @@ void CGUIWidgets::set_keyboard_focus_here(int offset)
 void CGUIWidgets::set_scroll_here_y(float center_y_ratio)
 {
 	SetScrollHereY(center_y_ratio);
+}
+
+void CGUIWidgets::mark_last_as_edited()
+{
+	ImGuiContext& g = *GImGui;
+	g.ActiveIdHasBeenEditedThisFrame = true;
+	g.ActiveIdHasBeenEditedBefore = true;
+	g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_Edited;
+}
+
+void CGUIWidgets::close_current_popup()
+{
+	CloseCurrentPopup();
 }
 
 void CGUIWidgets::add_text(const std::string& text, ETextProperties properties, FontObject_t* font)
@@ -925,6 +949,28 @@ void CGUIWidgets::add_progress_bar(const std::string& id, const Vector2D& size, 
 	RenderFrame(bb1.Min, bb1.Max, clr1.as_u32(), true, 4.0f);
 }
 
+bool CGUIWidgets::begin_listbox(const std::string& label, const std::string & preview_label, ImGuiComboFlags flags)
+{
+	bool ret = begin_combo_internal(label.c_str(), preview_label.c_str(), flags);
+
+	if (IsItemHovered())
+	{
+		g_imgui_platform_layer_i->override_cursor(GUICURSOR_Hand);
+	}
+
+	return ret;
+}
+
+void CGUIWidgets::end_listbox()
+{
+	EndPopup();
+}
+
+bool CGUIWidgets::add_selectable(const std::string& label, bool selected, ImGuiSelectableFlags flags, const Vector2D& size)
+{
+	return Selectable(label.c_str(), selected, flags, size);
+}
+
 void CGUIWidgets::add_table(const std::string& name, uint32_t columns, ImGuiTableFlags flags, 
 							const std::function<void()>& header_callback, const std::function<void()>& body_callback)
 {
@@ -1307,6 +1353,104 @@ bool CGUIWidgets::color_button_internal(const char* desc_id, const ImVec4& col, 
 		ColorTooltip(desc_id, &col.x, flags & (ImGuiColorEditFlags_InputMask_ | ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaPreviewHalf));
 
 	return pressed;
+}
+
+bool CGUIWidgets::begin_combo_internal(const char* label, const char* preview_label, ImGuiComboFlags flags)
+{
+	ImGuiContext& g = *GImGui;
+	ImGuiWindow* window = GetCurrentWindow();
+
+	ImGuiNextWindowDataFlags backup_next_window_data_flags = g.NextWindowData.Flags;
+	g.NextWindowData.ClearFlags(); // We behave like Begin() and need to consume those values
+	if (window->SkipItems)
+		return false;
+
+	const ImGuiStyle& style = g.Style;
+	const ImGuiID id = window->GetID(label);
+	IM_ASSERT((flags & (ImGuiComboFlags_NoArrowButton | ImGuiComboFlags_NoPreview)) != (ImGuiComboFlags_NoArrowButton | ImGuiComboFlags_NoPreview)); // Can't use both flags together
+
+	const float height_factor = 0.3;
+	const ImVec2 arrow_size = { (flags & ImGuiComboFlags_NoArrowButton) ? 0.0f : GetFrameHeight(), GetFrameHeight() * height_factor };
+	const ImVec2 label_size = CalcTextSize(label, NULL, true);
+	const float full_w = window->Size.x - style.FramePadding.x * 1.5f;
+	const float w = (flags & ImGuiComboFlags_NoPreview) ? arrow_size.x : GetContentRegionAvail().x;
+	ImRect bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f * height_factor));
+	const ImRect total_bb(bb.Min, bb.Max + ImVec2(style.ItemInnerSpacing.x, 0.0f));
+	ItemSize(total_bb, style.FramePadding.y);
+	if (!ItemAdd(total_bb, id, &bb))
+		return false;
+
+	// Open on click
+	bool hovered, held;
+	bool pressed = ButtonBehavior(bb, id, &hovered, &held);
+	const ImGuiID popup_id = ImHashStr("##ComboPopup", 0, id);
+	bool popup_open = IsPopupOpen(popup_id, ImGuiPopupFlags_None);
+	if (pressed && !popup_open)
+	{
+		OpenPopupEx(popup_id, ImGuiPopupFlags_None);
+		popup_open = true;
+	}
+
+	// Render shape
+	const ImU32 frame_col = get_color<GUICLR_ListBoxBackground>().as_u32();
+	const float value_x2 = ImMax(bb.Min.x, bb.Max.x - arrow_size.x);
+	RenderNavHighlight(bb, id);
+	if (!(flags & ImGuiComboFlags_NoPreview))
+		window->DrawList->AddRectFilled(bb.Min, ImVec2(value_x2, bb.Max.y), frame_col, style.FrameRounding, (flags & ImGuiComboFlags_NoArrowButton) ? ImDrawFlags_RoundCornersAll : ImDrawFlags_RoundCornersLeft);
+	if (!(flags & ImGuiComboFlags_NoArrowButton))
+	{
+		ImU32 bg_col = get_color<GUICLR_ListBoxArrowBoxBackground>().as_u32();
+		ImU32 text_col = GetColorU32(ImGuiCol_Text);
+		window->DrawList->AddRectFilled(ImVec2(value_x2, bb.Min.y), bb.Max, bg_col, style.FrameRounding, (w <= arrow_size.x) ? ImDrawFlags_RoundCornersAll : ImDrawFlags_RoundCornersRight);
+		if (value_x2 + arrow_size.x - style.FramePadding.x <= bb.Max.x)
+			RenderArrow(window->DrawList, ImVec2(value_x2 + style.FramePadding.y, bb.Min.y + style.FramePadding.y), text_col, !popup_open ? ImGuiDir_Down : ImGuiDir_Left, 0.8f);
+	}
+
+	float border_size = 0.0f;
+
+	if (hovered)
+	{
+		PushStyleColor(ImGuiCol_Border, get_color_u32<GUICLR_ListBoxBorderHovered>());
+		border_size = 2.0f;
+	}
+	else
+	{
+		PushStyleColor(ImGuiCol_Border, get_color_u32<GUICLR_ListBoxBorder>());
+		border_size = 0.0f;
+	}
+
+	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_size);
+
+	RenderFrameBorder(bb.Min, bb.Max, style.FrameRounding);
+
+	PopStyleVar(1);
+	PopStyleColor(1);
+
+	// Custom preview
+	if (flags & ImGuiComboFlags_CustomPreview)
+	{
+		g.ComboPreviewData.PreviewRect = ImRect(bb.Min.x, bb.Min.y, value_x2, bb.Max.y);
+		IM_ASSERT(preview_label == NULL || preview_label[0] == 0);
+		preview_label = NULL;
+	}
+
+	PushFont(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
+
+	// Render preview and label
+	if (preview_label != NULL && !(flags & ImGuiComboFlags_NoPreview))
+	{
+		if (g.LogEnabled)
+			LogSetNextTextDecoration("{", "}");
+		RenderTextClipped(bb.Min + style.FramePadding - ImVec2(0.0f, 3.0f), ImVec2(value_x2, bb.Max.y), preview_label, NULL, NULL);
+	}
+
+	PopFont();
+
+	if (!popup_open)
+		return false;
+
+	g.NextWindowData.Flags = backup_next_window_data_flags;
+	return BeginComboPopup(popup_id, bb, flags);
 }
 
 bool CGUIWidgets::color_edit_4_internal(const char * label, float rgba[4], ImGuiColorEditFlags flags)

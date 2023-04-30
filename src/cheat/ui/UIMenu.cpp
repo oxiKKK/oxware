@@ -507,17 +507,17 @@ void CUIMenu::tab_render()
 			g_gui_widgets_i->add_padding({ 0, 5.0f });
 			g_gui_widgets_i->add_separtor_with_text("Viewmodel");
 			CUIMenuWidgets::the().add_checkbox_with_color("Enable ##VM", &mdlchams_viewmodel_enable, &mdlchams_viewmodel_color);
-			CUIMenuWidgets::the().add_slider("Type ##VM", "%0.0f", &mdlchams_viewmodel_type);
+			CUIMenuWidgets::the().add_listbox("Type ##VM", &mdlchams_viewmodel_type, { "Flat", "Shaded"});
 
 			g_gui_widgets_i->add_padding({ 0, 5.0f });
 			g_gui_widgets_i->add_separtor_with_text("Players - T");
 			CUIMenuWidgets::the().add_checkbox_with_color("Enable ##T", &mdlchams_players_t_enable, &mdlchams_players_t_color);
-			CUIMenuWidgets::the().add_slider("Type ##T", "%0.0f", &mdlchams_players_t_type);
+			CUIMenuWidgets::the().add_listbox("Type ##T", &mdlchams_players_t_type, { "Flat", "Shaded" });
 
 			g_gui_widgets_i->add_padding({ 0, 5.0f });
 			g_gui_widgets_i->add_separtor_with_text("Players - CT");
 			CUIMenuWidgets::the().add_checkbox_with_color("Enable ##CT", &mdlchams_players_ct_enable, &mdlchams_players_ct_color);
-			CUIMenuWidgets::the().add_slider("Type ##CT", "%0.0f", &mdlchams_players_ct_type);
+			CUIMenuWidgets::the().add_listbox("Type ##CT", &mdlchams_players_ct_type, { "Flat", "Shaded" });
 
 			g_gui_widgets_i->add_padding({ 0, 5.0f });
 			g_gui_widgets_i->add_separtor_with_text("Properties");
@@ -554,7 +554,8 @@ void CUIMenu::tab_render()
 			CUIMenuWidgets::the().add_slider("Size", "%0.0f", &crosshair_size, "vanilla");
 			CUIMenuWidgets::the().add_slider("Gap", "%0.0f", &crosshair_gap, "vanilla");
 			CUIMenuWidgets::the().add_slider("Thickness", "%0.0f pixels", &crosshair_thickness);
-			CUIMenuWidgets::the().add_slider("Type", "%0.0f", &crosshair_type);
+
+			CUIMenuWidgets::the().add_listbox("Type ##hidden", &crosshair_type, { "Classic", "T-Shaped", "Circular" });
 
 			CUIMenuWidgets::the().add_color_edit("Color", &crosshair_color);
 		});

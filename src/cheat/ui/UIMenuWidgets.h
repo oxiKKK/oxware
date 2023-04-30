@@ -46,9 +46,11 @@ public:
 
 	void add_pair_textinput(const std::string& label, VarKeyValue* var, const char* first_column_header = nullptr, const char* second_column_header = nullptr);
 
+	void add_listbox(const std::string& label, VarInteger* var, const std::vector<std::string>& items);
+
 	void add_description_text(const char* additional_desc, const char* readmore_string = nullptr, bool no_padding = false);
 	void add_description_text_ex(const char* additional_desc, const std::function<void()>& callback = nullptr, bool no_padding = false);
-	
+
 private:
 	void handle_widget_hover(BaseVariable* var);
 

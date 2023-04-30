@@ -127,6 +127,10 @@ public:
 
 	virtual void set_scroll_here_y(float center_y_ratio = 0.5f) = 0;
 
+	virtual void mark_last_as_edited() = 0;
+
+	virtual void close_current_popup() = 0;
+
 	//
 	// Widgets
 	//
@@ -169,6 +173,11 @@ public:
 	virtual void add_readmore_on_hover_widget_ex(const std::function<void()>& callback) = 0;
 
 	virtual void add_progress_bar(const std::string& id, const Vector2D& size, float current, float max) = 0;
+
+	virtual bool begin_listbox(const std::string& label, const std::string& preview_label, ImGuiComboFlags flags = 0) = 0;
+	virtual void end_listbox() = 0;
+
+	virtual bool add_selectable(const std::string& label, bool selected = false, ImGuiSelectableFlags flags = 0, const Vector2D& size = Vector2D(0, 0)) = 0;
 
 	//
 	// Tables/lists

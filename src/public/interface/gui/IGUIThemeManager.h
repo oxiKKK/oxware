@@ -86,6 +86,11 @@ enum EGUIColor
 
 	GUICLR_TableHeaderBg,
 
+	GUICLR_ListBoxBackground,
+	GUICLR_ListBoxBorder,
+	GUICLR_ListBoxBorderHovered,
+	GUICLR_ListBoxArrowBoxBackground,
+
 	GUICLR_MAX
 };
 

@@ -210,6 +210,11 @@ void CGUIThemeManager::add_themes()
 				CColor(112, 112, 112, 170), // GUICLR_ResizeGripActive
 
 				CColor(  0,   0,   0,   0), // GUICLR_TableHeaderBg
+
+				CColor( 20,  20,  20,  20), // GUICLR_ListBoxBackground
+				CColor(170, 170, 170, 170), // GUICLR_ListBoxBorder
+				CColor(  0, 136, 255, 255), // GUICLR_ListBoxBorderHovered
+				CColor( 40,  40,  40,  40), // GUICLR_ListBoxArrowBoxBackground
 			}
 		}});
 

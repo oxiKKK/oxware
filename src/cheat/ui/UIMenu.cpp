@@ -367,10 +367,13 @@ void CUIMenu::tab_world()
 	g_gui_widgets_i->begin_columns(__FUNCTION__, 2);
 	
 	add_menu_child(
-		"Removals", CMenuStyle::calc_child_size(210), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Removals", CMenuStyle::calc_child_size(250), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			CUIMenuWidgets::the().add_checkbox("Remove screenshake", &remove_screenshake);
+
+			g_gui_widgets_i->add_spacing();
+			CUIMenuWidgets::the().add_description_text("In order to disable in-game fog, use \"gl_fog\" command.");
 
 			g_gui_widgets_i->add_padding({ 0, 5.0f });
 			g_gui_widgets_i->add_separtor_with_text("Remove HUD");

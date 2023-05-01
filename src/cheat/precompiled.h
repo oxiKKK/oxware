@@ -47,6 +47,7 @@
 #include <interface/IAppDataManager.h>
 #include <interface/IConfigManager.h>
 #include <interface/ICodePerformaceProfiler.h>
+#include <interface/IBytePatternBank.h>
 
 #include <interface/gui/IGLFWApp.h>
 #include <interface/gui/IGUIWidgets.h>
@@ -59,6 +60,7 @@
 
 #include <tier/StringTools.h>
 #include <tier/GenericUtil.h>
+#include <tier/MessageBox.h>
 
 #include <injection/InjectedDllIPCInterface.h>
 
@@ -217,6 +219,7 @@ namespace hl
 #include "oxware.h"
 
 // hooks
+#include "hook/HookTests.h"
 #include "hook/MemoryHook.h"
 #include "hook/MemoryFnHook.h"
 #include "hook/MemoryFnDetour.h"

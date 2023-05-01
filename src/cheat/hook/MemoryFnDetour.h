@@ -1,28 +1,28 @@
 /*
 *	OXWARE developed by oxiKKK
 *	Copyright (c) 2023
-* 
-*	This program is licensed under the MIT license. By downloading, copying, 
+*
+*	This program is licensed under the MIT license. By downloading, copying,
 *	installing or using this software you agree to this license.
 *
 *	License Agreement
 *
-*	Permission is hereby granted, free of charge, to any person obtaining a 
-*	copy of this software and associated documentation files (the "Software"), 
-*	to deal in the Software without restriction, including without limitation 
-*	the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-*	and/or sell copies of the Software, and to permit persons to whom the 
+*	Permission is hereby granted, free of charge, to any person obtaining a
+*	copy of this software and associated documentation files (the "Software"),
+*	to deal in the Software without restriction, including without limitation
+*	the rights to use, copy, modify, merge, publish, distribute, sublicense,
+*	and/or sell copies of the Software, and to permit persons to whom the
 *	Software is furnished to do so, subject to the following conditions:
 *
-*	The above copyright notice and this permission notice shall be included 
-*	in all copies or substantial portions of the Software. 
+*	The above copyright notice and this permission notice shall be included
+*	in all copies or substantial portions of the Software.
 *
-*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 *	IN THE SOFTWARE.
 */
 
@@ -35,405 +35,415 @@
 #define MEMORYFNDETOUR_H
 #pragma once
 
-#define DECL_GENERIC_MEMORY_FN_DETOUR(call_conv, call_conv_raw)																					\
-template<typename T = void, typename ...Args>																									\
-class CGenericMemoryFnDetour##call_conv : public CGenericMemoryFnHook##call_conv<T, Args...>													\
-{																																				\
-	typedef CGenericMemoryFnHook##call_conv<T, Args...> BaseClass;																				\
-																																				\
-	/* a bunch of convenience typedefs in order to acess base class members (dependence stuff) */												\
-	typedef BaseClass::pfnRoutineType_t pfnRoutineType_t;																						\
-	using BaseClass::m_module_name;																												\
-	using BaseClass::m_name;																													\
-	using BaseClass::m_fn_address;																												\
-																																				\
-public:																																			\
-	inline T call_conv_raw call_detoured(Args... args) const { return m_detour_func(args...); }													\
-																																				\
-	virtual bool install() = 0;																													\
-																																				\
-	/* if the restore fails, a message is printed to the console. this isn't fatal, */															\
-	/* don't exit the application if we fail restoring the detour..					*/															\
-	void uninstall()																															\
-	{																																			\
-		if (!BaseClass::is_installed())																											\
-		{																																		\
-			CConsole::the().warning("Trying to uninstall not installed detour!");																\
-			return;																																\
-		}																																		\
-																																				\
-		CConsole::the().info("Removing detour from function {} from {}...",																		\
-							 m_name, CStringTools::the().unicode_to_utf8(m_module_name));														\
-																																				\
-		restore_internal();																														\
-	}																																			\
-																																				\
-protected:																																		\
-	virtual void init_msg() const																												\
-	{																																			\
-		CConsole::the().info("Detouring {} function from {}...",																				\
-							 m_name, CStringTools::the().unicode_to_utf8(m_module_name));														\
-	}																																			\
-																																				\
-	bool detour_internal()																														\
-	{																																			\
-		DetourTransactionBegin();																												\
-		DetourUpdateThread(CGenericUtil::the().get_current_thread_handle());																	\
-		DetourAttach(&reinterpret_cast<PVOID&>(m_fn_address), m_detour_func);																	\
-																																				\
-		uint32_t error = DetourTransactionCommit();																								\
-		if (error != NO_ERROR)																													\
-		{																																		\
-			CConsole::the().error("Failed to apply detour to a function '{}'. (code={})", m_name, error);										\
-			return false;																														\
-		}																																		\
-																																				\
-		return true;																															\
-	}																																			\
-																																				\
-	bool restore_internal()																														\
-	{																																			\
-		DetourTransactionBegin();																												\
-		DetourUpdateThread(CGenericUtil::the().get_current_thread_handle());																	\
-		DetourDetach(&reinterpret_cast<PVOID&>(m_fn_address), m_detour_func);																	\
-																																				\
-		m_fn_address = nullptr;																													\
-		m_detour_func = nullptr;																												\
-																																				\
-		uint32_t error = DetourTransactionCommit();																								\
-		if (error != NO_ERROR)																													\
-		{																																		\
-			CConsole::the().error("Failed to restore detour on function '{}'. (code={})", m_name, error);										\
-			return false;																														\
-		}																																		\
-																																				\
-		return true;																															\
-	}																																			\
-																																				\
-	bool generic_bytepattern_detour(pfnRoutineType_t detour_fn, const CBytePattern& pattern);													\
-	bool generic_exported_procname_detour(pfnRoutineType_t detour_fn, const char* procname);													\
-	bool generic_functionaddr_detour(pfnRoutineType_t detour_fn, uintptr_t* function_pointer);													\
-																																				\
-protected:																																		\
-	/* our local function that will detour the code flow of the original function, when called */												\
-	pfnRoutineType_t m_detour_func = nullptr;																									\
-};																																				\
-																																				\
-template<typename T, typename ...Args>																											\
-inline bool CGenericMemoryFnDetour##call_conv<T, Args...>::generic_bytepattern_detour(pfnRoutineType_t detour_fn, const CBytePattern& pattern)	\
-{																																				\
-	m_detour_func = detour_fn;																													\
-																																				\
-	/* find the function via byte pattern */																									\
-	if (!BaseClass::generic_bytepattern_installer(pattern))																						\
-	{																																			\
-		return false;																															\
-	}																																			\
-																																				\
-	/* detour it */																																\
-	if (!detour_internal())																														\
-	{																																			\
-		return false;																															\
-	}																																			\
-																																				\
-	return true;																																\
-}																																				\
-																																				\
-template<typename T, typename ...Args>																											\
-inline bool CGenericMemoryFnDetour##call_conv<T, Args...>::generic_exported_procname_detour(pfnRoutineType_t detour_fn, const char* procname)	\
-{																																				\
-	m_detour_func = detour_fn;																													\
-																																				\
-	/* find exported function */																												\
-	if (!BaseClass::generic_exported_procname_installer(procname))																				\
-	{																																			\
-		return false;																															\
-	}																																			\
-																																				\
-	/* detour it */																																\
-	if (!detour_internal())																														\
-	{																																			\
-		return false;																															\
-	}																																			\
-																																				\
-	return true;																																\
-}																																				\
-																																				\
-template<typename T, typename ...Args>																											\
-inline bool CGenericMemoryFnDetour##call_conv<T, Args...>::generic_functionaddr_detour(pfnRoutineType_t detour_fn, uintptr_t* function_pointer)	\
-{																																				\
-	m_detour_func = detour_fn;																													\
-																																				\
-	/* find the function via byte pattern */																									\
-	if (!BaseClass::generic_functionaddr_installer(function_pointer))																			\
-	{																																			\
-		return false;																															\
-	}																																			\
-																																				\
-	/* detour it */																																\
-	if (!detour_internal())																														\
-	{																																			\
-		return false;																															\
-	}																																			\
-																																				\
-	return true;																																\
-}																																				\
+template<typename T = void, typename ...Args>
+class GenericMemoryFnDetour : public GenericMemoryHook<uintptr_t>
+{
+public:
+	virtual bool install() = 0;
 
-DECL_GENERIC_MEMORY_FN_DETOUR(Cdecl, __cdecl);
-DECL_GENERIC_MEMORY_FN_DETOUR(Stdcall, __stdcall);
-DECL_GENERIC_MEMORY_FN_DETOUR(Thiscall, __thiscall);
-DECL_GENERIC_MEMORY_FN_DETOUR(Fastcall, __fastcall);
+	// if the restore fails, a message is printed to the console. this isn't fatal,
+	// don't exit the application if we fail restoring the detour..
+	void uninstall()
+	{
+		if (!is_installed())
+		{
+			CConsole::the().warning("Trying to uninstall non-installed detour!");
+			return;
+		}
+
+		if (!m_detoured)
+		{
+			return;
+		}
+
+		CConsole::the().info("Removing detoured '{}' from {}...",
+							 m_name, CStringTools::the().unicode_to_utf8(m_module_name));
+
+		restore_internal();
+	}
+
+	// the m_address pointer gets changed when the function is detoured. Use this to retreive the original function
+	// address.
+	uintptr_t* get_original_function_address() const { return m_address; }
+
+protected:
+	template <typename U>
+	inline auto as_func() const { return reinterpret_cast<U>(m_detoured_address); };
+
+public:
+	//
+	// testing
+	//
+
+	virtual void add_to_test() override
+	{
+		CHookTests::the().add_for_testing("MemoryFnDetour", this);
+	}
+
+protected:
+	bool detour_internal()
+	{
+		m_detoured_address = m_address;
+
+		DetourTransactionBegin();
+		DetourUpdateThread(CGenericUtil::the().get_current_thread_handle());
+		DetourAttach(&reinterpret_cast<PVOID&>(m_detoured_address), m_detour_func_addr);
+
+		uint32_t error = commit_detour_transaction();
+		if (error != NO_ERROR)
+		{
+			CConsole::the().error("Failed to apply detour to a function '{}'. (error code: {})", m_name, error);
+			return false;
+		}
+
+		m_detoured = true;
+		return true;
+	}
+
+	bool restore_internal()
+	{
+		DetourTransactionBegin();
+		DetourUpdateThread(CGenericUtil::the().get_current_thread_handle());
+		DetourDetach(&reinterpret_cast<PVOID&>(m_detoured_address), m_detour_func_addr);
+
+		m_address = m_detoured_address = nullptr;
+		m_detour_func_addr = nullptr;
+
+		static int restore_fail_counter = 0; // to not be annoying
+		uint32_t error = commit_detour_transaction();
+		if (error != NO_ERROR && restore_fail_counter < 5)
+		{
+			restore_fail_counter++;
+
+			if (restore_fail_counter == 5)
+			{
+				CMessageBox::display_error("Failed to restore more than 5 detours in a row. This error will not be shown again. For more details, see the console.", m_name, error);
+			}
+			else
+			{
+				CMessageBox::display_error("{}: Failed to restore detour from a function '{}'. (error code: {})", restore_fail_counter, m_name, error);
+			}
+
+			return false;
+		}
+
+		m_detoured = true;
+		return true;
+	}
+
+	bool detour_using_bytepattern(uintptr_t* detour_fn);
+	bool detour_using_exported_name(uintptr_t* detour_fn, const char* export_name);
+	bool detour_using_memory_address(uintptr_t* detour_fn, uintptr_t* memory_address);
+
+	uint32_t commit_detour_transaction()
+	{
+		// save address where the original function was, the value of m_address gets changed by internal detour code after this function call.
+		uint32_t error = DetourTransactionCommit(); // this modifies the original address and I don't want to even know why.
+		return error;
+	}
+
+protected:
+	uintptr_t* m_detour_func_addr = nullptr;
+
+	// at first, this is the address of the function we want to detour, but after we detour it, the detour code change pointer of this
+	// variable to point to special memory region allocated by detours and this memory is supposed to be called when you're in the detoured function.
+	uintptr_t* m_detoured_address = nullptr;
+
+	// true if successfully detoured
+	bool m_detoured = false;
+};
+
+template<typename T, typename ...Args>
+inline bool GenericMemoryFnDetour<T, Args...>::detour_using_bytepattern(uintptr_t* detour_fn)
+{
+	m_detour_func_addr = detour_fn;
+
+	// find the function via byte pattern 
+	if (!install_using_bytepattern(0))
+	{
+		return false;
+	}
+
+	// detour it
+	if (!detour_internal())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+template<typename T, typename ...Args>
+inline bool GenericMemoryFnDetour<T, Args...>::detour_using_exported_name(uintptr_t* detour_fn, const char* export_name)
+{
+	m_detour_func_addr = detour_fn;
+
+	// find the function via exported name
+	if (!install_using_exported_name(export_name))
+	{
+		return false;
+	}
+
+	// detour it
+	if (!detour_internal())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+template<typename T, typename ...Args>
+inline bool GenericMemoryFnDetour<T, Args...>::detour_using_memory_address(uintptr_t* detour_fn, uintptr_t* memory_address)
+{
+	m_detour_func_addr = detour_fn;
+
+	// find the function via memory address
+	if (!install_using_memory_address(memory_address))
+	{
+		return false;
+	}
+
+	// detour it
+	if (!detour_internal())
+	{
+		return false;
+	}
+
+	return true;
+}
 
 //---------------------------------------------------------------------------------
 
-class wglSwapBuffersFnHook_t final : public CGenericMemoryFnDetourStdcall<BOOL, HDC>
+template<typename T = void, typename ...Args>
+struct GenericMemoryFnDetour_cdecl : public GenericMemoryFnDetour<uintptr_t>
 {
-public:
+	virtual inline T __cdecl call(Args... args) const { return as_func<T(__cdecl*)(Args...)>()(args...); }
+};
+
+template<typename T = void, typename ...Args>
+struct GenericMemoryFnDetour_stdcall : public GenericMemoryFnDetour<uintptr_t>
+{
+	virtual inline T __stdcall call(Args... args) const { return as_func<T(__stdcall*)(Args...)>()(args...); }
+};
+
+template<typename T = void, typename ...Args>
+struct GenericMemoryFnDetour_thiscall : public GenericMemoryFnDetour<uintptr_t>
+{
+	virtual inline T __thiscall call(Args... args) const { return as_func<T(__thiscall*)(Args...)>()(args...); }
+};
+
+template<typename T = void, typename ...Args>
+struct GenericMemoryFnDetour_fastcall : public GenericMemoryFnDetour<uintptr_t>
+{
+	virtual inline T __fastcall call(Args... args) const { return as_func<T(__fastcall*)(Args...)>()(args...); }
+};
+
+//---------------------------------------------------------------------------------
+
+struct wglSwapBuffers_FnDetour_t final : public GenericMemoryFnDetour_stdcall<BOOL, HDC>
+{
 	bool install();
 
 	static BOOL APIENTRY wglSwapBuffers(HDC hdc);
 };
 
 // void __cdecl VGui_CallEngineSurfaceAppHandler(void *event, void *userData)
-class VGui_CallEngineSurfaceAppHandlerFnHook_t final : public CGenericMemoryFnDetourCdecl<void, void *, void *>
+struct VGui_CallEngineSurfaceAppHandler_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, void *, void *>
 {
-public:
 	bool install();
-
 	static void VGui_CallEngineSurfaceAppHandler(void *event, void *userData);
 };
 
-// void __cdecl Key_Event(int key, bool down)
-class Key_EventFnHook_t final : public CGenericMemoryFnDetourCdecl<void, int, hl::qboolean>
+// old function that uses winapi rather than SDL2
+// note that the function declaration has been completely guessed.
+// LRESULT __cdecl VGui_CallEngineSurfaceAppHandler4554(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
+struct VGui_CallEngineSurfaceAppHandler4554_FnDetour_t final : public GenericMemoryFnDetour_cdecl<LRESULT, HWND, UINT, WPARAM, LPARAM>
 {
-public:
 	bool install();
+	static LRESULT VGui_CallEngineSurfaceAppHandler4554(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+};
 
+// void __cdecl Key_Event(int key, bool down)
+struct Key_Event_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, int, hl::qboolean>
+{
+	bool install();
 	static void Key_Event(int key, hl::qboolean down);
 };
 
 // void Host_Noclip_f(void)
-class Host_Noclip_fFnHook_t final : public CGenericMemoryFnDetourCdecl<void>
+struct Host_Noclip_f_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void>
 {
-public:
 	bool install();
-
 	static void Host_Noclip_f();
 };
 
 // void __cdecl ClientDLL_CreateMove(float frametime, usercmd_t *cmd, int active)
-class ClientDLL_CreateMoveFnHook_t final : public CGenericMemoryFnDetourCdecl<void, float, hl::usercmd_t*, int>
+struct ClientDLL_CreateMove_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, float, hl::usercmd_t*, int>
 {
-public:
 	bool install();
-
 	static void ClientDLL_CreateMove(float frametime, hl::usercmd_t *cmd, int active);
 };
 
 // void _Host_Frame(float time)
-class _Host_FrameFnHook_t final : public CGenericMemoryFnDetourCdecl<void, float>
+struct _Host_Frame_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, float>
 {
-public:
 	bool install();
-
 	static void _Host_Frame(float time);
 };
 
 // void __cdecl CL_ReallocateDynamicData(int nMaxClients)
-class CL_ReallocateDynamicDataFnHook_t final : public CGenericMemoryFnDetourCdecl<void, int>
+struct CL_ReallocateDynamicData_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, int>
 {
-public:
 	bool install();
-
 	static void CL_ReallocateDynamicData(int nMaxClients);
 };
 
 // void __cdecl CL_DeallocateDynamicData()
-class CL_DeallocateDynamicDataFnHook_t final : public CGenericMemoryFnDetourCdecl<void>
+struct CL_DeallocateDynamicData_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void>
 {
-public:
 	bool install();
-
 	static void CL_DeallocateDynamicData();
 };
 
 // void __cdecl MYgluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
-class MYgluPerspectiveFnHook_t final : public CGenericMemoryFnDetourCdecl<void, GLdouble, GLdouble, GLdouble, GLdouble>
+struct MYgluPerspective_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, GLdouble, GLdouble, GLdouble, GLdouble>
 {
-public:
 	bool install();
-
 	static void MYgluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 };
 
 // void __cdecl R_ForceCVars(qboolean mp)
-class R_ForceCVarsFnHook_t final : public CGenericMemoryFnDetourCdecl<void, hl::qboolean>
+struct R_ForceCVars_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, hl::qboolean>
 {
-public:
 	bool install();
-
 	static void R_ForceCVars(hl::qboolean mp);
 };
 
 // void __cdecl V_CalcRefdef(ref_params_s *pparams)
-class V_CalcRefdefFnHook_t final : public CGenericMemoryFnDetourCdecl<void, hl::ref_params_t*>
+struct V_CalcRefdef_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, hl::ref_params_t*>
 {
-public:
 	bool install();
-
 	static void V_CalcRefdef(hl::ref_params_t *pparams);
 };
 
 // void __cdecl EV_HLDM_FireBullets(int idx, float *forward, float *right, float *up, int cShots, float *vecSrc, float *vecDirShooting, float *vecSpread, float flDistance, int iBulletType, int iTracerFreq, int *tracerCount, int iPenetration)
-class EV_HLDM_FireBulletsFnHook_t final : public CGenericMemoryFnDetourCdecl<void, int , float *, float *, float *, int , float *, float *, float*, float, int, int, int*, int>
+struct EV_HLDM_FireBullets_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, int, float *, float *, float *, int, float *, float *, float*, float, int, int, int*, int>
 {
-public:
 	bool install();
-
 	static void EV_HLDM_FireBullets(int idx, float *forward, float *right, float *up, int cShots, float *vecSrc, float *vecDirShooting, float *vecSpread, float flDistance, int iBulletType, int iTracerFreq, int *tracerCount, int iPenetration);
 };
 
 // int HUD_Redraw(float time, int intermission)
-class HUD_RedrawFnHook_t final : public CGenericMemoryFnDetourCdecl<int, float, int>
+struct HUD_Redraw_FnDetour_t final : public GenericMemoryFnDetour_cdecl<int, float, int>
 {
-public:
 	bool install();
 
 	static int HUD_Redraw(float time, int intermission);
 };
 
-// void R_StudioDrawPoints()
-class R_StudioDrawPointsFnHook_t final : public CGenericMemoryFnDetourCdecl<void>
+// void R_GLStudioDrawPoints()
+struct R_GLStudioDrawPoints_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void>
 {
-public:
 	bool install();
-
-	static void R_StudioDrawPoints();
+	static void R_GLStudioDrawPoints();
 };
 
 // void __cdecl R_LightLambert(float (*light)[4], float *normal, float *src, float *lambert)
-class R_LightLambertFnHook_t final : public CGenericMemoryFnDetourCdecl<void, float**, float*, float*, float*>
+struct R_LightLambert_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, float**, float*, float*, float*>
 {
-public:
 	bool install();
-
 	static void R_LightLambert(float** light, float *normal, float *src, float *lambert);
 };
 
 // int V_FadeAlpha()
-class V_FadeAlphaFnHook_t final : public CGenericMemoryFnDetourCdecl<int>
+struct V_FadeAlpha_FnDetour_t final : public GenericMemoryFnDetour_cdecl<int>
 {
-public:
 	bool install();
-
 	static int V_FadeAlpha();
 };
 
 // void __cdecl V_ApplyShake(float *origin, float *angles, float factor);
-class V_ApplyShakeFnHook_t final : public CGenericMemoryFnDetourCdecl<void, float*, float*, float>
+struct V_ApplyShake_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, float*, float*, float>
 {
-public:
 	bool install();
-
 	static void V_ApplyShake(float *origin, float *angles, float factor);
 };
 
 // void S_StartStaticSound(int entnum, int entchannel, sfx_t* sfx, vec_t* origin, float fvol, float attenuation, int flags, int pitch)
-class S_StartStaticSoundFnHook_t final : public CGenericMemoryFnDetourCdecl<void, int, int, hl::sfx_t*, hl::vec_t*, float, float, int, int>
+struct S_StartStaticSound_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, int, int, hl::sfx_t*, hl::vec_t*, float, float, int, int>
 {
-public:
 	bool install();
-
 	static void S_StartStaticSound(int entnum, int entchannel, hl::sfx_t* sfx, hl::vec_t* origin, float fvol, float attenuation, int flags, int pitch);
 };
 
 // void R_DrawViewModel(h)
-class R_DrawViewModelFnHook_t final : public CGenericMemoryFnDetourCdecl<void>
+struct R_DrawViewModel_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void>
 {
-public:
 	bool install();
-
 	static void R_DrawViewModel();
 };
 
 // static CPartSmokeGrenade *__cdeclcall CPartSmokeGrenade::Create(CPartSmokeGrenade* this, Vector org, Vector normal, model_s *sprite, float size, float brightness, const char *classname)
-class CPartSmokeGrenade__CreateFnHook_t final : public CGenericMemoryFnDetourCdecl<hl::CPartSmokeGrenade*, hl::CPartSmokeGrenade*, Vector, Vector, hl::model_t*, float, float, const char*>
+struct CPartSmokeGrenade__Create_FnDetour_t final : public GenericMemoryFnDetour_cdecl<hl::CPartSmokeGrenade*, hl::CPartSmokeGrenade*, Vector, Vector, hl::model_t*, float, float, const char*>
 {
-public:
 	bool install();
-
 	static hl::CPartSmokeGrenade* __cdecl CPartSmokeGrenade__Create(hl::CPartSmokeGrenade* _this, Vector org, Vector normal, hl::model_t* sprite, float size, float brightness, const char* classname);
 };
 
 // void __cdecl CreateGasSmoke(Vector origin, Vector vVelocity, bool bInsideSmoke, bool bSpawnInside, bool bBlowable)
-class CreateGasSmokeFnHook_t final : public CGenericMemoryFnDetourCdecl<void, Vector, Vector, bool, bool, bool>
+struct CreateGasSmoke_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, Vector, Vector, bool, bool, bool>
 {
-public:
 	bool install();
-
 	static void CreateGasSmoke(Vector origin, Vector vVelocity, bool bInsideSmoke, bool bSpawnInside, bool bBlowable);
 };
 
 // void __thiscall CEngine::Unload(CEngine* this)
-class CEngine__UnloadFnHook_t final : public CGenericMemoryFnDetourThiscall<void, hl::CEngine*>
+struct CEngine__Unload_FnDetour_t final : public GenericMemoryFnDetour_thiscall<void, hl::CEngine*>
 {
-public:
 	bool install();
-
 	static void __thiscall CEngine__Unload(hl::CEngine* ecx);
 };
 
 // void __cdecl SCR_CalcRefdef()
-class SCR_CalcRefdefFnHook_t final : public CGenericMemoryFnDetourCdecl<void>
+struct SCR_CalcRefdef_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void>
 {
-public:
 	bool install();
-
 	static void SCR_CalcRefdef();
 };
 
 // void __cdecl SCR_UpdateScreen()
-class SCR_UpdateScreenFnHook_t final : public CGenericMemoryFnDetourCdecl<void>
+struct SCR_UpdateScreen_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void>
 {
-public:
 	bool install();
-
 	static void SCR_UpdateScreen();
 };
 
 // void SPR_Set(HSPRITE_t hSprite, int r, int g, int b)
-class SPR_SetFnHook_t final : public CGenericMemoryFnDetourCdecl<void, hl::HSPRITE_t, int, int, int>
+struct SPR_Set_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, hl::HSPRITE_t, int, int, int>
 {
-public:
 	bool install();
-
 	static void SPR_Set(hl::HSPRITE_t hSprite, int r, int g, int b);
 };
 
 // void __thiscall CGame__AppActivate(CGame *this, bool fActive)
-class CGame__AppActivateFnHook_t final : public CGenericMemoryFnDetourThiscall<void, void*, bool>
+struct CGame__AppActivate_FnDetour_t final : public GenericMemoryFnDetour_thiscall<void, void*, bool>
 {
-public:
 	bool install();
-
 	static void __thiscall CGame__AppActivate(void* ecx, bool fActive);
 };
 
 // int __cdecl CHudAmmo__DrawCrosshair(CHudAmmo *const this, float flTime, int weaponid)
-class CHudAmmo__DrawCrosshairFnHook_t final : public CGenericMemoryFnDetourThiscall<int, void*, float, int>
+struct CHudAmmo__DrawCrosshair_FnDetour_t final : public GenericMemoryFnDetour_thiscall<int, void*, float, int>
 {
-public:
 	bool install();
-
 	static int __thiscall CHudAmmo__DrawCrosshair(void* ecx, float flTime, int weaponid);
 };
 
 // int R_StudioDrawPlayer(int flags, entity_state_t* pplayer)
-class R_StudioDrawPlayerFnHook_t final : public CGenericMemoryFnDetourCdecl<int, int, hl::entity_state_t*>
+struct R_StudioDrawPlayer_FnDetour_t final : public GenericMemoryFnDetour_cdecl<int, int, hl::entity_state_t*>
 {
-public:
 	bool install();
-
 	static int R_StudioDrawPlayer(int flags, hl::entity_state_t* pplayer);
 };
 
@@ -454,34 +464,35 @@ public:
 	bool exit_if_uninstalling() const { return m_unloading_hooks_mutex ? true : false; }
 
 	// individual hooks
-	inline auto& wglSwapBuffers() { static wglSwapBuffersFnHook_t fnhook; return fnhook; }
-	inline auto& VGui_CallEngineSurfaceAppHandler() { static VGui_CallEngineSurfaceAppHandlerFnHook_t fnhook; return fnhook; }
-	inline auto& Key_Event() { static Key_EventFnHook_t fnhook; return fnhook; }
-	inline auto& Host_Noclip_f() { static Host_Noclip_fFnHook_t fnhook; return fnhook; }
-	inline auto& ClientDLL_CreateMove() { static ClientDLL_CreateMoveFnHook_t fnhook; return fnhook; }
-	inline auto& _Host_Frame() { static _Host_FrameFnHook_t fnhook; return fnhook; }
-	inline auto& CL_ReallocateDynamicData() { static CL_ReallocateDynamicDataFnHook_t fnhook; return fnhook; }
-	inline auto& CL_DeallocateDynamicData() { static CL_DeallocateDynamicDataFnHook_t fnhook; return fnhook; }
-	inline auto& MYgluPerspective() { static MYgluPerspectiveFnHook_t fnhook; return fnhook; }
-	inline auto& R_ForceCVars() { static R_ForceCVarsFnHook_t fnhook; return fnhook; }
-	inline auto& V_CalcRefdef() { static V_CalcRefdefFnHook_t fnhook; return fnhook; }
-	inline auto& EV_HLDM_FireBullets() { static EV_HLDM_FireBulletsFnHook_t fnhook; return fnhook; }
-	inline auto& HUD_Redraw() { static HUD_RedrawFnHook_t fnhook; return fnhook; }
-	inline auto& R_StudioDrawPoints() { static R_StudioDrawPointsFnHook_t fnhook; return fnhook; }
-	inline auto& R_LightLambert() { static R_LightLambertFnHook_t fnhook; return fnhook; }
-	inline auto& V_FadeAlpha() { static V_FadeAlphaFnHook_t fnhook; return fnhook; }
-	inline auto& V_ApplyShake() { static V_ApplyShakeFnHook_t fnhook; return fnhook; }
-	inline auto& S_StartStaticSound() { static S_StartStaticSoundFnHook_t fnhook; return fnhook; }
-	inline auto& R_DrawViewModel() { static R_DrawViewModelFnHook_t fnhook; return fnhook; }
-	inline auto& CPartSmokeGrenade__Create() { static CPartSmokeGrenade__CreateFnHook_t fnhook; return fnhook; }
-	inline auto& CreateGasSmoke() { static CreateGasSmokeFnHook_t fnhook; return fnhook; }
-	inline auto& CEngine__Unload() { static CEngine__UnloadFnHook_t fnhook; return fnhook; }
-	inline auto& SCR_CalcRefdef() { static SCR_CalcRefdefFnHook_t fnhook; return fnhook; }
-	inline auto& SCR_UpdateScreen() { static SCR_UpdateScreenFnHook_t fnhook; return fnhook; }
-	inline auto& SPR_Set() { static SPR_SetFnHook_t fnhook; return fnhook; }
-	inline auto& CGame__AppActivate() { static CGame__AppActivateFnHook_t fnhook; return fnhook; }
-	inline auto& CHudAmmo__DrawCrosshair() { static CHudAmmo__DrawCrosshairFnHook_t fnhook; return fnhook; }
-	inline auto& R_StudioDrawPlayer() { static R_StudioDrawPlayerFnHook_t fnhook; return fnhook; }
+	inline auto& wglSwapBuffers() { static wglSwapBuffers_FnDetour_t fnhook; return fnhook; }
+	inline auto& VGui_CallEngineSurfaceAppHandler() { static VGui_CallEngineSurfaceAppHandler_FnDetour_t fnhook; return fnhook; }
+	inline auto& VGui_CallEngineSurfaceAppHandler4554() { static VGui_CallEngineSurfaceAppHandler4554_FnDetour_t fnhook; return fnhook; }
+	inline auto& Key_Event() { static Key_Event_FnDetour_t fnhook; return fnhook; }
+	inline auto& Host_Noclip_f() { static Host_Noclip_f_FnDetour_t fnhook; return fnhook; }
+	inline auto& ClientDLL_CreateMove() { static ClientDLL_CreateMove_FnDetour_t fnhook; return fnhook; }
+	inline auto& _Host_Frame() { static _Host_Frame_FnDetour_t fnhook; return fnhook; }
+	inline auto& CL_ReallocateDynamicData() { static CL_ReallocateDynamicData_FnDetour_t fnhook; return fnhook; }
+	inline auto& CL_DeallocateDynamicData() { static CL_DeallocateDynamicData_FnDetour_t fnhook; return fnhook; }
+	inline auto& MYgluPerspective() { static MYgluPerspective_FnDetour_t fnhook; return fnhook; }
+	inline auto& R_ForceCVars() { static R_ForceCVars_FnDetour_t fnhook; return fnhook; }
+	inline auto& V_CalcRefdef() { static V_CalcRefdef_FnDetour_t fnhook; return fnhook; }
+	inline auto& EV_HLDM_FireBullets() { static EV_HLDM_FireBullets_FnDetour_t fnhook; return fnhook; }
+	inline auto& HUD_Redraw() { static HUD_Redraw_FnDetour_t fnhook; return fnhook; }
+	inline auto& R_GLStudioDrawPoints() { static R_GLStudioDrawPoints_FnDetour_t fnhook; return fnhook; }
+	inline auto& R_LightLambert() { static R_LightLambert_FnDetour_t fnhook; return fnhook; }
+	inline auto& V_FadeAlpha() { static V_FadeAlpha_FnDetour_t fnhook; return fnhook; }
+	inline auto& V_ApplyShake() { static V_ApplyShake_FnDetour_t fnhook; return fnhook; }
+	inline auto& S_StartStaticSound() { static S_StartStaticSound_FnDetour_t fnhook; return fnhook; }
+	inline auto& R_DrawViewModel() { static R_DrawViewModel_FnDetour_t fnhook; return fnhook; }
+	inline auto& CPartSmokeGrenade__Create() { static CPartSmokeGrenade__Create_FnDetour_t fnhook; return fnhook; }
+	inline auto& CreateGasSmoke() { static CreateGasSmoke_FnDetour_t fnhook; return fnhook; }
+	inline auto& CEngine__Unload() { static CEngine__Unload_FnDetour_t fnhook; return fnhook; }
+	inline auto& SCR_CalcRefdef() { static SCR_CalcRefdef_FnDetour_t fnhook; return fnhook; }
+	inline auto& SCR_UpdateScreen() { static SCR_UpdateScreen_FnDetour_t fnhook; return fnhook; }
+	inline auto& SPR_Set() { static SPR_Set_FnDetour_t fnhook; return fnhook; }
+	inline auto& CGame__AppActivate() { static CGame__AppActivate_FnDetour_t fnhook; return fnhook; }
+	inline auto& CHudAmmo__DrawCrosshair() { static CHudAmmo__DrawCrosshair_FnDetour_t fnhook; return fnhook; }
+	inline auto& R_StudioDrawPlayer() { static R_StudioDrawPlayer_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

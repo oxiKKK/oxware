@@ -31,34 +31,41 @@
 bool CMemoryFnDetourMgr::install_hooks()
 {
 	// let's install and detour individual hooks.
-	if (!wglSwapBuffers().install()) return false;
-	if (!VGui_CallEngineSurfaceAppHandler().install()) return false;
-	if (!Key_Event().install()) return false;
-	if (!Host_Noclip_f().install()) return false;
-	if (!ClientDLL_CreateMove().install()) return false;
-	if (!_Host_Frame().install()) return false;
-	if (!CL_ReallocateDynamicData().install()) return false;
-	if (!CL_DeallocateDynamicData().install()) return false;
-	if (!MYgluPerspective().install()) return false;
-	if (!R_ForceCVars().install()) return false;
-	if (!V_CalcRefdef().install()) return false;
-	//if (!EV_HLDM_FireBullets().install()) return false;
-	if (!HUD_Redraw().install()) return false;
-	if (!R_StudioDrawPoints().install()) return false;
-	if (!R_LightLambert().install()) return false;
-	if (!V_FadeAlpha().install()) return false;
-	if (!V_ApplyShake().install()) return false;
-	if (!S_StartStaticSound().install()) return false;
-	if (!R_DrawViewModel().install()) return false;
-	if (!CPartSmokeGrenade__Create().install()) return false;
-	if (!CreateGasSmoke().install()) return false;
-	if (!CEngine__Unload().install()) return false;
-	if (!SCR_CalcRefdef().install()) return false;
-	if (!SCR_UpdateScreen().install()) return false;
-	if (!SPR_Set().install()) return false;
-	if (!CGame__AppActivate().install()) return false;
-	if (!CHudAmmo__DrawCrosshair().install()) return false;
-	if (!R_StudioDrawPlayer().install()) return false;
+	wglSwapBuffers().install();
+	if (CoXWARE::the().get_build_number() <= 4554) // TODO: figure out how far does this go, to which version
+	{
+		VGui_CallEngineSurfaceAppHandler4554().install();
+	}
+	else
+	{
+		VGui_CallEngineSurfaceAppHandler().install();
+	}
+	Key_Event().install();
+	Host_Noclip_f().install();
+	ClientDLL_CreateMove().install();
+	_Host_Frame().install();
+	CL_ReallocateDynamicData().install();
+	CL_DeallocateDynamicData().install();
+	MYgluPerspective().install();
+	R_ForceCVars().install();
+	V_CalcRefdef().install();
+	//EV_HLDM_FireBullets().install();
+	HUD_Redraw().install();
+	R_GLStudioDrawPoints().install();
+	R_LightLambert().install();
+	V_FadeAlpha().install();
+	V_ApplyShake().install();
+	S_StartStaticSound().install();
+	R_DrawViewModel().install();
+	CPartSmokeGrenade__Create().install();
+	CreateGasSmoke().install();
+	CEngine__Unload().install();
+	SCR_CalcRefdef().install();
+	SCR_UpdateScreen().install();
+	SPR_Set().install();
+	CGame__AppActivate().install();
+	CHudAmmo__DrawCrosshair().install();
+	R_StudioDrawPlayer().install();
 
 	return true;
 }
@@ -69,7 +76,14 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 
 	// now, uninstall the detour from each function.
 	wglSwapBuffers().uninstall();
-	VGui_CallEngineSurfaceAppHandler().uninstall();
+	if (CoXWARE::the().get_build_number() <= 4554) // TODO: figure out how far does this go, to which version
+	{
+		VGui_CallEngineSurfaceAppHandler4554().uninstall();
+	}
+	else
+	{
+		VGui_CallEngineSurfaceAppHandler().uninstall();
+	}
 	Key_Event().uninstall();
 	Host_Noclip_f().uninstall();
 	ClientDLL_CreateMove().uninstall();
@@ -81,7 +95,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	V_CalcRefdef().uninstall();
 	//EV_HLDM_FireBullets().uninstall();
 	HUD_Redraw().uninstall();
-	R_StudioDrawPoints().uninstall();
+	R_GLStudioDrawPoints().uninstall();
 	R_LightLambert().uninstall();
 	V_FadeAlpha().uninstall();
 	V_ApplyShake().uninstall();
@@ -108,13 +122,13 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 
 //---------------------------------------------------------------------------------
 
-bool wglSwapBuffersFnHook_t::install()
+bool wglSwapBuffers_FnDetour_t::install()
 {
 	initialize("wglSwapBuffers", L"opengl32.dll");
-	return generic_exported_procname_detour(wglSwapBuffers, "wglSwapBuffers");
+	return detour_using_exported_name((uintptr_t*)wglSwapBuffers, "wglSwapBuffers");
 }
 
-BOOL wglSwapBuffersFnHook_t::wglSwapBuffers(HDC hdc)
+BOOL wglSwapBuffers_FnDetour_t::wglSwapBuffers(HDC hdc)
 {
 	OX_PROFILE_SCOPE("swapbuffers");
 
@@ -125,13 +139,13 @@ BOOL wglSwapBuffersFnHook_t::wglSwapBuffers(HDC hdc)
 
 //---------------------------------------------------------------------------------
 
-bool VGui_CallEngineSurfaceAppHandlerFnHook_t::install()
+bool VGui_CallEngineSurfaceAppHandler_FnDetour_t::install()
 {
 	initialize("VGui_CallEngineSurfaceAppHandler", L"hw.dll");
-	return generic_bytepattern_detour(VGui_CallEngineSurfaceAppHandler, "\x55\x8B\xEC\x56\x8B\x75\x0C\x57\x8B\x7D\x08\x56\x57\xE8\x00\x00\x00\x00\x83\xC4\x08\x85\xC0\x75\x0A\x56\x57\xE8\x00\x00\x00\x00\x83\xC4\x08\x5F\x5E\x5D\xC3\x90\x90\x90\x90\x90\x90\x90\x90\x90\xE9\x00\x00\x00\x00\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\xE8\x00\x00\x00\x00\xE9\x00\x00\x00\x00\x90\x90\x90\x90\x90\x90\xE8");
+	return detour_using_bytepattern((uintptr_t*)VGui_CallEngineSurfaceAppHandler);
 }
 
-void VGui_CallEngineSurfaceAppHandlerFnHook_t::VGui_CallEngineSurfaceAppHandler(void* event, void* userData)
+void VGui_CallEngineSurfaceAppHandler_FnDetour_t::VGui_CallEngineSurfaceAppHandler(void* event, void* userData)
 {
 	// This function is responsible for processing user keyboard and mouse input.
 
@@ -145,13 +159,26 @@ void VGui_CallEngineSurfaceAppHandlerFnHook_t::VGui_CallEngineSurfaceAppHandler(
 
 //---------------------------------------------------------------------------------
 
-bool Key_EventFnHook_t::install()
+bool VGui_CallEngineSurfaceAppHandler4554_FnDetour_t::install()
 {
-	initialize("Key_Event", L"hw.dll");
-	return generic_bytepattern_detour(Key_Event, "\x55\x8B\xEC\x81\xEC\x00\x00\x00\x00\x8B\x45\x08\x56\x3D");
+	initialize("VGui_CallEngineSurfaceAppHandler4554", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)VGui_CallEngineSurfaceAppHandler4554);
 }
 
-void Key_EventFnHook_t::Key_Event(int key, hl::qboolean down)
+LRESULT VGui_CallEngineSurfaceAppHandler4554_FnDetour_t::VGui_CallEngineSurfaceAppHandler4554(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+	return CMemoryFnDetourMgr::the().VGui_CallEngineSurfaceAppHandler4554().call(hwnd, msg, wparam, lparam);
+}
+
+//---------------------------------------------------------------------------------
+
+bool Key_Event_FnDetour_t::install()
+{
+	initialize("Key_Event", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)Key_Event);
+}
+
+void Key_Event_FnDetour_t::Key_Event(int key, hl::qboolean down)
 {
 	// this function is responsible for key input ingame
 
@@ -165,13 +192,13 @@ void Key_EventFnHook_t::Key_Event(int key, hl::qboolean down)
 
 //---------------------------------------------------------------------------------
 
-bool Host_Noclip_fFnHook_t::install()
+bool Host_Noclip_f_FnDetour_t::install()
 {
 	initialize("Host_Noclip_f", L"hw.dll");
-	return generic_bytepattern_detour(Host_Noclip_f, "\x55\x8B\xEC\x83\xEC\x24\xA1\x00\x00\x00\x00\xBA\x00\x00\x00\x00\x3B\xC2\x75\x00\xE8\x00\x00\x00\x00\x8B\xE5\x5D\xC3");
+	return detour_using_bytepattern((uintptr_t*)Host_Noclip_f);
 }
 
-void Host_Noclip_fFnHook_t::Host_Noclip_f()
+void Host_Noclip_f_FnDetour_t::Host_Noclip_f()
 {
 	CForceEnableDisabled::the().force_enable_noclip_pre();
 
@@ -182,13 +209,13 @@ void Host_Noclip_fFnHook_t::Host_Noclip_f()
 
 //---------------------------------------------------------------------------------
 
-bool ClientDLL_CreateMoveFnHook_t::install()
+bool ClientDLL_CreateMove_FnDetour_t::install()
 {
 	initialize("ClientDLL_CreateMove", L"hw.dll");
-	return generic_bytepattern_detour(ClientDLL_CreateMove, { "\x55\x8B\xEC\xA1\x00\x00\x00\x00\x85\xC0\x74\x00\x8B\x4D\x10\x8B\x55\x0C\x51\x8B\x4D\x08\x52\x51\xFF\xD0\x83\xC4\x0C\x5D\xC3\x90" });
+	return detour_using_bytepattern((uintptr_t*)ClientDLL_CreateMove);
 }
 
-void ClientDLL_CreateMoveFnHook_t::ClientDLL_CreateMove(float frametime, hl::usercmd_t *cmd, int active)
+void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::usercmd_t *cmd, int active)
 {
 	CMemoryFnDetourMgr::the().ClientDLL_CreateMove().call(frametime, cmd, active);
 
@@ -203,13 +230,13 @@ void ClientDLL_CreateMoveFnHook_t::ClientDLL_CreateMove(float frametime, hl::use
 
 //---------------------------------------------------------------------------------
 
-bool _Host_FrameFnHook_t::install()
+bool _Host_Frame_FnDetour_t::install()
 {
 	initialize("_Host_Frame", L"hw.dll");
-	return generic_bytepattern_detour(_Host_Frame, { "\x55\x8B\xEC\x6A\x00\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x83" });
+	return detour_using_bytepattern((uintptr_t*)_Host_Frame);
 }
 
-void _Host_FrameFnHook_t::_Host_Frame(float time)
+void _Host_Frame_FnDetour_t::_Host_Frame(float time)
 {
 	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
 	{
@@ -228,13 +255,13 @@ void _Host_FrameFnHook_t::_Host_Frame(float time)
 
 //---------------------------------------------------------------------------------
 
-bool CL_ReallocateDynamicDataFnHook_t::install()
+bool CL_ReallocateDynamicData_FnDetour_t::install()
 {
 	initialize("CL_ReallocateDynamicData", L"hw.dll");
-	return generic_bytepattern_detour(CL_ReallocateDynamicData, { "\x55\x8B\xEC\x8B\x45\x08\x50\xE8\x00\x00\x00\x00\x83\xC4\x04\xA3" });
+	return detour_using_bytepattern((uintptr_t*)CL_ReallocateDynamicData);
 }
 
-void CL_ReallocateDynamicDataFnHook_t::CL_ReallocateDynamicData(int nMaxClients)
+void CL_ReallocateDynamicData_FnDetour_t::CL_ReallocateDynamicData(int nMaxClients)
 {
 	// Called on level transition, the main entity array, cl_entities[] is being reallocated.
 
@@ -247,13 +274,13 @@ void CL_ReallocateDynamicDataFnHook_t::CL_ReallocateDynamicData(int nMaxClients)
 
 //---------------------------------------------------------------------------------
 
-bool CL_DeallocateDynamicDataFnHook_t::install()
+bool CL_DeallocateDynamicData_FnDetour_t::install()
 {
 	initialize("CL_DeallocateDynamicData", L"hw.dll");
-	return generic_bytepattern_detour(CL_DeallocateDynamicData, { "\xA1\x00\x00\x00\x00\x85\xC0\x74\x00\x50\xE8\x00\x00\x00\x00\x83\xC4\x04\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00\xE9" });
+	return detour_using_bytepattern((uintptr_t*)CL_DeallocateDynamicData);
 }
 
-void CL_DeallocateDynamicDataFnHook_t::CL_DeallocateDynamicData()
+void CL_DeallocateDynamicData_FnDetour_t::CL_DeallocateDynamicData()
 {
 	// called before allocation or at level disconnect. the cl_entities[] array is being deallocated and set to NULL.
 
@@ -264,13 +291,13 @@ void CL_DeallocateDynamicDataFnHook_t::CL_DeallocateDynamicData()
 
 //---------------------------------------------------------------------------------
 
-bool MYgluPerspectiveFnHook_t::install()
+bool MYgluPerspective_FnDetour_t::install()
 {
 	initialize("MYgluPerspective", L"hw.dll");
-	return generic_bytepattern_detour(MYgluPerspective, { "\x55\x8B\xEC\x83\xEC\x10\xDD\x45" });
+	return detour_using_bytepattern((uintptr_t*)MYgluPerspective);
 }
 
-void MYgluPerspectiveFnHook_t::MYgluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
+void MYgluPerspective_FnDetour_t::MYgluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
 {
 	GLdouble our_zFar = CForceEnableDisabled::the().force_max_viewable_renderdistance();
 	if (our_zFar == -1.0)
@@ -281,13 +308,13 @@ void MYgluPerspectiveFnHook_t::MYgluPerspective(GLdouble fovy, GLdouble aspect, 
 
 //---------------------------------------------------------------------------------
 
-bool R_ForceCVarsFnHook_t::install()
+bool R_ForceCVars_FnDetour_t::install()
 {
 	initialize("R_ForceCVars", L"hw.dll");
-	return generic_bytepattern_detour(R_ForceCVars, { "\x55\x8B\xEC\x8B\x45\x08\x85\xC0\x0F\x84\x00\x00\x00\x00\xD9" });
+	return detour_using_bytepattern((uintptr_t*)R_ForceCVars);
 }
 
-void R_ForceCVarsFnHook_t::R_ForceCVars(hl::qboolean mp)
+void R_ForceCVars_FnDetour_t::R_ForceCVars(hl::qboolean mp)
 {
 	if (CForceEnableDisabled::the().disable_renderer_cvar_constrain())
 	{
@@ -299,13 +326,13 @@ void R_ForceCVarsFnHook_t::R_ForceCVars(hl::qboolean mp)
 
 //---------------------------------------------------------------------------------
 
-bool V_CalcRefdefFnHook_t::install()
+bool V_CalcRefdef_FnDetour_t::install()
 {
 	initialize("V_CalcRefdef", L"client.dll");
-	return generic_functionaddr_detour(V_CalcRefdef, (uintptr_t*)CMemoryHookMgr::the().cldllfunc().get()->pfnHUD_CalcRef);
+	return detour_using_memory_address((uintptr_t*)V_CalcRefdef, (uintptr_t*)CMemoryHookMgr::the().cl_funcs().get()->pfnHUD_CalcRef);
 }
 
-void V_CalcRefdefFnHook_t::V_CalcRefdef(hl::ref_params_t *pparams)
+void V_CalcRefdef_FnDetour_t::V_CalcRefdef(hl::ref_params_t *pparams)
 {
 	CMemoryFnDetourMgr::the().V_CalcRefdef().call(pparams);
 
@@ -315,13 +342,13 @@ void V_CalcRefdefFnHook_t::V_CalcRefdef(hl::ref_params_t *pparams)
  
 //---------------------------------------------------------------------------------
 
-bool EV_HLDM_FireBulletsFnHook_t::install()
+bool EV_HLDM_FireBullets_FnDetour_t::install()
 {
 	initialize("EV_HLDM_FireBullets", L"client.dll");
-	return generic_bytepattern_detour(EV_HLDM_FireBullets, { "\x81\xEC\x00\x00\x00\x00\xB8" });
+	return detour_using_bytepattern((uintptr_t*)EV_HLDM_FireBullets);
 }
 
-void EV_HLDM_FireBulletsFnHook_t::EV_HLDM_FireBullets(int idx, float* forward, float* right, float* up, int cShots, float* vecSrc, 
+void EV_HLDM_FireBullets_FnDetour_t::EV_HLDM_FireBullets(int idx, float* forward, float* right, float* up, int cShots, float* vecSrc, 
 													  float* vecDirShooting, float* vecSpread, float flDistance, int iBulletType, 
 													  int iTracerFreq, int* tracerCount, int iPenetration)
 {
@@ -336,13 +363,13 @@ void EV_HLDM_FireBulletsFnHook_t::EV_HLDM_FireBullets(int idx, float* forward, f
 
 //---------------------------------------------------------------------------------
 
-bool HUD_RedrawFnHook_t::install()
+bool HUD_Redraw_FnDetour_t::install()
 {
 	initialize("HUD_Redraw", L"client.dll");
-	return generic_functionaddr_detour(HUD_Redraw, (uintptr_t*)CMemoryHookMgr::the().cldllfunc().get()->pfnHUD_Redraw);
+	return detour_using_memory_address((uintptr_t*)HUD_Redraw, (uintptr_t*)CMemoryHookMgr::the().cl_funcs().get()->pfnHUD_Redraw);
 }
 
-int HUD_RedrawFnHook_t::HUD_Redraw(float time, int intermission)
+int HUD_Redraw_FnDetour_t::HUD_Redraw(float time, int intermission)
 {
 	OX_PROFILE_SCOPE("clientdll_hud_redraw");
 	
@@ -355,13 +382,13 @@ int HUD_RedrawFnHook_t::HUD_Redraw(float time, int intermission)
 
 //---------------------------------------------------------------------------------
 
-bool R_StudioDrawPointsFnHook_t::install()
+bool R_GLStudioDrawPoints_FnDetour_t::install()
 {
-	initialize("R_StudioDrawPoints", L"hw.dll");
-	return generic_bytepattern_detour(R_StudioDrawPoints, { "\x55\x8B\xEC\x83\xEC\x48\xA1\x00\x00\x00\x00\x8B\x00\x00\x00\x00\x00\x53\x56\x8B\x70" });
+	initialize("R_GLStudioDrawPoints", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)R_GLStudioDrawPoints);
 }
 
-void R_StudioDrawPointsFnHook_t::R_StudioDrawPoints()
+void R_GLStudioDrawPoints_FnDetour_t::R_GLStudioDrawPoints()
 {
 	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
 	{
@@ -380,27 +407,27 @@ void R_StudioDrawPointsFnHook_t::R_StudioDrawPoints()
 
 	CModelChams::the().executeall_studio_pre();
 
-	CMemoryFnDetourMgr::the().R_StudioDrawPoints().call();
+	CMemoryFnDetourMgr::the().R_GLStudioDrawPoints().call();
 
 	CModelChams::the().executeall_studio_post();
 }
 
 //---------------------------------------------------------------------------------
 
-bool R_LightLambertFnHook_t::install()
+bool R_LightLambert_FnDetour_t::install()
 {
 	initialize("R_LightLambert", L"hw.dll");
-	return generic_bytepattern_detour(R_LightLambert, { "\x55\x8B\xEC\x83\xEC\x24\x8B\x00\x00\x00\x00\x00\x56" });
+	return detour_using_bytepattern((uintptr_t*)R_LightLambert);
 }
 
-void R_LightLambertFnHook_t::R_LightLambert(float** light, float *normal, float *src, float *lambert)
+void R_LightLambert_FnDetour_t::R_LightLambert(float** light, float *normal, float *src, float *lambert)
 {
 	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
 	{
 		return;
 	}
 
-	// function called inside R_StudioDrawPoints() for modifying the color of the rendered model.
+	// function called inside R_GLStudioDrawPoints() for modifying the color of the rendered model.
 
 	CMemoryFnDetourMgr::the().R_LightLambert().call(light, normal, src, lambert);
 
@@ -409,13 +436,13 @@ void R_LightLambertFnHook_t::R_LightLambert(float** light, float *normal, float 
 
 //---------------------------------------------------------------------------------
 
-bool V_FadeAlphaFnHook_t::install()
+bool V_FadeAlpha_FnDetour_t::install()
 {
 	initialize("V_FadeAlpha", L"hw.dll");
-	return generic_bytepattern_detour(V_FadeAlpha, { "\x55\x8B\xEC\x83\xEC\x08\xD9\x05\x00\x00\x00\x00\xDC\x1D" });
+	return detour_using_bytepattern((uintptr_t*)V_FadeAlpha);
 }
 
-int V_FadeAlphaFnHook_t::V_FadeAlpha()
+int V_FadeAlpha_FnDetour_t::V_FadeAlpha()
 {
 	// function for drawing screen fade.
 
@@ -428,13 +455,13 @@ int V_FadeAlphaFnHook_t::V_FadeAlpha()
 
 //---------------------------------------------------------------------------------
 
-bool V_ApplyShakeFnHook_t::install()
+bool V_ApplyShake_FnDetour_t::install()
 {
 	initialize("V_ApplyShake", L"hw.dll");
-	return generic_bytepattern_detour(V_ApplyShake, { "\x55\x8B\xEC\x8D\x45\x10\x8D\x4D\x0C\x50\x8D\x55\x08\x51\x52\xFF\x15\x00\x00\x00\x00\x8B\x45\x08\x83" });
+	return detour_using_bytepattern((uintptr_t*)V_ApplyShake);
 }
 
-void V_ApplyShakeFnHook_t::V_ApplyShake(float* origin, float* angles, float factor)
+void V_ApplyShake_FnDetour_t::V_ApplyShake(float* origin, float* angles, float factor)
 {
 	if (CRemovals::the().remove_screenshake())
 	{
@@ -446,13 +473,13 @@ void V_ApplyShakeFnHook_t::V_ApplyShake(float* origin, float* angles, float fact
 
 //---------------------------------------------------------------------------------
 
-bool S_StartStaticSoundFnHook_t::install()
+bool S_StartStaticSound_FnDetour_t::install()
 {
 	initialize("S_StartStaticSound", L"hw.dll");
-	return generic_bytepattern_detour(S_StartStaticSound, { "\x55\x8B\xEC\x83\xEC\x48\xA1\x00\x00\x00\x00\x53" });
+	return detour_using_bytepattern((uintptr_t*)S_StartStaticSound);
 }
 
-void S_StartStaticSoundFnHook_t::S_StartStaticSound(int entnum, int entchannel, hl::sfx_t* sfx, hl::vec_t* origin, 
+void S_StartStaticSound_FnDetour_t::S_StartStaticSound(int entnum, int entchannel, hl::sfx_t* sfx, hl::vec_t* origin, 
 													float fvol, float attenuation, int flags, int pitch)
 {
 	if (sfx)
@@ -468,13 +495,13 @@ void S_StartStaticSoundFnHook_t::S_StartStaticSound(int entnum, int entchannel, 
 
 //---------------------------------------------------------------------------------
 
-bool R_DrawViewModelFnHook_t::install()
+bool R_DrawViewModel_FnDetour_t::install()
 {
 	initialize("R_DrawViewModel", L"hw.dll");
-	return generic_bytepattern_detour(R_DrawViewModel, { "\x55\x8B\xEC\x83\xEC\x50\xD9" });
+	return detour_using_bytepattern((uintptr_t*)R_DrawViewModel);
 }
 
-void R_DrawViewModelFnHook_t::R_DrawViewModel()
+void R_DrawViewModel_FnDetour_t::R_DrawViewModel()
 {
 	CViewmodelOffset::the().update();
 
@@ -483,13 +510,13 @@ void R_DrawViewModelFnHook_t::R_DrawViewModel()
 
 //---------------------------------------------------------------------------------
 
-bool CPartSmokeGrenade__CreateFnHook_t::install()
+bool CPartSmokeGrenade__Create_FnDetour_t::install()
 {
-	initialize("CPartSmokeGrenade__Create", L"client.dll");
-	return generic_bytepattern_detour(CPartSmokeGrenade__Create, { "\x8B\x00\x00\x00\x00\x00\x56\x57\x68\x00\x00\x00\x00\x8B\x01" });
+	initialize("CPartSmokeGrenade::Create", L"client.dll");
+	return detour_using_bytepattern((uintptr_t*)CPartSmokeGrenade__Create);
 }
 
-hl::CPartSmokeGrenade* __cdecl CPartSmokeGrenade__CreateFnHook_t::CPartSmokeGrenade__Create(
+hl::CPartSmokeGrenade* __cdecl CPartSmokeGrenade__Create_FnDetour_t::CPartSmokeGrenade__Create(
 	hl::CPartSmokeGrenade* _this, Vector org, Vector normal, hl::model_t* sprite, 
 	float size, float brightness, const char* classname)
 {
@@ -506,13 +533,13 @@ hl::CPartSmokeGrenade* __cdecl CPartSmokeGrenade__CreateFnHook_t::CPartSmokeGren
 
 //---------------------------------------------------------------------------------
 
-bool CreateGasSmokeFnHook_t::install()
+bool CreateGasSmoke_FnDetour_t::install()
 {
 	initialize("CreateGasSmoke", L"client.dll");
-	return generic_bytepattern_detour(CreateGasSmoke, { "\x51\xA1\x00\x00\x00\x00\x53\x33" });
+	return detour_using_bytepattern((uintptr_t*)CreateGasSmoke);
 }
 
-void CreateGasSmokeFnHook_t::CreateGasSmoke(Vector origin, Vector vVelocity, bool bInsideSmoke, bool bSpawnInside, bool bBlowable)
+void CreateGasSmoke_FnDetour_t::CreateGasSmoke(Vector origin, Vector vVelocity, bool bInsideSmoke, bool bSpawnInside, bool bBlowable)
 {
 	CMemoryFnDetourMgr::the().CreateGasSmoke().call(origin, vVelocity, bInsideSmoke, bSpawnInside, bBlowable);
 
@@ -521,13 +548,13 @@ void CreateGasSmokeFnHook_t::CreateGasSmoke(Vector origin, Vector vVelocity, boo
 
 //---------------------------------------------------------------------------------
 
-bool CEngine__UnloadFnHook_t::install()
+bool CEngine__Unload_FnDetour_t::install()
 {
-	initialize("CEngine__Unload", L"hw.dll");
-	return generic_bytepattern_detour(CEngine__Unload, { "\x56\x8B\xF1\xE8\x00\x00\x00\x00\xC7\x46" });
+	initialize("CEngine::Unload", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)CEngine__Unload);
 }
 
-void __thiscall CEngine__UnloadFnHook_t::CEngine__Unload(hl::CEngine* ecx)
+void __thiscall CEngine__Unload_FnDetour_t::CEngine__Unload(hl::CEngine* ecx)
 {
 	CConsole::the().info("Game is closing, shutting down cheat...");
 
@@ -550,13 +577,13 @@ void __thiscall CEngine__UnloadFnHook_t::CEngine__Unload(hl::CEngine* ecx)
 
 //---------------------------------------------------------------------------------
 
-bool SCR_CalcRefdefFnHook_t::install()
+bool SCR_CalcRefdef_FnDetour_t::install()
 {
 	initialize("SCR_CalcRefdef", L"hw.dll");
-	return generic_bytepattern_detour(SCR_CalcRefdef, { "\x55\x8B\xEC\x83\xEC\x0C\xD9\x05\x00\x00\x00\x00\xD8\x1D\x00\x00\x00\x00\x33" });
+	return detour_using_bytepattern((uintptr_t*)SCR_CalcRefdef);
 }
 
-void SCR_CalcRefdefFnHook_t::SCR_CalcRefdef()
+void SCR_CalcRefdef_FnDetour_t::SCR_CalcRefdef()
 {
 	// fov gets capped inside this function.
 
@@ -567,13 +594,13 @@ void SCR_CalcRefdefFnHook_t::SCR_CalcRefdef()
 
 //---------------------------------------------------------------------------------
 
-bool SCR_UpdateScreenFnHook_t::install()
+bool SCR_UpdateScreen_FnDetour_t::install()
 {
 	initialize("SCR_UpdateScreen", L"hw.dll");
-	return generic_bytepattern_detour(SCR_UpdateScreen, { "\x55\x8B\xEC\x83\xEC\x10\xA1\x00\x00\x00\x00\x56\x33\xF6\x3B\xC6\x0F" });
+	return detour_using_bytepattern((uintptr_t*)SCR_UpdateScreen);
 }
 
-void SCR_UpdateScreenFnHook_t::SCR_UpdateScreen()
+void SCR_UpdateScreen_FnDetour_t::SCR_UpdateScreen()
 {
 	if (CFrameSkipper::the().skip_current_frame())
 	{
@@ -585,13 +612,13 @@ void SCR_UpdateScreenFnHook_t::SCR_UpdateScreen()
 
 //---------------------------------------------------------------------------------
 
-bool SPR_SetFnHook_t::install()
+bool SPR_Set_FnDetour_t::install()
 {
 	initialize("SPR_Set", L"hw.dll");
-	return generic_functionaddr_detour(SPR_Set, (uintptr_t*)CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_Set);
+	return detour_using_memory_address((uintptr_t*)SPR_Set, (uintptr_t*)CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_Set);
 }
 
-void SPR_SetFnHook_t::SPR_Set(hl::HSPRITE_t hSprite, int r, int g, int b)
+void SPR_Set_FnDetour_t::SPR_Set(hl::HSPRITE_t hSprite, int r, int g, int b)
 {
 	// Handles sprite color
 	
@@ -605,13 +632,13 @@ void SPR_SetFnHook_t::SPR_Set(hl::HSPRITE_t hSprite, int r, int g, int b)
 
 //---------------------------------------------------------------------------------
 
-bool CGame__AppActivateFnHook_t::install()
+bool CGame__AppActivate_FnDetour_t::install()
 {
-	initialize("CGame__AppActivate", L"hw.dll");
-	return generic_bytepattern_detour(CGame__AppActivate, { "\x55\x8B\xEC\x51\x53\x8B\x5D\x08\x56\x8B\xF1\x84" });
+	initialize("CGame::AppActivate", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)CGame__AppActivate);
 }
 
-void __thiscall CGame__AppActivateFnHook_t::CGame__AppActivate(void* ecx, bool fActive)
+void __thiscall CGame__AppActivate_FnDetour_t::CGame__AppActivate(void* ecx, bool fActive)
 {
 	// is called when the window is focused/unfocused.
 
@@ -626,13 +653,13 @@ void __thiscall CGame__AppActivateFnHook_t::CGame__AppActivate(void* ecx, bool f
 
 //---------------------------------------------------------------------------------
 
-bool CHudAmmo__DrawCrosshairFnHook_t::install()
+bool CHudAmmo__DrawCrosshair_FnDetour_t::install()
 {
-	initialize("CHudAmmo__DrawCrosshair", L"client.dll");
-	return generic_bytepattern_detour(CHudAmmo__DrawCrosshair, { "\x83\xEC\x08\x8B\x44\x24\x10\x53\x55\x56\x57" });
+	initialize("CHudAmmo::DrawCrosshair", L"client.dll");
+	return detour_using_bytepattern((uintptr_t*)CHudAmmo__DrawCrosshair);
 }
 
-int __thiscall CHudAmmo__DrawCrosshairFnHook_t::CHudAmmo__DrawCrosshair(void* ecx, float flTime, int weaponid)
+int __thiscall CHudAmmo__DrawCrosshair_FnDetour_t::CHudAmmo__DrawCrosshair(void* ecx, float flTime, int weaponid)
 {
 	if (crosshair_enable.get_value())
 	{
@@ -645,13 +672,13 @@ int __thiscall CHudAmmo__DrawCrosshairFnHook_t::CHudAmmo__DrawCrosshair(void* ec
 
 //---------------------------------------------------------------------------------
 
-bool R_StudioDrawPlayerFnHook_t::install()
+bool R_StudioDrawPlayer_FnDetour_t::install()
 {
 	initialize("R_StudioDrawPlayer", L"hw.dll");
-	return generic_functionaddr_detour(R_StudioDrawPlayer, (uintptr_t*)(*CMemoryHookMgr::the().pStudioAPI().get())->StudioDrawPlayer);
+	return detour_using_memory_address((uintptr_t*)R_StudioDrawPlayer, (uintptr_t*)(*CMemoryHookMgr::the().pStudioAPI().get())->StudioDrawPlayer);
 }
 
-int R_StudioDrawPlayerFnHook_t::R_StudioDrawPlayer(int flags, hl::entity_state_t* pplayer)
+int R_StudioDrawPlayer_FnDetour_t::R_StudioDrawPlayer(int flags, hl::entity_state_t* pplayer)
 {
 	if (mdlchams_player_skeleton.get_value())
 	{

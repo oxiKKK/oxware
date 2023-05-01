@@ -30,7 +30,7 @@
 
 bool CUserMSGDetourMgr::install_hooks()
 {
-	if (!HideWeapon_fn().install(HideWeapon_f, "HideWeapon")) return false;
+	if (!HideWeapon_fn().install_usermsg(HideWeapon_f, "HideWeapon")) return false;
 
 	return true;
 }
@@ -39,12 +39,17 @@ void CUserMSGDetourMgr::uninstall_hooks()
 {
 	// reset to original state.
 	int reset_value = 0;
-	CUserMSGDetourMgr::the().HideWeapon_fn().call(sizeof(byte), &reset_value);
+	if (CUserMSGDetourMgr::the().HideWeapon_fn().is_installed())
+	{
+		CUserMSGDetourMgr::the().HideWeapon_fn().call_usermsg(sizeof(byte), &reset_value);
+	}
 
 	HideWeapon_fn().uninstall();
 }
 
+//---------------------------------------------------------------------------------
+
 int CUserMSGDetourMgr::HideWeapon_f(const char* pszName, int iSize, void* pbuf)
 {
-	return CUserMSGDetourMgr::the().HideWeapon_fn().call(iSize, pbuf);
+	return CUserMSGDetourMgr::the().HideWeapon_fn().call_usermsg(iSize, pbuf);
 }

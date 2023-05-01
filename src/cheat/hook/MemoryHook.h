@@ -34,88 +34,158 @@
 #define MEMORYHOOK_H
 #pragma once
 
+// objects that reperesents a generic hookable memory address.
 template<typename T>
-class CGenericMemHook
+class GenericMemoryHook : public TestableHook
 {
 public:
+	inline bool is_initialized() const { return !m_module_name.empty() && !m_name.empty(); }
 	inline bool is_installed() const { return is_initialized() && m_address != nullptr; }
+
+	// getters
 	inline std::string get_name() const { return m_name; }
 	inline std::string get_module_name() const { return m_name; }
 
 	virtual bool install() = 0;
 
-	void uninstall()
-	{
-		return; // this caused some issues, and isn't really needed anywehere so just disable it for now. TODO.
-		if (!is_installed())
-			return;
-
-		if (m_make_copy && m_address)
-		{
-			memcpy(m_address , &m_copy, sizeof(T)); // restore original memory
-		}
-	}
-
-	// store copy of the data we're hooking locally.
-	void make_memory_snapshot()
-	{
-		if (m_make_copy && m_address)
-		{
-			memcpy(&m_copy, m_address, sizeof(T));
-		}
-	}
-	
 protected:
-	inline void initialize(const char* name, const wchar_t* module_name, bool make_copy = true)
+	inline void initialize(const char* name, const wchar_t* module_name)
 	{
-		assert(!is_installed());
 		m_name = name;
 		m_module_name = module_name;
-		m_make_copy = make_copy;
-		CConsole::the().info("Installing {} hook from {}...", m_name, CStringTools::the().unicode_to_utf8(m_module_name));
+
+#ifdef ENABLE_HOOK_TESTING
+		add_to_test();
+#endif
 	}
 
-	// generic handles for finding the hook inside memory
-	bool generic_bytepattern_installer(const CBytePattern& pattern, size_t dereference_count = 1, const std::function<void(uintptr_t** address)>& modify_address = NULL);
+	// generic handlers for finding the hook inside memory
+	virtual bool install_using_bytepattern(size_t dereference_count, const std::function<void(uintptr_t** address)>& modify_address = NULL);
+	virtual bool install_using_exported_name(const char* export_name);
+	virtual bool install_using_memory_address(uintptr_t* memory_address);
 
-	inline bool is_initialized() const { return !m_module_name.empty() && !m_name.empty(); }
+private:
+	//
+	// convenience code
+	//
+
+	void on_hook_install_begin(const char* install_method)
+	{
+		assert(is_initialized() && "hook must be initialized first before installed!");
+
+		CConsole::the().info("Installing hook '{}' ({}) using '{}'...", m_name, CStringTools::the().unicode_to_utf8(m_module_name), install_method);
+	}
+
+	void on_hook_install_success()
+	{
+		CConsole::the().info("Found at 0x{:08X}", (uintptr_t)m_address);
+	}
+
+	template <class... _Types>
+	void on_hook_install_fail(const std::format_string<_Types...> _Fmt, _Types&&... _Args)
+	{
+		std::string formatted_error = std::vformat(_Fmt.get(), std::make_format_args(_Args...));
+
+		CMessageBox::display_error("Failed to install hook '{}' from '{}' !!!\n\nDetails: {}",
+								   m_name, CStringTools::the().unicode_to_utf8(m_module_name),
+								   formatted_error);
+	}
+
+public:
+	//
+	// testing
+	//
+
+	virtual void add_to_test()
+	{
+		CHookTests::the().add_for_testing("MemoryHook", this);
+	}
+
+	// default testing for this hook
+	virtual void default_test_hook()
+	{
+		// see if the address isn't invalid
+		CHookTests::the().run_seh_protected_block(
+			m_name,
+			[&]()
+			{
+				return is_within_address_space();
+			}, 
+			true);
+	}
+
+protected:
+	bool is_within_address_space()
+	{
+		auto [base, end] = g_libloader_i->get_loaded_dll_address_space(m_module_name.c_str(), SPACE_FULL);
+
+		if (!base || !end)
+		{
+			return false;
+		}
+
+		uintptr_t addr = (uintptr_t)m_address;
+
+		// see if there's a detour installed
+		uint8_t op = *((uint8_t*)m_address);
+		bool is_detoured = op == (uint8_t)'\xE9';
+
+		// see if in address space of presumed module.
+		bool out_of_range = (addr >= base && addr < ((end - 1) - sizeof(uintptr_t)));
+		if (!out_of_range)
+		{
+			// if it's detoured, then it's completely outside of the dll address space
+			if (!is_detoured)
+			{
+				CConsole::the().error("Hook '{}' out of range: is 0x{:08X} but the range is [0x{:08X}; 0x{:08X}] (module: {})",
+									 m_name, addr, base, ((end - 1) - sizeof(uintptr_t)), CStringTools::the().unicode_to_utf8(m_module_name));
+				return false;
+			}
+		}
+
+		return true; // ok
+	}
 
 public:
 	// get either base or specific element if this is an array.
-	T* get() const { assert(is_installed() && "The hook isn't installed!"); return reinterpret_cast<T*>(m_address); }
+	T* get() const
+	{
+		assert(is_installed() && "The hook isn't installed!");
+		assert(m_address && "Accessing nullptr hook pointer!");
 
-private:
+		return reinterpret_cast<T*>(m_address);
+	}
+
+protected:
 	std::wstring m_module_name = L"";
 	std::string m_name = "";
 	uintptr_t* m_address = nullptr;
-
-	// this holds the copy of the object after its hooked. This is so that if the object data
-	// is modified, we can then restore its original values my copying this data to the memory
-	// after we're unloading.
-	T m_copy;
-	bool m_make_copy = false; // this is optional
 };
 
 // Searches for a byte pattern of where the memory you wanna hook is used (e.g. a global variable), then dereferences it to get its base address.
 template<typename T>
-inline bool CGenericMemHook<T>::generic_bytepattern_installer(const CBytePattern& pattern, size_t dereference_count, const std::function<void(uintptr_t** address)>& modify_address)
+inline bool GenericMemoryHook<T>::install_using_bytepattern(size_t dereference_count, const std::function<void(uintptr_t** address)>& modify_address)
 {
-	assert(is_initialized());
+	on_hook_install_begin("byte pattern");
 
 	auto [base, end] = g_libloader_i->get_loaded_dll_address_space(m_module_name.c_str(), SPACE_CODE);
-
 	if (!base || !end)
 	{
-		CConsole::the().error("Can't install hook. Dll probably not loaded in address space.", 
-							  CStringTools::the().unicode_to_utf8((m_module_name.c_str())));
+		on_hook_install_fail("Can't install hook. Dll probably not loaded in address space.");
 		return false;
 	}
 
-	m_address = pattern.search_in_loaded_address_space(base, end);
-	if (!m_address)
+	CBytePattern p = g_bytepattern_bank_i->get_pattern(m_name);
+	if (p.empty())
 	{
-		CConsole::the().error("Failed to install {} hook from {}. Byte pattern is '{}'",
-							  m_name, CStringTools::the().unicode_to_utf8(m_module_name), pattern.pattern_as_string());
+		on_hook_install_fail("Couldn't find byte pattern for current hook inside the bank!!!");
+		return false;
+	}
+
+	m_address = p.search_in_loaded_address_space(base, end);
+	if (!m_address) 
+	{
+		on_hook_install_fail("Byte pattern inside the module couldn't be found!");
 		return false;
 	}
 
@@ -130,155 +200,177 @@ inline bool CGenericMemHook<T>::generic_bytepattern_installer(const CBytePattern
 		modify_address(&m_address);
 	}
 
+	on_hook_install_success();
+	return true;
+}
+
+template<typename T>
+inline bool GenericMemoryHook<T>::install_using_exported_name(const char* export_name)
+{
+	on_hook_install_begin("exported name");
+
+	uintptr_t module_base = (uintptr_t)g_libloader_i->load_library(NULL, m_module_name.c_str());
+	if (!module_base)
+	{
+		on_hook_install_fail("Can't install hook. Dll couldn't be found inside process memory.");
+		return false;
+	}
+
+	m_address = (uintptr_t*)g_libloader_i->find_proc_in_target_library(module_base, export_name);
+	if (!m_address)
+	{
+		on_hook_install_fail("Exported name '{}' couldn't be found inside the module.", export_name);
+		return false;
+	}
+
 	CConsole::the().info("Found {} at 0x{:08X}", m_name, (uintptr_t)m_address);
 
-	make_memory_snapshot();
+	on_hook_install_success();
+	return true;
+}
 
+template<typename T>
+inline bool GenericMemoryHook<T>::install_using_memory_address(uintptr_t* memory_address)
+{
+	on_hook_install_begin("memory address");
+
+	m_address = memory_address;
+	if (!m_address)
+	{
+		on_hook_install_fail("Can't install hook, the memory address provided for the hook is nullptr!");
+		return false;
+	}
+
+	CConsole::the().info("Found {} at {}", m_name, (uintptr_t)m_address);
+
+	on_hook_install_success();
 	return true;
 }
 
 //-----------------------------------------------------------------------------
 
-class CClDllFuncHook final : public CGenericMemHook<hl::cldll_func_t>
+// cldll_func_t cl_funcs;
+struct cl_funcs_MemoryHook final : public GenericMemoryHook<hl::cldll_func_t> 
 {
-public: 
 	bool install() override;
+	void test_hook() override;
 };
 
 // cl_enginefunc_t gEngfuncs;
-// obtained from ClientDLL_Init()
-class cl_enginefuncsHook final : public CGenericMemHook<hl::cl_enginefunc_t>
+struct cl_enginefuncs_MemoryHook final : public GenericMemoryHook<hl::cl_enginefunc_t>
 {
-public: 
 	bool install() override;
+	void test_hook() override;
 };
 
 // HWND *pmainwindow;
-class pmainwindowHook final : public CGenericMemHook<HWND*>
+struct pmainwindow_MemoryHook final : public GenericMemoryHook<HWND*>
 {
-public: 
 	bool install() override;
+	void test_hook() override;
 };
 
 // qboolean host_initialized
-class host_initializedHook final : public CGenericMemHook<hl::qboolean>
+struct host_initialized_MemoryHook final : public GenericMemoryHook<hl::qboolean>
 {
-public: 
 	bool install() override;
+	void test_hook() override;
 };
 
 // edict_t* sv_player
-// obtained from Host_God_f()
-class sv_playerHook final : public CGenericMemHook<hl::edict_t*>
+struct sv_player_MemoryHook final : public GenericMemoryHook<hl::edict_t*>
 {
-public: 
 	bool install() override;
 };
 
 // client_state_t cl;
-// obtained from CL_ClearClientState()
-class clHook final : public CGenericMemHook<hl::client_state_t>
+struct cl_MemoryHook final : public GenericMemoryHook<hl::client_state_t>
 {
-public: 
 	bool install() override;
+	void test_hook() override;
 };
 
 // client_static_t cls;
-// obtained from CL_ConnectClient()
-class clsHook final : public CGenericMemHook<hl::client_static_t>
+struct cls_MemoryHook final : public GenericMemoryHook<hl::client_static_t>
 {
-public: 
 	bool install() override;
+	void test_hook() override;
 };
 
 // globalvars_t gGlobalVariables;
-// obtained from CL_ConnectClient()
-class gGlobalVariablesHook final : public CGenericMemHook<hl::globalvars_t>
+struct gGlobalVariables_MemoryHook final : public GenericMemoryHook<hl::globalvars_t>
 {
-public: 
 	bool install() override;
+	void test_hook() override;
 };
 
 // float scr_fov_value;
-// obtained from CL_ConnectClient()
-class scr_fov_valueHook final : public CGenericMemHook<float>
+struct scr_fov_value_MemoryHook final : public GenericMemoryHook<float>
 {
-public: 
-	bool install() override;
+	bool install() override; 
+	void test_hook() override;
 };
 
 // extra_player_info_t g_PlayerExtraInfo[MAX_PLAYERS + 1];
-// obtained from ...
-class g_PlayerExtraInfoHook final : public CGenericMemHook<hl::extra_player_info_t>
+struct g_PlayerExtraInfo_MemoryHook final : public GenericMemoryHook<hl::extra_player_info_t> 
 {
-public: 
-	bool install() override;
+	bool install() override; 
+	void test_hook() override;
 };
 
 // engine_studio_api_t engine_studio_api
-// obtained from ...
-class engine_studio_apiHook final : public CGenericMemHook<hl::engine_studio_api_t>
+struct engine_studio_api_MemoryHook final : public GenericMemoryHook<hl::engine_studio_api_t> 
 {
-public: 
 	bool install() override;
+	void test_hook() override;
 };
 
 // svc_func_t cl_parsefuncs[]
-// obtained from ...
-class cl_parsefuncsHook final : public CGenericMemHook<hl::svc_func_t>
-{
-public: 
+struct cl_parsefuncs_MemoryHook final : public GenericMemoryHook<hl::svc_func_t> 
+{ 
 	bool install() override;
+	void test_hook() override;
 };
 
 // playermove_t* pmove;
-// obtained from ...
-class pmoveHook final : public CGenericMemHook<hl::playermove_t>
-{
-public: 
+struct pmove_MemoryHook final : public GenericMemoryHook<hl::playermove_t*>
+{ 
 	bool install() override;
+	void test_hook() override;
 };
 
 // UserMsg* gClientUserMsgs;
-// obtained from ...
-class gClientUserMsgsHook final : public CGenericMemHook<hl::UserMsg*>
-{
-public: 
-	bool install() override;
+struct gClientUserMsgs_MemoryHook final : public GenericMemoryHook<hl::UserMsg*> 
+{ 
+	bool install() override; 
+	void test_hook() override;
 };
 
 // int g_iShotsFired;
-// obtained from CHudAmmo::DrawCrosshair
-class g_iShotsFiredHook final : public CGenericMemHook<int>
-{
-public: 
-	bool install() override;
+struct g_iShotsFired_MemoryHook final : public GenericMemoryHook<int> 
+{ 
+	bool install() override; 
 };
 
 // model_t* r_model;
 // currently rendered model inside the studio code.
-// obtained from R_GLStudioDrawPoints
-class r_modelHook final : public CGenericMemHook<hl::model_t*>
-{
-public:
-	bool install() override;
+struct r_model_MemoryHook final : public GenericMemoryHook<hl::model_t*> 
+{ 
+	bool install() override; 
 };
 
 // studiohdr_t* pstudiohdr;
 // header of currently rendered model inside the studio code.
-// obtained from 
-class pstudiohdrHook final : public CGenericMemHook<hl::studiohdr_t*>
+struct pstudiohdr_MemoryHook final : public GenericMemoryHook<hl::studiohdr_t*> 
 {
-public:
-	bool install() override;
+	bool install() override; 
 };
 
 // r_studio_interface_t* pStudioAPI;
-// obtained from 
-class pStudioAPIHook final : public CGenericMemHook<hl::r_studio_interface_t*>
-{
-public:
-	bool install() override;
+struct pStudioAPI_MemoryHook final : public GenericMemoryHook<hl::r_studio_interface_t*> 
+{ 
+	bool install() override; 
+	void test_hook() override;
 };
 
 //-----------------------------------------------------------------------------
@@ -290,28 +382,29 @@ public:
 
 public:
 	bool install_hooks();
-	void uninstall_hooks();
 
+	//
 	// individual hooks
+	//
 
-	inline static auto& cldllfunc() { static CClDllFuncHook hook; return hook; };
-	inline static auto& cl_enginefuncs() { static cl_enginefuncsHook hook; return hook; };
-	inline static auto& pmainwindow() { static pmainwindowHook hook; return hook; };
-	inline static auto& host_initialized() { static host_initializedHook hook; return hook; };
-	inline static auto& sv_player() { static sv_playerHook hook; return hook; };
-	inline static auto& cl() { static clHook hook; return hook; };
-	inline static auto& cls() { static clsHook hook; return hook; };
-	inline static auto& gGlobalVariables() { static gGlobalVariablesHook hook; return hook; };
-	inline static auto& scr_fov_value() { static scr_fov_valueHook hook; return hook; };
-	inline static auto& g_PlayerExtraInfo() { static g_PlayerExtraInfoHook hook; return hook; };
-	inline static auto& engine_studio_api() { static engine_studio_apiHook hook; return hook; };
-	inline static auto& cl_parsefuncs() { static cl_parsefuncsHook hook; return hook; };
-	inline static auto& pmove() { static pmoveHook hook; return hook; };
-	inline static auto& gClientUserMsgs() { static gClientUserMsgsHook hook; return hook; };
-	inline static auto& g_iShotsFired() { static g_iShotsFiredHook hook; return hook; };
-	inline static auto& r_model() { static r_modelHook hook; return hook; };
-	inline static auto& pstudiohdr() { static pstudiohdrHook hook; return hook; };
-	inline static auto& pStudioAPI() { static pStudioAPIHook hook; return hook; };
+	inline static auto& cl_funcs() { static cl_funcs_MemoryHook hook; return hook; };
+	inline static auto& cl_enginefuncs() { static cl_enginefuncs_MemoryHook hook; return hook; };
+	inline static auto& pmainwindow() { static pmainwindow_MemoryHook hook; return hook; };
+	inline static auto& host_initialized() { static host_initialized_MemoryHook hook; return hook; };
+	inline static auto& sv_player() { static sv_player_MemoryHook hook; return hook; };
+	inline static auto& cl() { static cl_MemoryHook hook; return hook; };
+	inline static auto& cls() { static cls_MemoryHook hook; return hook; };
+	inline static auto& gGlobalVariables() { static gGlobalVariables_MemoryHook hook; return hook; };
+	inline static auto& scr_fov_value() { static scr_fov_value_MemoryHook hook; return hook; };
+	inline static auto& g_PlayerExtraInfo() { static g_PlayerExtraInfo_MemoryHook hook; return hook; };
+	inline static auto& engine_studio_api() { static engine_studio_api_MemoryHook hook; return hook; };
+	inline static auto& cl_parsefuncs() { static cl_parsefuncs_MemoryHook hook; return hook; };
+	inline static auto& pmove() { static pmove_MemoryHook hook; return hook; };
+	inline static auto& gClientUserMsgs() { static gClientUserMsgs_MemoryHook hook; return hook; };
+	inline static auto& g_iShotsFired() { static g_iShotsFired_MemoryHook hook; return hook; };
+	inline static auto& r_model() { static r_model_MemoryHook hook; return hook; };
+	inline static auto& pstudiohdr() { static pstudiohdr_MemoryHook hook; return hook; };
+	inline static auto& pStudioAPI() { static pStudioAPI_MemoryHook hook; return hook; };
 };
 
 #endif // MEMORYHOOK_H

@@ -93,7 +93,7 @@ Vector CBulletTrace::calc_bullet_endpos(const Vector& source, const Vector& shoo
 
 Vector CBulletTrace::calc_traced_bullet_endpos(const Vector& source, const Vector& end)
 {
-	auto pm = CMemoryHookMgr::the().pmove().get();
+	auto pm = *CMemoryHookMgr::the().pmove().get();
 	auto trace = pm->PM_TraceLine((float*)&source, (float*)&end, PM_TRACELINE_ANYVISIBLE, pm->usehull, -1);
 
 	return trace->endpos;

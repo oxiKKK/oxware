@@ -31,37 +31,39 @@
 bool CHLNetMessageIO::install_hooks()
 {
 	// net message & others
-	if (!net_message().install()) return false;
-	if (!msg_readcount().install()) return false;
-	if (!bfread().install()) return false;
+	net_message().install();
+	msg_readcount().install();
+	bfread().install();
 
 	// bit reading
-	if (!MSG_StartBitReading().install()) return false;
-	if (!MSG_EndBitReading().install()) return false;
-	if (!MSG_ReadBits().install()) return false;
-	if (!MSG_ReadSBits().install()) return false;
-	if (!MSG_ReadBitCoord().install()) return false;
-	if (!MSG_ReadBitVec3Coord().install()) return false;
+	MSG_StartBitReading().install();
+	MSG_EndBitReading().install();
+	MSG_ReadBits().install();
+	MSG_ReadSBits().install();
+	MSG_ReadBitCoord().install();
+	MSG_ReadBitVec3Coord().install();
 
 	// reading
-	if (!MSG_ReadChar().install()) return false;
-	if (!MSG_ReadByte().install()) return false;
-	if (!MSG_ReadShort().install()) return false;
-	if (!MSG_ReadWord().install()) return false;
-	if (!MSG_ReadLong().install()) return false;
-	if (!MSG_ReadFloat().install()) return false;
-	if (!MSG_ReadString().install()) return false;
-	if (!MSG_ReadCoord().install()) return false;
+	MSG_ReadChar().install();
+	MSG_ReadByte().install();
+	MSG_ReadShort().install();
+	MSG_ReadWord().install();
+	MSG_ReadLong().install();
+	MSG_ReadFloat().install();
+	MSG_ReadString().install();
+	MSG_ReadCoord().install();
 
 	// writing
-	if (!MSG_WriteChar().install()) return false;
-	if (!MSG_WriteByte().install()) return false;
-	if (!MSG_WriteShort().install()) return false;
-	if (!MSG_WriteWord().install()) return false;
-	if (!MSG_WriteLong().install()) return false;
-	if (!MSG_WriteFloat().install()) return false;
-	if (!MSG_WriteString().install()) return false;
-	if (!MSG_WriteCoord().install()) return false;
+	MSG_WriteChar().install();
+	MSG_WriteByte().install();
+	MSG_WriteShort().install();
+	MSG_WriteWord().install();
+	MSG_WriteLong().install();
+	MSG_WriteFloat().install();
+	MSG_WriteString().install();
+	MSG_WriteCoord().install();
+
+	m_initialized_hooks = true;
 
 	return true;
 }
@@ -91,7 +93,7 @@ void CHLNetMessageIO::end_silent_bit_reading()
 }
 
 uint32_t CHLNetMessageIO::read_bits(int numbits)
-{	
+{
 	return MSG_ReadBits().call(numbits);
 }
 
@@ -228,37 +230,37 @@ void CHLNetMessageIO::write_coord(float coord)
 bool MSG_StartBitReadingFnHook_t::install()
 {
 	initialize("MSG_StartBitReading", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\xA1\x00\x00\x00\x00\x33\xC9\x89" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_EndBitReadingFnHook_t::install()
 {
 	initialize("MSG_EndBitReading", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x8B\x4D\x08\xA1\x00\x00\x00\x00\x3B" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_ReadBitsFnHook_t::install()
 {
 	initialize("MSG_ReadBits", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\xA1\x00\x00\x00\x00\x85\xC0\x74\x00\xB8" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_ReadSBitsFnHook_t::install()
 {
 	initialize("MSG_ReadSBits", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x56\xE8\x00\x00\x00\x00\x8B\xF0\x8B" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_ReadBitCoordFnHook_t::install()
 {
 	initialize("MSG_ReadBitCoord", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x83\xEC\x10\x56\x57\xC7" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_ReadBitVec3CoordFnHook_t::install()
 {
 	initialize("MSG_ReadBitVec3Coord", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x53\x56\x57\xE8\x00\x00\x00\x00\x8B\xF0" });
+	return install_using_bytepattern(0);
 }
 
 //----------------------------------------------------------------------
@@ -266,49 +268,49 @@ bool MSG_ReadBitVec3CoordFnHook_t::install()
 bool MSG_ReadCharFnHook_t::install()
 {
 	initialize("MSG_ReadChar", L"hw.dll");
-	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x8B\x00\x00\x00\x00\x00\x8D\x48\x01\x3B\xCA\x7E\x00\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00\x83\xC8\xFF\xC3\x8B" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_ReadByteFnHook_t::install()
 {
 	initialize("MSG_ReadByte", L"hw.dll");
-	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x8B\x00\x00\x00\x00\x00\x8D\x48\x01\x3B\xCA\x7E\x00\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00\x83\xC8\xFF\xC3\x56" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_ReadShortFnHook_t::install()
 {
 	initialize("MSG_ReadShort", L"hw.dll");
-	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x8B\x00\x00\x00\x00\x00\x8D\x50" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_ReadWordFnHook_t::install()
 {
 	initialize("MSG_ReadWord", L"hw.dll");
-	return generic_bytepattern_installer({ "\x8B\x00\x00\x00\x00\x00\xA1\x00\x00\x00\x00\x57\x8D\x79\x02" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_ReadLongFnHook_t::install()
 {
 	initialize("MSG_ReadLong", L"hw.dll");
-	return generic_bytepattern_installer({ "\x8B\x00\x00\x00\x00\x00\xA1\x00\x00\x00\x00\x57\x8D\x79\x04" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_ReadFloatFnHook_t::install()
 {
 	initialize("MSG_ReadFloat", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x51\xA1\x00\x00\x00\x00\x8B\x00\x00\x00\x00\x00\x8A" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_ReadStringFnHook_t::install()
 {
 	initialize("MSG_ReadString", L"hw.dll");
-	return generic_bytepattern_installer({ "\x53\x56\x33\xDB\x33\xF6\xE8\x00\x00\x00\x00\x83\xF8\xFF\x74\x00\x3B\xC3\x74\x00\x88" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_ReadCoordFnHook_t::install()
 {
 	initialize("MSG_ReadCoord", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x83\xEC\x08\xE8\x00\x00\x00\x00\x8B\x00\x00\x00\x00\x00\x85\xC9\x74\x00\xD9" });
+	return install_using_bytepattern(0);
 }
 
 //----------------------------------------------------------------------
@@ -316,49 +318,49 @@ bool MSG_ReadCoordFnHook_t::install()
 bool MSG_WriteCharFnHook_t::install()
 {
 	initialize("MSG_WriteChar", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x8B\x45\x08\x6A\x01\x50\xE8\x00\x00\x00\x00\x8A\x4D\x0C\x83\xC4\x08\x88\x08\x5D\xC3\x90\x90\x90\x90\x90\x90\x90\x90\x55\x8B\xEC\x8B\x45\x08\x6A\x01" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_WriteByteFnHook_t::install()
 {
 	initialize("MSG_WriteByte", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x8B\x45\x08\x6A\x01\x50\xE8\x00\x00\x00\x00\x8A\x4D\x0C\x83\xC4\x08\x88\x08\x5D\xC3\x90\x90\x90\x90\x90\x90\x90\x90\x55\x8B\xEC\x8B\x45\x08\x6A\x02" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_WriteShortFnHook_t::install()
 {
 	initialize("MSG_WriteShort", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x8B\x45\x08\x6A\x02\x50\xE8\x00\x00\x00\x00\x8B\x4D\x0C\x83\xC4\x08\x88\x08\xC1\xF9\x08\x88\x48\x01\x5D\xC3\x90\x90\x55\x8B\xEC\x8B\x45\x08\x6A\x02" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_WriteWordFnHook_t::install()
 {
 	initialize("MSG_WriteWord", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x8B\x45\x08\x6A\x02\x50\xE8\x00\x00\x00\x00\x8B\x4D\x0C\x83\xC4\x08\x88\x08\xC1\xF9\x08\x88\x48\x01\x5D\xC3\x90\x90\x55\x8B\xEC\x8B\x45\x08\x6A\x04" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_WriteLongFnHook_t::install()
 {
 	initialize("MSG_WriteLong", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x8B\x45\x08\x6A\x04" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_WriteFloatFnHook_t::install()
 {
 	initialize("MSG_WriteFloat", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x8B\x45\x0C\x50\x89" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_WriteStringFnHook_t::install()
 {
 	initialize("MSG_WriteString", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\x56\x8B\x75\x0C\x85\xF6\x75" });
+	return install_using_bytepattern(0);
 }
 
 bool MSG_WriteCoordFnHook_t::install()
 {
 	initialize("MSG_WriteCoord", L"hw.dll");
-	return generic_bytepattern_installer({ "\x55\x8B\xEC\xD9\x45\x0C\xD8" });
+	return install_using_bytepattern(0);
 }
 
 //----------------------------------------------------------------------
@@ -366,17 +368,17 @@ bool MSG_WriteCoordFnHook_t::install()
 bool net_messageHook::install()
 {
 	initialize("net_message", L"hw.dll");
-	return generic_bytepattern_installer({ "\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x83\xC4\x04\x6A\x10", 0x1 });
+	return install_using_bytepattern(1);
 }
 
 bool msg_readcountHook::install()
 {
 	initialize("msg_readcount", L"hw.dll");
-	return generic_bytepattern_installer({ "\x8B\x00\x00\x00\x00\x00\x50\x49", 0x2 });
+	return install_using_bytepattern(1);
 }
 
 bool bfreadHook::install()
 {
 	initialize("bfread", L"hw.dll");
-	return generic_bytepattern_installer({ "\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x83\xC4\x18\xC3\x55", 0x1 });
+	return install_using_bytepattern(1);
 }

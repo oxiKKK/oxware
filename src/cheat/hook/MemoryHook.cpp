@@ -31,7 +31,7 @@
 bool CMemoryHookMgr::install_hooks()
 {
 	// let's install individual hooks.
-	if (!cldllfunc().install()) return false;
+	if (!cl_funcs().install()) return false;
 	if (!cl_enginefuncs().install()) return false;
 	if (!pmainwindow().install()) return false;
 	// host_initialized gets installed while initialization because it's needed in order to continue initing.
@@ -53,102 +53,244 @@ bool CMemoryHookMgr::install_hooks()
 	return true;
 }
 
-void CMemoryHookMgr::uninstall_hooks()
+//-----------------------------------------------------------------------------
+
+bool cl_funcs_MemoryHook::install()
 {
-	// now, uninstall everything and restore original memory.
-	cldllfunc().uninstall();
-	cl_enginefuncs().uninstall();
-	pmainwindow().uninstall();
-	host_initialized().uninstall();
-	sv_player().uninstall();
-	cl().uninstall();
-	cls().uninstall();
-	gGlobalVariables().uninstall();
-	scr_fov_value().uninstall();
-	g_PlayerExtraInfo().uninstall();
-	engine_studio_api().uninstall();
-	cl_parsefuncs().uninstall();
-	pmove().uninstall();
-	gClientUserMsgs().uninstall();
-	g_iShotsFired().uninstall();
-	r_model().uninstall();
-	pstudiohdr().uninstall();
-	pStudioAPI().uninstall();
+	initialize("cl_funcs", L"hw.dll");
+	return install_using_bytepattern(1);
+}
+
+void cl_funcs_MemoryHook::test_hook()
+{
+	auto p = get();
+	hl::qboolean is_3rdperson;
+
+	CHookTests::the().run_seh_protected_block(
+		m_name, 
+		[&]()
+		{
+			// see if we won't crash
+			is_3rdperson = p->pfnHUD_CL_IsThirdperson();
+
+			return true;
+		});
 }
 
 //-----------------------------------------------------------------------------
 
-bool CClDllFuncHook::install()
+bool cl_enginefuncs_MemoryHook::install()
 {
-	initialize("cldll_func_t", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\xFF\x15\x00\x00\x00\x00\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x83", 0x2 });
+	initialize("cl_enginefuncs", L"hw.dll");
+	return install_using_bytepattern(1);
 }
 
-bool cl_enginefuncsHook::install()
+void cl_enginefuncs_MemoryHook::test_hook()
 {
-	initialize("cl_enginefuncs", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\x68\x00\x00\x00\x00\xFF\x15\x00\x00\x00\x00\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x83\xC4\x1C\xE8\x00\x00\x00\x00\x8B\xE5\x5D\xC3", 0x1 });
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			return p->pfnGetCvarPointer((char*)"fps_max");
+		});
 }
 
-bool pmainwindowHook::install()
+//-----------------------------------------------------------------------------
+
+bool pmainwindow_MemoryHook::install()
 {
-	initialize("pmainwindow", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x3B\xC3\x74\x49\xC6\x45\xC8\x02\x88\x5D\xC9\x88\x5D\xCA\x8B\x10\x8D\x4D\xC8\x51\x52\xE8\x00\x00\x00\x00\xA1\x00\x00\x00\x00\x8B\x55\xD0\x83\xC4\x08\x8B\x08\x6A\x03\x52\x50\xFF\x51\x18\x85\xC0\x74\x1B\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x83\xC4\x04\xE8\x00\x00\x00\x00\x8B\xC7\x5F\x5E\x5B\x8B\xE5\x5D\xC3\xBE\x00\x00\x00\x00\x8D\x45\xD4\x56\x53\x50", 0x1 });
+	initialize("pmainwindow", L"hw.dll");
+	return install_using_bytepattern(1);
 }
 
-bool host_initializedHook::install()
+void pmainwindow_MemoryHook::test_hook()
 {
-	initialize("host_initialized", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x56\x85\xC0\xC7", 0x1 });
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			HWND* phwnd = *p;
+			return phwnd != NULL && *phwnd != NULL;
+		});
 }
 
-bool sv_playerHook::install()
+//-----------------------------------------------------------------------------
+
+bool host_initialized_MemoryHook::install()
 {
-	initialize("sv_player", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x8B\x00\x00\x00\x00\x00\x83\xF2", 0x1 }, 1);
+	initialize("host_initialized", L"hw.dll");
+	return install_using_bytepattern(1);
 }
 
-bool clHook::install()
+void host_initialized_MemoryHook::test_hook()
 {
-	initialize("cl", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\xB8\x00\x00\x00\x00\x83\xC4\x0C", 0x1 });
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			hl::qboolean engine_initialized = *p;
+			if (CGameUtil::the().is_fully_connected())
+			{
+				return engine_initialized == TRUE;
+			}
+
+			return true;
+		});
 }
 
-bool clsHook::install()
+//-----------------------------------------------------------------------------
+
+bool sv_player_MemoryHook::install()
 {
-	initialize("cls", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x83\xC4\x0C\x83\xF8", 0x1 });
+	initialize("sv_player", L"hw.dll");
+	return install_using_bytepattern(1);
 }
 
-bool gGlobalVariablesHook::install()
+//-----------------------------------------------------------------------------
+
+bool cl_MemoryHook::install()
 {
-	initialize("gGlobalVariables", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\xD9\x1D\x00\x00\x00\x00\x57\x8B\x7D\x08\x33\xF6\x33\xDB\x57", 0x2 });
+	initialize("cl", L"hw.dll");
+	return install_using_bytepattern(1);
 }
 
-bool scr_fov_valueHook::install()
+void cl_MemoryHook::test_hook()
 {
-	initialize("scr_fov_value", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x56\x89\x45\xFC\xD9\x5D\xF8\xDB\x05\x00\x00\x00\x00\x8B\x4D\xF8", 0x1 });
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			if (CGameUtil::the().is_fully_connected())
+			{
+				return p->time != 0.0;
+			}
+
+			return true;
+		});
 }
 
-bool g_PlayerExtraInfoHook::install()
+//-----------------------------------------------------------------------------
+
+bool cls_MemoryHook::install()
 {
-	initialize("g_PlayerExtraInfo", L"client.dll", false);
-	return generic_bytepattern_installer({ "\x0F\xBF\x00\x00\x00\x00\x00\x8B\x16\x50\x68\x00\x00\x00\x00\x8B\xCE\xFF\x52\x48\x8B\xCB", 0x3 });
+	initialize("cls", L"hw.dll");
+	return install_using_bytepattern(1);
 }
 
-bool engine_studio_apiHook::install()
+void cls_MemoryHook::test_hook()
 {
-	initialize("engine_studio_api", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\x68\x00\x00\x00\x00\x68\x00\x00\x00\x00\x6A\x01\xFF\xD0\x83\xC4\x0C", 0x1 });
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			return p->state >= hl::ca_dedicated && p->state <= hl::ca_active;
+		});
 }
 
-bool cl_parsefuncsHook::install()
+//-----------------------------------------------------------------------------
+
+bool gGlobalVariables_MemoryHook::install()
 {
-	initialize("cl_parsefuncs", L"hw.dll", false);
-	return generic_bytepattern_installer(
-		{ "\x8B\x00\x00\x00\x00\x00\x85\xFF\x74\x00\xD9", 0x2 }, 1, 
+	initialize("gGlobalVariables", L"hw.dll");
+	return install_using_bytepattern(1);
+}
+
+void gGlobalVariables_MemoryHook::test_hook()
+{
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			if (CGameUtil::the().is_fully_connected())
+			{
+				return p->maxClients && p->maxEntities;
+			}
+
+			return true;
+		});
+}
+
+//-----------------------------------------------------------------------------
+
+bool scr_fov_value_MemoryHook::install()
+{
+	initialize("scr_fov_value", L"hw.dll");
+	return install_using_bytepattern(1);
+}
+
+void scr_fov_value_MemoryHook::test_hook()
+{
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			float fov = *p;
+			return fov >= 0 && fov <= 150;
+		});
+}
+
+//-----------------------------------------------------------------------------
+
+bool g_PlayerExtraInfo_MemoryHook::install()
+{
+	initialize("g_PlayerExtraInfo", L"client.dll");
+	return install_using_bytepattern(1);
+}
+
+void g_PlayerExtraInfo_MemoryHook::test_hook()
+{
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			auto& cur = p[48]; // random index, just to see if everything is valid. 
+			return cur.deaths == 0 && cur.frags == 0 && cur.has_c4 == false && cur.teamname[0] == 0;
+		});
+}
+
+//-----------------------------------------------------------------------------
+
+bool engine_studio_api_MemoryHook::install()
+{
+	initialize("engine_studio_api", L"hw.dll");
+	return install_using_bytepattern(1);
+}
+
+void engine_studio_api_MemoryHook::test_hook()
+{
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			return p->GetCvar((char*)"fps_max");
+		});
+}
+
+//-----------------------------------------------------------------------------
+
+bool cl_parsefuncs_MemoryHook::install()
+{
+	initialize("cl_parsefuncs", L"hw.dll");
+	return install_using_bytepattern(
+		1, 
 		[](uintptr_t** address) -> void
 		{
 			// there isn't a single occurence of the exact base of the svc_func_t table, only at offset +0x4 relative to the base.
@@ -157,38 +299,126 @@ bool cl_parsefuncsHook::install()
 		});
 }
 
-bool pmoveHook::install()
+void cl_parsefuncs_MemoryHook::test_hook()
 {
-	initialize("pmove", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x83\xC4\x1C\xE8", 0x1 });
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			return !stricmp(p[svc_filetxferfailed].pszname, "svc_filetxferfailed");
+		});
 }
 
-bool gClientUserMsgsHook::install()
+//-----------------------------------------------------------------------------
+
+bool pmove_MemoryHook::install()
 {
-	initialize("gClientUserMsgs", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\x8B\x00\x00\x00\x00\x00\x85\xF6\x74\x00\x39", 0x2 });
+	initialize("pmove", L"hw.dll");
+	return install_using_bytepattern(1);
 }
 
-bool g_iShotsFiredHook::install()
+void pmove_MemoryHook::test_hook()
 {
-	initialize("g_iShotsFired", L"client.dll", false);
-	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x3D\x00\x00\x00\x00\x7E\x00\xB8", 0x1 });
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			auto pmove = *p;
+
+			if (CGameUtil::the().is_fully_connected())
+			{
+				return 
+					pmove->PM_TraceModel != nullptr && 
+					pmove->PM_PointContents != nullptr &&
+					pmove->Con_DPrintf != nullptr &&
+					pmove->COM_FreeFile != nullptr &&
+					pmove->PM_TraceLineEx != nullptr &&
+					pmove->PM_Particle != nullptr &&
+					pmove->time != 0.0f;
+			}
+
+			return pmove != nullptr;
+		});
 }
 
-bool r_modelHook::install()
+//-----------------------------------------------------------------------------
+
+bool gClientUserMsgs_MemoryHook::install()
 {
-	initialize("r_model", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\xA1\x00\x00\x00\x00\x50\xC7\x45\xD8\x00\x00\x00\x00", 0x1 });
+	initialize("gClientUserMsgs", L"hw.dll");
+	return install_using_bytepattern(1);
 }
 
-bool pstudiohdrHook::install()
+void gClientUserMsgs_MemoryHook::test_hook()
 {
-	initialize("pstudiohdr", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\x8B\x0D\x00\x00\x00\x00\x83\xC4\x08\xC7\x45\xC0\x00\x00\x00\x00", 0x2 });
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			auto umsg = *p; 
+
+			int n = 0, max = 5; // see at least 5 entries
+			while (umsg && n++ < max)
+			{
+				if (!umsg->szName)
+					return false;
+
+				umsg = umsg->next;
+			}
+
+			return true;
+		});
 }
 
-bool pStudioAPIHook::install()
+//-----------------------------------------------------------------------------
+
+bool g_iShotsFired_MemoryHook::install()
 {
-	initialize("pStudioAPI", L"hw.dll", false);
-	return generic_bytepattern_installer({ "\x8B\x0D\x00\x00\x00\x00\x8B\x35\x00\x00\x00\x00\xD1\xEA", 0x2 });
+	initialize("g_iShotsFired", L"client.dll");
+	return install_using_bytepattern(1);
 }
+
+//-----------------------------------------------------------------------------
+
+bool r_model_MemoryHook::install()
+{
+	initialize("r_model", L"hw.dll");
+	return install_using_bytepattern(1);
+}
+
+//-----------------------------------------------------------------------------
+
+bool pstudiohdr_MemoryHook::install()
+{
+	initialize("pstudiohdr", L"hw.dll");
+	return install_using_bytepattern(1);
+}
+
+//-----------------------------------------------------------------------------
+
+bool pStudioAPI_MemoryHook::install()
+{
+	initialize("pStudioAPI", L"hw.dll");
+	return install_using_bytepattern(1);
+}
+
+void pStudioAPI_MemoryHook::test_hook()
+{
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			auto pStudioAPI = *p;
+			return pStudioAPI->StudioDrawModel && pStudioAPI->StudioDrawPlayer && pStudioAPI->version == STUDIO_INTERFACE_VERSION;
+		});
+}
+
+//-----------------------------------------------------------------------------

@@ -102,7 +102,7 @@ public:
 
 	void executeall_color(float* lambert);
 
-	// replacement for R_StudioDrawPoints()
+	// replacement for R_GLStudioDrawPoints()
 	bool studio_draw_skeleton();
 
 	void render_playerhead_hitbox();

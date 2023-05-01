@@ -54,6 +54,8 @@ public:
 	inline bool is_cheat_exiting() { return is_exit_requested() || m_unloading_cheat; }
 	inline bool is_shutted_down() { return m_shutted_down; }
 
+	int get_build_number() const { return m_gs_build_number; }
+
 private:
 	bool initialize();
 	bool run_frame();
@@ -85,6 +87,8 @@ private:
 	// this allows the remote function itself to tell the loader that we're unloading, instead of it being told after the
 	// shutdown.
 	bool m_dont_write_unloading_code = false;
+
+	int m_gs_build_number = 0;
 };
 
 #endif // OXWARE_H

@@ -378,6 +378,7 @@
     <ClCompile Include="HLNetMessageIO.cpp" />
     <ClCompile Include="hook\client_dll\MemoryHookCBaseStuff.cpp" />
     <ClCompile Include="hook\HLInterfaceHook.cpp" />
+    <ClCompile Include="hook\HookTests.cpp" />
     <ClCompile Include="hook\MemoryFnDetour.cpp" />
     <ClCompile Include="hook\MemoryFnHook.cpp" />
     <ClCompile Include="hook\MemoryHook.cpp" />
@@ -448,6 +449,7 @@
     <ClInclude Include="HLNetMessageIO.h" />
     <ClInclude Include="hook\client_dll\MemoryHookCBaseStuff.h" />
     <ClInclude Include="hook\HLInterfaceHook.h" />
+    <ClInclude Include="hook\HookTests.h" />
     <ClInclude Include="hook\MemoryFnDetour.h" />
     <ClInclude Include="hook\MemoryFnHook.h" />
     <ClInclude Include="hook\MemoryHook.h" />

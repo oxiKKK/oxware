@@ -34,190 +34,87 @@
 // bit reading
 
 // void __cdecl MSG_StartBitReading(sizebuf_t *buf);
-class MSG_StartBitReadingFnHook_t final : public CGenericMemoryFnHookCdecl<void, hl::sizebuf_t*>
-{
-public:
-	bool install();
-};
+struct MSG_StartBitReadingFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*> { bool install() override; };
 
 // void __cdecl MSG_EndBitReading(sizebuf_t *buf);
-class MSG_EndBitReadingFnHook_t final : public CGenericMemoryFnHookCdecl<void, hl::sizebuf_t*>
-{
-public:
-	bool install();
-};
+struct MSG_EndBitReadingFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*> { bool install() override; };
 
 // uint32 __cdecl MSG_ReadBits(int numbits);
-class MSG_ReadBitsFnHook_t final : public CGenericMemoryFnHookCdecl<hl::uint32, int>
-{
-public:
-	bool install();
-};
+struct MSG_ReadBitsFnHook_t final : public GenericMemoryFnHook_cdecl<hl::uint32, int> { bool install() override; };
 
 // int32 __cdecl MSG_ReadSBits(int numbits);
-class MSG_ReadSBitsFnHook_t final : public CGenericMemoryFnHookCdecl<hl::int32, int>
-{
-public:
-	bool install();
-};
+struct MSG_ReadSBitsFnHook_t final : public GenericMemoryFnHook_cdecl<hl::int32, int> { bool install() override; };
 
 // float __cdecl MSG_ReadBitCoord();
-class MSG_ReadBitCoordFnHook_t final : public CGenericMemoryFnHookCdecl<float>
-{
-public:
-	bool install();
-};
+struct MSG_ReadBitCoordFnHook_t final : public GenericMemoryFnHook_cdecl<float> { bool install() override; };
 
 // void __cdecl MSG_ReadBitVec3Coord(vec_t* fa);
-class MSG_ReadBitVec3CoordFnHook_t final : public CGenericMemoryFnHookCdecl<void, hl::vec_t*>
-{
-public:
-	bool install();
-};
+struct MSG_ReadBitVec3CoordFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::vec_t*> { bool install() override; };
 
 //---------------------------------------------------------------------------
 // reading
 
 // int __cdecl MSG_ReadChar();
-class MSG_ReadCharFnHook_t final : public CGenericMemoryFnHookCdecl<int>
-{
-public:
-	bool install();
-};
+struct MSG_ReadCharFnHook_t final : public GenericMemoryFnHook_cdecl<int> { bool install() override; };
 
 // int __cdecl MSG_ReadByte();
-class MSG_ReadByteFnHook_t final : public CGenericMemoryFnHookCdecl<int>
-{
-public:
-	bool install();
-};
+struct MSG_ReadByteFnHook_t final : public GenericMemoryFnHook_cdecl<int> { bool install() override; };
 
 // int __cdecl MSG_ReadShort();
-class MSG_ReadShortFnHook_t final : public CGenericMemoryFnHookCdecl<int>
-{
-public:
-	bool install();
-};
+struct MSG_ReadShortFnHook_t final : public GenericMemoryFnHook_cdecl<int> { bool install() override; };
 
 // int __cdecl MSG_ReadWord();
-class MSG_ReadWordFnHook_t final : public CGenericMemoryFnHookCdecl<int>
-{
-public:
-	bool install();
-};
+struct MSG_ReadWordFnHook_t final : public GenericMemoryFnHook_cdecl<int> { bool install() override; };
 
 // int __cdecl MSG_ReadLong();
-class MSG_ReadLongFnHook_t final : public CGenericMemoryFnHookCdecl<int>
-{
-public:
-	bool install();
-};
+struct MSG_ReadLongFnHook_t final : public GenericMemoryFnHook_cdecl<int> { bool install() override; };
 
 // float __cdecl MSG_ReadFloat();
-class MSG_ReadFloatFnHook_t final : public CGenericMemoryFnHookCdecl<float>
-{
-public:
-	bool install();
-};
+struct MSG_ReadFloatFnHook_t final : public GenericMemoryFnHook_cdecl<float> { bool install() override; };
 
 // char* __cdecl MSG_ReadString();
-class MSG_ReadStringFnHook_t final : public CGenericMemoryFnHookCdecl<char*>
-{
-public:
-	bool install();
-};
+struct MSG_ReadStringFnHook_t final : public GenericMemoryFnHook_cdecl<char*> { bool install() override; };
 
 // float __cdecl MSG_ReadCoord(sizebuf_t *sb);
-class MSG_ReadCoordFnHook_t final : public CGenericMemoryFnHookCdecl<float, hl::sizebuf_t*>
-{
-public:
-	bool install();
-};
+struct MSG_ReadCoordFnHook_t final : public GenericMemoryFnHook_cdecl<float, hl::sizebuf_t*> { bool install() override; };
 
 //---------------------------------------------------------------------------
 // writing
 
 // void __cdecl MSG_WriteChar(sizebuf_t *sb, int c);
-class MSG_WriteCharFnHook_t final : public CGenericMemoryFnHookCdecl<void, hl::sizebuf_t*, int>
-{
-public:
-	bool install();
-};
+struct MSG_WriteCharFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*, int> { bool install() override; };
 
 // void __cdecl MSG_WriteByte(sizebuf_t *sb, int c);
-class MSG_WriteByteFnHook_t final : public CGenericMemoryFnHookCdecl<void, hl::sizebuf_t*, int>
-{
-public:
-	bool install();
-};
+struct MSG_WriteByteFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*, int> { bool install() override; };
 
 // void __cdecl MSG_WriteShort(sizebuf_t *sb, int c);
-class MSG_WriteShortFnHook_t final : public CGenericMemoryFnHookCdecl<void, hl::sizebuf_t*, int>
-{
-public:
-	bool install();
-};
+struct MSG_WriteShortFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*, int> { bool install() override; };
 
 // void __cdecl MSG_WriteWord(sizebuf_t *sb, int c);
-class MSG_WriteWordFnHook_t final : public CGenericMemoryFnHookCdecl<void, hl::sizebuf_t*, int>
-{
-public:
-	bool install();
-};
+struct MSG_WriteWordFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*, int> { bool install() override; };
 
 // void __cdecl MSG_WriteLong(sizebuf_t *sb, int c);
-class MSG_WriteLongFnHook_t final : public CGenericMemoryFnHookCdecl<void, hl::sizebuf_t*, int>
-{
-public:
-	bool install();
-};
+struct MSG_WriteLongFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*, int> { bool install() override; };
 
 // void __cdecl MSG_WriteFloat(sizebuf_t *sb, float f);
-class MSG_WriteFloatFnHook_t final : public CGenericMemoryFnHookCdecl<void, hl::sizebuf_t*, float>
-{
-public:
-	bool install();
-};
+struct MSG_WriteFloatFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*, float> { bool install() override; };
 
 // void __cdecl MSG_WriteString(sizebuf_t *sb, char* s);
-class MSG_WriteStringFnHook_t final : public CGenericMemoryFnHookCdecl<void, hl::sizebuf_t*, char*>
-{
-public:
-	bool install();
-};
+struct MSG_WriteStringFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*, char*> { bool install() override; };
 
 // void __cdecl MSG_WriteCoord(sizebuf_t *sb, float f);
-class MSG_WriteCoordFnHook_t final : public CGenericMemoryFnHookCdecl<void, hl::sizebuf_t*, float>
-{
-public:
-	bool install();
-};
+struct MSG_WriteCoordFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*, float> { bool install() override; };
 
 //---------------------------------------------------------------------------
 
 // sizebuf_t net_message;
-// obtained from CL_FlushEntityPacket()
-class net_messageHook final : public CGenericMemHook<hl::sizebuf_t>
-{
-public:
-	bool install() override;
-};
+struct net_messageHook final : public GenericMemoryHook<hl::sizebuf_t> { bool install() override; };
 
 // int msg_readcount;
-// obtained from CL_WriteMessageHistory()
-class msg_readcountHook final : public CGenericMemHook<int>
-{
-public:
-	bool install() override;
-};
+struct msg_readcountHook final : public GenericMemoryHook<int> { bool install() override; };
 
 // bf_read_t bfread;
-// obtained from ...
-class bfreadHook final : public CGenericMemHook<hl::bf_read_t>
-{
-public:
-	bool install() override;
-};
+struct bfreadHook final : public GenericMemoryHook<hl::bf_read_t> { bool install() override; };
 
 //---------------------------------------------------------------------------
 
@@ -228,6 +125,12 @@ public:
 
 public:
 	bool install_hooks();
+
+	// always call this before you start to read!
+	bool ready_to_read() const
+	{
+		return m_initialized_hooks;
+	}
 
 	// bit reading
 	void begin_silent_bit_reading();
@@ -285,6 +188,9 @@ private:
 	{
 		memcpy(bfread().get(), &m_saved_read_state, sizeof(hl::bf_read_t));
 	}
+
+	// when all hooks are initialized. also determines whenever one of them fails.
+	bool m_initialized_hooks = false;
 
 private:
 	// bit reading

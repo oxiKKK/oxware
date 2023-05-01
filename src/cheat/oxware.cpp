@@ -45,6 +45,7 @@ IConfigManager* g_config_mgr_i = nullptr;
 IAppDataManager* g_appdata_mgr_i = nullptr;
 IVariableManager* g_variablemgr_i = nullptr;
 ICodePerfProfiler* g_code_perf_profiler_i = nullptr;
+IBytePatternBank* g_bytepattern_bank_i = nullptr;
 
 bool CoXWARE::run(injector_information_package_t* ifp)
 {
@@ -135,20 +136,25 @@ bool CoXWARE::initialize()
 	// we cannot hook from those etc. So we need to wait for the engine to initialize.
 	//
 
+	// see for the renderer - before hooks! (because of hw.dll may missing, and we need it inside hook managers.)
+	if (!is_hardware())
+	{
+		return false;
+	}
+
 	// see for engine build
 	if (!validate_engine_build())
 	{
 		return false;
 	}
 
-	// see if we're acutally cstrike
-	if (!is_valid_game())
+	if (!g_bytepattern_bank_i->initialize(m_gs_build_number))
 	{
 		return false;
 	}
 
-	// see for the renderer - before hooks! (because of hw.dll may missing, and we need it inside hook managers.)
-	if (!is_hardware())
+	// see if we're acutally cstrike
+	if (!is_valid_game())
 	{
 		return false;
 	}
@@ -203,9 +209,10 @@ bool CoXWARE::load_and_initialize_dependencies()
 		g_appdata_mgr_i = mod.get_interface<IAppDataManager>(IAPPDATAMANAGER_INTERFACEID);
 		g_variablemgr_i = mod.get_interface<IVariableManager>(IVARIABLEMANAGER_INTERFACEID);
 		g_code_perf_profiler_i = mod.get_interface<ICodePerfProfiler>(ICODEPERFPROFILER_INTERFACEID);
+		g_bytepattern_bank_i = mod.get_interface<IBytePatternBank>(IBYTEPATTERNBANK_INTERFACEID);
 
 		return g_importbank_i && g_registry_i && g_filesystem_i && g_user_input_i && g_window_msg_handler_i && g_config_mgr_i &&
-			g_appdata_mgr_i && g_variablemgr_i && g_code_perf_profiler_i;
+			g_appdata_mgr_i && g_variablemgr_i && g_code_perf_profiler_i && g_bytepattern_bank_i;
 	}))
 	{
 		return false;
@@ -329,6 +336,7 @@ void CoXWARE::unload_dependencies()
 	g_appdata_mgr_i = nullptr;
 	g_variablemgr_i = nullptr;
 	g_code_perf_profiler_i = nullptr;
+	g_bytepattern_bank_i = nullptr;
 }
 
 bool CoXWARE::initialize_hook_managers()
@@ -391,15 +399,17 @@ bool CoXWARE::initialize_hook_managers()
 
 	CConsole::the().info("Initialized all hook managers.");
 
+#ifdef ENABLE_HOOK_TESTING
+	CHookTests::the().execute_tests();
+#endif
+
 	return true;
 }
 
 void CoXWARE::shutdown_hook_managers()
 {
-	CMemoryHookMgr::the().uninstall_hooks();
-	// CMemoryFnHookMgr doesn't uninstall since it doesn't modify memory, just hooks it.
+	// we uninstall hooks only that ch ange memory.
 	CMemoryFnDetourMgr::the().uninstall_hooks();
-	CMemoryHookCBaseStuff::the().uninstall_hooks();
 	CSVCFuncDetourMgr::the().uninstall_hooks();
 	CUserMSGDetourMgr::the().uninstall_hooks();
 }
@@ -440,20 +450,21 @@ bool CoXWARE::is_hardware()
 
 bool CoXWARE::validate_engine_build()
 {
-	int build_num = CGameUtil::the().get_build_number();
+	m_gs_build_number = CGameUtil::the().get_build_number();
 
-	if (!build_num)
+	if (!m_gs_build_number)
 	{
 		CInjectedDllIPCLayerClient::the().report_error("Couldn't get the engine build number at all! You must be using corrupted or ancient version of cs!");
 		return false;
 	}
 
-	if (build_num != 8684)
+	if (!g_bytepattern_bank_i->is_build_supported(m_gs_build_number))
 	{
-		CInjectedDllIPCLayerClient::the().report_error("Your build number isn't 8684! This cheat is currently only available for steam. (your build num: {})", build_num);
+		CInjectedDllIPCLayerClient::the().report_error("Your build {} is not valid! This cheat is currently only available for these builds:\n\n{}", 
+													   m_gs_build_number, g_bytepattern_bank_i->supported_builds_as_str());
 		return false;
 	}
 
-	CConsole::the().info("Your build number is {}.", build_num);
+	CConsole::the().info("Your build number is {}.", m_gs_build_number);
 	return true;
 }

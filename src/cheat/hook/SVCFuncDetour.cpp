@@ -30,11 +30,11 @@
 
 bool CSVCFuncDetourMgr::install_hooks()
 {
-	//if (!svc_sound_fn().install(svc_sound_f, "svc_sound", svc_sound)) return false;
-	//if (!svc_time_fn().install(svc_time_f, "svc_time", svc_time)) return false;
-	if (!svc_sendcvarvalue_fn().install(svc_sendcvarvalue_f, "svc_sendcvarvalue", svc_sendcvarvalue)) return false;
-	if (!svc_sendcvarvalue2_fn().install(svc_sendcvarvalue2_f, "svc_sendcvarvalue2", svc_sendcvarvalue2)) return false;
-	if (!svc_stufftext_fn().install(svc_stufftext_f, "svc_stufftext", svc_stufftext)) return false;
+	//if (!svc_sound_fn().install_svc(svc_sound_f, "svc_sound", svc_sound)) return false;
+	//if (!svc_time_fn().install_svc(svc_time_f, "svc_time", svc_time)) return false;
+	if (!svc_sendcvarvalue_fn().install_svc(svc_sendcvarvalue_f, "svc_sendcvarvalue", svc_sendcvarvalue)) return false;
+	if (!svc_sendcvarvalue2_fn().install_svc(svc_sendcvarvalue2_f, "svc_sendcvarvalue2", svc_sendcvarvalue2)) return false;
+	if (!svc_stufftext_fn().install_svc(svc_stufftext_f, "svc_stufftext", svc_stufftext)) return false;
 
 	return true;
 }
@@ -50,154 +50,180 @@ void CSVCFuncDetourMgr::uninstall_hooks()
 
 void CSVCFuncDetourMgr::svc_sound_f()
 {
-	CHLNetMessageIO::the().begin_silent_bit_reading();
+	if (CHLNetMessageIO::the().ready_to_read())
+	{
+		CHLNetMessageIO::the().begin_silent_bit_reading();
 
-	int flags = CHLNetMessageIO::the().read_bits(9);
+		int flags = CHLNetMessageIO::the().read_bits(9);
 
-	CConsole::the().info("svc_sound: flags {}", flags);
+		CConsole::the().info("svc_sound: flags {}", flags);
 
-	CHLNetMessageIO::the().end_silent_bit_reading();
+		CHLNetMessageIO::the().end_silent_bit_reading();
+	}
 
 	CSVCFuncDetourMgr::the().svc_sound_fn().call();
 }
 
 void CSVCFuncDetourMgr::svc_time_f()
 {
-	CHLNetMessageIO::the().begin_silent_reading();
+	if (CHLNetMessageIO::the().ready_to_read())
+	{
+		CHLNetMessageIO::the().begin_silent_reading();
 
-	CConsole::the().info("svc_time: {}", CHLNetMessageIO::the().read_float());
+		CConsole::the().info("svc_time: {}", CHLNetMessageIO::the().read_float());
 
-	CHLNetMessageIO::the().end_silent_reading();
+		CHLNetMessageIO::the().end_silent_reading();
+	}
 
 	CSVCFuncDetourMgr::the().svc_time_fn().call();
 }
 
 void CSVCFuncDetourMgr::svc_sendcvarvalue_f()
 {
-	// we don't actually perform a silent read begin&end operation, because we'll basically reimplement
-	// the function completely. "Replace it"
-
-	// servers call this in order to request cvar value from the client.
-
-	char* requested_cvar = CHLNetMessageIO::the().read_string();
-
-	CHLNetMessageIO::the().write_byte(clc_cvarvalue);
-
-	if (cvarfilter_monitor_server.get_value())
+	if (CHLNetMessageIO::the().ready_to_read())
 	{
-		CConsole::the().info("Server requested cvar value from '{}' (svc_sendcvarvalue)", requested_cvar);
-	}
+		// we don't actually perform a silent read begin&end operation, because we'll basically reimplement
+		// the function completely. "Replace it"
 
-	if (strlen(requested_cvar) >= 255)
-	{
-		CHLNetMessageIO::the().write_string("Bad CVAR request");
-		return;
-	}
+		// servers call this in order to request cvar value from the client.
 
-	// Send back the cvar type to server
-	auto cvar = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer(requested_cvar);
-	if (cvar == NULL)
-	{
-		CHLNetMessageIO::the().write_string("Bad CVAR request");
-		return;
-	}
+		char* requested_cvar = CHLNetMessageIO::the().read_string();
 
-	if (cvar->flags & FCVAR_PRIVILEGED)
-	{
-		CHLNetMessageIO::the().write_string("CVAR is privileged");
-	}
-	else if (cvar->flags & FCVAR_SERVER)
-	{
-		CHLNetMessageIO::the().write_string("CVAR is server-only");
-	}
-	else if (cvar->flags & FCVAR_PROTECTED)
-	{
-		CHLNetMessageIO::the().write_string("CVAR is protected");
-	}
-	else
-	{
-		const char* value = CServerLiar::the().filter_cvarvalue(requested_cvar);
-		if (value == nullptr)
-		{
-			value = cvar->string;
-		}
+		CHLNetMessageIO::the().write_byte(clc_cvarvalue);
 
 		if (cvarfilter_monitor_server.get_value())
 		{
-			CConsole::the().info("Responding to server with.. '{}' (but have '{}')", value, cvar->string);
+			CConsole::the().info("Server requested cvar value from '{}' (svc_sendcvarvalue)", requested_cvar);
 		}
 
-		CHLNetMessageIO::the().write_string(value);
+		if (strlen(requested_cvar) >= 255)
+		{
+			CHLNetMessageIO::the().write_string("Bad CVAR request");
+			return;
+		}
+
+		// Send back the cvar type to server
+		auto cvar = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer(requested_cvar);
+		if (cvar == NULL)
+		{
+			CHLNetMessageIO::the().write_string("Bad CVAR request");
+			return;
+		}
+
+		if (cvar->flags & FCVAR_PRIVILEGED)
+		{
+			CHLNetMessageIO::the().write_string("CVAR is privileged");
+		}
+		else if (cvar->flags & FCVAR_SERVER)
+		{
+			CHLNetMessageIO::the().write_string("CVAR is server-only");
+		}
+		else if (cvar->flags & FCVAR_PROTECTED)
+		{
+			CHLNetMessageIO::the().write_string("CVAR is protected");
+		}
+		else
+		{
+			const char* value = CServerLiar::the().filter_cvarvalue(requested_cvar);
+			if (value == nullptr)
+			{
+				value = cvar->string;
+			}
+
+			if (cvarfilter_monitor_server.get_value())
+			{
+				CConsole::the().info("Responding to server with.. '{}' (but have '{}')", value, cvar->string);
+			}
+
+			CHLNetMessageIO::the().write_string(value);
+		}
+	}
+	else
+	{
+		CSVCFuncDetourMgr::the().svc_sendcvarvalue_fn().call();
 	}
 }
 
 void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 {
-	// we don't actually perform a silent read begin&end operation, because we'll basically reimplement
-	// the function completely. "Replace it"
-
-	// servers call this in order to request cvar value from the client.
-
-	int request_id = CHLNetMessageIO::the().read_int32();
-	char* requested_cvar = CHLNetMessageIO::the().read_string();
-
-	CHLNetMessageIO::the().write_byte(clc_cvarvalue2);
-	CHLNetMessageIO::the().write_long(request_id);
-	CHLNetMessageIO::the().write_string(requested_cvar);
-
-	if (cvarfilter_monitor_server.get_value())
+	if (CHLNetMessageIO::the().ready_to_read())
 	{
-		CConsole::the().info("Server requested cvar value from '{}' (svc_sendcvarvalue2)", requested_cvar);
-	}
+		// we don't actually perform a silent read begin&end operation, because we'll basically reimplement
+		// the function completely. "Replace it"
 
-	if (strlen(requested_cvar) >= 255)
-	{
-		CHLNetMessageIO::the().write_string("Bad CVAR request");
-		return;
-	}
+		// servers call this in order to request cvar value from the client.
 
-	// Send back the cvar type to server
-	auto cvar = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer(requested_cvar);
-	if (cvar == NULL)
-	{
-		CHLNetMessageIO::the().write_string("Bad CVAR request");
-		return;
-	}
+		int request_id = CHLNetMessageIO::the().read_int32();
+		char* requested_cvar = CHLNetMessageIO::the().read_string();
 
-	if (cvar->flags & FCVAR_PRIVILEGED)
-	{
-		CHLNetMessageIO::the().write_string("CVAR is privileged");
-	}
-	else if (cvar->flags & FCVAR_SERVER)
-	{
-		CHLNetMessageIO::the().write_string("CVAR is server-only");
-	}
-	else if (cvar->flags & FCVAR_PROTECTED)
-	{
-		CHLNetMessageIO::the().write_string("CVAR is protected");
-	}
-	else
-	{
-		const char* value = CServerLiar::the().filter_cvarvalue(requested_cvar);
-		if (value == nullptr)
-		{
-			value = cvar->string;
-		}
+		CHLNetMessageIO::the().write_byte(clc_cvarvalue2);
+		CHLNetMessageIO::the().write_long(request_id);
+		CHLNetMessageIO::the().write_string(requested_cvar);
 
 		if (cvarfilter_monitor_server.get_value())
 		{
-			CConsole::the().info("Responding to server with.. '{}' (but have '{}')", value, cvar->string);
+			CConsole::the().info("Server requested cvar value from '{}' (svc_sendcvarvalue2)", requested_cvar);
 		}
 
-		CHLNetMessageIO::the().write_string(value);
+		if (strlen(requested_cvar) >= 255)
+		{
+			CHLNetMessageIO::the().write_string("Bad CVAR request");
+			return;
+		}
+
+		// Send back the cvar type to server
+		auto cvar = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer(requested_cvar);
+		if (cvar == NULL)
+		{
+			CHLNetMessageIO::the().write_string("Bad CVAR request");
+			return;
+		}
+
+		if (cvar->flags & FCVAR_PRIVILEGED)
+		{
+			CHLNetMessageIO::the().write_string("CVAR is privileged");
+		}
+		else if (cvar->flags & FCVAR_SERVER)
+		{
+			CHLNetMessageIO::the().write_string("CVAR is server-only");
+		}
+		else if (cvar->flags & FCVAR_PROTECTED)
+		{
+			CHLNetMessageIO::the().write_string("CVAR is protected");
+		}
+		else
+		{
+			CHLNetMessageIO::the().write_string(cvar->string);
+			return;
+			
+			const char* value = CServerLiar::the().filter_cvarvalue(requested_cvar);
+			if (value == nullptr)
+			{
+				value = cvar->string;
+			}
+
+			if (cvarfilter_monitor_server.get_value())
+			{
+				CConsole::the().info("Responding to server with.. '{}' (but have '{}')", value, cvar->string);
+			}
+
+			CHLNetMessageIO::the().write_string(value);
+		}
+	}
+	else
+	{
+		CSVCFuncDetourMgr::the().svc_sendcvarvalue2_fn().call();
 	}
 }
 
 void CSVCFuncDetourMgr::svc_stufftext_f()
 {
-	if (!CStuffCmdFilter::the().allow_command_to_be_executed())
+	if (CHLNetMessageIO::the().ready_to_read() && 0)
 	{
-		return;
+		if (!CStuffCmdFilter::the().allow_command_to_be_executed())
+		{
+			return;
+		}
 	}
 
 	CSVCFuncDetourMgr::the().svc_stufftext_fn().call();

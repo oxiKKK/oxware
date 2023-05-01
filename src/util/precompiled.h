@@ -51,6 +51,7 @@
 #include <interface/IConfigManager.h>
 #include <interface/IAppDataManager.h>
 #include <interface/ICodePerformaceProfiler.h>
+#include <interface/IBytePatternBank.h>
 
 #include <tier/GenericUtil.h>
 #include <tier/StringTools.h>

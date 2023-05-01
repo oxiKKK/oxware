@@ -35,6 +35,9 @@
 
 #pragma once
 
+// opcode representing runtine that can be relocated.
+#define RELOCABLE_ADDRESS_WILDCARD (uint8_t)('\xCC')
+
 static constexpr size_t k_max_pattern_length = 128; // had to increase once.
 
 class CBaseBytePattern
@@ -70,7 +73,15 @@ public:
 			found = true;
 			for (size_t k = 0; k < m_pattern.length(); k++)
 			{
-				if (m_mask[k] == 'x' && m_pattern[k] != *(char*)(i + k))
+				if (m_mask[k] != 'x')
+				{
+					continue;
+				}
+
+				uint8_t pat = m_pattern[k];
+				uint8_t mem = *(uint8_t*)(i + k);
+
+				if (pat != mem)
 				{
 					found = false;
 					break;
@@ -84,6 +95,11 @@ public:
 		}
 
 		return nullptr;
+	}
+
+	bool empty() const
+	{
+		return m_pattern.empty() || m_mask.empty();
 	}
 
 protected:
@@ -106,8 +122,9 @@ public:
 
 		m_mask = generate_mask_from_pattern_constexpr(pattern);
 
-		// Does count the nullcharacter if we specify the length.
-		m_pattern = std::string(pattern, N);
+		// Doesn't end the nullcharacter if we specify the length however,
+		// the sequence of characters we pass to this function is NULL TERMINATED!
+		m_pattern = std::string(pattern, N - 1);
 	}
 
 public:
@@ -115,8 +132,11 @@ public:
 	static inline auto generate_mask_from_pattern_constexpr(const char(&pattern)[N])
 	{
 		std::string a;
-		for (size_t i = 0; i < N; i++)
-			a.push_back(pattern[i] == '\x00' ? '?' : 'x');
+		for (size_t i = 0; i < N - 1; i++)
+		{
+			uint8_t b = (uint8_t)pattern[i];
+			a.push_back(b == RELOCABLE_ADDRESS_WILDCARD ? '?' : 'x');
+		}
 		return a;
 	}
 };
@@ -128,12 +148,13 @@ public:
 	{
 	}
 
+	// ASSUME LENGTH IS NOT INLCUDING THE NULL TERMINATOR!
 	CBytePatternRuntime(const char* pattern, size_t length, uintptr_t offset = 0x00000000)
 	{
 		m_offset = offset;
 		m_mask = generate_mask_from_pattern_runtime(pattern, length);
 
-		// Does count the nullcharacter if we specify the length.
+		// Doesn't end the nullcharacter if we specify the length.
 		m_pattern = std::string(pattern, length);
 	}
 
@@ -142,7 +163,10 @@ public:
 	{
 		std::string a;
 		for (size_t i = 0; i < length; i++)
-			a.push_back(pattern[i] == '\x00' ? '?' : 'x');
+		{
+			uint8_t b = (uint8_t)(pattern[i]);
+			a.push_back(b == RELOCABLE_ADDRESS_WILDCARD ? '?' : 'x');
+		}
 		return a;
 	}
 };

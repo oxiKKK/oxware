@@ -35,15 +35,49 @@ bool CMemoryHookCBaseStuff::install_hooks()
 	return true;
 }
 
-void CMemoryHookCBaseStuff::uninstall_hooks()
+//-----------------------------------------------------------------------------
+
+bool ClientWeapons_Hook::install()
 {
-	ClientWeapons().uninstall();
+	initialize("ClientWeapons", L"client.dll");
+	return install_using_bytepattern(1);
+}
+
+void ClientWeapons_Hook::test_hook()
+{
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			auto wpns = *p;
+
+			bool ok = true;
+			for (int i = 1; i < MAX_WEAPONS - 1; i++)
+			{
+				auto wpn = wpns[i];
+				if (i == hl::WEAPON_GLOCK)
+				{
+					ok &= (wpn == nullptr);
+					continue;
+				}
+
+				if (CGameUtil::the().is_fully_connected())
+				{
+					ok &= (wpn != nullptr);
+				}
+				else
+				{
+					ok &= (wpn == nullptr);
+				}
+
+				if (!ok)
+					break;
+			}
+
+			return ok;
+		});
 }
 
 //-----------------------------------------------------------------------------
-
-bool ClientWeaponsHook::install()
-{
-	initialize("ClientWeapons", L"client.dll");
-	return generic_bytepattern_installer({ "\x89\x00\x00\x00\x00\x00\x00\x5F\x5B\x83\xC4\x2C\xC3", 0x3 });
-}

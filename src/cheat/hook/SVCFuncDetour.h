@@ -30,123 +30,54 @@
 #define SVCFUNCDETOUR_H
 #pragma once
 
-using pfnSVCRoutine_t = void(__cdecl*)();
-
-class CGenericSVCFnDetour
+struct SVC_FnDetour_t final : public GenericMemoryFnDetour_cdecl<>
 {
 public:
-	inline void __cdecl call() const { reinterpret_cast<pfnSVCRoutine_t>(m_fn_address)(); }
-
-	inline bool is_initialized() const { return !m_name.empty(); }
-	inline bool is_installed() const { return is_initialized() && m_fn_address != nullptr; }
-
-	bool install(hl::svc_parsefn_t func, const char* svc_name, int idx)
+	bool install_svc(hl::svc_parsefn_t pfn, const char* svc_name, int id)
 	{
-		assert(idx > svc_bad && idx < SVC_LASTMSG);
+		assert(id > svc_bad && id < SVC_LASTMSG);
+		
+		m_pfn = pfn;
+		m_svc_name = svc_name;
+		m_svc_id = id;
 
-		m_name = svc_name;
+		initialize(svc_name, L"hw.dll");
 
-		auto svc_func = &CMemoryHookMgr::the().cl_parsefuncs().get()[idx];
-
-		return generic_functionaddr_detour(func, (uintptr_t*)svc_func->pfnParse);
+		return install();
 	}
 
-	/* if the restore fails, a message is printed to the console. this isn't fatal, */
-	/* don't exit the application if we fail restoring the detour..					*/
-	void uninstall()
+public:
+	//
+	// testing
+	//
+
+	virtual void add_to_test() override
 	{
-		if (!is_installed())
-			return;
-
-		CConsole::the().info("Removing detoured SVC {}...", m_name);
-
-		restore_internal();
+		CHookTests::the().add_for_testing("SVC_FnDetour", this);
 	}
 
-protected:
-	void init_msg() const
+private:
+	bool install()
 	{
-		CConsole::the().info("Detouring {} SVC function...", m_name);
-	}
+		CConsole::the().info("Searching for SVC: '{}'", m_svc_name);
 
-	bool detour_internal()
-	{
-		DetourTransactionBegin();
-		DetourUpdateThread(CGenericUtil::the().get_current_thread_handle());
-		DetourAttach(&reinterpret_cast<PVOID&>(m_fn_address), m_detoured_svc);
+		// find the right entry
+		auto svc_func = &CMemoryHookMgr::the().cl_parsefuncs().get()[m_svc_id];
 
-		uint32_t error = DetourTransactionCommit();
-		if (error != NO_ERROR)
+		if (detour_using_memory_address((uintptr_t*)m_pfn, (uintptr_t*)svc_func->pfnParse))
 		{
-			CConsole::the().error("Failed to apply detour to SVC '{}'. (code={})", m_name, error);
-			return false;
+			return true;
 		}
 
-		return true;
+		CMessageBox::display_error("Couldn't find SVC: '{}'.", m_svc_name);
+		return false;
 	}
 
-	bool restore_internal()
-	{
-		DetourTransactionBegin();
-		DetourUpdateThread(CGenericUtil::the().get_current_thread_handle());
-		DetourDetach(&reinterpret_cast<PVOID&>(m_fn_address), m_detoured_svc);
+	hl::svc_parsefn_t m_pfn;
 
-		m_fn_address = nullptr;
-		m_detoured_svc = nullptr;
-
-		uint32_t error = DetourTransactionCommit();
-		if (error != NO_ERROR)
-		{
-			CConsole::the().error("Failed to restore detour on SVC '{}'. (code={})", m_name, error);
-			return false;
-		}
-
-		return true;
-	}
-
-	bool generic_functionaddr_detour(pfnSVCRoutine_t detour_fn, uintptr_t* function_pointer);
-	bool generic_functionaddr_installer(uintptr_t* function_pointer);
-
-protected:
-	pfnSVCRoutine_t m_detoured_svc = nullptr;
-
-	uintptr_t* m_fn_address = nullptr;
-
-	std::string m_name = "empty";
+	std::string m_svc_name;
+	int m_svc_id;
 };
-
-inline bool CGenericSVCFnDetour::generic_functionaddr_detour(pfnSVCRoutine_t detour_fn, uintptr_t* function_pointer)
-{
-	m_detoured_svc = detour_fn;
-
-	/* find the function via byte pattern */
-	if (!generic_functionaddr_installer(function_pointer))
-	{
-		return false;
-	}
-
-	/* detour it */
-	if (!detour_internal())
-	{
-		return false;
-	}
-
-	return true;
-}
-
-inline bool CGenericSVCFnDetour::generic_functionaddr_installer(uintptr_t* function_pointer)
-{
-	m_fn_address = function_pointer;
-	if (!m_fn_address)
-	{
-		CConsole::the().error("Failed to install {} SVC hook. The function pointer specified is NULL.", m_name);
-		return false;
-	}
-
-	CConsole::the().info("Found {} at 0x{:08X}", m_name, (uintptr_t)m_fn_address);
-
-	return true;
-}
 
 //-------------------------------------------------------------------------------------------
 
@@ -160,11 +91,11 @@ public:
 	void uninstall_hooks();
 
 	// detoured SVC hooks
-	inline auto& svc_sound_fn() { static CGenericSVCFnDetour fnhook; return fnhook; }
-	inline auto& svc_time_fn() { static CGenericSVCFnDetour fnhook; return fnhook; }
-	inline auto& svc_sendcvarvalue_fn() { static CGenericSVCFnDetour fnhook; return fnhook; }
-	inline auto& svc_sendcvarvalue2_fn() { static CGenericSVCFnDetour fnhook; return fnhook; }
-	inline auto& svc_stufftext_fn() { static CGenericSVCFnDetour fnhook; return fnhook; }
+	inline auto& svc_sound_fn() { static SVC_FnDetour_t fnhook; return fnhook; }
+	inline auto& svc_time_fn() { static SVC_FnDetour_t fnhook; return fnhook; }
+	inline auto& svc_sendcvarvalue_fn() { static SVC_FnDetour_t fnhook; return fnhook; }
+	inline auto& svc_sendcvarvalue2_fn() { static SVC_FnDetour_t fnhook; return fnhook; }
+	inline auto& svc_stufftext_fn() { static SVC_FnDetour_t fnhook; return fnhook; }
 
 private:
 	static void svc_sound_f();

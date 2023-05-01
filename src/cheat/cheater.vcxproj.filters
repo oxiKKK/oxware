@@ -35,6 +35,9 @@
     <Filter Include="src\game\model">
       <UniqueIdentifier>{b3d90cf1-3b51-4bb8-8559-3d71cca399f1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\hooking\tests">
+      <UniqueIdentifier>{1180bbf8-fe7c-4f66-863b-ac02629f6341}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -188,6 +191,9 @@
     <ClCompile Include="features\StuffCMDFilter.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
+    <ClCompile Include="hook\HookTests.cpp">
+      <Filter>src\hooking\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -334,6 +340,9 @@
     </ClInclude>
     <ClInclude Include="features\StuffCMDFilter.h">
       <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\HookTests.h">
+      <Filter>src\hooking\tests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -31,15 +31,13 @@
 #pragma once
 
 // CBasePlayerWeapon *g_pWpns[MAX_WEAPONS];
-// obtained from HUD_PrepEntity()
-class ClientWeaponsHook final : public CGenericMemHook<hl::CBasePlayerWeapon*[MAX_WEAPONS]>
+struct ClientWeapons_Hook final : public GenericMemoryHook<hl::CBasePlayerWeapon*[MAX_WEAPONS]>
 {
-public:
 	bool install() override;
+	void test_hook() override;
 };
 
 //-----------------------------------------------------------------------------
-
 
 class CMemoryHookCBaseStuff
 {
@@ -48,10 +46,12 @@ public:
 
 public:
 	bool install_hooks();
-	void uninstall_hooks();
 
+	//
 	// individual hooks
-	inline static auto& ClientWeapons() { static ClientWeaponsHook hook; return hook; };
+	//
+
+	inline static auto& ClientWeapons() { static ClientWeapons_Hook hook; return hook; };
 };
 
 #endif // MEMORYHOOK_H

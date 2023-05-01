@@ -60,7 +60,7 @@ void CRemovals::remove_hud_modifier()
 
 	if (CUserMSGDetourMgr::the().HideWeapon_fn().is_installed() && prev_return_flags != return_flags)
 	{
-		CUserMSGDetourMgr::the().HideWeapon_fn().call(sizeof(byte), &return_flags);
+		CUserMSGDetourMgr::the().HideWeapon_fn().call_usermsg(sizeof(byte), &return_flags);
 
 		prev_return_flags = return_flags;
 	}

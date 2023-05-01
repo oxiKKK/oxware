@@ -63,11 +63,15 @@ void COxWareUI::destroy()
 	// don't left mouse deactivated when the UI is up and we're unloading the cheat.
 	if (CGameUtil::the().is_fully_connected()/* && !CHLInterfaceHook::the().IGameUI()->IsGameUIActive()*/)
 	{
-		CMemoryHookMgr::the().cldllfunc().get()->pfnHUD_IN_ActivateMouse();
+		CMemoryHookMgr::the().cl_funcs().get()->pfnHUD_IN_ActivateMouse();
 	}
 	else if (!CGameUtil::the().is_fully_connected()/* && CHLInterfaceHook::the().IGameUI()->IsGameUIActive()*/)
 	{
-		CHLInterfaceHook::the().ISurface()->SetCursor(hl::vgui2::dc_arrow);
+		auto surfacefuncs = CHLInterfaceHook::the().ISurface();
+		if (surfacefuncs)
+		{
+			surfacefuncs->SetCursor(hl::vgui2::dc_arrow);
+		}
 	}
 
 	destroy_rendering_contexts();
@@ -399,11 +403,11 @@ void COxWareUI::handle_ingame_mouseevents()
 	{
 		if (m_is_any_interactible_rendering_context_active)
 		{
-			CMemoryHookMgr::the().cldllfunc().get()->pfnHUD_IN_DeactivateMouse();
+			CMemoryHookMgr::the().cl_funcs().get()->pfnHUD_IN_DeactivateMouse();
 		}
 		else
 		{
-			CMemoryHookMgr::the().cldllfunc().get()->pfnHUD_IN_ActivateMouse();
+			CMemoryHookMgr::the().cl_funcs().get()->pfnHUD_IN_ActivateMouse();
 		}
 	}
 }

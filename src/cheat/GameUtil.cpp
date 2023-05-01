@@ -263,7 +263,7 @@ std::string CGameUtil::parse_viewmodel_name(hl::model_t* model)
 
 float CGameUtil::get_local_velocity_2d()
 {
-	auto pm = CMemoryHookMgr::the().pmove().get();
+	auto pm = *CMemoryHookMgr::the().pmove().get();
 	if (pm)
 	{
 		return pm->velocity.Length2D();
@@ -274,7 +274,7 @@ float CGameUtil::get_local_velocity_2d()
 
 float CGameUtil::get_local_velocity_3d()
 {
-	auto pm = CMemoryHookMgr::the().pmove().get();
+	auto pm = *CMemoryHookMgr::the().pmove().get();
 	if (pm)
 	{
 		return pm->velocity.Length();

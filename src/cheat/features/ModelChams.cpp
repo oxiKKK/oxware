@@ -50,7 +50,7 @@ VarBoolean mdlchams_player_skeleton("mdlchams_player_skeleton", "Disables player
 VarBoolean mdlchams_head_box_enable("mdlchams_head_box_enable", "Renders box at players heads", false);
 VarColor mdlchams_head_box_color("mdlchams_head_box_color", "Color of the player head box", CColor(0, 255, 0));
 
-VarBoolean mdlchams_render_real_playermodel("mdlchams_render_real_model", "Renders real playermodel over the current one", false);
+VarBoolean mdlchams_render_real_playermodel("mdlchams_render_real_playermodel", "Renders real playermodel over the current one", false);
 
 void CModelChams::initialize()
 {

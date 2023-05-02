@@ -62,6 +62,9 @@ void CFeatureManager::precache_features()
 
 	// chams
 	add_new_feature(BaseFeature(&mdlchams_enable, "Model chams"));
+	add_new_feature(BaseFeature(&mdlchams_render_real_playermodel, "Render real model"));
+	add_new_feature(BaseFeature(&mdlchams_head_box_enable, "Render player head box"));
+	add_new_feature(BaseFeature(&mdlchams_player_skeleton, "Render player skeleton"));
 
 	// removals
 	add_new_feature(BaseFeature(&remove_screenshake, "Remove screenshake"));
@@ -72,6 +75,22 @@ void CFeatureManager::precache_features()
 
 	// smoke visuals
 	add_new_feature(BaseFeature(&smoke_visuals, "Smoke visuals"));
+
+	// frame skip
+	add_new_feature(BaseFeature(&frame_skip_enable, "Frame skip"));
+
+	// cvar filter
+	add_new_feature(BaseFeature(&cvarfilter_enable, "Server liar / cvar filter"));
+
+	// command filter
+	add_new_feature(BaseFeature(&cmdfilter_enable, "Command filter"));
+
+	// crosshair
+	add_new_feature(BaseFeature(&crosshair_enable, "Custom crosshair"));
+
+	// HUD rendering
+	add_new_feature(BaseFeature(&hud_color_enable, "HUD color"));
+	add_new_feature(BaseFeature(&hud_render, "HUD rendering"));
 	
 	CConsole::the().info("Precached all features.");
 }

@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-VarBoolean bypass_constrain_noclip("bypass_constrain_noclip", "Enforces noclip in singleplayer. sv_cheats must be set to 1", "no");
+VarBoolean bypass_constrain_noclip("bypass_constrain_noclip", "Enforces noclip in singleplayer. sv_cheats must be set to 1", false);
 void CForceEnableDisabled::force_enable_noclip_pre()
 {
 	prev_dm = CMemoryHookMgr::the().gGlobalVariables().get()->deathmatch;
@@ -44,7 +44,7 @@ void CForceEnableDisabled::force_enable_noclip_post()
 	CMemoryHookMgr::the().gGlobalVariables().get()->deathmatch = prev_dm;
 }
 
-VarBoolean bypass_constrain_renderdist_enable("bypass_constrain_renderdist_enable", "Enforces max viweable render distance.", "no");
+VarBoolean bypass_constrain_renderdist_enable("bypass_constrain_renderdist_enable", "Enforces max viweable render distance.", false);
 VarInteger bypass_constrain_renderdist_value("bypass_constrain_renderdist_value", "Enforces max viweable render distance.", 8192, 512, 8192);
 GLdouble CForceEnableDisabled::force_max_viewable_renderdistance()
 {
@@ -56,13 +56,13 @@ GLdouble CForceEnableDisabled::force_max_viewable_renderdistance()
 	return (GLdouble)bypass_constrain_renderdist_value.get_value();
 }
 
-VarBoolean bypass_constrain_renderer_cvars("bypass_constrain_renderer_cvars", "Re-enables setting cvars such as gl_wireframe, chase_active, or gl_clear in singleplayer (and mp).", "no");
+VarBoolean bypass_constrain_renderer_cvars("bypass_constrain_renderer_cvars", "Re-enables setting cvars such as gl_wireframe, chase_active, or gl_clear in singleplayer (and mp).", false);
 bool CForceEnableDisabled::disable_renderer_cvar_constrain()
 {
 	return bypass_constrain_renderer_cvars.get_value() != 0;
 }
 
-VarBoolean bypass_constrain_sponly_cvars("bypass_constrain_sponly_cvars", "Makes singleplayer only cvars also possible to be set in multiplayer.", "no");
+VarBoolean bypass_constrain_sponly_cvars("bypass_constrain_sponly_cvars", "Makes singleplayer only cvars also possible to be set in multiplayer.", false);
 void CForceEnableDisabled::update_disable_sponly_cvars()
 {	
 	if (bypass_constrain_sponly_cvars.get_value() != 0)

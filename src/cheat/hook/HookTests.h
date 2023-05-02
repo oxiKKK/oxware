@@ -38,7 +38,9 @@
 //	a) always have a fresh game (after launch)
 //	b) don't test after you have disconnected from a server. Some internal engine data still remains in the memory and this could make the
 //	   the results of testing inaccurate!
-#define ENABLE_HOOK_TESTING
+#ifdef _DEBUG
+#	define ENABLE_HOOK_TESTING
+#endif
 
 // use this for memory hooks
 class TestableHook

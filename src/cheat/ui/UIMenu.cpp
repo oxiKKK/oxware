@@ -884,7 +884,7 @@ void CUIMenu::tab_config()
 						COxWareUI::the().create_popup(
 							[]()
 							{
-								g_gui_widgets_i->add_text_input("config_name", name_buffer, sizeof(name_buffer));
+								g_gui_widgets_i->add_text_input("Config name", name_buffer, sizeof(name_buffer));
 
 								g_gui_widgets_i->add_text("Enter name of the config");
 							},

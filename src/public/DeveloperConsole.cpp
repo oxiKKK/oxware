@@ -49,6 +49,9 @@
 
 #include <unordered_set>
 #include <deque>
+#include <map>
+
+VarInteger num_logfiles_to_keep("num_logfiles_to_keep", "Amount of logfiles to keep. Older logfiles will be automatically removed.", 10);
 
 IDeveloperConsole* g_devconsole_i = nullptr;
 
@@ -166,7 +169,10 @@ CDeveloperConsole::CDeveloperConsole()
 {
 	g_devconsole_i = this;
 
-	initialize(CURRENT_MODULE);
+	// FIXME: This check is kinda dumb -- we need a better way of checking for this, maybe fix this?
+#ifdef M_CHEATER
+	initialize(MODULE_CHEAT);
+#endif
 }
 
 CDeveloperConsole::~CDeveloperConsole()
@@ -467,7 +473,7 @@ std::string CDeveloperConsole::generate_logfilename()
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);
 	std::ostringstream oss;
-	oss << std::put_time(&tm, std::format("{}_log_%d%m%Y_%H%M%S.log", m_module_name).c_str());
+	oss << std::put_time(&tm, std::format("{}_%d%m%Y_%H%M%S.log", m_module_name).c_str());
 	generated_filename = oss.str();
 	return generated_filename;
 }
@@ -523,6 +529,37 @@ void CDeveloperConsole::prepare_log_directory()
 		std::filesystem::rename(iter.path(), logdir / iter.path().filename(), code);
 		
 		print_locally(EOutputCategory::INFO, std::format("Moved {} to {}.", iter.path(), logdir));
+	}
+
+	print_locally(EOutputCategory::INFO, std::format("Maximum amount of logfiles that will be kept: {}", num_logfiles_to_keep.get_value()));
+
+	// remove oldest logs
+	// but first, get all the files that need to be removed.
+	std::multimap<std::filesystem::file_time_type, std::filesystem::path> files_to_remove;
+	int n = 0;
+	for (const auto& iter : std::filesystem::directory_iterator(logdir, code))
+	{
+		if (n >= num_logfiles_to_keep.get_value()
+			&& std::filesystem::is_regular_file(iter.path(), code))
+		{
+			files_to_remove.insert({ std::filesystem::last_write_time(iter.path(), code), iter.path() });
+		}
+
+		n++;
+	}
+
+	// now remove the files
+	for (const auto& [time, log_file] : files_to_remove)
+	{
+		if (!std::filesystem::remove(log_file, code))
+		{
+			print_locally(EOutputCategory::ERROR, std::format("Failed to remove old log file! '{}'", log_file));
+			print_locally(EOutputCategory::ERROR, std::format("Error message: {}", code.message()));
+		}
+		else
+		{
+			print_locally(EOutputCategory::INFO, std::format("Removed old log file '{}'", log_file.filename()));
+		}
 	}
 
 	print_locally(EOutputCategory::INFO, "Done.");

@@ -71,7 +71,7 @@ public:
 			return false;
 		}
 
-		if (g_filesystem_i->do_exist(m_full_path))
+		if (!m_silent && g_filesystem_i->do_exist(m_full_path))
 		{
 			CConsole::the().warning("File already exist. An overwrite will be performed.");
 		}

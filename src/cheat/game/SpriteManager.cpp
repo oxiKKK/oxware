@@ -206,19 +206,19 @@ void Sprite_t::render_additive(const Vector2D& position, const CColor& color, bo
 	auto& [render_x, render_y] = position;
 
 	hl::wrect_t rect = {
-		(uint32_t)x, (uint32_t)(x + w),
-		(uint32_t)y, (uint32_t)(y + h)
+		(int)x, (int)(x + w),
+		(int)y, (int)(y + h)
 	};
 
 	hl::HSPRITE_t atlas_id = m_atlas_accruing->m_sprite_atlas_id;
 
 	if (atlas_id != NULL_SPRITE)
 	{
-		CColor new_color = { color.r * 255.0f, color.g * 255.0f, color.b * 255.0f };
+		CColor new_color = CColor(color.r * 255.0f, color.g * 255.0f, color.b * 255.0f);
 		CSpriteMgr::the().scale_hud_colors(new_color, dim);
 
-		CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_Set(atlas_id, new_color.r, new_color.g, new_color.b);
-		CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_DrawAdditive(frame, render_x, render_y, &rect);
+		CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_Set(atlas_id, (int)new_color.r, (int)new_color.g, (int)new_color.b);
+		CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_DrawAdditive(frame, (int)render_x, (int)render_y, &rect);
 	}
 }
 
@@ -296,9 +296,9 @@ bool CSpriteMgr::initialize_engine_sprite_data()
 void CSpriteMgr::scale_hud_colors(CColor& color, bool dim)
 {
 	float x = (float)(dim ? MIN_ALPHA : 255) / 255;
-	color.r = (int)(color.r * x);
-	color.g = (int)(color.g * x);
-	color.b = (int)(color.b * x);
+	color.r = (float)((int)(color.r * x));
+	color.g = (float)((int)(color.g * x));
+	color.b = (float)((int)(color.b * x));
 }
 
 void CSpriteMgr::render_current_weapon_sprite() const
@@ -364,9 +364,9 @@ void CSpriteMgr::render_velocity() const
 
 	float velocity = CGameUtil::the().get_local_velocity_2d();
 
-	static float rolling_velocity = 0;
+	static float rolling_velocity = 0.0f;
 
-	rolling_velocity = 0.9 * rolling_velocity + (1.0 - 0.9) * velocity;
+	rolling_velocity = 0.9f * rolling_velocity + (1.0f - 0.9f) * velocity;
 
 	// default orangeish color that most of the cstrike screen sprites have.
 	CColor color = RGB_ORANGEISH;
@@ -378,8 +378,8 @@ void CSpriteMgr::render_velocity() const
 	}
 
 	auto screen = CGameUtil::the().get_engine_screen_info();
-	Vector2D off = render_number((double)rolling_velocity, 
-								 Vector2D(screen.iWidth / 2, screen.iHeight - m_cstrike_sprite_font_size.y * 2 - 5 - 45), 
+	Vector2D off = render_number((int64_t)rolling_velocity, 
+								 Vector2D((float)screen.iWidth / 2.0f, (float)screen.iHeight - m_cstrike_sprite_font_size.y * 2 - 5 - 45),
 								 color, true );
 }
 
@@ -425,7 +425,7 @@ Vector2D CSpriteMgr::render_number(int64_t number, const Vector2D& position, con
 			ret = render_foreach(n / 10);
 
 		if ((n % 10) < 10 && (n % 10) >= 0)
-			ret.emplace_back(n % 10);
+			ret.emplace_back((uint8_t)(n % 10));
 
 		return ret;
 	};
@@ -560,8 +560,8 @@ void CSpriteMgr::handle_color_change(hl::HSPRITE_t spriteId, int& r, int& g, int
 	if (spriteId != SPRITEID_Radar && spriteId != SPRITEID_RadarTransulcent)
 	{
 		auto clr = hud_color.get_value();
-		r = clr.r * 255.0f;
-		g = clr.g * 255.0f;
-		b = clr.b * 255.0f;
+		r = (int)(clr.r * 255.0f);
+		g = (int)(clr.g * 255.0f);
+		b = (int)(clr.b * 255.0f);
 	}
 }

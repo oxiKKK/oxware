@@ -390,7 +390,7 @@ void CGameUtil::render_circle_opengl(float cx, float cy, float radius, int num_s
 	glBegin(GL_LINE_LOOP);
 	for (int ii = 0; ii < num_segments; ii++)
 	{
-		float theta = 2.0f * std::numbers::pi * float(ii) / float(num_segments); // get the current angle
+		float theta = 2.0f * std::numbers::pi_v<float> * float(ii) / float(num_segments); // get the current angle
 
 		float x = radius * cosf(theta); // calculate the x component
 		float y = radius * sinf(theta); // calculate the y component

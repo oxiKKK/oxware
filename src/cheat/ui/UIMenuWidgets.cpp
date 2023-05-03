@@ -75,6 +75,9 @@ bool CUIMenuWidgets::add_color_edit(const std::string& label, VarColor* colors_v
 	return ret;
 }
 
+#pragma warning(push)
+#pragma warning(disable : 4244) // warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+
 template bool CUIMenuWidgets::add_slider_t<VarFloat>(const std::string&, const char*, VarFloat*, const char*, const char*, const char*);
 template bool CUIMenuWidgets::add_slider_t<VarInteger>(const std::string&, const char*, VarInteger*, const char*, const char*, const char*);
 
@@ -84,8 +87,8 @@ bool CUIMenuWidgets::add_slider_t(const std::string& label, const char* format, 
 	assert(var->has_bounds() && "Variable used in slider must have bounds.");
 
 	// get bounds
-	float min = var->get_min(), max = var->get_max();
-	float value = var->get_value();
+	float min = (float)var->get_min(), max = (float)var->get_max();
+	float value = (float)var->get_value();
 
 	if (min_value_label && value == min)
 	{
@@ -117,6 +120,8 @@ bool CUIMenuWidgets::add_slider(const std::string& label, const char* format, Va
 {
 	return add_slider_t<VarInteger>(label, format, var, min_value_label, max_value_label, additional_desc);
 }
+
+#pragma warning(pop)
 
 void CUIMenuWidgets::add_pair_textinput(const std::string& label, VarKeyValue* var, const char* first_column_header, const char* second_column_header)
 {

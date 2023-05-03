@@ -177,26 +177,26 @@ void CVanillaCrosshair::draw()
 		{
 			if ((player_flags & FL_DUCKING) && accuracy_flags & ACCURACY_DUCK)
 			{
-				gap *= 0.5f;
+				gap = (int)((float)gap * 0.5f);
 			}
 			else if (CGameUtil::the().get_local_velocity_2d() > get_weapon_max_speed_for_crosshair(current_weapon->m_iId) && (accuracy_flags & ACCURACY_SPEED))
 			{
-				gap *= 1.5f;
+				gap = (int)((float)gap * 1.5f);
 			}
 		}
 		else
 		{
-			gap *= 2.0f;
+			gap = (int)((float)gap * 2.0f);
 		}
 
 		if (accuracy_flags & ACCURACY_MULTIPLY_BY_14)
 		{
-			gap *= 1.4f;
+			gap = (int)((float)gap * 1.4f);
 		}
 
 		if (accuracy_flags & ACCURACY_MULTIPLY_BY_14_2)
 		{
-			gap *= 1.4f;
+			gap = (int)((float)gap * 1.4f);
 		}
 	}
 
@@ -232,16 +232,16 @@ void CVanillaCrosshair::draw()
 	m_ammo_last_check = *shots_fired_ptr;
 
 	// clamp before we render
-	if (m_crosshair_gap <= gap)
+	if (m_crosshair_gap <= (float)gap)
 	{
-		m_crosshair_gap = gap;
+		m_crosshair_gap = (float)gap;
 	}
 	if (m_alpha > 255)
 	{
 		m_alpha = 255;
 	}
 
-	int bar_size = (crosshair_size.get_value() == 0) ? ((m_crosshair_gap - gap) / 2.0f) + 5 : crosshair_size.get_value();
+	int bar_size = (int)((crosshair_size.get_value() == 0) ? ((m_crosshair_gap - (float)gap) / 2.0f) + 5.0f : crosshair_size.get_value());
 	float crosshair_dist = m_crosshair_gap;
 
 	CColor cross_color = crosshair_color.get_value();
@@ -253,9 +253,9 @@ void CVanillaCrosshair::draw()
 		crosshair_dist = screen_info.iWidth * crosshair_dist / scaled;
 	}
 
-	int r = cross_color.r * 255.0f;
-	int g = cross_color.g * 255.0f;
-	int b = cross_color.b * 255.0f;
+	int r = (int)(cross_color.r * 255.0f);
+	int g = (int)(cross_color.g * 255.0f);
+	int b = (int)(cross_color.b * 255.0f);
 	int a = m_alpha;
 
 	int w = screen_info.iWidth;
@@ -269,17 +269,17 @@ void CVanillaCrosshair::draw()
 
 	if (type == 0)
 	{
-		fillrgba(w / 2 - crosshair_dist - bar_size + 1, h / 2, bar_size, t, r, g, b, a);	// left
-		fillrgba(w / 2 + crosshair_dist, h / 2, bar_size, t, r, g, b, a);					// right
-		fillrgba(w / 2, h / 2 - crosshair_dist - bar_size + 1, t, bar_size, r, g, b, a);	// top
-		fillrgba(w / 2, h / 2 + crosshair_dist, t, bar_size, r, g, b, a);					// bottom
+		fillrgba(w / 2 - (int)crosshair_dist - bar_size + 1, h / 2, bar_size, t, r, g, b, a);	// left
+		fillrgba(w / 2 + (int)crosshair_dist, h / 2, bar_size, t, r, g, b, a);					// right
+		fillrgba(w / 2, h / 2 - (int)crosshair_dist - bar_size + 1, t, bar_size, r, g, b, a);	// top
+		fillrgba(w / 2, h / 2 + (int)crosshair_dist, t, bar_size, r, g, b, a);					// bottom
 	}
 	else if (type == 1) // T-shaped
 	{
-		fillrgba(w / 2 - crosshair_dist - bar_size + 1, h / 2, bar_size, t, r, g, b, a);	// left
-		fillrgba(w / 2 + crosshair_dist, h / 2, bar_size, t, r, g, b, a);					// right
+		fillrgba(w / 2 - (int)crosshair_dist - bar_size + 1, h / 2, bar_size, t, r, g, b, a);	// left
+		fillrgba(w / 2 + (int)crosshair_dist, h / 2, bar_size, t, r, g, b, a);					// right
 		// top one missing
-		fillrgba(w / 2, h / 2 + crosshair_dist, t, bar_size, r, g, b, a);					// bottom
+		fillrgba(w / 2, h / 2 + (int)crosshair_dist, t, bar_size, r, g, b, a);					// bottom
 	}
 	else if (type == 2) // circle
 	{
@@ -295,8 +295,8 @@ void CVanillaCrosshair::draw()
 		}
 #else
 		// would be inefficient to use fillRGBA for this.
-		int segments = std::clamp((int)(crosshair_dist / 3), 16, 64);
-		CGameUtil::the().render_circle_opengl(w / 2, h / 2, crosshair_dist, segments, t, !crosshair_translucent.get_value(), r, g, b, a);
+		int segments = std::clamp((int)(crosshair_dist / 3.0f), 16, 64);
+		CGameUtil::the().render_circle_opengl((float)(w / 2), (float)(h / 2), crosshair_dist, segments, (float)t, !crosshair_translucent.get_value(), r, g, b, a);
 #endif
 	}
 #if 0 // little silly, would need some work xD

@@ -75,7 +75,7 @@ public:
 		{
 			CConsole::the().warning("File already exist. An overwrite will be performed.");
 		}
-
+		
 		write_configuration();
 
 		ofs << std::setw(4) << m_json << std::endl;

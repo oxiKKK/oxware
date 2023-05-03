@@ -567,7 +567,7 @@ void COxWareUI::render_popup()
 
 			if (g_gui_widgets_i->begin_columns("popup_window_column", 2))
 			{
-				g_gui_widgets_i->setup_column_fixed_width(g_gui_widgets_i->get_current_window_size().x / 1.7);
+				g_gui_widgets_i->setup_column_fixed_width(g_gui_widgets_i->get_current_window_size().x / 1.7f);
 				g_gui_widgets_i->goto_next_column();
 
 				// *empty*

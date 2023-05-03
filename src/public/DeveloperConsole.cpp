@@ -582,7 +582,7 @@ int CDeveloperConsole::text_edit_callback(ImGuiInputTextCallbackData* data)
 				{
 					history_pos++;
 
-					if (history_pos > m_entered_commands.size() - 1)
+					if (history_pos > (int)(m_entered_commands.size() - 1))
 					{
 						history_pos = 0;
 					}

@@ -149,6 +149,7 @@ private:
 
 	static std::unordered_map<std::string, SpriteAtlas_t> s_sprite_atlas_map;
 	static std::unordered_map<std::string, Sprite_t> s_sprite_map;
+	static std::unordered_map<int, std::string> m_wpn_id_for_sprite_name;
 	Vector2D m_cstrike_sprite_font_size;
 };
 

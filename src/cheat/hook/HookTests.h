@@ -39,7 +39,7 @@
 //	b) don't test after you have disconnected from a server. Some internal engine data still remains in the memory and this could make the
 //	   the results of testing inaccurate!
 #ifdef _DEBUG
-#	define OX_ENABLE_HOOK_TESTING
+//#	define OX_ENABLE_HOOK_TESTING
 #endif
 
 // use this for memory hooks

@@ -199,6 +199,44 @@ std::unordered_map<std::string, Sprite_t> CSpriteMgr::s_sprite_map =
 	{ "autoaim_c",		{ "autoaim_c",		{ 96, 0 }, { 24, 24 }, &s_sprite_atlas_map.at("crosshairs") } },
 };
 
+std::unordered_map<int, std::string> CSpriteMgr::m_wpn_id_for_sprite_name =
+{
+	{ hl::WEAPON_NONE,			"" },
+	{ hl::WEAPON_P228,			"d_p228" },
+	{ hl::WEAPON_GLOCK,			"d_glock18" },		// not used anyway
+	{ hl::WEAPON_SCOUT,			"d_scout" },
+	{ hl::WEAPON_HEGRENADE,		"hegrenade_ammo" },
+	{ hl::WEAPON_XM1014,		"d_xm1014" },
+	{ hl::WEAPON_C4,			"c4" },
+	{ hl::WEAPON_MAC10,			"d_mac10" },
+	{ hl::WEAPON_AUG,			"d_aug" },
+	{ hl::WEAPON_SMOKEGRENADE,	"smokegren_ammo" },
+	{ hl::WEAPON_ELITE,			"d_elite" },
+	{ hl::WEAPON_FIVESEVEN,		"d_fiveseven" },
+	{ hl::WEAPON_UMP45,			"d_ump45" },
+	{ hl::WEAPON_SG550,			"d_sg550" }, 
+	{ hl::WEAPON_GALIL,			"d_galil" }, 
+	{ hl::WEAPON_FAMAS,			"d_famas" }, 
+	{ hl::WEAPON_USP,			"d_usp" },
+	{ hl::WEAPON_GLOCK18,		"d_glock18" },
+	{ hl::WEAPON_AWP,			"d_awp" },
+	{ hl::WEAPON_MP5N,			"d_mp5navy" }, 
+	{ hl::WEAPON_M249,			"d_m249" }, 
+	{ hl::WEAPON_M3,			"d_m3" },
+	{ hl::WEAPON_M4A1,			"d_m4a1" },
+	{ hl::WEAPON_TMP,			"d_tmp" },
+	{ hl::WEAPON_G3SG1,			"d_g3sg1" },
+	{ hl::WEAPON_FLASHBANG,		"flashbang_ammo" },
+	{ hl::WEAPON_DEAGLE,		"d_deagle" },
+	{ hl::WEAPON_SG552,			"d_sg552" },
+	{ hl::WEAPON_AK47,			"d_ak47" },
+	{ hl::WEAPON_KNIFE,			"d_knife" },
+	{ hl::WEAPON_P90,			"d_p90" },
+
+	// TODO?
+	{ hl::WEAPON_SHIELDGUN,		"" },
+};
+
 void Sprite_t::render_additive(const Vector2D& position, const CColor& color, bool dim, uint32_t frame) const
 {
 	auto& [x, y] = m_screen_pos;
@@ -309,31 +347,16 @@ void CSpriteMgr::render_current_weapon_sprite() const
 		return;
 	}
 
-	auto sprite_name = CGameUtil::the().parse_viewmodel_name(vm->model);
+	auto current_weapon = CGameUtil::the().get_current_weapon();
+	if (!current_weapon)
+	{
+		return;
+	}
+
+	auto sprite_name = m_wpn_id_for_sprite_name[current_weapon->m_iId];
 
 	if (!sprite_name.empty())
 	{
-		sprite_name.insert(0, "d_");
-
-		// there aren't any sprites for grenades, specifically, so handle these.
-		if (strstr(sprite_name.c_str(), "hegrenade"))
-		{
-			sprite_name = "hegrenade_ammo";
-		}
-		else if (strstr(sprite_name.c_str(), "smokegrenade"))
-		{
-			sprite_name = "smokegren_ammo";
-		}
-		else if (strstr(sprite_name.c_str(), "flashbang"))
-		{
-			sprite_name = "flashbang_ammo";
-		}
-		// c4 special case
-		else if (strstr(sprite_name.c_str(), "c4"))
-		{
-			sprite_name = "c4";
-		}
-
 		Sprite_t* spr = get_sprite(sprite_name);
 
 		if (!spr)

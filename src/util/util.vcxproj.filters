@@ -8,6 +8,9 @@
     <Filter Include="public">
       <UniqueIdentifier>{9d0f042c-eaec-4453-9417-18457ec96c0c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\byte patterns">
+      <UniqueIdentifier>{6a435da9-22ae-4a6d-af19-3744a3ef7b8e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="precompiled.cpp" />
@@ -51,7 +54,10 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="BytePatternBank.cpp">
-      <Filter>src</Filter>
+      <Filter>src\byte patterns</Filter>
+    </ClCompile>
+    <ClCompile Include="bytepattern_containers.cpp">
+      <Filter>src\byte patterns</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

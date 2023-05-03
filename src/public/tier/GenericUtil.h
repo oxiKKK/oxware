@@ -64,6 +64,7 @@ public:
 	std::string remove_extension_from_path(const std::string& path);
 
 	void open_link_inside_browser(const std::string& link);
+	void open_folder_inside_explorer(const std::string& folder_path);
 
 	RTL_OSVERSIONINFOW get_os_version();
 

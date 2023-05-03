@@ -47,6 +47,7 @@ public:
 	{
 		// it is true by default, and it can be turned off explicitly.
 		m_is_interactible = true;
+		m_interaction_is_locked = false;
 	}
 
 	virtual bool should_render() 
@@ -64,11 +65,16 @@ public:
 
 	inline const std::string& get_id() const { return m_identifier; }
 
+	inline void lock_interaction() { m_interaction_is_locked = true; }
+	inline void unlock_interaction() { m_interaction_is_locked = false; }
+
 protected:
 	std::string m_identifier = "uninitialized";
 
 	// if is, it affects ingame mouse events when closed/opened
 	bool m_is_interactible = false;
+
+	bool m_interaction_is_locked = true;
 };
 
 // rendering context activated by a key press.
@@ -95,6 +101,11 @@ private:
 			m_virtual_key,
 			[this](UserKey_t* key)
 			{
+				if (m_interaction_is_locked)
+				{
+					return;
+				}
+				
 				m_should_render ^= 1;
 			});
 	}
@@ -131,6 +142,11 @@ private:
 			m_virtual_key,
 			[this](UserKey_t* key)
 			{
+				if (m_interaction_is_locked)
+				{
+					return;
+				}
+
 				if (m_reliant_ctx)
 				{
 					// only if the reliant context is rendering, e.g. we cannot show up the console if the menu isn't up.

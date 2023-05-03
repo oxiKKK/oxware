@@ -131,11 +131,15 @@ public:
 
 	virtual void close_current_popup() = 0;
 
+	virtual void push_executing_popup_code() = 0;
+	virtual void pop_executing_popup_code() = 0;
+
 	//
 	// Widgets
 	//
 
 	virtual void add_text(const std::string& text, ETextProperties properties = TEXTPROP_None, FontObject_t* font = nullptr) = 0;
+	virtual void add_bullet_text(const std::string& text, ETextProperties properties = TEXTPROP_None, FontObject_t* font = nullptr) = 0;
 	virtual void add_colored_text(const CColor& color, const std::string& text, ETextProperties properties = TEXTPROP_None) = 0;
 	virtual void add_window_centered_text(const std::string& text, FontObject_t* font = nullptr) = 0;
 	virtual void add_window_centered_text_disabled(const std::string& text, FontObject_t* font = nullptr) = 0;
@@ -159,11 +163,6 @@ public:
 	virtual void add_padding(const Vector2D& size) = 0;
 	virtual void add_spacing() = 0;
 
-	virtual void begin_columns(const std::string& label, int count_columns) = 0;
-	virtual void set_column_width(int column, float width) = 0;
-	virtual void goto_next_column() = 0;
-	virtual void end_columns(int count_columns) = 0;
-
 	virtual void add_separtor_with_text(const std::string& text) = 0;
 	virtual void add_separator() = 0;
 
@@ -180,7 +179,7 @@ public:
 	virtual bool add_selectable(const std::string& label, bool selected = false, ImGuiSelectableFlags flags = 0, const Vector2D& size = Vector2D(0, 0)) = 0;
 
 	//
-	// Tables/lists
+	// Tables/lists/columns
 	//
 	
 	// Adds new imgui table
@@ -199,6 +198,14 @@ public:
 	virtual void table_setup_column(const std::string& name, ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None) = 0;
 
 	virtual void table_next_column() = 0;
+
+	// columns using tables api
+	virtual bool begin_columns(const std::string& label, int count_columns) = 0;
+	virtual void end_columns() = 0;
+	virtual void setup_column_fixed_width(float width, ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None) = 0;
+	virtual void setup_column(ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None) = 0;
+	virtual void goto_next_column() = 0;
+	virtual void goto_next_row() = 0;
 
 	//
 	// Input text buffer operations

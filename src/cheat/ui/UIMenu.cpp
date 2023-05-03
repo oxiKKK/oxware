@@ -28,6 +28,28 @@
 
 #include "precompiled.h"
 
+// Note: moved here from the header file for faster compile times
+const float CMenuStyle::k_rounding_factor = 20.0f;
+const Vector2D CMenuStyle::k_menu_rect_size = { 600, 400 };
+const Vector2D CMenuStyle::k_tab_select_size = { 120, 400 };
+const float CMenuStyle::k_top_region_size_h = 50.0f;
+const float CMenuStyle::k_menu_contents_padding = 10.0f;
+const float CMenuStyle::k_menu_contents_padding_bottom = 5.0f;
+const float CMenuStyle::k_bottom_reserved_rect_h = 15.0f;
+const float CMenuStyle::k_bottom_right_timestamp_rightside_padding = 5.0f;
+const float CMenuStyle::k_bottom_right_timestamp_bottomside_padding = 2.0f;
+const Vector2D CMenuStyle::k_bottom_left_desc_padding = { 5.0f, 2.0f };
+const float CMenuStyle::k_child_contents_rounding = 10.0f;
+const Vector2D CMenuStyle::k_child_contents_padding = { 10.0f, 5.0f };
+const float CMenuStyle::k_child_width = 210.0f;
+const Vector2D CMenuStyle::k_unload_button_padding = { 15.0f, 15.0f };
+const Vector2D CMenuStyle::k_unload_button_size = { 105.0f, 20.0f };
+const Vector2D CMenuStyle::k_unload_button_pos = { k_menu_rect_size.x - k_unload_button_size.x - k_unload_button_padding.x, k_unload_button_padding.y };
+const Vector2D CMenuStyle::k_about_button_size = { 50.0f, 20.0f };
+const Vector2D CMenuStyle::k_about_button_pos = k_unload_button_pos - Vector2D(k_about_button_size.x + 5.0f, 0.0f);
+
+//---------------------------------------------------------------------------------------------------
+
 std::array<TabCallbackFn, UIMENU_Max> CUIMenu::s_active_tab_callback_translation =
 {
 	{
@@ -291,12 +313,20 @@ void CUIMenu::on_render()
 												 desc_label);
 			
 			// Unload button
-			g_gui_widgets_i->set_cursor_pos(CMenuStyle::k_about_button_pos);
+			g_gui_widgets_i->set_cursor_pos(CMenuStyle::k_unload_button_pos);
 
-			if (g_gui_widgets_i->add_button("manually unload", CMenuStyle::k_about_button_size, false, BUTTONFLAG_CenterLabel))
+			if (g_gui_widgets_i->add_button("manually unload", CMenuStyle::k_unload_button_size, false, BUTTONFLAG_CenterLabel))
 			{
 				// end next frame.
 				CoXWARE::the().end_cheat_execution();
+			}
+
+			// About button
+			g_gui_widgets_i->set_cursor_pos(CMenuStyle::k_about_button_pos);
+
+			if (g_gui_widgets_i->add_button("about", CMenuStyle::k_about_button_size, false, BUTTONFLAG_CenterLabel))
+			{
+				COxWareUI::the().create_welcome_popup();
 			}
 		});
 
@@ -364,203 +394,212 @@ void CUIMenu::tab_viewmodel()
 
 void CUIMenu::tab_world()
 {
-	g_gui_widgets_i->begin_columns(__FUNCTION__, 2);
-	
-	add_menu_child(
-		"Removals", CMenuStyle::calc_child_size(250), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			CUIMenuWidgets::the().add_checkbox("Remove screenshake", &remove_screenshake);
+	if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
+	{
+		g_gui_widgets_i->goto_next_column();
 
-			g_gui_widgets_i->add_spacing();
-			CUIMenuWidgets::the().add_description_text("In order to disable in-game fog, use \"gl_fog\" command.");
+		add_menu_child(
+			"Removals", CMenuStyle::calc_child_size(260), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Remove screenshake", &remove_screenshake);
 
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Remove HUD");
+				g_gui_widgets_i->add_spacing();
+				CUIMenuWidgets::the().add_description_text("In order to disable in-game fog, use \"gl_fog\" command.");
 
-			CUIMenuWidgets::the().add_checkbox("Enable", &remove_hud_enable);
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Remove HUD");
 
-			g_gui_widgets_i->begin_columns("removals_hud", 2);
-			CUIMenuWidgets::the().add_checkbox("Weapons", &remove_hud_weapons);
-			CUIMenuWidgets::the().add_checkbox("Crosshair", &remove_hud_crosshair);
-			CUIMenuWidgets::the().add_checkbox("Flashlight", &remove_hud_flashlight);
+				CUIMenuWidgets::the().add_checkbox("Enable", &remove_hud_enable);
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
 
-			g_gui_widgets_i->goto_next_column();
+				if (g_gui_widgets_i->begin_columns("removals_hud", 2))
+				{
+					g_gui_widgets_i->goto_next_column();
+					CUIMenuWidgets::the().add_checkbox("Weapons", &remove_hud_weapons);
+					CUIMenuWidgets::the().add_checkbox("Crosshair", &remove_hud_crosshair);
+					CUIMenuWidgets::the().add_checkbox("Flashlight", &remove_hud_flashlight);
 
-			CUIMenuWidgets::the().add_checkbox("Health", &remove_hud_health);
-			CUIMenuWidgets::the().add_checkbox("Timer", &remove_hud_timer);
-			CUIMenuWidgets::the().add_checkbox("Money", &remove_hud_money);
+					g_gui_widgets_i->goto_next_column();
 
-			g_gui_widgets_i->end_columns(1);
-		});
+					CUIMenuWidgets::the().add_checkbox("Health", &remove_hud_health);
+					CUIMenuWidgets::the().add_checkbox("Timer", &remove_hud_timer);
+					CUIMenuWidgets::the().add_checkbox("Money", &remove_hud_money);
 
-	add_menu_child(
-		"Smoke visuals", CMenuStyle::calc_child_size(180), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			CUIMenuWidgets::the().add_checkbox("Enable", &smoke_visuals);
+					g_gui_widgets_i->end_columns();
+				}
+			});
 
-			CUIMenuWidgets::the().add_color_edit("Color", &smoke_color);
-			CUIMenuWidgets::the().add_checkbox("Rainbow smoke", &smoke_rainbow);
+		g_gui_widgets_i->goto_next_column();
 
-			CUIMenuWidgets::the().add_slider("Opacity", "%0.0f %%", &smoke_opacity);
+		add_menu_child(
+			"Viewmodel offset", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &viewmodel_offset_enable);
 
-			CUIMenuWidgets::the().add_description_text("Everything changed here will take effect only on new smoke creation.");
-		});
-	
-	g_gui_widgets_i->goto_next_column();
-	
-	add_menu_child(
-		"Viewmodel offset", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			CUIMenuWidgets::the().add_checkbox("Enable", &viewmodel_offset_enable);
+				CUIMenuWidgets::the().add_slider("Amount", "%0.1f", &viewmodel_offset_value);
+			});
 
-			CUIMenuWidgets::the().add_slider("Amount", "%0.1f", &viewmodel_offset_value);
-		});
+		add_menu_child(
+			"Smoke visuals", CMenuStyle::calc_child_size(180), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &smoke_visuals);
 
-	g_gui_widgets_i->end_columns(1);
+				CUIMenuWidgets::the().add_color_edit("Color", &smoke_color);
+				CUIMenuWidgets::the().add_checkbox("Rainbow smoke", &smoke_rainbow);
+
+				CUIMenuWidgets::the().add_slider("Opacity", "%0.0f %%", &smoke_opacity);
+
+				CUIMenuWidgets::the().add_description_text("Everything changed here will take effect only on new smoke creation.");
+			});
+
+		g_gui_widgets_i->end_columns();
+	}
 }
 
 void CUIMenu::tab_render()
 {
-	g_gui_widgets_i->begin_columns(__FUNCTION__, 2);
-	
-	add_menu_child(
-		"Field of view", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			CUIMenuWidgets::the().add_checkbox("Enable", &custom_fov);
-			CUIMenuWidgets::the().add_slider("FOV scale", "%0.01fx", &custom_fov_value);
-		});
+	if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
+	{
+		g_gui_widgets_i->goto_next_column();
 
-	add_menu_child(
-		"Flashbang fade", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			CUIMenuWidgets::the().add_checkbox_with_color("Enable", &flashfademod_enable, &flashfademod_color);
-
-			CUIMenuWidgets::the().add_slider("Fade factor", "%0.1f", &flashfademod_fade_factor);
-		});
-	
-	add_menu_child(
-		"ESP", CMenuStyle::calc_child_size(340), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			CUIMenuWidgets::the().add_checkbox("Enable", &esp_enable);
-
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Player");
-			CUIMenuWidgets::the().add_checkbox("Enable ##player", &esp_player_enable);
-			CUIMenuWidgets::the().add_checkbox("Show name", &esp_player_name);
-
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Entity");
-			CUIMenuWidgets::the().add_checkbox("Enable ##ents", &esp_entity_enable);
-
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Sound");
-			CUIMenuWidgets::the().add_checkbox("Enable ##sound", &esp_sound_enable);
-			CUIMenuWidgets::the().add_slider("Display life", "%0.1f seconds", &esp_sound_interval);
-			CUIMenuWidgets::the().add_checkbox("Filter local", &esp_sound_filter_local);
-			CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
-		});
-
-	add_menu_child(
-		"Studio renderer", CMenuStyle::calc_child_size(310), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Player skeleton");
-
-			CUIMenuWidgets::the().add_checkbox("Enable ##skelly", &mdlchams_player_skeleton);
-
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Player head hitbox");
-
-			CUIMenuWidgets::the().add_checkbox_with_color("Enable ##hbox", &mdlchams_head_box_enable, &mdlchams_head_box_color);
-
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Other");
-
-			CUIMenuWidgets::the().add_checkbox("Real player model ##skelly", &mdlchams_render_real_playermodel, 
-											   "Renders \"Real playermodel\". Hitboxes of this playermodel are used for hit registration, no matter what the acutal model is.");
-
-			CUIMenuWidgets::the().add_description_text_ex("You can see this why this is useful here:", nullptr, true);
-			g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Regular));
-			if (g_gui_widgets_i->add_hypertext_link("https://youtu.be/xMd9m3McNvo"))
+		add_menu_child(
+			"Field of view", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
 			{
-				CGenericUtil::the().open_link_inside_browser("https://youtu.be/xMd9m3McNvo");
-			}
-			g_gui_widgets_i->pop_font();
-		});
+				CUIMenuWidgets::the().add_checkbox("Enable", &custom_fov);
+				CUIMenuWidgets::the().add_slider("FOV scale", "%0.01fx", &custom_fov_value);
+			});
 
-	g_gui_widgets_i->goto_next_column();
+		add_menu_child(
+			"Flashbang fade", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox_with_color("Enable", &flashfademod_enable, &flashfademod_color);
 
-	add_menu_child(
-		"Model chams", CMenuStyle::calc_child_size(400), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			CUIMenuWidgets::the().add_checkbox("Enable", &mdlchams_enable);
+				CUIMenuWidgets::the().add_slider("Fade factor", "%0.1f", &flashfademod_fade_factor);
+			});
 
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Viewmodel");
-			CUIMenuWidgets::the().add_checkbox_with_color("Enable ##VM", &mdlchams_viewmodel_enable, &mdlchams_viewmodel_color);
-			CUIMenuWidgets::the().add_listbox("Type ##VM", &mdlchams_viewmodel_type, { "Flat", "Shaded"});
+		add_menu_child(
+			"ESP", CMenuStyle::calc_child_size(350), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &esp_enable);
 
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Players - T");
-			CUIMenuWidgets::the().add_checkbox_with_color("Enable ##T", &mdlchams_players_t_enable, &mdlchams_players_t_color);
-			CUIMenuWidgets::the().add_listbox("Type ##T", &mdlchams_players_t_type, { "Flat", "Shaded" });
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Player");
+				CUIMenuWidgets::the().add_checkbox("Enable ##player", &esp_player_enable);
+				CUIMenuWidgets::the().add_checkbox("Show name", &esp_player_name);
 
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Players - CT");
-			CUIMenuWidgets::the().add_checkbox_with_color("Enable ##CT", &mdlchams_players_ct_enable, &mdlchams_players_ct_color);
-			CUIMenuWidgets::the().add_listbox("Type ##CT", &mdlchams_players_ct_type, { "Flat", "Shaded" });
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Entity");
+				CUIMenuWidgets::the().add_checkbox("Enable ##ents", &esp_entity_enable);
 
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Properties");
-			CUIMenuWidgets::the().add_checkbox("Flat-shaded", &mdlchams_flatshaded);
-			CUIMenuWidgets::the().add_checkbox("Blend", &mdlchams_blend);
-		});
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Sound");
+				CUIMenuWidgets::the().add_checkbox("Enable ##sound", &esp_sound_enable);
+				CUIMenuWidgets::the().add_slider("Display life", "%0.1f seconds", &esp_sound_interval);
+				CUIMenuWidgets::the().add_checkbox("Filter local", &esp_sound_filter_local);
+				CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
+			});
 
-	add_menu_child(
-		"HUD rendering", CMenuStyle::calc_child_size(205), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Custom rendering");
+		add_menu_child(
+			"Studio renderer", CMenuStyle::calc_child_size(310), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Player skeleton");
 
-			CUIMenuWidgets::the().add_checkbox("Enable", &hud_render);
-			CUIMenuWidgets::the().add_checkbox("Current weapon", &hud_render_current_weapon);
-			CUIMenuWidgets::the().add_checkbox("Velocity", &hud_render_velocity);
+				CUIMenuWidgets::the().add_checkbox("Enable ##skelly", &mdlchams_player_skeleton);
 
-			g_gui_widgets_i->add_padding({ 0, 5.0f });
-			g_gui_widgets_i->add_separtor_with_text("Colors");
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Player head hitbox");
 
-			CUIMenuWidgets::the().add_checkbox_with_color("HUD Color", &hud_color_enable, &hud_color);
-		});
+				CUIMenuWidgets::the().add_checkbox_with_color("Enable ##hbox", &mdlchams_head_box_enable, &mdlchams_head_box_color);
 
-	add_menu_child(
-		"Custom vanilla crosshair", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			CUIMenuWidgets::the().add_checkbox("Enable", &crosshair_enable);
-			CUIMenuWidgets::the().add_checkbox("Dynamic", &crosshair_dynamic);
-			CUIMenuWidgets::the().add_checkbox("Translucent", &crosshair_translucent);
-			CUIMenuWidgets::the().add_checkbox("Static", &crosshair_static);
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Other");
 
-			CUIMenuWidgets::the().add_slider("Size", "%0.0f", &crosshair_size, "vanilla");
-			CUIMenuWidgets::the().add_slider("Gap", "%0.0f", &crosshair_gap, "vanilla");
-			CUIMenuWidgets::the().add_slider("Thickness", "%0.0f pixels", &crosshair_thickness);
+				CUIMenuWidgets::the().add_checkbox("Real player model ##skelly", &mdlchams_render_real_playermodel,
+												   "Renders \"Real playermodel\". Hitboxes of this playermodel are used for hit registration, no matter what the acutal model is.");
 
-			CUIMenuWidgets::the().add_listbox("Type ##hidden", &crosshair_type, { "Classic", "T-Shaped", "Circular" });
+				CUIMenuWidgets::the().add_description_text_ex("You can see this why this is useful here:", nullptr, true);
+				g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Regular));
+				if (g_gui_widgets_i->add_hypertext_link("https://youtu.be/xMd9m3McNvo"))
+				{
+					CGenericUtil::the().open_link_inside_browser("https://youtu.be/xMd9m3McNvo");
+				}
+				g_gui_widgets_i->pop_font();
+			});
 
-			CUIMenuWidgets::the().add_color_edit("Color", &crosshair_color);
-		});
+		g_gui_widgets_i->goto_next_column();
 
-	g_gui_widgets_i->end_columns(1);
+		add_menu_child(
+			"Model chams", CMenuStyle::calc_child_size(400), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &mdlchams_enable);
+
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Viewmodel");
+				CUIMenuWidgets::the().add_checkbox_with_color("Enable ##VM", &mdlchams_viewmodel_enable, &mdlchams_viewmodel_color);
+				CUIMenuWidgets::the().add_listbox("Type ##VM", &mdlchams_viewmodel_type, { "Flat", "Shaded" });
+
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Players - T");
+				CUIMenuWidgets::the().add_checkbox_with_color("Enable ##T", &mdlchams_players_t_enable, &mdlchams_players_t_color);
+				CUIMenuWidgets::the().add_listbox("Type ##T", &mdlchams_players_t_type, { "Flat", "Shaded" });
+
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Players - CT");
+				CUIMenuWidgets::the().add_checkbox_with_color("Enable ##CT", &mdlchams_players_ct_enable, &mdlchams_players_ct_color);
+				CUIMenuWidgets::the().add_listbox("Type ##CT", &mdlchams_players_ct_type, { "Flat", "Shaded" });
+
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Properties");
+				CUIMenuWidgets::the().add_checkbox("Flat-shaded", &mdlchams_flatshaded);
+				CUIMenuWidgets::the().add_checkbox("Blend", &mdlchams_blend);
+			});
+
+		add_menu_child(
+			"HUD rendering", CMenuStyle::calc_child_size(215), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Custom rendering");
+
+				CUIMenuWidgets::the().add_checkbox("Enable", &hud_render);
+				CUIMenuWidgets::the().add_checkbox("Current weapon", &hud_render_current_weapon);
+				CUIMenuWidgets::the().add_checkbox("Velocity", &hud_render_velocity);
+
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Colors");
+
+				CUIMenuWidgets::the().add_checkbox_with_color("HUD Color", &hud_color_enable, &hud_color);
+			});
+
+		add_menu_child(
+			"Custom vanilla crosshair", CMenuStyle::calc_child_size(280), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &crosshair_enable);
+				CUIMenuWidgets::the().add_checkbox("Dynamic", &crosshair_dynamic);
+				CUIMenuWidgets::the().add_checkbox("Translucent", &crosshair_translucent);
+				CUIMenuWidgets::the().add_checkbox("Static", &crosshair_static);
+
+				CUIMenuWidgets::the().add_slider("Size", "%0.0f", &crosshair_size, "vanilla");
+				CUIMenuWidgets::the().add_slider("Gap", "%0.0f", &crosshair_gap, "vanilla");
+				CUIMenuWidgets::the().add_slider("Thickness", "%0.0f pixels", &crosshair_thickness);
+
+				CUIMenuWidgets::the().add_listbox("Type ##hidden", &crosshair_type, { "Classic", "T-Shaped", "Circular" });
+
+				CUIMenuWidgets::the().add_color_edit("Color", &crosshair_color);
+			});
+
+		g_gui_widgets_i->end_columns();
+	}
 }
 
 void CUIMenu::tab_visuals4()
@@ -569,27 +608,31 @@ void CUIMenu::tab_visuals4()
 }
 
 void CUIMenu::tab_exploits()
-{	
+{
 	add_menu_child(
-		"Server command filter", { -1.0f, 210.0f }, false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Server command filter", CMenuStyle::child_full_width(210.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
-			g_gui_widgets_i->begin_columns("server_cmd_filter", 3);
-			g_gui_widgets_i->set_column_width(0, 100);
-			g_gui_widgets_i->set_column_width(1, 150);
+			if (g_gui_widgets_i->begin_columns("server_cmd_filter", 3))
+			{
+				g_gui_widgets_i->setup_column_fixed_width(100);
+				g_gui_widgets_i->setup_column_fixed_width(150);
 
-			CUIMenuWidgets::the().add_checkbox("Enable", &cmdfilter_enable);
-			CUIMenuWidgets::the().add_checkbox("Filter all", &cmdfilter_filter_all);
+				g_gui_widgets_i->goto_next_column();
 
-			g_gui_widgets_i->goto_next_column();
+				CUIMenuWidgets::the().add_checkbox("Enable", &cmdfilter_enable);
+				CUIMenuWidgets::the().add_checkbox("Filter all", &cmdfilter_filter_all);
 
-			CUIMenuWidgets::the().add_checkbox("Print blocked cmds", &cmdfilter_print_blocked);
+				g_gui_widgets_i->goto_next_column();
 
-			g_gui_widgets_i->goto_next_column();
+				CUIMenuWidgets::the().add_checkbox("Print blocked cmds", &cmdfilter_print_blocked);
 
-			CUIMenuWidgets::the().add_checkbox("Print every cmds", &cmdfilter_print_every);
+				g_gui_widgets_i->goto_next_column();
 
-			g_gui_widgets_i->end_columns(1);
+				CUIMenuWidgets::the().add_checkbox("Print every cmds", &cmdfilter_print_every);
+
+				g_gui_widgets_i->end_columns();
+			}
 
 			CUIMenuWidgets::the().add_description_text_ex(
 				"This filter allows you to block commands that are send to you from the server."
@@ -657,83 +700,89 @@ void CUIMenu::tab_exploits()
 				});
 		});
 
-	g_gui_widgets_i->begin_columns(__FUNCTION__, 2);
-	
+	if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
+	{
+		g_gui_widgets_i->goto_next_column();
+
+		add_menu_child(
+			"Bypass game constrains", CMenuStyle::calc_child_size(335), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Re-enable noclip", &bypass_constrain_noclip, "Makes it possible to re-enable noclip in singleplayer. sv_cheats must be enabled.");
+
+				CUIMenuWidgets::the().add_checkbox("Enable", &bypass_constrain_renderdist_enable);
+				CUIMenuWidgets::the().add_slider("Render distance", "%0.0f units", &bypass_constrain_renderdist_value);
+
+				CUIMenuWidgets::the().add_checkbox("Re-enable renderer cvars", &bypass_constrain_renderer_cvars);
+
+				CUIMenuWidgets::the().add_description_text(
+					"Disables R_ForceCVars, which is responsible for preventing some renderer cvars to be set.",
+
+					"These cvars are:\n\nr_lightmap, gl_clear, r_novis, r_fullbright, snd_show, chase_active, v_lambert, gl_monolights, gl_wireframe, r_dynamic, gl_alphamin, gl_max_size, gl_polyoffset, r_drawentities, v_lightgamma.");
+
+
+				CUIMenuWidgets::the().add_checkbox("Disable SP-Only cvars", &bypass_constrain_sponly_cvars,
+												   "Some cvars can be only set in singleplayer. Set this to be able to control these cvars also in MP. "
+												   "See the console output for which cvars this affects.");
+			});
+
+		g_gui_widgets_i->goto_next_column();
+
+		add_menu_child(
+			"Frame skip", CMenuStyle::calc_child_size(175), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &frame_skip_enable);
+
+				CUIMenuWidgets::the().add_slider("Amount", "%0.0f frames", &frame_skip_amount);
+
+				CUIMenuWidgets::the().add_description_text(
+					"Frame skip or \"Frame simulation\" enables \"fake\" fps, that are not visual, but physical.",
+
+					"What it does is that it allows execution of the main rendering code only every Nth frame (based on the settings).\n"
+					"This allows for massive fps boosts, since basically everything is being rendered each Nth frame only.\n"
+					"If you set this up to maximum value, you will get maximum fps boost, but bigger visual lags. On the contrary, you will get less fps boost, but without visual lags.\n\n"
+					"Note that above 1000fps the engine isn't really functioning as it should.");
+
+				CUIMenuWidgets::the().add_slider("FPS limit", "~%0.0f frames/sec", &frame_skip_maxfps);
+			});
+
+		g_gui_widgets_i->end_columns();
+	}
+
 	add_menu_child(
-		"Bypass game constrains", CMenuStyle::calc_child_size(335), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			CUIMenuWidgets::the().add_checkbox("Re-enable noclip", &bypass_constrain_noclip, "Makes it possible to re-enable noclip in singleplayer. sv_cheats must be enabled.");
-
-			CUIMenuWidgets::the().add_checkbox("Enable", &bypass_constrain_renderdist_enable);
-			CUIMenuWidgets::the().add_slider("Render distance", "%0.0f units", &bypass_constrain_renderdist_value);
-
-			CUIMenuWidgets::the().add_checkbox("Re-enable renderer cvars", &bypass_constrain_renderer_cvars);
-
-			CUIMenuWidgets::the().add_description_text(
-				"Disables R_ForceCVars, which is responsible for preventing some renderer cvars to be set.",
-
-				"These cvars are:\n\nr_lightmap, gl_clear, r_novis, r_fullbright, snd_show, chase_active, v_lambert, gl_monolights, gl_wireframe, r_dynamic, gl_alphamin, gl_max_size, gl_polyoffset, r_drawentities, v_lightgamma.");
-
-
-			CUIMenuWidgets::the().add_checkbox("Disable SP-Only cvars", &bypass_constrain_sponly_cvars, 
-											   "Some cvars can be only set in singleplayer. Set this to be able to control these cvars also in MP. "
-											   "See the console output for which cvars this affects.");
-		});
-	
-	g_gui_widgets_i->goto_next_column();
-	
-	add_menu_child(
-		"Frame skip", CMenuStyle::calc_child_size(175), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			CUIMenuWidgets::the().add_checkbox("Enable", &frame_skip_enable);
-
-			CUIMenuWidgets::the().add_slider("Amount", "%0.0f frames", &frame_skip_amount);
-
-			CUIMenuWidgets::the().add_description_text(
-				"Frame skip or \"Frame simulation\" enables \"fake\" fps, that are not visual, but physical.", 
-
-				"What it does is that it allows execution of the main rendering code only every Nth frame (based on the settings).\n"
-				"This allows for massive fps boosts, since basically everything is being rendered each Nth frame only.\n"
-				"If you set this up to maximum value, you will get maximum fps boost, but bigger visual lags. On the contrary, you will get less fps boost, but without visual lags.\n\n"
-				"Note that above 1000fps the engine isn't really functioning as it should.");
-
-			CUIMenuWidgets::the().add_slider("FPS limit", "~%0.0f frames/sec", &frame_skip_maxfps);
-		});
-
-	g_gui_widgets_i->end_columns(1);
-
-	add_menu_child(
-		"Lie to the server", { -1.0f, 400.0f }, false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Lie to the server", CMenuStyle::child_full_width(400.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[this]()
 		{
-			g_gui_widgets_i->begin_columns("server_liar_columns", 2);
-			g_gui_widgets_i->set_column_width(0, 200);
+			if (g_gui_widgets_i->begin_columns("server_liar_columns", 2))
+			{
+				g_gui_widgets_i->setup_column_fixed_width(200);
+				g_gui_widgets_i->goto_next_column();
 
-			CUIMenuWidgets::the().add_checkbox("Enable", &cvarfilter_enable);
+				CUIMenuWidgets::the().add_checkbox("Enable", &cvarfilter_enable);
 
-			g_gui_widgets_i->add_spacing();
+				g_gui_widgets_i->add_spacing();
 
-			CUIMenuWidgets::the().add_checkbox("Monitor server", &cvarfilter_monitor_server, 
-											   "This enables to see what cvars is the server requesting."
-											   " See the console after you join a server, to see what cvars it requests from you.");
+				CUIMenuWidgets::the().add_checkbox("Monitor server", &cvarfilter_monitor_server,
+												   "This enables to see what cvars is the server requesting."
+												   " See the console after you join a server, to see what cvars it requests from you.");
 
-			g_gui_widgets_i->goto_next_column();
+				g_gui_widgets_i->goto_next_column();
 
-			g_gui_widgets_i->add_text("Description");
+				g_gui_widgets_i->add_text("Description");
 
-			CUIMenuWidgets::the().add_description_text(
-				"The \"server lying\" technique is used to \"fake\" the server with cvar values.", 
+				CUIMenuWidgets::the().add_description_text(
+					"The \"server lying\" technique is used to \"fake\" the server with cvar values.",
 
-				"Occasionally, some servers request cvar values from the client such as \"fps_max\" etc. and"
-				" they basically want to know the value - in order to kick you when the value is \"against the rules\"."
-				"\n\nUsing this technique, you can basically send whatever cvar values you want to the server, when it requests it."
-				"\n\nFor example, the server wants you to have \"fps_max\" set to \"100\", but you don't want to. Change the value here, "
-				"and when the server will request this cvar value, it will send him whatever value you've specified here, instead of the real one."
-			);
+					"Occasionally, some servers request cvar values from the client such as \"fps_max\" etc. and"
+					" they basically want to know the value - in order to kick you when the value is \"against the rules\"."
+					"\n\nUsing this technique, you can basically send whatever cvar values you want to the server, when it requests it."
+					"\n\nFor example, the server wants you to have \"fps_max\" set to \"100\", but you don't want to. Change the value here, "
+					"and when the server will request this cvar value, it will send him whatever value you've specified here, instead of the real one."
+				);
 
-			g_gui_widgets_i->end_columns(1);
+				g_gui_widgets_i->end_columns();
+			}
 
 			// too much code to have inside of the menu...
 			CServerLiar::the().render_ui();
@@ -753,7 +802,7 @@ void CUIMenu::tab_miscellaneous3()
 void CUIMenu::tab_config()
 {
 	add_menu_child(
-		"Configuration", { -1.0f, -1.0f }, false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Configuration", CMenuStyle::child_full_width(-1.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			// first = error or not, second = status message
@@ -772,14 +821,14 @@ void CUIMenu::tab_config()
 				configs.clear();
 
 				g_config_mgr_i->for_each_cfg(
-						[](const FilePath_t& cfg_path)
-						{
-							num_configs++;
+					[](const FilePath_t& cfg_path)
+					{
+						num_configs++;
 
-							auto relative_cfg_path = g_filesystem_i->get_relative_to_appdata_ex("config\\", cfg_path);
+						auto relative_cfg_path = g_filesystem_i->get_relative_to_appdata_ex("config\\", cfg_path);
 
-							configs.push_back(relative_cfg_path);
-						});
+						configs.push_back(relative_cfg_path);
+					});
 			};
 
 			static auto last_searched = std::chrono::high_resolution_clock::now();
@@ -798,172 +847,199 @@ void CUIMenu::tab_config()
 				selected_cfg.clear();
 			}
 
-			g_gui_widgets_i->begin_columns(__FUNCTION__, 2);
+			float status_bar_footer_height = 33.0f;
 
-			g_gui_widgets_i->add_text("Configuration files");
+			if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
+			{
+				g_gui_widgets_i->goto_next_column();
 
-			g_gui_widgets_i->add_child(
-				"configs", { -1.0f, -1.0f }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
-				[]()
-				{
-					if (configs.empty())
+				g_gui_widgets_i->add_text("Configuration files");
+
+				g_gui_widgets_i->add_child(
+					"configs", { -1.0f, -1.0f - status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
+					[]()
 					{
-						g_gui_widgets_i->add_window_centered_text_disabled("No configuration files available");
-					}
-					else
-					{
-						for (const auto& cfg_path : configs)
+						if (configs.empty())
 						{
-							bool is_selected = selected_cfg == cfg_path;
-							if (g_gui_widgets_i->add_toggle_button(cfg_path.string(), { -1.0f, 0.0f },
-																   is_selected, false))
-							{
-								if (is_selected)
-								{
-									// clicking on currently selected entry, toggle it.
-									selected_cfg.clear();
-								}
-								else
-								{
-									selected_cfg = cfg_path;
-								}
-							}
-						}
-					}
-				});
-
-			g_gui_widgets_i->goto_next_column();
-
-			g_gui_widgets_i->add_text("Options on selected cfg");
-
-			g_gui_widgets_i->add_child(
-				"selection", { -1.0f, 55 }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
-				[&]()
-				{
-					if (!selected_cfg.empty())
-					{
-						if (g_gui_widgets_i->add_button("load", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
-						{
-							if (g_config_mgr_i->load_configuration(CFG_Variables, selected_cfg.string()))
-							{
-								status_msg(std::format("Loaded from {}.", selected_cfg.string()), false);
-							}
-							else
-							{
-								status_msg(std::format("Failed to load {}!", selected_cfg.string()), true);
-							}
-						}
-
-						if (g_gui_widgets_i->add_button("delete", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
-						{
-							if (g_filesystem_i->remove(g_appdata_mgr_i->get_known("config\\") / selected_cfg))
-							{
-								status_msg(std::format("Deleted {}.", selected_cfg), false);
-							}
-							else
-							{
-								status_msg(std::format("Failed to delete {}.", selected_cfg), true);
-							}
-						}
-					}
-					else
-					{
-						g_gui_widgets_i->add_window_centered_text_disabled("No cfg selected");
-					}
-				});
-
-			g_gui_widgets_i->add_text("Other");
-
-			g_gui_widgets_i->add_child(
-				"information", { -1.0f, 140 }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
-				[&]()
-				{
-					if (g_gui_widgets_i->add_button("create new", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
-					{
-						static char name_buffer[64];
-						COxWareUI::the().create_popup(
-							[]()
-							{
-								g_gui_widgets_i->add_text_input("Config name", name_buffer, sizeof(name_buffer));
-
-								g_gui_widgets_i->add_text("Enter name of the config");
-							},
-							[&]() // on close
-							{
-								auto path = g_config_mgr_i->get_config_directory(name_buffer);
-
-								if (!path.has_extension())
-								{
-									path.replace_extension("json");
-								}
-
-								CfgFileVariables cfg(path);
-
-								if (cfg.write())
-								{
-									status_msg(std::format("Saved '{}'.", path.filename().string()), false);
-								}
-								else
-								{
-									status_msg(std::format("Couldn't save '{}'.", path.filename().string()), true);
-								}
-							});
-					}
-
-					if (g_gui_widgets_i->add_button("copy config directory", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
-					{
-						auto dir = g_config_mgr_i->get_config_directory().string();
-						CGenericUtil::the().copy_to_clipboard(dir);
-						status_msg("Copied to clipboard.", false);
-					}
-
-					if (g_gui_widgets_i->add_button("save current", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
-					{
-						if (g_config_mgr_i->write_configuration(CFG_Variables, "saved.json"))
-						{
-							status_msg("Saved to saved.json.", false);
+							g_gui_widgets_i->add_window_centered_text_disabled("No configuration files available");
 						}
 						else
 						{
-							status_msg("Failed to save to saved.json!", false);
+							for (const auto& cfg_path : configs)
+							{
+								bool is_selected = selected_cfg == cfg_path;
+								if (g_gui_widgets_i->add_toggle_button(cfg_path.string(), { -1.0f, 0.0f },
+																	   is_selected, false))
+								{
+									if (is_selected)
+									{
+										// clicking on currently selected entry, toggle it.
+										selected_cfg.clear();
+									}
+									else
+									{
+										selected_cfg = cfg_path;
+									}
+								}
+							}
 						}
-					}
+					});
 
-					if (g_gui_widgets_i->add_button("restore defaults", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+				g_gui_widgets_i->goto_next_column();
+
+				g_gui_widgets_i->add_text("Options on selected cfg");
+
+				g_gui_widgets_i->add_child(
+					"selection", { -1.0f, 55 }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
+					[&]()
 					{
-						// this if-else tree is kinda dumb, but whatever xd
-						if (g_config_mgr_i->load_configuration(CFG_Variables, "default.json"))
+						if (!selected_cfg.empty())
 						{
-							status_msg("Restored default configuration.", false);
+							if (g_gui_widgets_i->add_button("load", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+							{
+								if (g_config_mgr_i->load_configuration(CFG_Variables, selected_cfg.string()))
+								{
+									status_msg(std::format("Loaded from {}.", selected_cfg.string()), false);
+								}
+								else
+								{
+									status_msg(std::format("Failed to load {}!", selected_cfg.string()), true);
+								}
+							}
+
+							if (g_gui_widgets_i->add_button("delete", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+							{
+								if (g_filesystem_i->remove(g_appdata_mgr_i->get_known("config\\") / selected_cfg))
+								{
+									status_msg(std::format("Deleted {}.", selected_cfg), false);
+								}
+								else
+								{
+									status_msg(std::format("Failed to delete {}.", selected_cfg), true);
+								}
+							}
 						}
 						else
 						{
-							if (!g_config_mgr_i->write_configuration(CFG_Variables, "default.json"))
+							g_gui_widgets_i->add_window_centered_text_disabled("No cfg selected");
+						}
+					});
+
+				g_gui_widgets_i->add_text("Other");
+
+				g_gui_widgets_i->add_child(
+					"information", { -1.0f, -1.0f - status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
+					[&]()
+					{
+						if (g_gui_widgets_i->add_button("create new", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+						{
+							static char name_buffer[64];
+							COxWareUI::the().schedule_popup(
+								"", Vector2D(200, 140),
+								[]()
+								{
+									if (g_gui_widgets_i->add_text_input("Config name", name_buffer, sizeof(name_buffer), ImGuiInputTextFlags_EnterReturnsTrue, true))
+									{
+										// enter returns true:
+										COxWareUI::the().close_current_popup();
+									}
+
+									g_gui_widgets_i->add_text("Enter name of the config");
+
+									g_gui_widgets_i->add_text("Will be saved as:");
+
+									if (name_buffer[0])
+									{
+										g_gui_widgets_i->add_text(std::format("'{}.json'", name_buffer),
+																  TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
+									}
+								},
+								[&]() // on close
+								{
+									if (!name_buffer[0])
+									{
+										return;
+									}
+
+									auto path = g_config_mgr_i->get_config_directory(name_buffer);
+
+									if (!path.has_extension())
+									{
+										path.replace_extension("json");
+									}
+
+									CfgFileVariables cfg(path);
+
+									if (cfg.write())
+									{
+										status_msg(std::format("Saved '{}'.", path.filename().string()), false);
+									}
+									else
+									{
+										status_msg(std::format("Couldn't save '{}'.", path.filename().string()), true);
+									}
+
+									strcpy(name_buffer, "");
+								}, 
+								ImGuiWindowFlags_NoResize);
+						}
+
+						if (g_gui_widgets_i->add_button("open config directory", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+						{
+							auto dir = g_config_mgr_i->get_config_directory().string();
+							CGenericUtil::the().open_folder_inside_explorer(dir);
+							status_msg("Opened config directory.", false);
+						}
+
+						if (g_gui_widgets_i->add_button("save current", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+						{
+							if (g_config_mgr_i->write_configuration(CFG_Variables, "saved.json"))
 							{
-								status_msg("Failed to restore defaults!", true);
+								status_msg("Saved to saved.json.", false);
 							}
 							else
 							{
-								if (g_config_mgr_i->load_configuration(CFG_Variables, "default.json"))
-								{
-									status_msg("Restored default configuration.", false);
-								}
-								else
+								status_msg("Failed to save to saved.json!", false);
+							}
+						}
+
+						if (g_gui_widgets_i->add_button("restore defaults", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+						{
+							// this if-else tree is kinda dumb, but whatever xd
+							if (g_config_mgr_i->load_configuration(CFG_Variables, "default.json"))
+							{
+								status_msg("Restored default configuration.", false);
+							}
+							else
+							{
+								if (!g_config_mgr_i->write_configuration(CFG_Variables, "default.json"))
 								{
 									status_msg("Failed to restore defaults!", true);
 								}
+								else
+								{
+									if (g_config_mgr_i->load_configuration(CFG_Variables, "default.json"))
+									{
+										status_msg("Restored default configuration.", false);
+									}
+									else
+									{
+										status_msg("Failed to restore defaults!", true);
+									}
+								}
+
 							}
-
 						}
-					}
 
-					g_gui_widgets_i->add_spacing();
-					CUIMenuWidgets::the().add_slider("Autosave interval", "%0.0f seconds", g_config_mgr_i->get_save_cfg_interval_var());
+						g_gui_widgets_i->add_spacing();
+						CUIMenuWidgets::the().add_slider("Autosave interval", "%0.0f seconds", g_config_mgr_i->get_save_cfg_interval_var());
 
-					g_gui_widgets_i->add_progress_bar("Test", { -1.0f, 0.0f }, g_config_mgr_i->get_duration_last_saved_sec(), (float)g_config_mgr_i->get_save_cfg_interval_var()->get_value());
-				});
+						g_gui_widgets_i->add_progress_bar("Test", { -1.0f, 0.0f }, g_config_mgr_i->get_duration_last_saved_sec(), (float)g_config_mgr_i->get_save_cfg_interval_var()->get_value());
+					});
 
-
+				g_gui_widgets_i->end_columns();
+			}
+				
 			g_gui_widgets_i->add_child(
 				"status", { -1.0f, -1.0f }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
 				[&]()
@@ -979,8 +1055,6 @@ void CUIMenu::tab_config()
 						g_gui_widgets_i->pop_font();
 					}
 				});
-
-			g_gui_widgets_i->end_columns(1);
 		});
 }
 

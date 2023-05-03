@@ -30,45 +30,6 @@
 #define IBYTEPATTERNBANK_H
 #pragma once
 
-enum EGSBuild
-{
-	GS_Unknown,
-
-	GS_8684,
-	GS_4554,
-	GS_3266,
-
-	GS_Count,
-};
-
-static int gsbuild_to_int(EGSBuild b)
-{
-	switch (b)
-	{
-		case GS_Unknown:	return -1;
-		case GS_8684:		return 8684;
-		case GS_4554:		return 4554;
-		case GS_3266:		return 3266;
-	}
-
-	assert(0 && "invalid EGSBuild passed to " __FUNCTION__);
-	return -1;
-}
-
-static EGSBuild int_to_gsbuild(int i)
-{
-	switch (i)
-	{
-		case -1:			return GS_Unknown;
-		case 8684:			return GS_8684;
-		case 4554:			return GS_4554;
-		case 3266:			return GS_3266;
-	}
-
-	assert(0 && "invalid build number passed to " __FUNCTION__);
-	return GS_Unknown;
-}
-
 #include "BytePattern.h"
 
 struct PatternRecord
@@ -77,6 +38,8 @@ struct PatternRecord
 	std::string function;
 	CBytePattern pattern;
 };
+
+using BytePatternContainer = std::unordered_map<std::string, PatternRecord>;
 
 class IBytePatternBank : public IBaseInterface
 {
@@ -87,8 +50,8 @@ public:
 
 	virtual std::string supported_builds_as_str() = 0;
 
-	virtual CBytePattern get_pattern(const std::string& hook_name) = 0;
-	virtual PatternRecord* get_full(const std::string& hook_name) = 0;
+	virtual CBytePattern get_pattern(const std::string& hook_name) const = 0;
+	virtual const PatternRecord* get_full(const std::string& hook_name) const = 0;
 };
 
 extern IBytePatternBank* g_bytepattern_bank_i;

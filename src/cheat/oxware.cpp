@@ -348,6 +348,13 @@ bool CoXWARE::initialize_hook_managers()
 		return false;
 	}
 
+	// HL interface hook
+	if (!CHLInterfaceHook::the().install_hooks())
+	{
+		CConsole::the().error("Failed to install HL interface hooks.");
+		return false;
+	}
+
 	// memory function hook
 	if (!CMemoryFnHookMgr::the().install_hooks())
 	{
@@ -359,13 +366,6 @@ bool CoXWARE::initialize_hook_managers()
 	if (!CMemoryFnDetourMgr::the().install_hooks())
 	{
 		CConsole::the().error("Failed to install detour hooks.");
-		return false;
-	}
-
-	// HL interface hook
-	if (!CHLInterfaceHook::the().install_hooks())
-	{
-		CConsole::the().error("Failed to install HL interface hooks.");
 		return false;
 	}
 
@@ -455,13 +455,6 @@ bool CoXWARE::validate_engine_build()
 	if (!m_gs_build_number)
 	{
 		CInjectedDllIPCLayerClient::the().report_error("Couldn't get the engine build number at all! You must be using corrupted or ancient version of cs!");
-		return false;
-	}
-
-	if (!g_bytepattern_bank_i->is_build_supported(m_gs_build_number))
-	{
-		CInjectedDllIPCLayerClient::the().report_error("Your build {} is not valid! This cheat is currently only available for these builds:\n\n{}", 
-													   m_gs_build_number, g_bytepattern_bank_i->supported_builds_as_str());
 		return false;
 	}
 

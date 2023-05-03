@@ -113,6 +113,11 @@ void CGenericUtil::open_link_inside_browser(const std::string& link)
 	ShellExecuteA(0, 0, link.c_str(), 0, 0, SW_SHOW);
 }
 
+void CGenericUtil::open_folder_inside_explorer(const std::string & folder_path)
+{
+	ShellExecuteA(NULL, "open", folder_path.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+}
+
 // https://stackoverflow.com/questions/36543301/detecting-windows-10-version/36545162#36545162
 typedef NTSTATUS(WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
 RTL_OSVERSIONINFOW CGenericUtil::get_os_version()

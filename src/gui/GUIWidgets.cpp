@@ -99,11 +99,15 @@ public:
 
 	void close_current_popup();
 
+	void push_executing_popup_code();
+	void pop_executing_popup_code();
+
 	//
 	// Widgets
 	//
 
 	void add_text(const std::string& text, ETextProperties properties = TEXTPROP_None, FontObject_t* font = nullptr);
+	void add_bullet_text(const std::string& text, ETextProperties properties = TEXTPROP_None, FontObject_t* font = nullptr);
 	void add_colored_text(const CColor& color, const std::string& text, ETextProperties properties = TEXTPROP_None);
 	void add_window_centered_text(const std::string& text, FontObject_t* font = nullptr);
 	void add_window_centered_text_disabled(const std::string& text, FontObject_t* font = nullptr);
@@ -127,11 +131,6 @@ public:
 	void add_padding(const Vector2D& size);
 	void add_spacing();
 
-	void begin_columns(const std::string& label, int count_columns);
-	void set_column_width(int column, float width);
-	void goto_next_column();
-	void end_columns(int count_columns);
-
 	void add_separtor_with_text(const std::string& text);
 	void add_separator();
 
@@ -148,7 +147,7 @@ public:
 	bool add_selectable(const std::string& label, bool selected = false, ImGuiSelectableFlags flags = 0, const Vector2D& size = Vector2D(0, 0));
 
 	//
-	// Tables/lists
+	// Tables/lists/columns
 	//
 	
 	// Adds new imgui table
@@ -163,10 +162,18 @@ public:
 	//
 	void add_undecorated_simple_table(const std::string& name, uint32_t columns, const std::function<void()>& body_callback);
 
-	void table_setup_column_fixed_width(const std::string& name, float width, ImGuiTableColumnFlags flags);
-	void table_setup_column(const std::string& name, ImGuiTableColumnFlags flags);
+	void table_setup_column_fixed_width(const std::string& name, float width, ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None);
+	void table_setup_column(const std::string& name, ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None);
 
 	void table_next_column();
+
+	// columns using tables api
+	bool begin_columns(const std::string& label, int count_columns);
+	void end_columns();
+	void setup_column_fixed_width(float width, ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None);
+	void setup_column(ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None);
+	void goto_next_column();
+	void goto_next_row();
 
 	//
 	// Input text buffer operations
@@ -189,6 +196,8 @@ public:
 	void add_console();
 
 private:
+	void add_bullet_text_internal(const std::string& text, ETextProperties properties = TEXTPROP_None, FontObject_t* font = nullptr);
+
 	void add_window_centered_text_ex(const std::string& text, const CColor& text_color, FontObject_t* font);
 
 	bool add_button_internal(const char* label, const Vector2D& size, bool selected, EButtonFlags flags);
@@ -215,6 +224,8 @@ private:
 	const uint32_t get_color_u32() const { return g_gui_thememgr_i->get_current_theme()->get_color_u32<clr>(); }
 
 	bool m_block_input_on_all = false;
+
+	bool m_executing_popup_code = false;
 };
 
 CGUIWidgets g_gui_widgets;
@@ -262,23 +273,23 @@ void CGUIWidgets::create_new_window(const std::string& name, ImGuiWindowFlags fl
 {
 	PushStyleColor(ImGuiCol_WindowBg, g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_WindowBackground>());
 
-	bool is_in_modal = m_block_input_on_all && (name != "popup_window");
+	bool should_disable_all_interaction = m_block_input_on_all && (name != "popup_window") && !m_executing_popup_code;
 	
-	if (is_in_modal)
+	if (should_disable_all_interaction)
 	{
 		flags |= ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav;
 	}
 
 	Begin(name.c_str(), NULL, flags);
 
-	if (is_in_modal)
+	if (should_disable_all_interaction)
 	{
 		push_disbled();
 	}
 
 	if (pfn_contents)
 	{
-		if (is_in_modal)
+		if (should_disable_all_interaction)
 		{
 			// like.. this is really dumb, but whatever dude xd
 			SetWindowFocus("popup_window");
@@ -287,7 +298,7 @@ void CGUIWidgets::create_new_window(const std::string& name, ImGuiWindowFlags fl
 		pfn_contents();
 	}
 
-	if (is_in_modal)
+	if (should_disable_all_interaction)
 	{
 		pop_disabled();
 	}
@@ -306,9 +317,9 @@ void CGUIWidgets::add_child(const std::string& label, const Vector2D& size, bool
 {
 	PushStyleColor(ImGuiCol_ChildBg, g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_ChildBackground>());
 
-	bool is_in_modal = m_block_input_on_all && (GetCurrentWindow()->Name != "popup_window");
+	bool should_disable_all_interaction = m_block_input_on_all && (GetCurrentWindow()->Name != "popup_window") && !m_executing_popup_code;
 
-	if (is_in_modal)
+	if (should_disable_all_interaction)
 	{
 		flags |= ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav;
 	}
@@ -344,7 +355,7 @@ void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D
 			std::string text = label;
 #endif
 
-			auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_BIGGER, FONTDEC_Bold);
+			auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_BIGGER, FONTDEC_Regular);
 
 			auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, text.c_str());
 
@@ -495,6 +506,18 @@ void CGUIWidgets::close_current_popup()
 	CloseCurrentPopup();
 }
 
+void CGUIWidgets::push_executing_popup_code()
+{
+	assert(!m_executing_popup_code && "Miscall inside " __FUNCTION__ "! You propably didn't pop!");
+	m_executing_popup_code = true;
+}
+
+void CGUIWidgets::pop_executing_popup_code()
+{
+	assert(m_executing_popup_code && "Miscall inside " __FUNCTION__ "! You propably didn't push!");
+	m_executing_popup_code = false;
+}
+
 void CGUIWidgets::add_text(const std::string& text, ETextProperties properties, FontObject_t* font)
 {
 	//
@@ -572,6 +595,11 @@ void CGUIWidgets::add_text(const std::string& text, ETextProperties properties, 
 	{
 		PopFont();
 	}
+}
+
+void CGUIWidgets::add_bullet_text(const std::string& text, ETextProperties properties, FontObject_t* font)
+{
+	return add_bullet_text_internal(text, properties, font);
 }
 
 void CGUIWidgets::add_colored_text(const CColor& color, const std::string& text, ETextProperties properties)
@@ -828,35 +856,40 @@ void CGUIWidgets::add_spacing()
 	Spacing();
 }
 
-void CGUIWidgets::begin_columns(const std::string& label, int count_columns)
+bool CGUIWidgets::begin_columns(const std::string& label, int count_columns)
 {
-	// there's an initial column spacing that causes a slight offset on the left, we don't want that.
-	// it is caused by adding the item spacing.
-	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-
-	Columns(count_columns, label.c_str(), false);
-
-	PopStyleVar();
+	return BeginTable(label.c_str(), count_columns, ImGuiTableFlags_HeaderTextOnly);
 }
 
-void CGUIWidgets::set_column_width(int column, float width)
+void CGUIWidgets::setup_column_fixed_width(float width, ImGuiTableColumnFlags flags)
 {
-	SetColumnWidth(column, width);
+	TableSetupColumn(nullptr, flags | ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel, width);
+}
+
+void CGUIWidgets::setup_column(ImGuiTableColumnFlags flags)
+{
+	TableSetupColumn(nullptr, flags | ImGuiTableColumnFlags_NoHeaderLabel);
 }
 
 void CGUIWidgets::goto_next_column()
 {
-	NextColumn();
+	TableNextColumn();
 }
 
-void CGUIWidgets::end_columns(int count_columns)
+void CGUIWidgets::goto_next_row()
 {
-	Columns(count_columns);
+	TableNextRow();
+}
+
+void CGUIWidgets::end_columns()
+{
+	EndTable();
 }
 
 void CGUIWidgets::add_separtor_with_text(const std::string& text)
 {
-	add_text(text, TEXTPROP_Slim);
+	auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_REGULAR, FONTDEC_Regular);
+	add_text(text, TEXTPROP_Slim, font);
 
 	Separator();
 }
@@ -1060,6 +1093,35 @@ void CGUIWidgets::add_console()
 //
 //	Internal API
 //
+
+void CGUIWidgets::add_bullet_text_internal(const std::string& text, ETextProperties properties, FontObject_t* font)
+{
+	ImGuiWindow* window = GetCurrentWindow();
+	if (window->SkipItems)
+		return;
+
+	if (!font)
+	{
+		font = g_gui_fontmgr_i->get_default_font();
+	}
+
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+
+	const ImVec2 label_size = g_gui_fontmgr_i->calc_font_text_size(font, text.c_str());
+	const ImVec2 total_size = ImVec2(g.FontSize + (label_size.x > 0.0f ? (label_size.x + style.FramePadding.x * 2) : 0.0f), label_size.y);  // Empty text doesn't add padding
+	ImVec2 pos = window->DC.CursorPos;
+	pos.y += window->DC.CurrLineTextBaseOffset;
+	ItemSize(total_size, 0.0f);
+	ImRect bb(pos, pos + total_size);
+	if (!ItemAdd(bb, 0))
+		return;
+
+	// Render
+	ImU32 text_col = GetColorU32(ImGuiCol_Text);
+	RenderBullet(window->DrawList, bb.Min + ImVec2(style.FramePadding.x + g.FontSize * 0.5f, g.FontSize * 0.5f), text_col);
+	RenderText(bb.Min + ImVec2(g.FontSize + style.FramePadding.x * 2, 0.0f), text.c_str(), NULL, false);
+}
 
 void CGUIWidgets::add_window_centered_text_ex(const std::string& text, const CColor& text_color, FontObject_t* font)
 {

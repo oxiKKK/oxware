@@ -122,56 +122,59 @@ void CUIMenuWidgets::add_pair_textinput(const std::string& label, VarKeyValue* v
 {
 	float left_textinput_width = CMenuStyle::get_child_width_w_padding() / 1.5f;
 
-	g_gui_widgets_i->begin_columns(label.c_str(), 2);
-	g_gui_widgets_i->set_column_width(0, left_textinput_width);
-
-	if (first_column_header)
+	if (g_gui_widgets_i->begin_columns(label.c_str(), 2))
 	{
-		g_gui_widgets_i->add_text(first_column_header);
-	}
+		g_gui_widgets_i->setup_column_fixed_width(left_textinput_width);
+		g_gui_widgets_i->goto_next_column();
 
-	bool reclaim_focus_value = false;
-	if (g_gui_widgets_i->add_text_input_ex(label + "1", (char*)var->get_value().key().c_str(), var->get_value().key().length(), Vector2D(-1.0f, 0.0f)))
-	{
-		if (!var->get_value().key().empty())
+		if (first_column_header)
 		{
-			var->set_value(KeyValue(var->get_value().key(), var->get_value().value()));
+			g_gui_widgets_i->add_text(first_column_header);
 		}
-		reclaim_focus_value = true;
-	};
 
-	if (reclaim_focus_value)
-	{
+		bool reclaim_focus_value = false;
+		if (g_gui_widgets_i->add_text_input_ex(label + "1", (char*)var->get_value().key().c_str(), var->get_value().key().length(), Vector2D(-1.0f, 0.0f)))
+		{
+			if (!var->get_value().key().empty())
+			{
+				var->set_value(KeyValue(var->get_value().key(), var->get_value().value()));
+			}
+			reclaim_focus_value = true;
+		};
+
+		if (reclaim_focus_value)
+		{
+			g_gui_widgets_i->set_item_default_focus();
+			g_gui_widgets_i->set_keyboard_focus_here(-1); // Auto focus previous widget
+		}
+
+		g_gui_widgets_i->goto_next_column();
+
+		if (first_column_header)
+		{
+			g_gui_widgets_i->add_text(second_column_header);
+		}
+
+		bool reclaim_focus_key = false;
+		if (g_gui_widgets_i->add_text_input_ex(label + "2", (char*)var->get_value().value().c_str(), var->get_value().value().length(), Vector2D(-1.0f, 0.0f)))
+		{
+			if (!var->get_value().value().empty())
+			{
+				var->set_value(KeyValue(var->get_value().key(), var->get_value().value()));
+			}
+
+			reclaim_focus_key = true;
+		};
+
+		// Auto-focus on window apparition
 		g_gui_widgets_i->set_item_default_focus();
-		g_gui_widgets_i->set_keyboard_focus_here(-1); // Auto focus previous widget
-	}
-
-	g_gui_widgets_i->goto_next_column();
-
-	if (first_column_header)
-	{
-		g_gui_widgets_i->add_text(second_column_header);
-	}
-
-	bool reclaim_focus_key = false;
-	if (g_gui_widgets_i->add_text_input_ex(label + "2", (char*)var->get_value().value().c_str(), var->get_value().value().length(), Vector2D(-1.0f, 0.0f)))
-	{
-		if (!var->get_value().value().empty())
+		if (reclaim_focus_key)
 		{
-			var->set_value(KeyValue(var->get_value().key(), var->get_value().value()));
+			g_gui_widgets_i->set_keyboard_focus_here(-1); // Auto focus previous widget
 		}
 
-		reclaim_focus_key = true;
-	};
-
-	// Auto-focus on window apparition
-	g_gui_widgets_i->set_item_default_focus();
-	if (reclaim_focus_key)
-	{
-		g_gui_widgets_i->set_keyboard_focus_here(-1); // Auto focus previous widget
+		g_gui_widgets_i->end_columns();
 	}
-
-	g_gui_widgets_i->end_columns(1);
  }
 
 void CUIMenuWidgets::add_listbox(const std::string& label, VarInteger* var, const std::vector<std::string>& items)

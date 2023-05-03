@@ -51,34 +51,37 @@ void CUIPerfProfilerVisualization::on_render()
 				ImGuiWindowFlags_None,
 				[]()
 				{
-					g_gui_widgets_i->begin_columns(__FUNCTION__, 2);
-
-					if (g_gui_widgets_i->add_button("Perform snapshot", { 120.0f, 0.0f }))
+					if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
 					{
-						g_code_perf_profiler_i->create_profile_snapshot();
-					}
+						g_gui_widgets_i->goto_next_column();
 
-					bool is_collecting = g_code_perf_profiler_i->is_collecting_data();
-					if (g_gui_widgets_i->add_toggle_button("Sampling on/off", { 120.0f, 0.0f }, is_collecting))
-					{
-						if (is_collecting)
+						if (g_gui_widgets_i->add_button("Perform snapshot", { 120.0f, 0.0f }))
 						{
-							g_code_perf_profiler_i->stop_sample_collection();
+							g_code_perf_profiler_i->create_profile_snapshot();
 						}
-						else
+
+						bool is_collecting = g_code_perf_profiler_i->is_collecting_data();
+						if (g_gui_widgets_i->add_toggle_button("Sampling on/off", { 120.0f, 0.0f }, is_collecting))
 						{
-							g_code_perf_profiler_i->resume_sample_collection();
+							if (is_collecting)
+							{
+								g_code_perf_profiler_i->stop_sample_collection();
+							}
+							else
+							{
+								g_code_perf_profiler_i->resume_sample_collection();
+							}
 						}
+
+						g_gui_widgets_i->goto_next_column();
+
+						if (g_gui_widgets_i->add_button("Floating mode", { 120.0f, 0.0f }))
+						{
+
+						}
+
+						g_gui_widgets_i->end_columns();
 					}
-
-					g_gui_widgets_i->goto_next_column();
-
-					if (g_gui_widgets_i->add_button("Floating mode", { 120.0f, 0.0f }))
-					{
-						
-					}
-
-					g_gui_widgets_i->end_columns(1);
 
 					g_gui_widgets_i->add_spacing();
 					g_gui_widgets_i->add_separtor_with_text("Collected samples");

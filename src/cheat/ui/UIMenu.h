@@ -34,25 +34,30 @@
 class CMenuStyle
 {
 public:
-	inline static constexpr float k_rounding_factor = 20.0f;
-	inline static constexpr Vector2D k_menu_rect_size = { 600, 400 };
-	inline static constexpr Vector2D k_tab_select_size = { 120, 400 };
-	inline static constexpr float k_top_region_size_h = 50.0f;
-	inline static constexpr float k_menu_contents_padding = 10.0f;
-	inline static constexpr float k_menu_contents_padding_bottom = 5.0f;
-	inline static constexpr float k_bottom_reserved_rect_h = 15.0f;
-	inline static constexpr float k_bottom_right_timestamp_rightside_padding = 5.0f;
-	inline static constexpr float k_bottom_right_timestamp_bottomside_padding = 2.0f;
-	inline static constexpr Vector2D k_bottom_left_desc_padding = { 5.0f, 2.0f };
-	inline static constexpr float k_child_contents_rounding = 10.0f;
-	inline static constexpr Vector2D k_child_contents_padding = { 10.0f, 5.0f };
-	inline static constexpr float k_child_width = 210.0f;
-	inline static constexpr Vector2D k_about_button_padding = { 15.0f, 15.0f };
-	inline static constexpr Vector2D k_about_button_size = { 105.0f, 20.0f };
-	inline static constexpr Vector2D k_about_button_pos = { k_menu_rect_size.x - k_about_button_size.x - k_about_button_padding.x, k_about_button_padding.y };
+	static const float k_rounding_factor;
+	static const Vector2D k_menu_rect_size;
+	static const Vector2D k_tab_select_size;
+	static const float k_top_region_size_h;
+	static const float k_menu_contents_padding;
+	static const float k_menu_contents_padding_bottom;
+	static const float k_bottom_reserved_rect_h;
+	static const float k_bottom_right_timestamp_rightside_padding;
+	static const float k_bottom_right_timestamp_bottomside_padding;
+	static const Vector2D k_bottom_left_desc_padding;
+	static const float k_child_contents_rounding;
+	static const Vector2D k_child_contents_padding;
+	static const float k_child_width;
+	static const Vector2D k_unload_button_padding;
+	static const Vector2D k_unload_button_size;
+	static const Vector2D k_unload_button_pos;
+	static const Vector2D k_about_button_size;
+	static const Vector2D k_about_button_pos;
 
-	inline static Vector2D calc_child_size(float height) { return { CMenuStyle::k_child_width, height }; }
-	inline static float get_child_width_w_padding() { return CMenuStyle::k_child_width - CMenuStyle::k_child_contents_padding.x * 2; }
+	static Vector2D calc_child_size(float height) { return { CMenuStyle::k_child_width, height }; }
+	static float get_child_width_w_padding() { return CMenuStyle::k_child_width - CMenuStyle::k_child_contents_padding.x * 2; }
+
+	// use this instead of width begin -1.0f
+	static Vector2D child_full_width(float height) { return { -1.0f - k_menu_contents_padding, height }; }
 };
 
 //----------------------------------------------------------------------------------------------------------------------

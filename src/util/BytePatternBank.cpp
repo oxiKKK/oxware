@@ -27,12 +27,14 @@
 */
 
 //
-// BytePatternBank.cpp -- Defines byte patterns for various cs versions
+// BytePatternBank.cpp -- Provides api around cs/engine builds & byte patterns.
 //
 
 #include "precompiled.h"
 
-using BytePatternContainer = std::unordered_map<std::string, PatternRecord>;
+#include "bytepattern_containers.cpp"
+
+#include <set>
 
 IBytePatternBank* g_bytepattern_bank_i = nullptr;
 
@@ -46,37 +48,45 @@ public:
 
 	bool is_build_supported(int build_number)
 	{
-		EGSBuild b = int_to_gsbuild(build_number);
-		return 
-			b == GS_8684 ||
-			b == GS_4554 ||
-			b == GS_3266;
+		for (auto build : m_supported_builds)
+		{
+			if (build == build_number)
+				return true;
+		}
+
+		return false;
 	}
 
 	std::string supported_builds_as_str()
 	{
 		std::string s;
-		for (size_t i = GS_8684; i < GS_Count; i++)
+		int n = 0;
+		for (auto build : m_supported_builds)
 		{
-			s += std::to_string(gsbuild_to_int((EGSBuild)i));
-			if (i != GS_Count - 1)
+			s += std::to_string(build);
+			if (n != m_supported_builds.size() - 1)
 				s += ", ";
+
+			n++;
 		}
 
 		return s;
 	}
 
-	CBytePattern get_pattern(const std::string& hook_name);
-	PatternRecord* get_full(const std::string& hook_name);
+	CBytePattern get_pattern(const std::string& hook_name) const;
+	const PatternRecord* get_full(const std::string& hook_name) const;
 
 private:
-	bool register_for_build();
-	void register_8684();
-	void register_4554();
+	void decide_on_build_container();
 
-	std::array<BytePatternContainer, GS_Count> m_supported_builds;
+	int get_closest_build_number_supported();
 
-	EGSBuild m_current_build = GS_Unknown;
+	std::set<int> m_supported_builds;
+
+	// picked depending on the situation (e.g. current build)
+	const BytePatternContainer* m_active_bytepattern_container = nullptr;
+
+	int m_current_build = -1;
 };
 
 CBytePatternBank g_bytepattern_bank;
@@ -91,6 +101,10 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CBytePatternBank, IBytePatternBank, IBYTEPATTE
 CBytePatternBank::CBytePatternBank()
 {
 	g_bytepattern_bank_i = this;
+
+	// If you add a new build, you need to register it here!!!
+	m_supported_builds.insert(8684);
+	m_supported_builds.insert(4554);
 }
 
 CBytePatternBank::~CBytePatternBank()
@@ -103,21 +117,16 @@ bool CBytePatternBank::initialize(int build_number)
 	CConsole::the().info("Initializing BytePatternBank...");
 	CConsole::the().info("Your game build is: {}", build_number);
 
-	m_current_build = int_to_gsbuild(build_number);
+	m_current_build = build_number;
 
-	if (!register_for_build())
-	{
-		CMessageBox::display_error("Your current engine build isn't supported yet: {}"
-								   "\n\nPlease, contact developers of this cheat so that we can add the support for your CS build.", 
-								   build_number);
-		return false;
-	}
+	// try to pick the best build.
+	decide_on_build_container();
 
 	CConsole::the().info("BytePatternBank initialized.");
 	return true;
 }
 
-CBytePattern CBytePatternBank::get_pattern(const std::string& hook_name)
+CBytePattern CBytePatternBank::get_pattern(const std::string& hook_name)const 
 {
 	auto full = get_full(hook_name);
 	if (!full)
@@ -128,232 +137,110 @@ CBytePattern CBytePatternBank::get_pattern(const std::string& hook_name)
 	return full->pattern;
 }
 
-PatternRecord* CBytePatternBank::get_full(const std::string& hook_name)
+const PatternRecord* CBytePatternBank::get_full(const std::string& hook_name) const
 {
-	assert(m_current_build != GS_Unknown && "used " __FUNCTION__ " before we have initialized!");
+	assert(m_active_bytepattern_container && "Called before initialization! m_active_bytepattern_container is null!");
 
 	try
 	{
-		auto& pattern_map = m_supported_builds.at(m_current_build);
+		auto pattern_map = m_active_bytepattern_container;
 		try
 		{
-			auto& record = pattern_map.at(hook_name);
+			auto& record = pattern_map->at(hook_name);
 			return &record;
 		}
 		catch (...)
 		{
-			CConsole::the().error("Couldn't get byte pattern for hook '{}'! ({} build)", hook_name, gsbuild_to_int(m_current_build));
+			CConsole::the().error("Couldn't get byte pattern for hook '{}'! ({} build)", hook_name, m_current_build);
 		}
 	}
 	catch (...)
 	{
-		CConsole::the().error("Couldn't get hook '{}' because the build '{}' is unsupported!", hook_name, gsbuild_to_int(m_current_build));
+		CConsole::the().error("Couldn't get hook '{}' because the build '{}' is unsupported!", hook_name, m_current_build);
 	}
 
 	return nullptr;
 }
 
-bool CBytePatternBank::register_for_build()
+void CBytePatternBank::decide_on_build_container()
 {
-	CConsole::the().info("Registering patterns for {}...", gsbuild_to_int(m_current_build));
+	bool need_to_pick_closest = false;
 
-	switch (m_current_build)
+	if (!is_build_supported(m_current_build))
 	{
-		case GS_8684:
-		{
-			register_8684();
-			goto success;
-		}
-		case GS_4554:
-		{
-			register_4554();
-			goto success;
-		}
+		need_to_pick_closest = true;
 	}
 
-	CConsole::the().info("Your engine build {} is not registered!", gsbuild_to_int(m_current_build));
-	return false;
+	if (!need_to_pick_closest)
+	{
+		// we have the exact build available, choose it
+		switch (m_current_build)
+		{
+			case 8684: m_active_bytepattern_container = &bytepattern_conainter_8684; break;
+			case 4554: m_active_bytepattern_container = &bytepattern_conainter_4554; break;
+		}
+	}
+	else
+	{
+		// user uses build that we don't have available. Pick the closest one to the ones we have.
 
-success:
-	CConsole::the().info("OK.");
-	return true;
+		int closest_build = get_closest_build_number_supported();
+
+		CMessageBox::display_error("Your current engine build isn't supported yet: {}"
+			   "\n\nFor now, the cheat will try to continue with the following build that is supported: {}."
+			   "\nIf you experience crashes, random behaviour, or something not working, please contact developers of this cheat so that we can add support for your CS build.",
+			   m_current_build,
+			   closest_build);
+
+		m_current_build = closest_build;
+		decide_on_build_container(); // call recursively.
+	}
 }
 
-void CBytePatternBank::register_8684()
+int CBytePatternBank::get_closest_build_number_supported()
 {
-	auto& c = m_supported_builds[m_current_build];
+	int c = 0;
+	int l = 0, h = 99999;
+	int d = m_current_build;
+	for (int b : m_supported_builds) // find closest smaller
+	{
+		if (l < b && b < d)
+			l = b;
+	}
 
-	// MemoryHook
-	c["cl_funcs"]					= { "hw.dll",		"ClientDLL_Init", { "\xFF\x15\xCC\xCC\xCC\xCC\x68\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\x83\xC4\x1C", 0x2 } };
-	c["cl_enginefuncs"]				= { "hw.dll",		"ClientDLL_Init", { "\x68\xCC\xCC\xCC\xCC\xFF\x15\xCC\xCC\xCC\xCC\x68\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\x83\xC4\x1C", 0x1 } };
-	c["pmainwindow"]				= { "hw.dll",		"Sys_InitGame", { "\xA3\xCC\xCC\xCC\xCC\x8B\x11\xFF\x52\xCC\x68\xCC\xCC\xCC\xCC\x89", 0x1 } };
-	c["host_initialized"]			= { "hw.dll",		"Host_Shutdown", { "\xA1\xCC\xCC\xCC\xCC\x53\x33\xDB\x3B\xC3\x74\x76", 0x1 } };
-	c["sv_player"]					= { "hw.dll",		"Host_God_f", { "\xA1\xCC\xCC\xCC\xCC\x8B\x90\x24\x02\xCC\xCC\x83\xF2\x40", 0x1 } };
-	c["cl"]							= { "hw.dll",		"CL_ClearClientState", { "\x68\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\xB8\xCC\xCC\xCC\xCC\x83\xC4\x0C", 0x1 } };
-	c["cls"]						= { "hw.dll",		"CL_ConnectClient", { "\xA1\xCC\xCC\xCC\xCC\x83\xC4\x0C\x83\xF8\x03", 0x1 }};
-	c["gGlobalVariables"]			= { "hw.dll",		"SaveInit", { "\x8B\x0D\xCC\xCC\xCC\xCC\x8B\x15\xCC\xCC\xCC\xCC\x89\x06", 0x2 } };
-	c["scr_fov_value"]				= { "hw.dll",		"ClientDLL_UpdateClientData", { "\x8B\x0D\xCC\xCC\xCC\xCC\x89\x55\xE0", 0x2 }};
-	c["g_PlayerExtraInfo"]			= { "client.dll",	"CounterStrikeViewport::MsgFunc_ScoreInfo", { "\x66\x89\x99\xCC\xCC\xCC\xCC\x66\x89\xA9\xCC\xCC\xCC\xCC\x66\x89\x91\xCC\xCC\xCC\xCC\x66\x89\x81\xCC\xCC\xCC\xCC\x7D\x09\x66\xC7\x81", 0x3 } };
-	c["engine_studio_api"]			= { "hw.dll",		"ClientDLL_CheckStudioInterface", {"\x68\xCC\xCC\xCC\xCC\x68\xCC\xCC\xCC\xCC\x6A\x01\xFF\xD0\x83\xC4\x0C", 0x1}};
-	c["cl_parsefuncs"]				= { "hw.dll",		"CL_ParseServerMessage", { "\x8B\xB9\xCC\xCC\xCC\xCC\x85\xFF\x74\x29", 0x2 }};
-	c["pmove"]						= { "hw.dll",		"CL_PlayerFlashlight", { "\x8B\x15\xCC\xCC\xCC\xCC\x8D\x0C\xC5\x00\x00\x00\x00\x2B\xC8\xC1\xE1\x05\x8D\x04\x11\x8B\x8C\x11\x84\x02", 0x2 } };
-	c["gClientUserMsgs"]			= { "hw.dll",		"AddNewUserMsg", { "\x8B\x35\xCC\xCC\xCC\xCC\x83\xC4\x30", 0x2 } };
-	c["g_iShotsFired"]				= { "client.dll",	"CHudAmmo::DrawCrosshair", { "\xA1\xCC\xCC\xCC\xCC\x3D\x58\x02\x00\x00", 0x1 } };
-	c["r_model"]					= { "hw.dll",		"R_GLStudioDrawPoints", { "\xA1\xCC\xCC\xCC\xCC\x50\xC7\x45\xD8\x00\x00\x00\x00", 0x1 } };
-	c["pstudiohdr"]					= { "hw.dll",		"R_StudioHull", { "\xA3\xCC\xCC\xCC\xCC\x8B\x43\x04\xD9\x03\x89\x55\x90\x8B\x55\x24\x89\x45\x8C", 0x1 } };
-	c["pStudioAPI"]					= { "hw.dll",		"R_DrawViewModel", { "\x8B\x0D\xCC\xCC\xCC\xCC\x8B\x35\xCC\xCC\xCC\xCC\xD1\xEA", 0x2 } };
+	for (int b : m_supported_builds) // find closest bigger
+	{
+		if (h > b && b > d)
+			h = b;
+	}
 
-	// MemoryFnHook
-	c["VGuiWrap2_IsConsoleVisible"]	= { "hw.dll",		"VGuiWrap2_IsConsoleVisible", { "\x8B\x0D\xCC\xCC\xCC\xCC\x85\xC9\x74\x0B\x8B\x01\xFF\x50\x14\x25" } };
-	c["VGuiWrap2_ConPrintf"]		= { "hw.dll",		"VGuiWrap2_ConPrintf", { "\x55\x8B\xEC\xA1\xCC\xCC\xCC\xCC\x85\xC0\x74\x14\x8B\x55\x08\x8B\x08\x52\x68\xCC\xCC\xCC\xCC\x50\xFF\x51\x1C\x83\xC4\x0C\x5D\xC3\x53\x56\x8B\x75\x08\x57\x8B\xFE\x83\xC9\xFF\x33\xC0\xF2\xAE\xA1\xCC\xCC\xCC\xCC\xF7\xD1\x49\x8B\xD8\x8B\xF9\x74\x49\x8B" } };
-	c["ClearIOStates"]				= { "hw.dll",		"ClearIOStates", { "\x56\x33\xF6\x6A\x00\x56\xE8\xCC\xCC\xCC\xCC\x83\xC4\x08\x46\x81" } };
+	//
+	// find who is closer
+	//
 
-	// MemoryFnDetour
-	c["VGui_CallEngineSurfaceAppHandler"] = { "hw.dll",	"VGui_CallEngineSurfaceAppHandler", { "\x55\x8B\xEC\x56\x8B\x75\x0C\x57\x8B\x7D\x08\x56" } };
-	c["Key_Event"]					= { "hw.dll",		"Key_Event", { "\x55\x8B\xEC\x81\xEC\x00\x04\x00\x00\x8B\x45\x08\x56\x3D\x00\x01\x00\x00" }};
-	c["Host_Noclip_f"]				= { "hw.dll",		"Host_Noclip_f", { "\x55\x8B\xEC\x83\xEC\x24\xA1\xCC\xCC\xCC\xCC\xBA\x01\x00\x00\x00" } };
-	c["ClientDLL_CreateMove"]		= { "hw.dll",		"ClientDLL_CreateMove", { "\x55\x8B\xEC\xA1\xCC\xCC\xCC\xCC\x85\xC0\x74\x11\x8B\x4D\x10" } };
-	c["_Host_Frame"]				= { "hw.dll",		"_Host_Frame", { "\x55\x8B\xEC\x6A\x00\x68\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\x83\xC4\x08" } };
-	c["CL_ReallocateDynamicData"]	= { "hw.dll",		"CL_ReallocateDynamicData", { "\x55\x8B\xEC\x8B\x45\x08\x50\xE8\xCC\xCC\xCC\xCC\x83\xC4\x04\xA3" } };
-	c["CL_DeallocateDynamicData"]	= { "hw.dll",		"CL_DeallocateDynamicData", { "\xA1\xCC\xCC\xCC\xCC\x85\xC0\x74\x13\x50\xE8\xCC\xCC\xCC\xCC\x83\xC4\x04\xC7\x05\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xE9\xBF\xC4\x06\x00" } };
-	c["MYgluPerspective"]			= { "hw.dll",		"MYgluPerspective", { "\x55\x8B\xEC\x83\xEC\x10\xDD\x45\x08" } };
-	c["R_ForceCVars"]				= { "hw.dll",		"R_ForceCVars", { "\x55\x8B\xEC\x8B\x45\x08\x85\xC0\x0F\x84\x92\x02\x00\x00" } };
-	c["V_CalcRefdef"]				= { "client.dll",	"V_CalcRefdef", { "\x8B\x44\x24\x04\x8B\x48\x44" } };
-	c["EV_HLDM_FireBullets"]		= { "client.dll",	"EV_HLDM_FireBullets", { "\x81\xEC\x08\x01\x00\x00\xB8\x28\x00\x00\x00" } };
-	c["HUD_Redraw"]					= { "client.dll",	"HUD_Redraw", { "\x8B\x44\x24\x08\x8B\x4C\x24\x04\x50\x51\xB9\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\xB8\x01\x00\x00\x00" } };
-	c["R_GLStudioDrawPoints"]			= { "hw.dll",		"R_GLStudioDrawPoints", { "\x55\x8B\xEC\x83\xEC\x48\xA1\xCC\xCC\xCC\xCC\x8B\x0D\xCC\xCC\xCC\xCC\x53\x56\x8B\x70\x54" } };
-	c["R_LightLambert"]				= { "hw.dll",		"R_LightLambert", { "\x55\x8B\xEC\x83\xEC\x24\x8B\x0D\xCC\xCC\xCC\xCC\x56" } };
-	c["V_FadeAlpha"]				= { "hw.dll",		"V_FadeAlpha", { "\x55\x8B\xEC\x83\xEC\x08\xD9\x05\xCC\xCC\xCC\xCC\xDC\x1D" } };
-	c["V_ApplyShake"]				= { "hw.dll",		"V_ApplyShake", { "\x55\x8B\xEC\x8D\x45\x10\x8D\x4D\x0C\x50\x8D\x55\x08\x51\x52\xFF\x15\xCC\xCC\xCC\xCC\x8B\x45\x08\x83\xC4\x0C" } };
-	c["S_StartStaticSound"]			= { "hw.dll",		"S_StartStaticSound", { "\x55\x8B\xEC\x83\xEC\x44\x53\x56\x57\x8B\x7D\x10" } };
-	c["R_DrawViewModel"]			= { "hw.dll",		"R_DrawViewModel", { "\x55\x8B\xEC\x83\xEC\x50\xD9\x05" } };
-	c["CPartSmokeGrenade::Create"]	= { "client.dll",	"CPartSmokeGrenade::Create", { "\x8B\x0D\xCC\xCC\xCC\xCC\x56\x57\x68\x30\x01\x00\x00" } };
-	c["CreateGasSmoke"]				= { "client.dll",	"CreateGasSmoke", { "\x51\xA1\xCC\xCC\xCC\xCC\x53\x33\xDB" } };
-	c["CEngine::Unload"]			= { "hw.dll",		"CEngine::Unload", { "\x56\x8B\xF1\xE8\xCC\xCC\xCC\xCC\xC7\x46\x08\x00\x00\x00\x00" } };
-	c["SCR_CalcRefdef"]				= { "hw.dll",		"SCR_CalcRefdef", { "\x55\x8B\xEC\x83\xEC\x0C\xD9\x05\xCC\xCC\xCC\xCC\xD8\x1D\xCC\xCC\xCC\xCC\x33\xC9" } };
-	c["SCR_UpdateScreen"]			= { "hw.dll",		"SCR_UpdateScreen", { "\x55\x8B\xEC\x83\xEC\x10\xA1\xCC\xCC\xCC\xCC\x56\x33\xF6\x3B\xC6\x0F\x85\x10\x02\x00\x00" } };
-	c["SPR_Set"]					= { "hw.dll",		"SPR_Set", { "\x55\x8B\xEC\x83\xEC\x08\x8D\x45\x14" } };
-	c["CGame::AppActivate"]			= { "hw.dll",		"CGame::AppActivate", { "\x55\x8B\xEC\x51\x53\x8B\x5D\x08\x56\x8B\xF1\x84\xDB" } };
-	c["CHudAmmo::DrawCrosshair"]	= { "client.dll",	"CHudAmmo::DrawCrosshair", { "\x83\xEC\x08\x8B\x44\x24\x10\x53\x55\x56\x57" } };
-	c["R_StudioDrawPlayer"]			= { "hw.dll",		"R_StudioDrawPlayer", { "\x55\x8B\xEC\x81\xEC\xDC\x0B\x00\x00\x53\x8B\x5D\x0C\x56\x57\x8B\x4B\x04\x49" } };
+	if (h == l) // equal, doesn't matter who
+	{
+		c = l;
+	}
+	// lean to the bigger version, if we're using the one from 2013. These versions received
+	// huge update to the surface code and it make more sense to choose the higher builds for 
+	// these, because the byte patterns from <600 would not work.
+	else if (d >= 6000)
+	{
+		c = h;
+	}
+	else if (d - l < h - d) // lower is closer
+	{
+		c = l;
+	}
+	else if (h - d < d - l) // higher is closer
+	{
+		c = h;
+	}
+	else if (d - l == h - d) // equaly close, select higher
+	{
+		c = h;
+	}
 
-	// HLNetMessageIO
-	c["MSG_StartBitReading"]		= { "hw.dll",		"MSG_StartBitReading", { "\x55\x8B\xEC\xA1\xCC\xCC\xCC\xCC\x33\xC9\x89" } };
-	c["MSG_EndBitReading"]			= { "hw.dll",		"MSG_EndBitReading", { "\x55\x8B\xEC\x8B\x4D\x08\xA1\xCC\xCC\xCC\xCC\x3B" } };
-	c["MSG_ReadBits"]				= { "hw.dll",		"MSG_ReadBits", { "\x55\x8B\xEC\xA1\xCC\xCC\xCC\xCC\x85\xC0\x74\x07\xB8" } };
-	c["MSG_ReadSBits"]				= { "hw.dll",		"MSG_ReadSBits", { "\x55\x8B\xEC\x56\xE8\xCC\xCC\xCC\xCC\x8B\xF0\x8B" } };
-	c["MSG_ReadBitCoord"]			= { "hw.dll",		"MSG_ReadBitCoord", { "\x55\x8B\xEC\x83\xEC\x10\x56\x57\xC7" } };
-	c["MSG_ReadBitVec3Coord"]		= { "hw.dll",		"MSG_ReadBitVec3Coord", { "\x55\x8B\xEC\x53\x56\x57\xE8\xCC\xCC\xCC\xCC\x8B\xF0" } };
-	c["MSG_ReadChar"]				= { "hw.dll",		"MSG_ReadChar", { "\xA1\xCC\xCC\xCC\xCC\x8B\x15\xCC\xCC\xCC\xCC\x8D\x48\x01\x3B\xCA\x7E\x0E\xC7\x05\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x83\xC8\xFF\xC3\x8B\x15" } };
-	c["MSG_ReadByte"]				= { "hw.dll",		"MSG_ReadByte", { "\xA1\xCC\xCC\xCC\xCC\x8B\x15\xCC\xCC\xCC\xCC\x8D\x48\x01\x3B\xCA\x7E\x0E\xC7\x05\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x83\xC8\xFF\xC3\x56" } };
-	c["MSG_ReadShort"]				= { "hw.dll",		"MSG_ReadShort", { "\xA1\xCC\xCC\xCC\xCC\x8B\x0D\xCC\xCC\xCC\xCC\x8D\x50\x02" } };
-	c["MSG_ReadWord"]				= { "hw.dll",		"MSG_ReadWord", { "\x8B\x0D\xCC\xCC\xCC\xCC\xA1\xCC\xCC\xCC\xCC\x57\x8D\x79\x02" } };
-	c["MSG_ReadLong"]				= { "hw.dll",		"MSG_ReadLong", { "\x8B\x0D\xCC\xCC\xCC\xCC\xA1\xCC\xCC\xCC\xCC\x57\x8D\x79\x04" } };
-	c["MSG_ReadFloat"]				= { "hw.dll",		"MSG_ReadFloat", { "\x55\x8B\xEC\x51\xA1\xCC\xCC\xCC\xCC\x8B\x0D" } };
-	c["MSG_ReadString"]				= { "hw.dll",		"MSG_ReadString", { "\x53\x56\x33\xDB\x33\xF6\xE8\xCC\xCC\xCC\xCC\x83\xF8\xFF\x74\x13" } };
-	c["MSG_ReadCoord"]				= { "hw.dll",		"MSG_ReadCoord", { "\x55\x8B\xEC\x83\xEC\x08\xE8\xCC\xCC\xCC\xCC\x8B\x0D\xCC\xCC\xCC\xCC\x85\xC9\x74\x0A" } };
-	c["MSG_WriteChar"]				= { "hw.dll",		"MSG_WriteChar", { "\x55\x8B\xEC\x8B\x45\x08\x6A\x01\x50\xE8\xCC\xCC\xCC\xCC\x8A\x4D\x0C\x83\xC4\x08\x88\x08\x5D\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x55\x8B\xEC\x8B\x45\x08\x6A\x01" } };
-	c["MSG_WriteByte"]				= { "hw.dll",		"MSG_WriteByte", { "\x55\x8B\xEC\x8B\x45\x08\x6A\x01\x50\xE8\xCC\xCC\xCC\xCC\x8A\x4D\x0C\x83\xC4\x08\x88\x08\x5D\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x55\x8B\xEC\x8B\x45\x08\x6A\x02" } };
-	c["MSG_WriteShort"]				= { "hw.dll",		"MSG_WriteShort", { "\x55\x8B\xEC\x8B\x45\x08\x6A\x02\x50\xE8\xCC\xCC\xCC\xCC\x8B\x4D\x0C\x83\xC4\x08\x88\x08\xC1\xF9\x08\x88\x48\x01\x5D\xC3\x90\x90\x55\x8B\xEC\x8B\x45\x08\x6A\x02" } };
-	c["MSG_WriteWord"]				= { "hw.dll",		"MSG_WriteWord", { "\x55\x8B\xEC\x8B\x45\x08\x6A\x02\x50\xE8\xCC\xCC\xCC\xCC\x8B\x4D\x0C\x83\xC4\x08\x88\x08\xC1\xF9\x08\x88\x48\x01\x5D\xC3\x90\x90\x55\x8B\xEC\x8B\x45\x08\x6A\x04" } };
-	c["MSG_WriteLong"]				= { "hw.dll",		"MSG_WriteLong", { "\x55\x8B\xEC\x8B\x45\x08\x6A\x04" } };
-	c["MSG_WriteFloat"]				= { "hw.dll",		"MSG_WriteFloat", { "\x55\x8B\xEC\x8B\x45\x0C\x50\x89" } };
-	c["MSG_WriteString"]			= { "hw.dll",		"MSG_WriteString", { "\x55\x8B\xEC\x56\x8B\x75\x0C\x85\xF6\x75" } };
-	c["MSG_WriteCoord"]				= { "hw.dll",		"MSG_WriteCoord", { "\x55\x8B\xEC\xD9\x45\x0C\xD8" } };
-	c["net_message"]				= { "hw.dll",		"CL_FlushEntityPacket", { "\x68\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\x83\xC4\x04\x6A\x10", 0x1 } };
-	c["msg_readcount"]				= { "hw.dll",		"CL_ParseServerMessage", { "\xA1\xCC\xCC\xCC\xCC\x89\x45\xFC\xA1", 0x1 } };
-	c["bfread"]						= { "hw.dll",		"COM_Init", { "\x68\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\x83\xC4\x18\xC3\x55", 0x1 } };
-
-	// MemoryHookCBaseStuff
-	c["ClientWeapons"]				= { "client.dll",	"ClientWeapons", { "\x89\x1C\x85\xCC\xCC\xCC\xCC\x5F", 0x3 } };
-}
-
-void CBytePatternBank::register_4554()
-{
-	auto& c = m_supported_builds[m_current_build];
-
-	// MemoryHook
-	c["cl_funcs"]					= { "hw.dll",		"ClientDLL_Init", { "\xFF\x15\xCC\xCC\xCC\xCC\x68\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\x83\xC4\x1C", 0x2 } };
-	c["cl_enginefuncs"]				= { "hw.dll",		"ClientDLL_Init", { "\x68\xCC\xCC\xCC\xCC\xFF\x15\xCC\xCC\xCC\xCC\x68\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\x83\xC4\x1C", 0x1 } };
-	c["pmainwindow"]				= { "hw.dll",		"Sys_InitGame", { "\xA3\xCC\xCC\xCC\xCC\x33\xC0\x89\x0D\xCC\xCC\xCC\xCC\x57\xB9\x8F\x00\x00\x00\xBF", 0x1 } };
-	c["host_initialized"]			= { "hw.dll",		"Host_Shutdown", { "\xA1\xCC\xCC\xCC\xCC\x53\x33\xDB\x3B\xC3\x74\x76", 0x1 } };
-	c["sv_player"]					= { "hw.dll",		"Host_God_f", { "\xA1\xCC\xCC\xCC\xCC\x8B\x90\x24\x02\xCC\xCC\x83\xF2\x40", 0x1 } };
-	c["cl"]							= { "hw.dll",		"CL_ClearClientState", { "\x68\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\xB8\xCC\xCC\xCC\xCC\x83\xC4\x0C", 0x1 } };
-	c["cls"]						= { "hw.dll",		"CL_ConnectClient", { "\xA1\xCC\xCC\xCC\xCC\x83\xC4\x0C\x83\xF8\x03", 0x1 }};
-	c["gGlobalVariables"]			= { "hw.dll",		"Host_Kill_f", { "\xD9\x1D\xCC\xCC\xCC\xCC\xFF\x15\xCC\xCC\xCC\xCC\x59\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xA1", 0x2 } };
-	c["scr_fov_value"]				= { "hw.dll",		"ClientDLL_UpdateClientData", { "\x8B\x0D\xCC\xCC\xCC\xCC\x89\x54\x24\x08\x8B\x80\x50\x0B\x00\x00\x8B\x15", 0x2 }};
-	c["g_PlayerExtraInfo"]			= { "client.dll",	"CounterStrikeViewport::MsgFunc_ScoreInfo", { "\x66\x89\x99\xCC\xCC\xCC\xCC\x66\x89\xA9\xCC\xCC\xCC\xCC\x66\x89\x91\xCC\xCC\xCC\xCC\x66\x89\x81\xCC\xCC\xCC\xCC\x7D\x09\x66\xC7\x81", 0x3 } };
-	c["engine_studio_api"]			= { "hw.dll",		"ClientDLL_CheckStudioInterface", {"\x68\xCC\xCC\xCC\xCC\x68\xCC\xCC\xCC\xCC\x6A\x01\xFF\xD0\x83\xC4\x0C", 0x1}};
-	c["cl_parsefuncs"]				= { "hw.dll",		"CL_ParseServerMessage", { "\x8B\xB9\xCC\xCC\xCC\xCC\x85\xFF\x74\x29", 0x2 }};
-	c["pmove"]						= { "hw.dll",		"CL_PlayerFlashlight", { "\x8B\x15\xCC\xCC\xCC\xCC\x8D\x0C\xC5\x00\x00\x00\x00\x2B\xC8\xC1\xE1\x05\x8D\x04\x11\x8B\x8C\x11\x84\x02", 0x2 } };
-	c["gClientUserMsgs"]			= { "hw.dll",		"AddNewUserMsg", { "\x8B\x35\xCC\xCC\xCC\xCC\x83\xC4\x30", 0x2 } };
-	c["g_iShotsFired"]				= { "client.dll",	"CHudAmmo::DrawCrosshair", { "\xA1\xCC\xCC\xCC\xCC\x3D\x58\x02\x00\x00", 0x1 } };
-	c["r_model"]					= { "hw.dll",		"R_StudioSetupSkin", { "\x8B\x0D\xCC\xCC\xCC\xCC\x8B\xF0\x83\xC4\x08\x8B\x46\x0C\x3B\xC1\x75\x1E", 0x2 } };
-	c["pstudiohdr"]					= { "hw.dll",		"BuildGlowShellVerts", { "\xA1\xCC\xCC\xCC\xCC\x8B\x53\x64\x03\xC8\xDD\x5C\x24\x10\xDD\x44\x24\x10\xDC\x0D\xCC\xCC", 0x1 } };
-	c["pStudioAPI"]					= { "hw.dll",		"ClientDLL_CheckStudioInterface", { "\x68\xCC\xCC\xCC\xCC\x6A\x01\xFF\xD0\x83\xC4\x0C\x85\xC0\x75\x12\x68\xCC\xCC\xCC\xCC", 0x1 } };
-
-	// MemoryFnHook
-	c["VGuiWrap2_IsConsoleVisible"]	= { "hw.dll",		"VGuiWrap2_IsConsoleVisible", { "\x8B\x0D\xCC\xCC\xCC\xCC\x85\xC9\x74\x0B\x8B\x01\xFF\x50\x14\x25" } };
-	c["VGuiWrap2_ConPrintf"]		= { "hw.dll",		"VGuiWrap2_ConPrintf", { "\xA1\xCC\xCC\xCC\xCC\x85\xC0\x74\x14\x8B\x54\x24\x04\x8B\x08\x52\x68\xCC\xCC\xCC\xCC\x50\xFF\x51\xCC\x83\xC4\x0C\xC3\x53\x56\x8B\x74\x24\x0C\x57\x8B\xFE\x83\xC9\xFF\x33\xC0\xF2\xAE\xA1" } };
-	c["ClearIOStates"]				= { "hw.dll",		"ClearIOStates", { "\x56\x33\xF6\x6A\x00\x56\xE8\xCC\xCC\xCC\xCC\x83\xC4\x08\x46\x81" } };
-
-	// MemoryFnDetour
-	// this function declaration differs on 4554
-	c["VGui_CallEngineSurfaceAppHandler4554"] = { "hw.dll",	"VGui_CallEngineSurfaceAppHandler4554", { "\x53\x8B\x5C\x24\x0C\x55\x8B\x6C\x24\x0C\x56\x8B\x74\x24\x1C\x57\x8B\x7C\x24\x1C\x56\x57\x53\x55" } };
-	c["Key_Event"]					= { "hw.dll",		"Key_Event", { "\xE8\xCC\xCC\xCC\xCC\x6A\x00\x68\xF0\x00\x00\x00" }};
-	c["Host_Noclip_f"]				= { "hw.dll",		"Host_Noclip_f", { "\xA1\xCC\xCC\xCC\xCC\xBA\x01\x00\x00\x00\x83" } };
-	c["ClientDLL_CreateMove"]		= { "hw.dll",		"ClientDLL_CreateMove", { "\xA1\xCC\xCC\xCC\xCC\x85\xC0\x74\x14\x8B\x4C\x24\x0C\x8B\x54\x24\x08\x51\x8B\x4C\x24\x08\x52\x51" } };
-	c["_Host_Frame"]				= { "hw.dll",		"_Host_Frame", { "\x55\x8B\xEC\x6A\x00\x68\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\x83\xC4\x08" } };
-	c["CL_ReallocateDynamicData"]	= { "hw.dll",		"CL_ReallocateDynamicData", { "\x8B\x44\x24\x04\x50\xE8\xCC\xCC\xCC\xCC\x83\xC4\x04\xA3\xCC\xCC\xCC\xCC\x85\xC0\x7F\x12\x68" } };
-	c["CL_DeallocateDynamicData"]	= { "hw.dll",		"CL_DeallocateDynamicData", { "\xA1\xCC\xCC\xCC\xCC\x85\xC0\x74\x13\x50\xE8\xCC\xCC\xCC\xCC\x83\xC4\x04\xC7\x05" } };
-	c["MYgluPerspective"]			= { "hw.dll",		"MYgluPerspective", { "\x83\xEC\x10\xDD\x44\x24\x14\xDC\x0D\xCC\xCC\xCC\xCC\x83\xEC\x08\xDC\x35\xCC\xCC\xCC\xCC" } };
-	c["R_ForceCVars"]				= { "hw.dll",		"R_ForceCVars", { "\xC3\x44\x24\x04\x85\xC0\x0F\x84" } };
-	c["V_CalcRefdef"]				= { "client.dll",	"V_CalcRefdef", { "\x8B\x44\x24\x04\x8B\x48\x44" } };
-	c["EV_HLDM_FireBullets"]		= { "client.dll",	"EV_HLDM_FireBullets", { "\x81\xEC\x08\x01\x00\x00\xB8\x28\x00\x00\x00" } };
-	c["HUD_Redraw"]					= { "client.dll",	"HUD_Redraw", { "\x8B\x44\x24\x08\x8B\x4C\x24\x04\x50\x51\xB9\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\xB8\x01\x00\x00\x00" } };
-	c["R_GLStudioDrawPoints"]		= { "hw.dll",		"R_GLStudioDrawPoints", { "\x83\xEC\x48\x8B\x0D\xCC\xCC\xCC\xCC\x8B\x15\xCC\xCC\xCC\xCC\x53\x55\x8B\x41\x54" } };
-	c["R_LightLambert"]				= { "hw.dll",		"R_LightLambert", { "\x8B\x0D\xCC\xCC\xCC\xCC\x83\xEC\x24\x53\x33\xDB\x56\x3B\xCB\x57\x75\x1F" } };
-	c["V_FadeAlpha"]				= { "hw.dll",		"V_FadeAlpha", { "\xD9\x05\xCC\xCC\xCC\xCC\xDC\x1D\xCC\xCC\xCC\xCC\x8A\x0D\xCC\xCC\xCC\xCC\x83\xEC\x08\xDF\xE0\xF6\xC4\x01" } };
-	c["V_ApplyShake"]				= { "hw.dll",		"V_ApplyShake", { "\x8D\x44\x24\x0C\x8D\x4C\x24\x08\x50\x8D\x54\x24\x08\x51\x52\xFF\x15\xCC\xCC\xCC\xCC\x8B\x44\x24\x10\x83\xC4\x0C\x85\xC0" } };
-	c["S_StartStaticSound"]			= { "hw.dll",		"S_StartStaticSound", { "\x83\xEC\x44\x53\x55\x8B\x6C\x24\x58\x56\x85\xED\x57\xC7\x44\x24\x10\x00\x00\x00\x00\x0F\x84\x62\x02\x00\x00\x80\x7D\x00\x2A" } };
-	c["R_DrawViewModel"]			= { "hw.dll",		"R_DrawViewModel", { "\x83\xEC\x4C\xD9\x05\xCC\xCC\xCC\xCC\xD8\x1D\xCC\xCC\xCC\xCC\x56\x57\x33\xFF\xC7\x44" } };
-	c["CPartSmokeGrenade::Create"]	= { "client.dll",	"CPartSmokeGrenade::Create", { "\x8B\x0D\xCC\xCC\xCC\xCC\x56\x68\x30\x01\x00\x00\x8B\x01\xFF\x50\xCC\x8B" } };
-	c["CreateGasSmoke"]				= { "client.dll",	"CreateGasSmoke", { "\xA1\xCC\xCC\xCC\xCC\x83\xEC\x10\x53\x33\xDB\x3B\xC3\x56\x0F\x84\x76" } };
-	c["CEngine::Unload"]			= { "hw.dll",		"CEngine::Unload", { "\x56\x8B\xF1\xE8\xCC\xCC\xCC\xCC\xC7\x46\x08\x00\x00\x00\x00" } };
-	c["SCR_CalcRefdef"]				= { "hw.dll",		"SCR_CalcRefdef", { "\xD9\x05\xCC\xCC\xCC\xCC\xD8\x1D\xCC\xCC\xCC\xCC\x83\xEC\x0C\x33\xC9\x89\x0D" } };
-	c["SCR_UpdateScreen"]			= { "hw.dll",		"SCR_UpdateScreen", { "\xA1\xCC\xCC\xCC\xCC\x83\xEC\x10\x56\x33\xF6\x3B\xC6\x0F\x85\x13\x02\x00\x00\xC7\x05" } };
-	c["SPR_Set"]					= { "hw.dll",		"SPR_Set", { "\x55\x8B\xEC\x83\xEC\x08\x8D\x45\x14" } };
-	c["CGame::AppActivate"]			= { "hw.dll",		"CGame::AppActivate", { "\x53\x8B\x5C\x24\x08\x56\x8B\xF1\x84\xDB\x0F\x84\x8E\x00\x00\x00\x68" } };
-	c["CHudAmmo::DrawCrosshair"]	= { "client.dll",	"CHudAmmo::DrawCrosshair", { "\x83\xEC\x08\x53\x55\x56\x57\x8B\xF9\xBE\x05\x00\x00\x00\x8B\x4C\x24\x20\x89\x7C\x24\x14\x8D\x69\xFF" } };
-	c["R_StudioDrawPlayer"]			= { "hw.dll",		"R_StudioDrawPlayer", { "\x55\x8B\xEC\x81\xEC\xDC\x0B\x00\x00\x53\x8B\x5D\x0C\x56\x57\x8B\x4B\x04\x49" } };
-
-	// HLNetMessageIO
-	c["MSG_StartBitReading"]		= { "hw.dll",		"MSG_StartBitReading", { "\xA1\xCC\xCC\xCC\xCC\x33\xC9\x89\x0D\xCC\xCC\xCC\xCC\x89\x0D\xCC\xCC\xCC\xCC\x8B\x4C\x24\x04" } };
-	c["MSG_EndBitReading"]			= { "hw.dll",		"MSG_EndBitReading", { "\x8B\x4C\x24\x04\xA1\xCC\xCC\xCC\xCC\x3B\x41\x10\x7E\x0A\xC7\x05" } };
-	c["MSG_ReadBits"]				= { "hw.dll",		"MSG_ReadBits", { "\xA1\xCC\xCC\xCC\xCC\x85\xC0\x74\x06\xB8\x01\x00\x00\x00\xC3\x53\x56" } };
-	c["MSG_ReadSBits"]				= { "hw.dll",		"MSG_ReadSBits", { "\x56\xE8\xCC\xCC\xCC\xCC\x8B\xF0\x8B\x44\x24\x08\x48\x50\xE8\xCC\xCC\xCC\xCC\x83\xC4\x04\x85\xF6\x5E" } };
-	c["MSG_ReadBitCoord"]			= { "hw.dll",		"MSG_ReadBitCoord", { "\x83\xEC\x10\x56\x57\xC7\x44\x24\x08\x00\x00\x00\x00\xE8" } };
-	c["MSG_ReadBitVec3Coord"]		= { "hw.dll",		"MSG_ReadBitVec3Coord", { "\x53\x56\x57\xE8\xCC\xCC\xCC\xCC\x8B\xF0\xE8\xCC\xCC\xCC\xCC\x8B\xF8\xE8" } };
-	c["MSG_ReadChar"]				= { "hw.dll",		"MSG_ReadChar", { "\xA1\xCC\xCC\xCC\xCC\x8B\x15\xCC\xCC\xCC\xCC\x8D\x48\x01\x3B\xCA\x7E\x0E\xC7\x05\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x83\xC8\xFF\xC3\x8B\x15" } };
-	c["MSG_ReadByte"]				= { "hw.dll",		"MSG_ReadByte", { "\xA1\xCC\xCC\xCC\xCC\x8B\x15\xCC\xCC\xCC\xCC\x8D\x48\x01\x3B\xCA\x7E\x0E\xC7\x05\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x83\xC8\xFF\xC3\x56" } };
-	c["MSG_ReadShort"]				= { "hw.dll",		"MSG_ReadShort", { "\xA1\xCC\xCC\xCC\xCC\x8B\x0D\xCC\xCC\xCC\xCC\x8D\x50\x02" } };
-	c["MSG_ReadWord"]				= { "hw.dll",		"MSG_ReadWord", { "\x8B\x0D\xCC\xCC\xCC\xCC\xA1\xCC\xCC\xCC\xCC\x57\x8D\x79\x02" } };
-	c["MSG_ReadLong"]				= { "hw.dll",		"MSG_ReadLong", { "\x8B\x0D\xCC\xCC\xCC\xCC\xA1\xCC\xCC\xCC\xCC\x57\x8D\x79\x04" } };
-	c["MSG_ReadFloat"]				= { "hw.dll",		"MSG_ReadFloat", { "\xA1\xCC\xCC\xCC\xCC\x8B\x15\xCC\xCC\xCC\xCC\x56\x8B\x74\x24\x08\x8D\x0C\x30\x3B\xCA\x7E\x0F" } };
-	c["MSG_ReadString"]				= { "hw.dll",		"MSG_ReadString", { "\x56\x33\xF6\xE8\xCC\xCC\xCC\xCC\x83\xF8\xFF\x74\x22\x85\xC0\x74\x1E\x83" } };
-	c["MSG_ReadCoord"]				= { "hw.dll",		"MSG_ReadCoord", { "\x51\xE8\xCC\xCC\xCC\xCC\x89\x44\x24\x00\xDB\x44\x24\x00\xD9\x5C\x24\x00\xD9" } };
-	c["MSG_WriteChar"]				= { "hw.dll",		"MSG_WriteChar", { "\x8B\x44\x24\x04\x6A\x01\x50\xE8\xCC\xCC\xCC\xCC\x8A\x4C\x24\x10\x83\xC4\x08\x88\x08\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x8B\x44\x24\x04\x6A\x01\x50\xE8" } };
-	c["MSG_WriteByte"]				= { "hw.dll",		"MSG_WriteByte", { "\x8B\x44\x24\x04\x6A\x01\x50\xE8\xCC\xCC\xCC\xCC\x8A\x4C\x24\x10\x83\xC4\x08\x88\x08\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x8B\x44\x24\x04\x6A\x02\x50\xE8" } };
-	c["MSG_WriteShort"]				= { "hw.dll",		"MSG_WriteShort", { "\x8B\x44\x24\x04\x6A\x02\x50\xE8\xCC\xCC\xCC\xCC\x8B\x4C\x24\x10\x83\xC4\x08\x88\x08\xC1\xF9\x08\x88\x48\x01\xC3" } };
-	c["MSG_WriteWord"]				= { "hw.dll",		"MSG_WriteWord", { "\x8B\x44\x24\x04\x6A\x02\x50\xE8\xCC\xCC\xCC\xCC\x8B\x4C\x24\x10\x83\xC4\x08\x88\x08\xC1\xF9\x08\x88\x48\x01\xC3" } };
-	c["MSG_WriteLong"]				= { "hw.dll",		"MSG_WriteLong", { "\x8B\x44\x24\x04\x6A\x04\x50\xE8\xCC\xCC\xCC\xCC\x8B\x4C\x24\x10\x83\xC4\x08\x8B\xD1\x88\x08\xC1\xFA\x08\x88\x50\x01\x8B\xD1" } };
-	c["MSG_WriteFloat"]				= { "hw.dll",		"MSG_WriteFloat", { "\x8B\x44\x24\x08\x50\x89\x44\x24\x0C\xFF\x15\xCC\xCC\xCC\xCC\x8B\x4C\x24\x08\x89\x44\x24\x0C\x8D\x44\x24\x0C" } };
-	c["MSG_WriteString"]			= { "hw.dll",		"MSG_WriteString", { "\x56\x8B\x74\x24\x0C\x85\xF6\x75\x16\x8B\x44\x24\x08\x6A\x01\x68\xCC\xCC\xCC\xCC\x50\xE8\xCC\xCC\xCC\xCC\x83\xC4\x0C\x5E" } };
-	c["MSG_WriteCoord"]				= { "hw.dll",		"MSG_WriteCoord", { "\xD9\x44\x24\x08\xD8\x0D\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\x50\x8B\x44\x24\x08\x50\xE8\xCC\xCC\xCC\xCC\x83\xC4\x08\xC3" } };
-	c["net_message"]				= { "hw.dll",		"CL_FlushEntityPacket", { "\x68\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\x83\xC4\x04\x6A\x10", 0x1 } };
-	c["msg_readcount"]				= { "hw.dll",		"CL_ParseServerMessage", { "\x8B\x2D\xCC\xCC\xCC\xCC\x3D\x00\x00\x80\x3F\x56\x75\x15\xA1\xCC\xCC\xCC\xCC\x50", 0x2 } };
-	c["bfread"]						= { "hw.dll",		"COM_Init", { "\x68\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\x83\xC4\x18\xC3\xA1\xCC\xCC\xCC\xCC\x83\xF8\x08\x7C\x26\xA1\xCC\xCC\xCC\xCC\x6A\x01", 0x1 } };
-
-	// MemoryHookCBaseStuff
-	c["ClientWeapons"]				= { "client.dll",	"ClientWeapons", { "\x89\x1C\x85\xCC\xCC\xCC\xCC\x5F", 0x3 } };
+	return c;
 }

@@ -91,10 +91,15 @@ IRenderingContext* COxWareUI::find_context(const std::string& id) const
 	return nullptr;
 }
 
-void COxWareUI::create_popup(const std::function<void()>& contents, const std::function<void()>& on_close_callback)
+void COxWareUI::schedule_popup(const std::string& window_title, const Vector2D& window_size, 
+							   const std::function<void()>& contents, const std::function<void()>& on_close_callback, 
+							   ImGuiWindowFlags window_flags)
 {
 	m_popup_callback = contents;
 	m_on_close_callback = on_close_callback;
+	m_popup_window_size = window_size;
+	m_popup_window_title = window_title;
+	m_popup_window_flags = window_flags;
 }
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -145,6 +150,11 @@ void COxWareUI::run_ui()
 	m_is_any_interactible_rendering_context_active = false;
 	m_contexts_to_be_rendered.clear();
 
+	if (is_in_popup_dialog())
+	{
+		lock_interaction_on_all_contexts();
+	}
+
 	for (IRenderingContext* ctx : m_rendering_contexts)
 	{
 		if (ctx->should_render())
@@ -163,18 +173,16 @@ void COxWareUI::run_ui()
 	static bool once = false;
 	if (!once)
 	{
-		//bool already_have_launched = g_registry_i->read_int(REG_OXWARE, "already_launched") == 1;
-		bool already_have_launched = false;
+		bool already_have_launched = g_registry_i->read_int(REG_OXWARE, "already_launched") == 1;
 		if (!already_have_launched)
 		{
-			m_should_render_welcome_popup = true;
 			create_welcome_popup();
 		}
 
 		once = true;
 	}
 
-	if (!m_contexts_to_be_rendered.empty() || (m_should_render_welcome_popup && !m_popup_has_been_closed))
+	if (!m_contexts_to_be_rendered.empty() || (m_popup_callback != nullptr))
 	{
 		// push new
 		wglMakeCurrent(m_hdc, m_cheat_context);
@@ -200,7 +208,14 @@ void COxWareUI::render_imgui()
 		ctx->on_render();
 	}
 
-	render_popup();
+	if (is_in_popup_dialog())
+	{
+		g_gui_widgets_i->push_executing_popup_code();
+
+		render_popup();
+
+		g_gui_widgets_i->pop_executing_popup_code();
+	}
 }
 
 void COxWareUI::post_render()
@@ -212,26 +227,91 @@ void COxWareUI::post_render()
 
 void COxWareUI::create_welcome_popup()
 {
-	create_popup(
+	schedule_popup(
+		"About", Vector2D(350, 420),
 		[this]()
 		{
-			g_gui_widgets_i->add_text("Welcome to oxWARE!");
+			g_gui_widgets_i->add_separtor_with_text("Introduction");
+			g_gui_widgets_i->add_text("Welcome to oxWARE " OXVER_STRING "! A public open-source cheat for CS 1.6.", TEXTPROP_Wrapped);
 
 			g_gui_widgets_i->add_spacing();
 
-			g_gui_widgets_i->add_text("Press F1 to begin the cheating experience! :)");
+			g_gui_widgets_i->add_text("Press F1 to begin the cheating experience! :)", TEXTPROP_Wrapped);
+
+			float sections_padding = 10.0f;
+
+			g_gui_widgets_i->add_padding({ 0.0f, sections_padding });
+			g_gui_widgets_i->add_separtor_with_text("Project GitHub repository");
+
+			g_gui_widgets_i->add_text("Please, don't forget to visit the project repository on GitHub! You can find there information such as:", TEXTPROP_Wrapped);
+			g_gui_widgets_i->add_bullet_text("TODO list");
+			g_gui_widgets_i->add_bullet_text("ChangeLog for each version");
+			g_gui_widgets_i->add_bullet_text("Feature list");
+			g_gui_widgets_i->add_bullet_text("Non-steam support");
+			g_gui_widgets_i->add_bullet_text("And more!");
 
 			g_gui_widgets_i->add_spacing();
-			g_gui_widgets_i->add_separator();
+			if (g_gui_widgets_i->add_hypertext_link("github.com/oxiKKK/oxware"))
+			{
+				CGenericUtil::the().open_link_inside_browser("https://github.com/oxiKKK/oxware");
+			}
 
-			g_gui_widgets_i->add_text("If you find any bugs or you want something to be added, please, create an issue:");
-			if (g_gui_widgets_i->add_hypertext_link("https://github.com/oxiKKK/oxware/issues"))
+			g_gui_widgets_i->add_padding({ 0.0f, sections_padding });
+			g_gui_widgets_i->add_separtor_with_text("Availability");
+
+			g_gui_widgets_i->add_text(std::format("The cheat is currently available on following builds: {}", g_bytepattern_bank_i->supported_builds_as_str()), TEXTPROP_Wrapped);
+
+			g_gui_widgets_i->add_padding({ 0.0f, sections_padding });
+			g_gui_widgets_i->add_separtor_with_text("Bugs / feature requests");
+			g_gui_widgets_i->add_text("If you find any bugs or you want something to be added, please, create an issue here:", TEXTPROP_Wrapped);
+			if (g_gui_widgets_i->add_hypertext_link("github.com/oxiKKK/oxware/issues"))
 			{
 				CGenericUtil::the().open_link_inside_browser("https://github.com/oxiKKK/oxware/issues");
 			}
 
-			g_gui_widgets_i->add_separator();
+			g_gui_widgets_i->add_spacing();
+			g_gui_widgets_i->add_text("Or just simply contact me anywhere! ;)", TEXTPROP_Wrapped);
 
+			g_gui_widgets_i->add_padding({ 0.0f, sections_padding });
+			g_gui_widgets_i->add_separtor_with_text("Contact on the author");
+
+			if (g_gui_widgets_i->begin_columns("contact", 2))
+			{
+				g_gui_widgets_i->setup_column_fixed_width(90);
+				g_gui_widgets_i->goto_next_column();
+
+				g_gui_widgets_i->add_text("Discord");
+				g_gui_widgets_i->goto_next_column();
+				g_gui_widgets_i->add_text("__oxiKKK#5015");
+				g_gui_widgets_i->goto_next_column();
+
+				g_gui_widgets_i->add_text("Steam");
+				g_gui_widgets_i->goto_next_column();
+				if (g_gui_widgets_i->add_hypertext_link("steamcommunity.com/id/oxiKKK"))
+				{
+					CGenericUtil::the().open_link_inside_browser("https://steamcommunity.com/id/oxiKKK");
+				}
+				g_gui_widgets_i->goto_next_column();
+
+				g_gui_widgets_i->add_text("YouTube");
+				g_gui_widgets_i->goto_next_column();
+				if (g_gui_widgets_i->add_hypertext_link("www.youtube.com/@OX666"))
+				{
+					CGenericUtil::the().open_link_inside_browser("https://steamcommunity.com/id/oxiKKK");
+				}
+				g_gui_widgets_i->goto_next_column();
+
+				g_gui_widgets_i->add_text("GitHub");
+				g_gui_widgets_i->goto_next_column();
+				if (g_gui_widgets_i->add_hypertext_link("github.com/oxiKKK"))
+				{
+					CGenericUtil::the().open_link_inside_browser("https://github.com/oxiKKK");
+				}
+
+				g_gui_widgets_i->end_columns();
+			}
+
+			g_gui_widgets_i->add_padding({ 0.0f, 20.0f });
 
 			m_is_any_interactible_rendering_context_active = true;
 		},
@@ -287,7 +367,7 @@ void COxWareUI::handle_ingame_mouseevents()
 		SDL_GetRelativeMouseState = (decltype(SDL_GetRelativeMouseState))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_GetRelativeMouseState");
 	}
 
-	static bool last = m_is_any_interactible_rendering_context_active;
+	static bool last = false;
 	if (last != m_is_any_interactible_rendering_context_active)
 	{
 		// can happen that this gets called before the interface hook is initialized, hence it can crash.
@@ -407,17 +487,34 @@ void COxWareUI::handle_ingame_mouseevents()
 	}
 }
 
+void COxWareUI::lock_interaction_on_all_contexts()
+{
+	for (auto context : m_rendering_contexts)
+	{
+		context->lock_interaction();
+	}
+}
+
+void COxWareUI::unlock_interaction_on_all_contexts()
+{
+	for (auto context : m_rendering_contexts)
+	{
+		context->unlock_interaction();
+	}
+}
+
 void COxWareUI::render_popup()
 {
-	if (!is_in_popup_dialog())
+	if (m_popup_close_requested)
 	{
-		m_popup_has_been_closed = false;
+		m_popup_close_requested = false;
+		on_popup_close();
 		return;
 	}
 
 	static constexpr auto window_flags_bg =
 		ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav |
-		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
+		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoInputs;
 
 	g_gui_widgets_i->set_next_window_pos({}, ImGuiCond_Always);
 	g_gui_widgets_i->set_next_window_size(g_imgui_platform_layer_i->get_screen_size(), ImGuiCond_Always);
@@ -437,29 +534,66 @@ void COxWareUI::render_popup()
 
 	g_gui_widgets_i->pop_stylevar();
 
-	g_gui_widgets_i->center_next_window_pos(ImGuiCond_Once);
+	g_gui_widgets_i->center_next_window_pos(ImGuiCond_Always);
 	g_gui_widgets_i->set_next_window_rounding(CMenuStyle::k_rounding_factor, ImDrawFlags_RoundCornersTopRight | ImDrawFlags_RoundCornersBottomLeft);
+	g_gui_widgets_i->set_next_window_size(m_popup_window_size, (m_popup_window_flags & ImGuiWindowFlags_NoResize) ? ImGuiCond_Always : ImGuiCond_Once);
 
-	static constexpr auto window_flags =
-		ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav |
-		ImGuiWindowFlags_NoMove;
+	g_gui_thememgr_i->push_color(GUICLR_ChildBackground, {});
+
+	int window_flags =
+		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav |
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar;
+
+	window_flags |= m_popup_window_flags;
+
 	g_gui_widgets_i->create_new_window(
 		"popup_window", window_flags, 
 		[this]()
 		{
-			m_popup_callback();
-
-			g_gui_widgets_i->add_spacing();
-			g_gui_widgets_i->add_separator();
-
-			if (g_gui_widgets_i->add_button("OK", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+			if (!m_popup_window_title.empty())
 			{
-				m_popup_callback = nullptr;
-				if (m_on_close_callback)
+				g_gui_widgets_i->add_text(m_popup_window_title, TEXTPROP_None, g_gui_fontmgr_i->get_font("segoeui", FONT_BIGGEST, FONTDEC_Regular));
+			}
+
+			g_gui_widgets_i->add_child(
+				"popup_window_child", 
+				Vector2D(-1, -1 - 20), true, ImGuiWindowFlags_None, 
+				[&]()
 				{
-					m_popup_has_been_closed = true;
-					m_on_close_callback();
+					m_popup_callback();
+				});
+			
+			g_gui_widgets_i->add_spacing();
+
+			if (g_gui_widgets_i->begin_columns("popup_window_column", 2))
+			{
+				g_gui_widgets_i->setup_column_fixed_width(g_gui_widgets_i->get_current_window_size().x / 1.7);
+				g_gui_widgets_i->goto_next_column();
+
+				// *empty*
+
+				g_gui_widgets_i->goto_next_column();
+
+				if (g_gui_widgets_i->add_button("OK", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+				{
+					on_popup_close();
 				}
+
+				g_gui_widgets_i->end_columns();
 			}
 		});
+
+	g_gui_thememgr_i->pop_color();
+}
+
+void COxWareUI::on_popup_close()
+{
+	m_popup_callback = nullptr;
+
+	if (m_on_close_callback)
+	{
+		m_on_close_callback();
+	}
+
+	unlock_interaction_on_all_contexts();
 }

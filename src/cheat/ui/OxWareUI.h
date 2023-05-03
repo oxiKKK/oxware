@@ -46,11 +46,9 @@ public:
 
 	bool is_in_popup_dialog() const { return m_popup_callback != nullptr; }
 
-	void create_popup(const std::function<void()>& contents, const std::function<void()>& on_close_callback);
-	bool was_popup_ok_button_pressed() const
-	{
-		return m_popup_has_been_closed;
-	}
+	void schedule_popup(const std::string& window_title, const Vector2D& window_size,
+						const std::function<void()>& contents, const std::function<void()>& on_close_callback,
+						ImGuiWindowFlags window_flags = 0);
 
 	void add_background_rendering_constrain(const std::function<bool()>& callback)
 	{
@@ -62,14 +60,20 @@ public:
 		ctx_BackgroundRendering->add_render_code(callback);
 	}
 
+	void close_current_popup()
+	{
+		m_popup_close_requested = true;
+	}
+
+	// aka the "about" dialog
+	void create_welcome_popup();
+
 private:
 	void initialize(HWND wnd);
 
 	void run_ui();
 	void render_imgui();
 	void post_render();
-
-	void create_welcome_popup();
 
 	void instantiate_rendering_contexts();
 	void destroy_rendering_contexts();
@@ -78,6 +82,9 @@ private:
 	void instantiate_single_rendering_context(T** to_be_instantiated, IRenderingContext* ctx);
 
 	void handle_ingame_mouseevents();
+
+	void lock_interaction_on_all_contexts();
+	void unlock_interaction_on_all_contexts();
 
 private:
 	bool m_is_any_interactible_rendering_context_active = false;
@@ -97,11 +104,14 @@ private:
 
 	std::function<void()> m_popup_callback;
 	std::function<void()> m_on_close_callback;
-	bool m_popup_has_been_closed = false;
+	Vector2D m_popup_window_size;
+	std::string m_popup_window_title;
+	ImGuiWindowFlags m_popup_window_flags;
 
-	bool m_should_render_welcome_popup = false;
+	bool m_popup_close_requested = false;
 
 	void render_popup();
+	void on_popup_close();
 };
 
 template<typename T>

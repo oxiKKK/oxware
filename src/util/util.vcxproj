@@ -366,6 +366,7 @@
     </ClCompile>
     <ClCompile Include="AppDataManager.cpp" />
     <ClCompile Include="BytePatternBank.cpp" />
+    <ClCompile Include="bytepattern_containers.cpp" />
     <ClCompile Include="CodePerformaceProfiler.cpp" />
     <ClCompile Include="ConfigManager.cpp" />
     <ClCompile Include="dllmain.cpp" />

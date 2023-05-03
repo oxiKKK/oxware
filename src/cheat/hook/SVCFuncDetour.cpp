@@ -193,8 +193,6 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 		}
 		else
 		{
-			CHLNetMessageIO::the().write_string(cvar->string);
-			
 			const char* value = CServerLiar::the().filter_cvarvalue(requested_cvar);
 			if (value == nullptr)
 			{

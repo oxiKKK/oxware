@@ -28,9 +28,6 @@
 
 #include "precompiled.h"
 
-// needed for IRendererContext.h ...
-bool g_is_in_popup_dialog = false;
-
 void COxWareUI::swapbuffers_detour(HDC hdc)
 {
 	if (CoXWARE::the().is_cheat_exiting())
@@ -162,21 +159,22 @@ void COxWareUI::run_ui()
 		}
 	}
 
-/* // TODO: Welcoming popup dialog
+	// welcoming popup dialog
 	static bool once = false;
 	if (!once)
 	{
-		bool already_have_launched = g_registry_i->read_int(REG_OXWARE, "already_launched") == 1;
+		//bool already_have_launched = g_registry_i->read_int(REG_OXWARE, "already_launched") == 1;
+		bool already_have_launched = false;
 		if (!already_have_launched)
 		{
 			m_should_render_welcome_popup = true;
+			create_welcome_popup();
 		}
 
 		once = true;
 	}
-*/
 
-	if (!m_contexts_to_be_rendered.empty() /*|| (m_should_render_welcome_popup && !m_popup_has_been_closed)*/)
+	if (!m_contexts_to_be_rendered.empty() || (m_should_render_welcome_popup && !m_popup_has_been_closed))
 	{
 		// push new
 		wglMakeCurrent(m_hdc, m_cheat_context);
@@ -195,11 +193,7 @@ void COxWareUI::run_ui()
 
 void COxWareUI::render_imgui()
 {
-	g_is_in_popup_dialog = is_in_popup_dialog();
-
 	g_gui_widgets_i->block_input_on_all_except_popup(is_in_popup_dialog());
-
-	create_welcome_popup();
 
 	for (IRenderingContext* ctx : m_contexts_to_be_rendered)
 	{
@@ -218,32 +212,33 @@ void COxWareUI::post_render()
 
 void COxWareUI::create_welcome_popup()
 {
-	static bool once = false;
-	if (once)
-	{
-		return;
-	}
+	create_popup(
+		[this]()
+		{
+			g_gui_widgets_i->add_text("Welcome to oxWARE!");
 
-	if (m_should_render_welcome_popup)
-	{
-		create_popup(
-			[this]()
+			g_gui_widgets_i->add_spacing();
+
+			g_gui_widgets_i->add_text("Press F1 to begin the cheating experience! :)");
+
+			g_gui_widgets_i->add_spacing();
+			g_gui_widgets_i->add_separator();
+
+			g_gui_widgets_i->add_text("If you find any bugs or you want something to be added, please, create an issue:");
+			if (g_gui_widgets_i->add_hypertext_link("https://github.com/oxiKKK/oxware/issues"))
 			{
-					g_gui_widgets_i->add_text("Welcome to oxWARE!");
+				CGenericUtil::the().open_link_inside_browser("https://github.com/oxiKKK/oxware/issues");
+			}
 
-					g_gui_widgets_i->add_spacing();
+			g_gui_widgets_i->add_separator();
 
-					g_gui_widgets_i->add_text("Press F1 to begin the cheating experience! :)");
 
-					m_is_any_interactible_rendering_context_active = true;
-			},
-			[]() // on close
-			{
-				g_registry_i->write_int(REG_OXWARE, "already_launched", 1);
-			});
-	}
-
-	once = true;
+			m_is_any_interactible_rendering_context_active = true;
+		},
+		[]() // on close
+		{
+			g_registry_i->write_int(REG_OXWARE, "already_launched", 1);
+		});
 }
 
 void COxWareUI::instantiate_rendering_contexts()

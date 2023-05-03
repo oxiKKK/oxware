@@ -30,8 +30,6 @@
 #define IRENDERERCONTEXT_H
 #pragma once
 
-extern bool g_is_in_popup_dialog;
-
 // Every class that wants to render imgui must derive from this base class and implement the "on_render" method.
 class IRenderingContext
 {

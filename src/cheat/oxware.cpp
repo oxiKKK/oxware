@@ -399,7 +399,7 @@ bool CoXWARE::initialize_hook_managers()
 
 	CConsole::the().info("Initialized all hook managers.");
 
-#ifdef ENABLE_HOOK_TESTING
+#ifdef OX_ENABLE_HOOK_TESTING
 	CHookTests::the().execute_tests();
 #endif
 

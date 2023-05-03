@@ -30,8 +30,6 @@
 #define OXWAREUI_H
 #pragma once
 
-extern bool g_is_in_popup_dialog;
-
 class COxWareUI
 {
 public:

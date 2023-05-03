@@ -54,7 +54,7 @@ protected:
 		m_name = name;
 		m_module_name = module_name;
 
-#ifdef ENABLE_HOOK_TESTING
+#ifdef OX_ENABLE_HOOK_TESTING
 		add_to_test();
 #endif
 	}

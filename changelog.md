@@ -34,15 +34,26 @@
 
 <details><summary>Spoiler</summary>
 	<img src="https://i.imgur.com/bYzp8KD.png" width="50%" height="50%"></img>
-</details>
+</details><br>
 
 - Added svc_stufftext filter (server command filter). See [this video](https://youtu.be/4u0LNqQbY4w) for demonstration.
-
 - Added the ability to view "real" hit-able playermodel + its head hitbox. See [this youtube video](https://youtu.be/xMd9m3McNvo).
 
 <details><summary>Spoiler</summary>
 	<img src="https://i.imgur.com/weWGM5C.png" width="50%" height="50%"></img>
-</details>
+</details><br>
+
+- Implemented limit to maximum amount of log files kept inside the logfile directory. (*num_logfiles_to_keep* variable)
+- Disabled logging for the loader completely.
+- Made currently held weapon sprite more accurate, e.g. this will now work even with custom models. 🔫
+- Added about dialog inside the menu and welcome popup dialog when the cheat is firstly injected.
+
+<details><summary>Spoiler</summary>
+	<img src="https://i.imgur.com/guPRnTY.png" width="60%" height="60%"></img>
+</details><br>
+
+- Added support for non-steam **4554 CS**! 🥳
+	- The build will be now automatically chosen if it is not strictly inside the list of what we support. So let's say you inject to 8063 build - 8684 will be chosen. Build 5000 - 4554 will be chosen, etc. 
 
 ## Bugfixes
 
@@ -50,4 +61,5 @@
 - Fixed a bug in Visual Studio where if you would have the cheat inside a directory that has spaces in it such as "folder 1 2 3", the solution would not compile. 🐞
 - Fixed bug with static crosshair, where the alpha would softlock to 0 and would never change.
 - Fixed a crash on game close that would sometimes happen.
+- Fixed a crash when loading a config that could sometimes happen.
 

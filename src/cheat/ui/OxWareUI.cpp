@@ -184,8 +184,8 @@ void COxWareUI::run_ui()
 	static bool once = false;
 	if (!once)
 	{
-		bool already_have_launched = g_registry_i->read_int(REG_OXWARE, "already_launched") == 1;
-		if (!already_have_launched)
+		bool show_welcome_popup = g_registry_i->read_int(REG_OXWARE, "already_shown_welcome_popup") == 0;
+		if (show_welcome_popup)
 		{
 			create_welcome_popup();
 		}
@@ -328,7 +328,7 @@ void COxWareUI::create_welcome_popup()
 		},
 		[]() // on close
 		{
-			g_registry_i->write_int(REG_OXWARE, "already_launched", 1);
+			g_registry_i->write_int(REG_OXWARE, "already_shown_welcome_popup", 1);
 		});
 }
 

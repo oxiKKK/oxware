@@ -132,7 +132,14 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue_f()
 
 			if (cvarfilter_monitor_server.get_value())
 			{
-				CConsole::the().info("Responding to server with.. '{}' (but have '{}')", value, cvar->string);
+				if (stricmp(cvar->string, value))
+				{
+					CConsole::the().info("Responding to server with.. '{}' (but have '{}')", value, cvar->string);
+				}
+				else
+				{
+					CConsole::the().info("Responding to server with.. '{}'", value);
+				}
 			}
 
 			CHLNetMessageIO::the().write_string(value);
@@ -215,7 +222,7 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 
 void CSVCFuncDetourMgr::svc_stufftext_f()
 {
-	if (CHLNetMessageIO::the().ready_to_read() && 0)
+	if (CHLNetMessageIO::the().ready_to_read())
 	{
 		if (!CStuffCmdFilter::the().allow_command_to_be_executed())
 		{

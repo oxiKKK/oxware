@@ -32,7 +32,15 @@ void CGenericPlayer::update(hl::cl_entity_t* ent)
 {
 	CGenericEnt::update(ent);
 
-	m_extra_playerinfo = &CMemoryHookMgr::the().g_PlayerExtraInfo().get()[m_ent->index];
+	if (CoXWARE::the().get_build_number() < 8684)
+	{
+		m_extra_playerinfo = (hl::extra_player_info_t*)&(CMemoryHookMgr::the().g_PlayerExtraInfoOld().get()[m_ent->index]);
+	}
+	else
+	{
+		m_extra_playerinfo = (hl::extra_player_info_t*)&(CMemoryHookMgr::the().g_PlayerExtraInfo().get()[m_ent->index]);
+	}
+
 	m_playerinfo = &CMemoryHookMgr::the().cl().get()->players[m_ent->index - 1]; // cl.players is zero based, so -1 because cl_entity_t::index is 1 based.
 }
 

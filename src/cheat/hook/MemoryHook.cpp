@@ -40,7 +40,14 @@ bool CMemoryHookMgr::install_hooks()
 	if (!cls().install()) return false;
 	if (!gGlobalVariables().install()) return false;
 	if (!scr_fov_value().install()) return false;
-	if (!g_PlayerExtraInfo().install()) return false;
+	if (CoXWARE::the().get_build_number() < 8684) // old struct
+	{
+		if (!g_PlayerExtraInfoOld().install()) return false;
+	}
+	else
+	{
+		if (!g_PlayerExtraInfo().install()) return false;
+	}
 	if (!engine_studio_api().install()) return false;
 	if (!cl_parsefuncs().install()) return false;
 	if (!pmove().install()) return false;
@@ -252,6 +259,27 @@ bool g_PlayerExtraInfo_MemoryHook::install()
 }
 
 void g_PlayerExtraInfo_MemoryHook::test_hook()
+{
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+		{
+			auto& cur = p[48]; // random index, just to see if everything is valid. 
+			return cur.deaths == 0 && cur.frags == 0 && cur.has_c4 == false && cur.teamname[0] == 0;
+		});
+}
+
+//-----------------------------------------------------------------------------
+
+bool g_PlayerExtraInfoOld_MemoryHook::install()
+{
+	initialize("g_PlayerExtraInfoOld", L"client.dll");
+	return install_using_bytepattern(1); 
+}
+
+void g_PlayerExtraInfoOld_MemoryHook::test_hook()
 {
 	auto p = get();
 

@@ -935,7 +935,7 @@ void CUIMenu::tab_config()
 						{
 							static char name_buffer[64];
 							COxWareUI::the().schedule_popup(
-								"", Vector2D(200, 140),
+								"", Vector2D(210, 170),
 								[]()
 								{
 									if (g_gui_widgets_i->add_text_input("Config name", name_buffer, sizeof(name_buffer), ImGuiInputTextFlags_EnterReturnsTrue, true))

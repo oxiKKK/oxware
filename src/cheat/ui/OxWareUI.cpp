@@ -58,15 +58,26 @@ void COxWareUI::destroy()
 	CConsole::the().info("Destroying cheat UI...");
 
 	// don't left mouse deactivated when the UI is up and we're unloading the cheat.
-	if (CGameUtil::the().is_fully_connected()/* && !CHLInterfaceHook::the().IGameUI()->IsGameUIActive()*/)
+	auto surfacefuncs = CHLInterfaceHook::the().ISurface();
+	if (CGameUtil::the().is_fully_connected())
 	{
 		CMemoryHookMgr::the().cl_funcs().get()->pfnHUD_IN_ActivateMouse();
+
+		// there was a bug where if we were ingame and game ui wasn't up and we unloaded the cheat through menu, the mouse activation would not get executed.
+		// cursor drawing is handled differently on these builds...
+		if (surfacefuncs && CoXWARE::the().get_build_number() < FIRST_SDL_BUILD)
+		{
+			if (CGameUtil::the().is_fully_connected())
+			{
+				surfacefuncs->SetCursor(hl::vgui2::dc_none);
+			}
+		}
 	}
-	else if (!CGameUtil::the().is_fully_connected()/* && CHLInterfaceHook::the().IGameUI()->IsGameUIActive()*/)
+	else if (!CGameUtil::the().is_fully_connected())
 	{
-		auto surfacefuncs = CHLInterfaceHook::the().ISurface();
 		if (surfacefuncs)
 		{
+			surfacefuncs->UnlockCursor();
 			surfacefuncs->SetCursor(hl::vgui2::dc_arrow);
 		}
 	}
@@ -361,10 +372,13 @@ void COxWareUI::handle_ingame_mouseevents()
 
 	static int(__cdecl*SDL_SetRelativeMouseMode)(int enabled);
 	static unsigned(__cdecl* SDL_GetRelativeMouseState)(int* x, int* y);
-	if (!SDL_SetRelativeMouseMode || !SDL_GetRelativeMouseState)
+	if (CoXWARE::the().get_build_number() >= FIRST_SDL_BUILD)
 	{
-		SDL_SetRelativeMouseMode = (decltype(SDL_SetRelativeMouseMode))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_SetRelativeMouseMode");
-		SDL_GetRelativeMouseState = (decltype(SDL_GetRelativeMouseState))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_GetRelativeMouseState");
+		if (!SDL_SetRelativeMouseMode || !SDL_GetRelativeMouseState)
+		{
+			SDL_SetRelativeMouseMode = (decltype(SDL_SetRelativeMouseMode))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_SetRelativeMouseMode");
+			SDL_GetRelativeMouseState = (decltype(SDL_GetRelativeMouseState))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_GetRelativeMouseState");
+		}
 	}
 
 	static bool last = false;
@@ -387,6 +401,9 @@ void COxWareUI::handle_ingame_mouseevents()
 #endif
 		}
 
+		// unlock the cursor, just in case it's locked (this would prevent SetCursor from executing)
+		surfacefuncs->UnlockCursor();
+
 		// disable in-game crosshair (handled by vgui2)
 		if (m_is_any_interactible_rendering_context_active)
 		{
@@ -399,9 +416,24 @@ void COxWareUI::handle_ingame_mouseevents()
 		else
 		{
 			if (surfacefuncs && 
-				gameuifuncs && gameuifuncs->IsGameUIActive())
+				gameuifuncs)
 			{
-				surfacefuncs->SetCursor(hl::vgui2::dc_arrow);
+				if (gameuifuncs->IsGameUIActive())
+				{
+					surfacefuncs->SetCursor(hl::vgui2::dc_arrow);
+				}
+				else
+				{
+					if (CoXWARE::the().get_build_number() < FIRST_SDL_BUILD)
+					{
+						// There's an issue where if we're in-game, with relative mode on, on non-sdl engine build, 
+						// and we close the UI (menu), the cursor doesn't disseapear. (in windowed mode, on 4554 for example)
+						if (CGameUtil::the().is_fully_connected())
+						{
+							surfacefuncs->SetCursor(hl::vgui2::dc_none);
+						}
+					}
+				}
 			}
 		}
 
@@ -412,61 +444,68 @@ void COxWareUI::handle_ingame_mouseevents()
 			CMemoryFnHookMgr::the().ClearIOStates().call();
 		}
 
-		// This fixes many mouse cursor stuck issues. For more information on this, see comments below.
-		// 
-		// Issue #0001:
-		//	When raw input was on (m_rawinput 1), in game, the client dll input code called SDL_GetRelativeMouseState
-		//	to get the mouse delta. However, with our menu and the way we handle this whole input situation, it failed
-		//	to do so, because somehwere inside the engine code (presumably in BaseUISurface::SetCursor) the engine called
-		//	SDL_SetRelativeMouseMode with bad state. Therefore, the function wasn't executed, because the relative mode
-		//	wasn't "on", having the mouse cursor stuck, until the function (BaseUISurface::SetCursor) weren't ran again
-		//	(by calling CBaseUI::ActivateGameUI)..
-		if (gameuifuncs)
+		if (CoXWARE::the().get_build_number() >= FIRST_SDL_BUILD)
 		{
-			// all of this is caused when m_rawinput is on.
-			if (enginefuncs_hook.is_installed())
+			// This fixes many mouse cursor stuck issues. For more information on this, see comments below.
+			// 
+			// Issue #0001:
+			//	When raw input was on (m_rawinput 1), in game, the client dll input code called SDL_GetRelativeMouseState
+			//	to get the mouse delta. However, with our menu and the way we handle this whole input situation, it failed
+			//	to do so, because somehwere inside the engine code (presumably in BaseUISurface::SetCursor) the engine called
+			//	SDL_SetRelativeMouseMode with bad state. Therefore, the function wasn't executed, because the relative mode
+			//	wasn't "on", having the mouse cursor stuck, until the function (BaseUISurface::SetCursor) weren't ran again
+			//	(by calling CBaseUI::ActivateGameUI)..
+			if (gameuifuncs)
 			{
-				auto m_rawinput = enginefuncs_hook.get()->pfnGetCvarPointer((char*)"m_rawinput");
-				if (m_rawinput && m_rawinput->value != 0.0f)
+				// all of this is caused when m_rawinput is on.
+				if (enginefuncs_hook.is_installed())
 				{
-					if (gameuifuncs->IsGameUIActive())
+					auto m_rawinput = enginefuncs_hook.get()->pfnGetCvarPointer((char*)"m_rawinput");
+					if (m_rawinput && m_rawinput->value != 0.0f)
 					{
-						// without this the cursor stays hidden if we're displaying GameUI and we close the UI.
-						// we have to disable the relative mouse mode, because it's suppoed to be on only when
-						// we're ingame looking around with our camera.
-						if (m_is_any_interactible_rendering_context_active)
+						if (gameuifuncs->IsGameUIActive())
 						{
-							SDL_SetRelativeMouseMode(FALSE);
+							// without this the cursor stays hidden if we're displaying GameUI and we close the UI.
+							// we have to disable the relative mouse mode, because it's suppoed to be on only when
+							// we're ingame looking around with our camera.
+							if (m_is_any_interactible_rendering_context_active)
+							{
+								SDL_SetRelativeMouseMode(FALSE);
 
-							// centerize the cursor position, for convenience. This has to be called when the relative
-							// mode is off, because we'll use our cursor now (in UI).
-							surfacefuncs->SurfaceSetCursorPos(wide / 2, tall / 2); 
+								// centerize the cursor position, for convenience. This has to be called when the relative
+								// mode is off, because we'll use our cursor now (in UI).
+								surfacefuncs->SurfaceSetCursorPos(wide / 2, tall / 2);
+							}
 						}
-					}
-					else
-					{
-						// enable the relative mode when we close UI, disable otherwise.
-						SDL_SetRelativeMouseMode(!m_is_any_interactible_rendering_context_active);
-
-						if (m_is_any_interactible_rendering_context_active)
+						else
 						{
-							// centerize the cursor pos once again, for convenience. This has to be again, 
-							// called when the relative mode is off.
-							surfacefuncs->SurfaceSetCursorPos(wide / 2, tall / 2);
-						}
+							// enable the relative mode when we close UI, disable otherwise.
+							SDL_SetRelativeMouseMode(!m_is_any_interactible_rendering_context_active);
 
-						// call this function for nothing before the engine. It seems that this resets the 
-						// delta internally somehow inside of SDL. I know that this is pretty diddly and wacky,
-						// but it works...
-						int deltaX, deltaY;
-						SDL_GetRelativeMouseState(&deltaX, &deltaY);
+							if (m_is_any_interactible_rendering_context_active)
+							{
+								// centerize the cursor pos once again, for convenience. This has to be again, 
+								// called when the relative mode is off.
+								surfacefuncs->SurfaceSetCursorPos(wide / 2, tall / 2);
+							}
+
+							// call this function for nothing before the engine. It seems that this resets the 
+							// delta internally somehow inside of SDL. I know that this is pretty diddly and wacky,
+							// but it works...
+							int deltaX, deltaY;
+							SDL_GetRelativeMouseState(&deltaX, &deltaY);
 
 #ifdef MOUSEINPUT_DEBUG
-						CConsole::the().info("delta: [{}, {}]", deltaX, deltaY);
+							CConsole::the().info("delta: [{}, {}]", deltaX, deltaY);
 #endif
+						}
 					}
 				}
 			}
+		}
+		else
+		{
+			// WinAPI used to be used in these builds to handle key&mouse inputs + m_rawinput is nonexistent.
 		}
 
 		last = m_is_any_interactible_rendering_context_active;

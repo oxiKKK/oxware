@@ -401,7 +401,7 @@ void CSpriteMgr::render_velocity() const
 	}
 
 	auto screen = CGameUtil::the().get_engine_screen_info();
-	Vector2D off = render_number((int64_t)rolling_velocity, 
+	Vector2D off = render_number((int64_t)std::ceil(rolling_velocity), 
 								 Vector2D((float)screen.iWidth / 2.0f, (float)screen.iHeight - m_cstrike_sprite_font_size.y * 2 - 5 - 45),
 								 color, true );
 }

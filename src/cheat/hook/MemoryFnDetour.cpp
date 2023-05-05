@@ -55,7 +55,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	R_LightLambert().install();
 	V_FadeAlpha().install();
 	V_ApplyShake().install();
-	S_StartStaticSound().install();
+	S_StartDynamicSound().install();
 	R_DrawViewModel().install();
 	CPartSmokeGrenade__Create().install();
 	CreateGasSmoke().install();
@@ -99,7 +99,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	R_LightLambert().uninstall();
 	V_FadeAlpha().uninstall();
 	V_ApplyShake().uninstall();
-	S_StartStaticSound().uninstall();
+	S_StartDynamicSound().uninstall();
 	R_DrawViewModel().uninstall();
 	CPartSmokeGrenade__Create().uninstall();
 	CreateGasSmoke().uninstall();
@@ -167,6 +167,13 @@ bool VGui_CallEngineSurfaceAppHandler4554_FnDetour_t::install()
 
 LRESULT VGui_CallEngineSurfaceAppHandler4554_FnDetour_t::VGui_CallEngineSurfaceAppHandler4554(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
+	// This function is responsible for processing user keyboard and mouse input.
+
+	if (COxWareUI::the().should_disable_ingame_input())
+	{
+		return 0;
+	}
+
 	return CMemoryFnDetourMgr::the().VGui_CallEngineSurfaceAppHandler4554().call(hwnd, msg, wparam, lparam);
 }
 
@@ -473,13 +480,13 @@ void V_ApplyShake_FnDetour_t::V_ApplyShake(float* origin, float* angles, float f
 
 //---------------------------------------------------------------------------------
 
-bool S_StartStaticSound_FnDetour_t::install()
+bool S_StartDynamicSound_FnDetour_t::install()
 {
-	initialize("S_StartStaticSound", L"hw.dll");
-	return detour_using_bytepattern((uintptr_t*)S_StartStaticSound);
+	initialize("S_StartDynamicSound", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)S_StartDynamicSound);
 }
 
-void S_StartStaticSound_FnDetour_t::S_StartStaticSound(int entnum, int entchannel, hl::sfx_t* sfx, hl::vec_t* origin, 
+void S_StartDynamicSound_FnDetour_t::S_StartDynamicSound(int entnum, int entchannel, hl::sfx_t* sfx, hl::vec_t* origin, 
 													float fvol, float attenuation, int flags, int pitch)
 {
 	if (sfx)
@@ -490,7 +497,7 @@ void S_StartStaticSound_FnDetour_t::S_StartStaticSound(int entnum, int entchanne
 		}
 	}
 
-	CMemoryFnDetourMgr::the().S_StartStaticSound().call(entnum, entchannel, sfx, origin, fvol, attenuation, flags, pitch);
+	CMemoryFnDetourMgr::the().S_StartDynamicSound().call(entnum, entchannel, sfx, origin, fvol, attenuation, flags, pitch);
 }
 
 //---------------------------------------------------------------------------------

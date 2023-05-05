@@ -91,6 +91,10 @@ void CFeatureManager::precache_features()
 	// HUD rendering
 	add_new_feature(BaseFeature(&hud_color_enable, "HUD color"));
 	add_new_feature(BaseFeature(&hud_render, "HUD rendering"));
+
+	// Flashbang fade
+	add_new_feature(BaseFeature(&flashfademod_enable, "Flashbang fade"));
+
 	
 	CConsole::the().info("Precached all features.");
 }

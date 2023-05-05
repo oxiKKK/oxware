@@ -100,7 +100,14 @@ public:
 			return false;
 		}
 
-		m_json = nlohmann::json::parse(ifs);
+		try
+		{
+			m_json = nlohmann::json::parse(ifs);
+		}
+		catch (const nlohmann::json::exception& e)
+		{
+			CConsole::the().error("JSON error: {}", e.what());
+		}
 
 		ifs.close();
 

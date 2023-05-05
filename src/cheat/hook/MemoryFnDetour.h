@@ -370,11 +370,11 @@ struct V_ApplyShake_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, 
 	static void V_ApplyShake(float *origin, float *angles, float factor);
 };
 
-// void S_StartStaticSound(int entnum, int entchannel, sfx_t* sfx, vec_t* origin, float fvol, float attenuation, int flags, int pitch)
-struct S_StartStaticSound_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, int, int, hl::sfx_t*, hl::vec_t*, float, float, int, int>
+// void S_StartDynamicSound(int entnum, int entchannel, sfx_t* sfx, vec_t* origin, float fvol, float attenuation, int flags, int pitch)
+struct S_StartDynamicSound_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, int, int, hl::sfx_t*, hl::vec_t*, float, float, int, int>
 {
 	bool install();
-	static void S_StartStaticSound(int entnum, int entchannel, hl::sfx_t* sfx, hl::vec_t* origin, float fvol, float attenuation, int flags, int pitch);
+	static void S_StartDynamicSound(int entnum, int entchannel, hl::sfx_t* sfx, hl::vec_t* origin, float fvol, float attenuation, int flags, int pitch);
 };
 
 // void R_DrawViewModel(h)
@@ -482,7 +482,7 @@ public:
 	inline auto& R_LightLambert() { static R_LightLambert_FnDetour_t fnhook; return fnhook; }
 	inline auto& V_FadeAlpha() { static V_FadeAlpha_FnDetour_t fnhook; return fnhook; }
 	inline auto& V_ApplyShake() { static V_ApplyShake_FnDetour_t fnhook; return fnhook; }
-	inline auto& S_StartStaticSound() { static S_StartStaticSound_FnDetour_t fnhook; return fnhook; }
+	inline auto& S_StartDynamicSound() { static S_StartDynamicSound_FnDetour_t fnhook; return fnhook; }
 	inline auto& R_DrawViewModel() { static R_DrawViewModel_FnDetour_t fnhook; return fnhook; }
 	inline auto& CPartSmokeGrenade__Create() { static CPartSmokeGrenade__Create_FnDetour_t fnhook; return fnhook; }
 	inline auto& CreateGasSmoke() { static CreateGasSmoke_FnDetour_t fnhook; return fnhook; }

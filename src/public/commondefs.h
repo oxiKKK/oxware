@@ -116,4 +116,7 @@ consteval T BIT(T N) { return (1 << N); }
 
 #define OX_ARRAYSIZE(x)    (sizeof(x)/sizeof(x[0]))
 
+// the first engine build in which sdl was introduced instead of winapi.
+#define FIRST_SDL_BUILD 5943
+
 #endif // COMMONDEFS_H

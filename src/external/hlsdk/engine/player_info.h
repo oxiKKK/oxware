@@ -71,4 +71,25 @@ struct extra_player_info_t
 	int			has_defuse_kit;
 };
 
+// before 8684
+struct extra_player_info_old_t
+{
+	short frags;
+	short deaths;
+	short team_id;
+	int has_c4;
+	int vip;
+	Vector origin;
+	float radarflash;
+	int radarflashon;
+	int radarflashes;
+	short playerclass;
+	short teamnumber;
+	char teamname[16];
+	bool dead;
+	float showhealth;
+	int health;
+	char location[32];
+};;
+
 #endif // PLAYERINFO_H

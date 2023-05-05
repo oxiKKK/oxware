@@ -318,6 +318,14 @@ struct g_PlayerExtraInfo_MemoryHook final : public GenericMemoryHook<hl::extra_p
 	void test_hook() override;
 };
 
+// extra_player_info_old_t g_PlayerExtraInfo[MAX_PLAYERS + 1];
+// this version forbids some members that were added in 8684
+struct g_PlayerExtraInfoOld_MemoryHook final : public GenericMemoryHook<hl::extra_player_info_old_t>
+{
+	bool install() override; 
+	void test_hook() override;
+};
+
 // engine_studio_api_t engine_studio_api
 struct engine_studio_api_MemoryHook final : public GenericMemoryHook<hl::engine_studio_api_t> 
 {
@@ -397,6 +405,7 @@ public:
 	inline static auto& gGlobalVariables() { static gGlobalVariables_MemoryHook hook; return hook; };
 	inline static auto& scr_fov_value() { static scr_fov_value_MemoryHook hook; return hook; };
 	inline static auto& g_PlayerExtraInfo() { static g_PlayerExtraInfo_MemoryHook hook; return hook; };
+	inline static auto& g_PlayerExtraInfoOld() { static g_PlayerExtraInfoOld_MemoryHook hook; return hook; };
 	inline static auto& engine_studio_api() { static engine_studio_api_MemoryHook hook; return hook; };
 	inline static auto& cl_parsefuncs() { static cl_parsefuncs_MemoryHook hook; return hook; };
 	inline static auto& pmove() { static pmove_MemoryHook hook; return hook; };

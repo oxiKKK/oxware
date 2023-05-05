@@ -224,8 +224,8 @@ int CBytePatternBank::get_closest_build_number_supported()
 	}
 	// lean to the bigger version, if we're using the one from 2013. These versions received
 	// huge update to the surface code and it make more sense to choose the higher builds for 
-	// these, because the byte patterns from <600 would not work.
-	else if (d >= 6000)
+	// these, because the byte patterns from <6000 would not work.
+	else if (d >= FIRST_SDL_BUILD)
 	{
 		c = h;
 	}

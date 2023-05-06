@@ -28,3 +28,10 @@ under "./src/" excluding:
 "./src/assets/"
 "./src/lib/"
 the total is 14,448 code; 2,915 comment; 4,122 blank; 21,525 total in 166 files.
+
+06-05-2023
+under "./src/" excluding:
+"./src/external/"
+"./src/assets/"
+"./src/lib/"
+the total is 20,618 code; 8,064 comment; 5,884 blank; 34,566 total in 203 files.

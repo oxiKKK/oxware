@@ -65,6 +65,7 @@ void CFeatureManager::precache_features()
 	add_new_feature(BaseFeature(&mdlchams_render_real_playermodel, "Render real model"));
 	add_new_feature(BaseFeature(&mdlchams_head_box_enable, "Render player head box"));
 	add_new_feature(BaseFeature(&mdlchams_player_skeleton, "Render player skeleton"));
+	add_new_feature(BaseFeature(&mdlchams_disable_animations, "Disable player animations"));
 
 	// removals
 	add_new_feature(BaseFeature(&remove_screenshake, "Remove screenshake"));

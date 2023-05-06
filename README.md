@@ -57,7 +57,11 @@ This cheat is currently only available on `Windows 10 and newer`.
 
 # Support on non-steam and older versions of the game
 
-This cheat currently supports `8684 steam version only`! However, that will change in the future.
+This cheat currently supports following builds:
+
+- `8684 steam version`
+- `4554 non-steam version`
+- xguard, gsclient or other custom implementations **aren't supported**.
 
 ## Anti-cheats
 
@@ -105,9 +109,13 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 	- player
 	- entities
 	- sound
+	- custom box types
 - model chams
 	- viewmodel
 	- players (T and CT)
+	- rainbow colors
+	- flat/shaded
+	- disabled playermodel animations
 - bypassing game constrains
 	- re-enabling noclip (normally disabled in CS 1.6)
 	- custom render distance
@@ -120,6 +128,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 	- displaying current velocity 
 - instantaneous cheat unload (either via loader or cheat menu)
 - injection using manual mapping 🗺
+- custom UI (modified version of imgui)
 - configuration files ⚙
 
 ## To be done

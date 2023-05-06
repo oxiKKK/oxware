@@ -136,6 +136,8 @@ bool CoXWARE::initialize()
 	// we cannot hook from those etc. So we need to wait for the engine to initialize.
 	//
 
+	check_for_xguard();
+
 	// see for the renderer - before hooks! (because of hw.dll may missing, and we need it inside hook managers.)
 	if (!is_hardware())
 	{
@@ -412,6 +414,16 @@ void CoXWARE::shutdown_hook_managers()
 	CMemoryFnDetourMgr::the().uninstall_hooks();
 	CSVCFuncDetourMgr::the().uninstall_hooks();
 	CUserMSGDetourMgr::the().uninstall_hooks();
+}
+
+void CoXWARE::check_for_xguard()
+{
+	bool is_xguard = g_libloader_i->is_dll_loaded(L"xguard.dll");
+	if (is_xguard)
+	{
+		CMessageBox::display_warning("You are using xguard. Be aware that this cheat isn't compatible with xguard or any similar software."
+									 " This means that some parts of this cheat may not work properly or worse, can even crash your game.");
+	}
 }
 
 bool CoXWARE::is_valid_game()

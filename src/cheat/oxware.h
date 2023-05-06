@@ -69,6 +69,7 @@ private:
 	bool initialize_hook_managers();
 	void shutdown_hook_managers();
 
+	void check_for_xguard();
 	bool is_valid_game();
 	bool is_hardware();
 	bool validate_engine_build();

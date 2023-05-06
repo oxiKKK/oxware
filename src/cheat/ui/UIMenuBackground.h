@@ -30,11 +30,19 @@
 #define UIMENUBACKGROUND_H
 #pragma once
 
-class CUIMenuBackground final : public IRenderingContext_ParentActivate
+struct raindrop_t
+{
+	Vector2D relative_pos;
+	Vector2D velocity;
+	float random_factor;
+	bool direction;
+};
+
+class CUIMenuBackground final : public IRenderingContext_ParentActivateThreshold
 {
 public:
-	CUIMenuBackground(const std::string& id, IRenderingContext* parent_ctx) :
-		IRenderingContext_ParentActivate(id, parent_ctx)
+	CUIMenuBackground(const std::string& id, IRenderingContext* parent_ctx, std::chrono::duration<float, std::milli> threshold) :
+		IRenderingContext_ParentActivateThreshold(id, parent_ctx, threshold)
 	{
 	}
 
@@ -48,6 +56,8 @@ private:
 private:
 	inline static constexpr float k_max_fade_density = 0.6f; // [0, 1] scale
 	float m_fade_density;
+
+	std::deque<raindrop_t> m_rain;
 };
 
 #endif // UIMENUBACKGROUND_H

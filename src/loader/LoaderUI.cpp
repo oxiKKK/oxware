@@ -32,8 +32,8 @@ void CLoaderUI::render_contents()
 {
 	g_gui_widgets_i->begin_tab("loader", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-	g_gui_widgets_i->add_tab_item("main", [this]() { render_tab_main(); });
-	g_gui_widgets_i->add_tab_item("console", [this]() { render_tab_console(); });
+	g_gui_widgets_i->add_tab_item("main", true, { 0, 0 }, [this]() { render_tab_main(); });
+	g_gui_widgets_i->add_tab_item("console", true, { 0, 0 }, [this]() { render_tab_console(); });
 
 	g_gui_widgets_i->end_tab();
 }

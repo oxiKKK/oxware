@@ -188,6 +188,75 @@ private:
 	IRenderingContext* m_parent_ctx = nullptr;
 };
 
+// Same as ParentActivate however, this one get's deactivated only after some threshold.
+class IRenderingContext_ParentActivateThreshold : public IRenderingContext
+{
+public:
+	IRenderingContext_ParentActivateThreshold(const std::string& id, IRenderingContext* parent_ctx, std::chrono::duration<float, std::milli> threshold) :
+		IRenderingContext(id), m_parent_ctx(parent_ctx), m_threshold(threshold)
+	{
+	}
+
+	virtual bool should_render()
+	{
+		bool parent_render = m_parent_ctx->should_render();
+
+		if (parent_render)
+		{
+			m_is_rendering_timeless = true;
+
+			if (!m_just_opened)
+			{
+				m_opened_time = std::chrono::high_resolution_clock::now();
+				m_just_opened = true;
+			}
+
+			m_just_closed = false;
+			return true;
+		}
+		else
+		{
+			m_is_rendering_timeless = false;
+
+			if (!m_just_closed && m_just_opened)
+			{
+				m_closed_time = std::chrono::high_resolution_clock::now();
+				m_just_closed = true;
+			}
+
+			if (time_elapsed_since_closed() < m_threshold)
+			{
+				return true;
+			}
+
+			m_just_opened = false;
+			m_just_closed = false;
+			return false;
+		}
+	}
+
+protected:
+	std::chrono::duration<float, std::milli> time_elapsed_since_closed() const
+	{
+		return std::chrono::high_resolution_clock::now() - m_closed_time;
+	}
+	std::chrono::duration<float, std::milli> time_elapsed_since_opened() const
+	{
+		return std::chrono::high_resolution_clock::now() - m_opened_time;
+	}
+
+private:
+	IRenderingContext* m_parent_ctx = nullptr;
+
+	std::chrono::high_resolution_clock::time_point m_closed_time, m_opened_time;
+	bool m_just_closed = false, m_just_opened = false;
+
+protected:
+	std::chrono::duration<float, std::milli> m_threshold;
+	
+	bool m_is_rendering_timeless = false;
+};
+
 // rendering context activated through external code, only when it gets requested to be updated.
 class IRenderingContext_IndependentlyActivate : public IRenderingContext
 {

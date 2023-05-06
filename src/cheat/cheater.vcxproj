@@ -352,6 +352,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="build_num.cpp" />
+    <ClCompile Include="EngineInputManager.cpp" />
     <ClCompile Include="features\BulletTrace.cpp" />
     <ClCompile Include="features\BypassGameConstrains.cpp" />
     <ClCompile Include="features\ESP.cpp" />
@@ -424,6 +425,7 @@
     <ClInclude Include="..\public\interface.h" />
     <ClInclude Include="build_num.h" />
     <ClInclude Include="custom_format_cheat.h" />
+    <ClInclude Include="EngineInputManager.h" />
     <ClInclude Include="features\BulletTrace.h" />
     <ClInclude Include="features\BypassGameConstrains.h" />
     <ClInclude Include="features\ESP.h" />

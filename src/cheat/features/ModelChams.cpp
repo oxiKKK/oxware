@@ -32,6 +32,8 @@ VarBoolean mdlchams_enable("mdlchams_enable", "Enables model chams", false);
 
 VarBoolean mdlchams_flatshaded("mdlchams_flatshaded", "Enables flat-shaded chams", false);
 VarBoolean mdlchams_blend("mdlchams_blend", "Enables chams blend", false);
+VarBoolean mdlchams_rainbow("mdlchams_rainbow", "Enables rainbow chams colors", false);
+VarInteger mdlchams_rainbow_speed("mdlchams_rainbow_speed", "Speed of the rainbow color changer", 1, 1, 5);
 
 VarBoolean mdlchams_viewmodel_enable("mdlchams_viewmodel_enable", "Enables viewmodel chams", false);
 VarColor mdlchams_viewmodel_color("mdlchams_viewmodel_color", "Viewmodel chams color", CColor(230, 0, 170, 255));
@@ -51,6 +53,7 @@ VarBoolean mdlchams_head_box_enable("mdlchams_head_box_enable", "Renders box at 
 VarColor mdlchams_head_box_color("mdlchams_head_box_color", "Color of the player head box", CColor(0, 255, 0));
 
 VarBoolean mdlchams_render_real_playermodel("mdlchams_render_real_playermodel", "Renders real playermodel over the current one", false);
+VarBoolean mdlchams_disable_animations("mdlchams_disable_animations", "Disables animations on playermodels", false);
 
 void CModelChams::initialize()
 {
@@ -233,7 +236,7 @@ bool CModelChams::studio_draw_skeleton()
 			(*couple_of_pointers)[k][2][3] };
 
 		glLineWidth(1);
-		glColor4fv(color_based_on_team.get_base());
+		glColor3f(color_based_on_team.r, color_based_on_team.g, color_based_on_team.b);
 
 		glBegin(GL_LINES);
 
@@ -319,7 +322,7 @@ void CModelChams::render_playerhead_hitbox()
 
 			glBegin(GL_QUADS);
 			
-			glColor4fv(clr.get_base());
+			glColor3f(clr.r, clr.g, clr.b);
 
 			// render all faces of a cube
 			for (int j = 0; j < 6; j++)
@@ -381,19 +384,7 @@ void ChammedModel::process_studio_pre()
 		glDepthMask(GL_FALSE);
 	}
 
-	switch (get_type())
-	{
-		case CHAMS_Flat:
-		{
-			glDisable(GL_TEXTURE_2D);
-			break;
-		}
-		case CHAMS_FlatTercial:
-		{
-			glDisable(GL_TEXTURE_2D);
-			break;
-		}
-	}
+	glDisable(GL_TEXTURE_2D);
 }
 
 void ChammedModel::process_studio_post()
@@ -404,24 +395,23 @@ void ChammedModel::process_studio_post()
 		glDepthMask(GL_TRUE);
 	}
 
-	switch (get_type())
-	{
-		case CHAMS_Flat:
-		{
-			glEnable(GL_TEXTURE_2D);
-			break;
-		}
-		case CHAMS_FlatTercial:
-		{
-			glEnable(GL_TEXTURE_2D);
-			break;
-		}
-	}
+	glEnable(GL_TEXTURE_2D);
 }
 
 void ChammedModel::process_color(float* lambert)
 {
 	auto color = m_color->get_value();
+	
+	if (mdlchams_rainbow.get_value())
+	{
+		float speed = (float)mdlchams_rainbow_speed.get_value();
+		double tm = CMemoryHookMgr::the().cl().get()->time;
+
+		// all phase-shifted so that it's more cool
+		color.r = std::abs(std::sinf(tm * speed + 0));
+		color.g = std::abs(std::sinf(tm * speed + 90));
+		color.b = std::abs(std::sinf(tm * speed + 180));
+	}
 	
 	switch (get_type())
 	{

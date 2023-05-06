@@ -54,6 +54,9 @@ public:
 	void render_box(ImDrawList* current, const Vector2D& top_left, const Vector2D& bottom_right, const CColor& color, float rounding = 1.0f);
 	void render_box_outline(ImDrawList* current, const Vector2D& top_left, const Vector2D& bottom_right, const CColor& color, float rounding = 1.0f,
 							const CColor& outline_color = {}, float outline_thickness = 1.0f);
+
+	void render_quad(ImDrawList* current, const Vector2D& top_left, const Vector2D& top_right, const Vector2D& bottom_right,
+					 const Vector2D& bottom_left, const CColor& color);
 };
 
 CGUIWindowRendering g_gui_window_rendering;
@@ -118,4 +121,10 @@ void CGUIWindowRendering::render_box_outline(ImDrawList* current, const Vector2D
 
 	// outline
 	current->AddRect(top_left, bottom_right, outline_color.as_u32(), rounding, 0, outline_thickness);
+}
+
+void CGUIWindowRendering::render_quad(ImDrawList* current, const Vector2D& top_left, const Vector2D& top_right, 
+									  const Vector2D& bottom_right, const Vector2D& bottom_left, const CColor& color)
+{
+	current->AddQuadFilled(top_left, top_right, bottom_right, bottom_left, color.as_u32());
 }

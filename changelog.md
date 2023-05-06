@@ -36,6 +36,16 @@
 	<img src="https://i.imgur.com/bYzp8KD.png" width="50%" height="50%"></img>
 </details><br>
 
+- Added rainbow model chams! 🌈
+- Additions to the ESP.
+- Implemented no animations on player models.
+- Added fade when opening/closing the menu.
+- Added rain to the background of the menu.
+
+<details><summary>Spoiler</summary>
+	<img src="https://i.imgur.com/LqvACY8.png" width="50%" height="50%"></img>
+</details><br>
+
 - Added svc_stufftext filter (server command filter). See [this video](https://youtu.be/4u0LNqQbY4w) for demonstration.
 - Added the ability to view "real" hit-able playermodel + its head hitbox. See [this youtube video](https://youtu.be/xMd9m3McNvo).
 
@@ -62,4 +72,6 @@
 - Fixed bug with static crosshair, where the alpha would softlock to 0 and would never change.
 - Fixed a crash on game close that would sometimes happen.
 - Fixed a crash when loading a config that could sometimes happen.
+- Fixed a bunch of input issues.
+- Fixed a bug where the head hitbox wouldn't sometimes be rendered when stood close to a player.
 

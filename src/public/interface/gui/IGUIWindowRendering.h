@@ -47,6 +47,9 @@ public:
 	virtual void render_box(ImDrawList* current, const Vector2D& top_left, const Vector2D& bottom_right, const CColor& color, float rounding = 1.0f) = 0;
 	virtual void render_box_outline(ImDrawList* current, const Vector2D& top_left, const Vector2D& bottom_right, const CColor& color, float rounding = 1.0f,
 									const CColor& outline_color = {}, float outline_thickness = 1.0f) = 0;
+
+	virtual void render_quad(ImDrawList* current, const Vector2D& top_left, const Vector2D& top_right, const Vector2D& bottom_right, 
+							 const Vector2D& bottom_left, const CColor& color) = 0;
 };
 
 extern IGUIWindowRendering* g_gui_window_rendering_i;

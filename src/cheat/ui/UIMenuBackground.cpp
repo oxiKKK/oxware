@@ -33,20 +33,68 @@ void CUIMenuBackground::on_initialize()
 	m_fade_density = 0.0f;
 }
 
+static unsigned long x = 123456789, y = 362436069, z = 521288629;
+
+unsigned long xorshf96() {          //period 2^96-1
+	unsigned long t;
+	x ^= x << 16;
+	x ^= x >> 5;
+	x ^= x << 1;
+
+	t = x;
+	x = y;
+	y = z;
+	z = t ^ x ^ y;
+
+	return z;
+}
+
 void CUIMenuBackground::on_render()
 {
 	update_density();
 
-	// can happen that this gets called before the interface hook is initialized. oh well
-	auto gameuifuncs = CHLInterfaceHook::the().IGameUI();
-	if (gameuifuncs && gameuifuncs->IsGameUIActive() && CGameUtil::the().is_fully_connected())
-	{
-		// when the GameUI is up, black box of opacity 128 is rendered on the screen. Don't blindly render our box over it.
-		m_fade_density -= 128.0f / 255.0f;
-	}
-
 	g_gui_window_rendering_i->render_box(g_gui_window_rendering_i->get_background_drawlist(), 
 										 { 0.0f, 0.0f }, g_imgui_platform_layer_i->get_screen_size(), {0.0f, 0.0f, 0.0f, m_fade_density});
+
+	//
+	// rain
+	//
+
+	auto screen = g_imgui_platform_layer_i->get_screen_size();
+
+	if (m_rain.size() > 1000)
+		m_rain.pop_front();
+
+	m_rain.push_back(
+		{
+			Vector2D(rand() % (int)screen.x, -10.0f),
+			Vector2D(rand() % 7, 1),
+			(float)(rand() % ((115 - 30) + 1) + 30),
+			(rand() % (1 - 0 + 1)) == 1
+		});
+
+	for (auto it = m_rain.begin(); it != m_rain.end(); it++)
+	{
+		if (it->relative_pos.y < screen.y)
+		{
+			it->relative_pos.x = it->relative_pos.x + (it->velocity.x * it->random_factor) * 0.001f;
+			it->relative_pos.y = it->relative_pos.y + (it->velocity.y * it->random_factor) * (0.45f / 4.f);
+
+			if (it->direction)
+			{
+				it->relative_pos.x * -1.0f;
+			}
+
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_background_drawlist(), 
+				it->relative_pos, it->relative_pos + Vector2D(0.0f, it->random_factor), 
+				CColor(230, 230, 230, (int)(m_fade_density * (180.0f / 255.0f) * 255.0f)), 1);
+		}
+		else
+		{
+			// out of bounds. we could erase it here, but I think that that would be too slow
+		}
+	}
 }
 
 void CUIMenuBackground::on_destroy()
@@ -55,12 +103,16 @@ void CUIMenuBackground::on_destroy()
 
 void CUIMenuBackground::update_density()
 {
-	m_fade_density = k_max_fade_density;
-
-#if 0
-	if (m_fade_density < k_max_fade_density)
+	if (m_is_rendering_timeless)
 	{
-		m_fade_density += 0.01f;
+		m_fade_density = time_elapsed_since_opened() / m_threshold;
+		m_fade_density = std::min(m_fade_density, k_max_fade_density);
 	}
-#endif
+	else
+	{
+		if (time_elapsed_since_closed() < m_threshold)
+		{
+			m_fade_density = k_max_fade_density - (time_elapsed_since_closed() / m_threshold);
+		}
+	}
 }

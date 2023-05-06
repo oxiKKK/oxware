@@ -542,7 +542,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARA
         if (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONDBLCLK) { button = 2; }
         if (msg == WM_XBUTTONDOWN || msg == WM_XBUTTONDBLCLK) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
         if (bd->MouseButtonsDown == 0 && ::GetCapture() == nullptr)
-            ::SetCapture(hwnd);
+            ;// ::SetCapture(hwnd);
         bd->MouseButtonsDown |= 1 << button;
         io.AddMouseButtonEvent(button, true);
         return 0;
@@ -559,7 +559,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARA
         if (msg == WM_XBUTTONUP) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
         bd->MouseButtonsDown &= ~(1 << button);
         if (bd->MouseButtonsDown == 0 && ::GetCapture() == hwnd)
-            ::ReleaseCapture();
+            ;// ::ReleaseCapture();
         io.AddMouseButtonEvent(button, false);
         return 0;
     }

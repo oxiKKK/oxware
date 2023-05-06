@@ -29,6 +29,8 @@
 #include "precompiled.h"
 
 VarBoolean esp_enable("esp_enable", "Toggles esp", false);
+VarBoolean esp_background("esp_background", "Enables background on the box", true);
+VarInteger esp_box_type("esp_box_type", "Type of the esp box (box, corners, etc.)", 1, 0, 1);
 VarBoolean esp_only_enemy_team("esp_only_enemy_team", "Esp only on enemy team", false);
 
 VarBoolean esp_entity_enable("esp_entity_enable", "Toggles entity esp", false);
@@ -132,29 +134,21 @@ void CESP::render_players()
 
 			auto team_color = plr.get_color_based_on_team();
 
+			render_box_for_four_points(box_topleft, box_topright, box_botright, box_botleft, team_color, box_tall_half);
+
 			//
-			// render 4 corners using lines. this fixes visual deformation of the box when faced on the far side of fisheye effect.
+			// render box background
 			//
 
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				box_topleft, box_topright,
-				team_color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				box_topright, box_botright,
-				team_color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				box_botright, box_botleft,
-				team_color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				box_botleft, box_topleft,
-				team_color);
+			if (esp_background.get_value())
+			{
+				auto color = team_color;
+				color.a *= 0.2;
+				g_gui_window_rendering_i->render_quad(
+					g_gui_window_rendering_i->get_current_drawlist(), 
+					box_topleft, box_topright, box_botright, box_botleft,
+					color);
+			}
 
 			//
 			// render text
@@ -167,7 +161,7 @@ void CESP::render_players()
 
 			auto scaled_font = FONT_SMALLEST;
 
-			auto playername_font = g_gui_fontmgr_i->get_font("proggyclean", scaled_font, FONTDEC_Regular);
+			auto playername_font = g_gui_fontmgr_i->get_font("segoeui", scaled_font, FONTDEC_Bold);
 
 			const char* label_text = plr.get_playerinfo()->name;
 			if (!label_text)
@@ -240,37 +234,13 @@ void CESP::render_entities()
 
 			auto color = CColor(199, 21, 133, 230);
 
-			//
-			// render 4 corners using lines. this fixes visual deformation of the box when faced on the far side of fisheye effect.
-			//
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				box_topleft, box_topright,
-				color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				box_topright, box_botright,
-				color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				box_botright, box_botleft,
-				color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				box_botleft, box_topleft,
-				color);
+			render_box_for_four_points(box_topleft, box_topright, box_botright, box_botleft, color, box_tall_half);
 
 			//
 			// render text
 			//
 
-			auto scaled_font = FONT_SMALLEST;
-
-			auto playername_font = g_gui_fontmgr_i->get_font("proggyclean", scaled_font, FONTDEC_Regular);
+			auto playername_font = g_gui_fontmgr_i->get_font("segoeui", FONT_SMALLEST, FONTDEC_Bold);
 
 			const char* label_text = model.hl_model()->name;
 			if (!label_text)
@@ -362,6 +332,105 @@ void CESP::render_sound()
 				animated_rouding, 
 				CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f), 1.5f);
 #endif
+		}
+	}
+}
+
+void CESP::render_box_for_four_points(const Vector2D& top_left, const Vector2D& top_right, const Vector2D& bottom_right, 
+									  const Vector2D& bottom_left, const CColor& color, float box_tall_half)
+{
+	//
+	// render 4 corners using lines. this fixes visual deformation of the box when faced on the far side of fisheye effect.
+	//
+
+	switch (esp_box_type.get_value())
+	{
+		case 0: // normal
+		{
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				top_left, top_right,
+				color);
+
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				top_right, bottom_right,
+				color);
+
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				bottom_right, bottom_left,
+				color);
+
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				bottom_left, top_left,
+				color);
+
+			break;
+		}
+		case 1: // corner
+		{
+			float length = box_tall_half * 0.1; // px
+			length = std::clamp(length, 1.0f, 50.0f);
+
+			//
+			// top left
+			//
+
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				top_left + Vector2D(0.0f, length), top_left,
+				color);
+
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				top_left, top_left + Vector2D(length, 0.0f),
+				color);
+
+			//
+			// top right
+			//
+
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				top_right - Vector2D(length, 0.0f), top_right,
+				color);
+
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				top_right, top_right + Vector2D(0.0f, length),
+				color);
+
+			//
+			// bottom right
+			//
+
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				bottom_right - Vector2D(length, 0.0f), bottom_right,
+				color);
+
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				bottom_right, bottom_right - Vector2D(0.0f, length),
+				color);
+
+			//
+			// bottom left
+			//
+
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				bottom_left + Vector2D(length, 0.0f), bottom_left,
+				color);
+
+			g_gui_window_rendering_i->render_line(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				bottom_left, bottom_left - Vector2D(0.0f, length),
+				color);
+
+			break;
 		}
 	}
 }

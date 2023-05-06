@@ -192,10 +192,13 @@ namespace hl
 
 // interfaces
 #include <hlsdk/interface/vgui2/IHTML.h>
+#include <hlsdk/interface/vgui2/IPanel.h>
 #include <hlsdk/interface/appframework/IAppSystem.h>
 #include <hlsdk/interface/ISurface.h>
 #include <hlsdk/interface/GameUI/IGameUI.h>
 #include <hlsdk/interface/GameUI/IBaseUI.h>
+#include <hlsdk/interface/GameUI/IClientVGUI.h>
+#include <hlsdk/interface/IEngineVGui.h>
 
 // game_shared
 #include <hlsdk/game_shared/shareddefs.h>
@@ -233,6 +236,7 @@ namespace hl
 #include "MathUtil.h"
 #include "HLNetMessageIO.h"
 #include "build_num.h"
+#include "EngineInputManager.h"
 
 // game
 #include "game/model/StudioModelData.h"

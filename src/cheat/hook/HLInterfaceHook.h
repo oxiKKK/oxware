@@ -39,8 +39,11 @@ public:
 	bool install_hooks();
 
 	inline auto ISurface() const { return m_ISurface; }
+	inline auto IPanel() const { return m_IPanel; }
+	inline auto IEngineVGui() const { return m_IEngineVGui; }
 	inline auto IGameUI() const { return m_IGameUI; }
 	inline auto IBaseUI() const { return m_IBaseUI; }
+	inline auto IClientVGUI() const { return m_IClientVGUI; }
 
 private:
 	template<typename T>
@@ -48,8 +51,11 @@ private:
 
 private:
 	hl::vgui2::ISurface* m_ISurface;
+	hl::vgui2::IPanel* m_IPanel;
+	hl::IEngineVGui* m_IEngineVGui;
 	hl::IGameUI* m_IGameUI;
 	hl::IBaseUI* m_IBaseUI;
+	hl::IClientVGUI* m_IClientVGUI;
 };
 
 template<typename T>

@@ -33,6 +33,8 @@
 extern VarBoolean mdlchams_enable;
 extern VarBoolean mdlchams_flatshaded;
 extern VarBoolean mdlchams_blend;
+extern VarBoolean mdlchams_rainbow;
+extern VarInteger mdlchams_rainbow_speed;
 extern VarBoolean mdlchams_viewmodel_enable;
 extern VarColor mdlchams_viewmodel_color;
 extern VarInteger mdlchams_viewmodel_type;
@@ -46,6 +48,7 @@ extern VarBoolean mdlchams_player_skeleton;
 extern VarBoolean mdlchams_head_box_enable;
 extern VarColor mdlchams_head_box_color;
 extern VarBoolean mdlchams_render_real_playermodel;
+extern VarBoolean mdlchams_disable_animations;
 
 // indicator when we're drawing real playermodel inside iuser1
 #define IUSER1_REAL_PLAYERMODEL 0xDEAD

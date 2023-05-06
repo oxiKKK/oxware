@@ -194,6 +194,9 @@
     <ClCompile Include="hook\HookTests.cpp">
       <Filter>src\hooking\tests</Filter>
     </ClCompile>
+    <ClCompile Include="EngineInputManager.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -343,6 +346,9 @@
     </ClInclude>
     <ClInclude Include="hook\HookTests.h">
       <Filter>src\hooking\tests</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineInputManager.h">
+      <Filter>src\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

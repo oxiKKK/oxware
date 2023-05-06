@@ -483,10 +483,15 @@ void CUIMenu::tab_render()
 			});
 
 		add_menu_child(
-			"ESP", CMenuStyle::calc_child_size(350), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"ESP", CMenuStyle::calc_child_size(415), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Enable", &esp_enable);
+
+				g_gui_widgets_i->add_spacing();
+
+				CUIMenuWidgets::the().add_checkbox("Box background", &esp_background);
+				CUIMenuWidgets::the().add_listbox("Box type", &esp_box_type, { "Normal", "Corners" });
 
 				g_gui_widgets_i->add_padding({ 0, 5.0f });
 				g_gui_widgets_i->add_separtor_with_text("Player");
@@ -506,7 +511,7 @@ void CUIMenu::tab_render()
 			});
 
 		add_menu_child(
-			"Studio renderer", CMenuStyle::calc_child_size(310), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Studio renderer", CMenuStyle::calc_child_size(350), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				g_gui_widgets_i->add_padding({ 0, 5.0f });
@@ -532,35 +537,66 @@ void CUIMenu::tab_render()
 					CGenericUtil::the().open_link_inside_browser("https://youtu.be/xMd9m3McNvo");
 				}
 				g_gui_widgets_i->pop_font();
+
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				CUIMenuWidgets::the().add_checkbox("Disable animations", &mdlchams_disable_animations);
 			});
 
 		g_gui_widgets_i->goto_next_column();
 
 		add_menu_child(
-			"Model chams", CMenuStyle::calc_child_size(400), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Model chams", CMenuStyle::calc_child_size(350), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Enable", &mdlchams_enable);
 
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-				g_gui_widgets_i->add_separtor_with_text("Viewmodel");
-				CUIMenuWidgets::the().add_checkbox_with_color("Enable ##VM", &mdlchams_viewmodel_enable, &mdlchams_viewmodel_color);
-				CUIMenuWidgets::the().add_listbox("Type ##VM", &mdlchams_viewmodel_type, { "Flat", "Shaded" });
+				g_gui_widgets_i->begin_tab("model_chams_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-				g_gui_widgets_i->add_separtor_with_text("Players - T");
-				CUIMenuWidgets::the().add_checkbox_with_color("Enable ##T", &mdlchams_players_t_enable, &mdlchams_players_t_color);
-				CUIMenuWidgets::the().add_listbox("Type ##T", &mdlchams_players_t_type, { "Flat", "Shaded" });
+				float tab_height = 80.0f;
 
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-				g_gui_widgets_i->add_separtor_with_text("Players - CT");
-				CUIMenuWidgets::the().add_checkbox_with_color("Enable ##CT", &mdlchams_players_ct_enable, &mdlchams_players_ct_color);
-				CUIMenuWidgets::the().add_listbox("Type ##CT", &mdlchams_players_ct_type, { "Flat", "Shaded" });
+				g_gui_widgets_i->add_tab_item(
+					"VM", false,
+					{ -1.0f, tab_height },
+					[]()
+					{
+						g_gui_widgets_i->add_padding({ 0, 5.0f });
+						g_gui_widgets_i->add_separtor_with_text("Viewmodel");
+						CUIMenuWidgets::the().add_checkbox_with_color("Enable ##VM", &mdlchams_viewmodel_enable, &mdlchams_viewmodel_color);
+						CUIMenuWidgets::the().add_listbox("Type ##VM", &mdlchams_viewmodel_type, { "Flat", "Shaded" });
+					});
+
+				g_gui_widgets_i->add_tab_item(
+					"T", false,
+					{ -1.0f, tab_height },
+					[]()
+					{
+						g_gui_widgets_i->add_padding({ 0, 5.0f });
+						g_gui_widgets_i->add_separtor_with_text("Terrorists");
+						CUIMenuWidgets::the().add_checkbox_with_color("Enable ##T", &mdlchams_players_t_enable, &mdlchams_players_t_color);
+						CUIMenuWidgets::the().add_listbox("Type ##T", &mdlchams_players_t_type, { "Flat", "Shaded" });
+					});
+
+				g_gui_widgets_i->add_tab_item(
+					"CT", false,
+					{ -1.0f, tab_height },
+ 					[]()
+					{
+						g_gui_widgets_i->add_padding({ 0, 5.0f });
+						g_gui_widgets_i->add_separtor_with_text("Counter-Terrorists");
+						CUIMenuWidgets::the().add_checkbox_with_color("Enable ##CT", &mdlchams_players_ct_enable, &mdlchams_players_ct_color);
+						CUIMenuWidgets::the().add_listbox("Type ##CT", &mdlchams_players_ct_type, { "Flat", "Shaded" });
+					});
+
+				g_gui_widgets_i->end_tab();
 
 				g_gui_widgets_i->add_padding({ 0, 5.0f });
 				g_gui_widgets_i->add_separtor_with_text("Properties");
 				CUIMenuWidgets::the().add_checkbox("Flat-shaded", &mdlchams_flatshaded);
 				CUIMenuWidgets::the().add_checkbox("Blend", &mdlchams_blend);
+
+				g_gui_widgets_i->add_spacing();
+				CUIMenuWidgets::the().add_checkbox("Rainbow colors", &mdlchams_rainbow);
+				CUIMenuWidgets::the().add_slider("Speed", "%0.0fx", &mdlchams_rainbow_speed);
 			});
 
 		add_menu_child(

@@ -31,6 +31,8 @@
 #pragma once
 
 extern VarBoolean esp_enable;
+extern VarBoolean esp_background;
+extern VarInteger esp_box_type;
 extern VarBoolean esp_only_enemy_team;
 
 extern VarBoolean esp_entity_enable;
@@ -72,6 +74,8 @@ private:
 	void render_players();
 	void render_entities();
 	void render_sound();
+
+	void render_box_for_four_points(const Vector2D& top_left, const Vector2D& top_right, const Vector2D& bottom_right, const Vector2D& bottom_left, const CColor& color, float box_tall_half);
 
 	EFontSize fontsize_by_dist(float dist, float max_dist);
 

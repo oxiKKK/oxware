@@ -27,6 +27,7 @@
 */
 
 #include "precompiled.h"
+#include "MemoryFnDetour.h"
 
 bool CMemoryFnDetourMgr::install_hooks()
 {
@@ -649,6 +650,8 @@ void __thiscall CGame__AppActivate_FnDetour_t::CGame__AppActivate(void* ecx, boo
 {
 	// is called when the window is focused/unfocused.
 
+	CoXWARE::the().set_at_least_once_focused();
+
 	// if we let this called while the menu is up, it can override the ingame cursor that we hid.
 	if (COxWareUI::the().should_disable_ingame_input())
 	{
@@ -692,6 +695,11 @@ int R_StudioDrawPlayer_FnDetour_t::R_StudioDrawPlayer(int flags, hl::entity_stat
 		// disable p_* models when using skeletal chams. This model gets merged into the playermodel, hence createing unecessary
 		// bones then we then render and that stays in the way.
 		pplayer->weaponmodel = 0;
+	}
+
+	if (mdlchams_disable_animations.get_value())
+	{
+		pplayer->gaitsequence = 1;
 	}
 
 	// draw first so we don't clip through original model

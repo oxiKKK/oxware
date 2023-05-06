@@ -56,6 +56,9 @@ public:
 
 	int get_build_number() const { return m_gs_build_number; }
 
+	bool at_least_once_focused() const { return m_at_least_once_focused; }
+	void set_at_least_once_focused() { m_at_least_once_focused = true; }
+
 private:
 	bool initialize();
 	bool run_frame();
@@ -89,6 +92,8 @@ private:
 	bool m_dont_write_unloading_code = false;
 
 	int m_gs_build_number = 0;
+
+	bool m_at_least_once_focused = false;
 };
 
 #endif // OXWARE_H

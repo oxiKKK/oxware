@@ -353,6 +353,7 @@
     </ClCompile>
     <ClCompile Include="build_num.cpp" />
     <ClCompile Include="EngineInputManager.cpp" />
+    <ClCompile Include="features\ResourceConsistencyBypass.cpp" />
     <ClCompile Include="features\BulletTrace.cpp" />
     <ClCompile Include="features\BypassGameConstrains.cpp" />
     <ClCompile Include="features\ESP.cpp" />
@@ -376,6 +377,7 @@
     <ClCompile Include="game\model\SpriteModelData.cpp" />
     <ClCompile Include="game\model\StudioModelData.cpp" />
     <ClCompile Include="game\SpriteManager.cpp" />
+    <ClCompile Include="GoldSrcMungificationAlgorigthms.cpp" />
     <ClCompile Include="HLNetMessageIO.cpp" />
     <ClCompile Include="hook\client_dll\MemoryHookCBaseStuff.cpp" />
     <ClCompile Include="hook\HLInterfaceHook.cpp" />
@@ -416,6 +418,14 @@
     <ClCompile Include="ui\UIMenuBackground.cpp" />
     <ClCompile Include="ui\UIMenuWidgets.cpp" />
     <ClCompile Include="ui\UIPerformanceProfilerVisualization.cpp" />
+    <ClCompile Include="vanilla_halflife_dir_file_database.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\BaseVariable.h" />
@@ -426,6 +436,7 @@
     <ClInclude Include="build_num.h" />
     <ClInclude Include="custom_format_cheat.h" />
     <ClInclude Include="EngineInputManager.h" />
+    <ClInclude Include="features\ResourceConsistencyBypass.h" />
     <ClInclude Include="features\BulletTrace.h" />
     <ClInclude Include="features\BypassGameConstrains.h" />
     <ClInclude Include="features\ESP.h" />
@@ -448,6 +459,7 @@
     <ClInclude Include="game\model\SpriteModelData.h" />
     <ClInclude Include="game\model\StudioModelData.h" />
     <ClInclude Include="game\SpriteManager.h" />
+    <ClInclude Include="GoldSrcMungificationAlgorigthms.h" />
     <ClInclude Include="HLNetMessageIO.h" />
     <ClInclude Include="hook\client_dll\MemoryHookCBaseStuff.h" />
     <ClInclude Include="hook\HLInterfaceHook.h" />
@@ -469,6 +481,7 @@
     <ClInclude Include="ui\UIMenuBackground.h" />
     <ClInclude Include="ui\UIMenuWidgets.h" />
     <ClInclude Include="ui\UIPerformanceProfilerVisualization.h" />
+    <ClInclude Include="vanilla_halflife_dir_file_database.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

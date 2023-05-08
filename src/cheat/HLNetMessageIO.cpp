@@ -43,6 +43,12 @@ bool CHLNetMessageIO::install_hooks()
 	MSG_ReadBitCoord().install();
 	MSG_ReadBitVec3Coord().install();
 
+	// bit writing
+	MSG_StartBitWriting().install();
+	MSG_EndBitWriting().install();
+	MSG_WriteBits().install();
+	MSG_WriteBitData().install();
+
 	// reading
 	MSG_ReadChar().install();
 	MSG_ReadByte().install();
@@ -92,6 +98,16 @@ void CHLNetMessageIO::end_silent_bit_reading()
 	m_in_bit_read = false;
 }
 
+void CHLNetMessageIO::start_bit_writing(hl::sizebuf_t* sb)
+{
+	MSG_StartBitWriting().call(sb);
+}
+
+void CHLNetMessageIO::end_bit_writing(hl::sizebuf_t* sb)
+{
+	MSG_EndBitWriting().call(sb);
+}
+
 uint32_t CHLNetMessageIO::read_bits(int numbits)
 {
 	return MSG_ReadBits().call(numbits);
@@ -112,6 +128,16 @@ void CHLNetMessageIO::read_bit_vec3coord(Vector& coord)
 	hl::vec_t v[3];
 	MSG_ReadBitVec3Coord().call(v);
 	coord = v;
+}
+
+void CHLNetMessageIO::write_bits(uint32_t data, int num_bits)
+{
+	MSG_WriteBits().call(data, num_bits);
+}
+
+void CHLNetMessageIO::write_bit_data(void* data, int num_bits)
+{
+	MSG_WriteBitData().call(data, num_bits);
 }
 
 //----------------------------------------------------------------------
@@ -187,42 +213,84 @@ float CHLNetMessageIO::read_coord()
 
 void CHLNetMessageIO::write_char(int8_t i8)
 {
-	MSG_WriteChar().call(&CMemoryHookMgr::the().cls().get()->netchan.message, i8);
+	write_char(&CMemoryHookMgr::the().cls().get()->netchan.message, i8);
 }
 
 void CHLNetMessageIO::write_byte(uint8_t ui8)
 {
-	MSG_WriteByte().call(&CMemoryHookMgr::the().cls().get()->netchan.message, ui8);
+	write_byte(&CMemoryHookMgr::the().cls().get()->netchan.message, ui8);
 }
 
 void CHLNetMessageIO::write_short(int16_t i16)
 {
-	MSG_WriteShort().call(&CMemoryHookMgr::the().cls().get()->netchan.message, i16);
+	write_short(&CMemoryHookMgr::the().cls().get()->netchan.message, i16);
 }
 
 void CHLNetMessageIO::write_word(uint16_t ui16)
 {
-	MSG_WriteWord().call(&CMemoryHookMgr::the().cls().get()->netchan.message, ui16);
+	write_word(&CMemoryHookMgr::the().cls().get()->netchan.message, ui16);
 }
 
 void CHLNetMessageIO::write_long(int32_t i32)
 {
-	MSG_WriteLong().call(&CMemoryHookMgr::the().cls().get()->netchan.message, i32);
+	write_long(&CMemoryHookMgr::the().cls().get()->netchan.message, i32);
 }
 
 void CHLNetMessageIO::write_float(float f)
 {
-	MSG_WriteFloat().call(&CMemoryHookMgr::the().cls().get()->netchan.message, f);
+	write_float(&CMemoryHookMgr::the().cls().get()->netchan.message, f);
 }
 
 void CHLNetMessageIO::write_string(const char* s)
 {
-	MSG_WriteString().call(&CMemoryHookMgr::the().cls().get()->netchan.message, (char*)s);
+	write_string(&CMemoryHookMgr::the().cls().get()->netchan.message, (char*)s);
 }
 
 void CHLNetMessageIO::write_coord(float coord)
 {
-	MSG_WriteCoord().call(&CMemoryHookMgr::the().cls().get()->netchan.message, coord);
+	write_coord(&CMemoryHookMgr::the().cls().get()->netchan.message, coord);
+}
+
+//----------------------------------------------------------------------
+
+void CHLNetMessageIO::write_char(hl::sizebuf_t* sb, int8_t i8)
+{
+	MSG_WriteChar().call(sb, i8);
+}
+
+void CHLNetMessageIO::write_byte(hl::sizebuf_t* sb, uint8_t ui8)
+{
+	MSG_WriteByte().call(sb, ui8);
+}
+
+void CHLNetMessageIO::write_short(hl::sizebuf_t* sb, int16_t i16)
+{
+	MSG_WriteShort().call(sb, i16);
+}
+
+void CHLNetMessageIO::write_word(hl::sizebuf_t* sb, uint16_t ui16)
+{
+	MSG_WriteWord().call(sb, ui16);
+}
+
+void CHLNetMessageIO::write_long(hl::sizebuf_t* sb, int32_t i32)
+{
+	MSG_WriteLong().call(sb, i32);
+}
+
+void CHLNetMessageIO::write_float(hl::sizebuf_t* sb, float f)
+{
+	MSG_WriteFloat().call(sb, f);
+}
+
+void CHLNetMessageIO::write_string(hl::sizebuf_t* sb, const char* s)
+{
+	MSG_WriteString().call(sb, (char*)s);
+}
+
+void CHLNetMessageIO::write_coord(hl::sizebuf_t* sb, float coord)
+{
+	MSG_WriteCoord().call(sb, coord);
 }
 
 //----------------------------------------------------------------------
@@ -260,6 +328,32 @@ bool MSG_ReadBitCoordFnHook_t::install()
 bool MSG_ReadBitVec3CoordFnHook_t::install()
 {
 	initialize("MSG_ReadBitVec3Coord", L"hw.dll");
+	return install_using_bytepattern(0);
+}
+
+//----------------------------------------------------------------------
+
+bool MSG_StartBitWritingFnHook_t::install()
+{
+	initialize("MSG_StartBitWriting", L"hw.dll");
+	return install_using_bytepattern(0);
+}
+
+bool MSG_EndBitWritingFnHook_t::install()
+{
+	initialize("MSG_EndBitWriting", L"hw.dll");
+	return install_using_bytepattern(0);
+}
+
+bool MSG_WriteBitsFnHook_t::install()
+{
+	initialize("MSG_WriteBits", L"hw.dll");
+	return install_using_bytepattern(0);
+}
+
+bool MSG_WriteBitDataFnHook_t::install()
+{
+	initialize("MSG_WriteBitData", L"hw.dll");
 	return install_using_bytepattern(0);
 }
 
@@ -382,3 +476,4 @@ bool bfreadHook::install()
 	initialize("bfread", L"hw.dll");
 	return install_using_bytepattern(1);
 }
+

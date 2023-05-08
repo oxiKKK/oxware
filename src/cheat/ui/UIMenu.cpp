@@ -783,6 +783,23 @@ void CUIMenu::tab_exploits()
 				CUIMenuWidgets::the().add_slider("FPS limit", "~%0.0f frames/sec", &frame_skip_maxfps);
 			});
 
+		add_menu_child(
+			"Consistency bypass", CMenuStyle::calc_child_size(175), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &consistencybypass_enable);
+
+				CUIMenuWidgets::the().add_checkbox("Logging", &consistencybypass_log);
+
+				CUIMenuWidgets::the().add_description_text(
+					"This enables to send false consistency information to the server, when it gets requested.",
+
+					"Consistency in the GoldSrc games is a technique that enables servers to check whenever clients have the same files"
+					" as the server has. The server can also check for malicious DLL files anywhere inside your Half-Life folder (cheat dlls)."
+					" Plugins use this to detect cheats when you're econnecting to a server and can ban you if they find some.\n\n"
+					"Using this technique allows you to bypass not only the checks for invalid dlls, but also for other things such as models, sprites, sounds, etc.");
+			});
+
 		g_gui_widgets_i->end_columns();
 	}
 

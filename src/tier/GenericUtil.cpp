@@ -222,3 +222,19 @@ bool CGenericUtil::running_32_bit_windows()
 	}
 	return running == FALSE;
 }
+
+bool CGenericUtil::does_cmdline_parameter_exist(const std::string& substring)
+{
+	if (strstr(GetCommandLineA(), substring.c_str()))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+std::string CGenericUtil::fix_directory_separators(const std::string& directory)
+{
+	std::filesystem::path p = directory;
+	return p.make_preferred().string();
+}

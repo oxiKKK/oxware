@@ -34,8 +34,6 @@
 template <>
 struct std::formatter<hl::modtype_t> : std::formatter<std::string> {
 	auto format(hl::modtype_t type, std::format_context& ctx) {
-		assert((type >= hl::mod_bad && type <= hl::mod_studio) && "invalid modtype specified in formatter.");
-
 		switch (type)
 		{
 			case hl::mod_bad:		return std::formatter<string>::format("mod_bad", ctx);
@@ -44,6 +42,23 @@ struct std::formatter<hl::modtype_t> : std::formatter<std::string> {
 			case hl::mod_alias:		return std::formatter<string>::format("mod_alias", ctx);
 			case hl::mod_studio:	return std::formatter<string>::format("mod_studio", ctx);
 			default:				return std::formatter<string>::format("unknown", ctx);
+		}
+	}
+};
+
+
+// FORCE_TYPE
+template <>
+struct std::formatter<hl::FORCE_TYPE> : std::formatter<std::string> {
+	auto format(hl::FORCE_TYPE type, std::format_context& ctx) {
+
+		switch (type)
+		{
+			case hl::force_exactfile:						return std::formatter<string>::format("force_exactfile", ctx);
+			case hl::force_model_samebounds:				return std::formatter<string>::format("force_model_samebounds", ctx);
+			case hl::force_model_specifybounds:				return std::formatter<string>::format("force_model_specifybounds", ctx);
+			case hl::force_model_specifybounds_if_avail:	return std::formatter<string>::format("force_model_specifybounds_if_avail", ctx);
+			default:										return std::formatter<string>::format("unknown", ctx);
 		}
 	}
 };

@@ -34,6 +34,8 @@ bool CMemoryFnHookMgr::install_hooks()
 	if (!VGuiWrap2_IsConsoleVisible().install()) return false;
 	if (!VGuiWrap2_ConPrintf().install()) return false;
 	if (!ClearIOStates().install()) return false;
+	if (!R_GetStudioBounds().install()) return false;
+	if (!MD5_Hash_File().install()) return false;
 
 	return true;
 }
@@ -63,3 +65,17 @@ bool ClearIOStates_FnHook_t::install()
 }
 
 //-----------------------------------------------------------------------------
+
+bool R_GetStudioBounds_FnHook_t::install()
+{
+	initialize("R_GetStudioBounds", L"hw.dll");
+	return install_using_bytepattern(0);
+}
+
+//-----------------------------------------------------------------------------
+
+bool MD5_Hash_File_FnHook_t::install()
+{
+	initialize("MD5_Hash_File", L"hw.dll");
+	return install_using_bytepattern(0);
+}

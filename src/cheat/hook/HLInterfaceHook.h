@@ -44,6 +44,7 @@ public:
 	inline auto IGameUI() const { return m_IGameUI; }
 	inline auto IBaseUI() const { return m_IBaseUI; }
 	inline auto IClientVGUI() const { return m_IClientVGUI; }
+	inline auto IFileSystem() const { return m_IFileSystem; }
 
 private:
 	template<typename T>
@@ -56,6 +57,7 @@ private:
 	hl::IGameUI* m_IGameUI;
 	hl::IBaseUI* m_IBaseUI;
 	hl::IClientVGUI* m_IClientVGUI;
+	hl::IFileSystem* m_IFileSystem;
 };
 
 template<typename T>

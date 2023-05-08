@@ -197,6 +197,15 @@
     <ClCompile Include="EngineInputManager.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
+    <ClCompile Include="features\ResourceConsistencyBypass.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="GoldSrcMungificationAlgorigthms.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="vanilla_halflife_dir_file_database.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -348,6 +357,15 @@
       <Filter>src\hooking\tests</Filter>
     </ClInclude>
     <ClInclude Include="EngineInputManager.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="features\ResourceConsistencyBypass.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="GoldSrcMungificationAlgorigthms.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="vanilla_halflife_dir_file_database.h">
       <Filter>src\util</Filter>
     </ClInclude>
   </ItemGroup>

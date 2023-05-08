@@ -67,6 +67,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	CGame__AppActivate().install();
 	CHudAmmo__DrawCrosshair().install();
 	R_StudioDrawPlayer().install();
+	CL_SendConsistencyInfo().install();
 
 	return true;
 }
@@ -117,6 +118,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	CGame__AppActivate().uninstall();
 	CHudAmmo__DrawCrosshair().uninstall();
 	R_StudioDrawPlayer().uninstall();
+	CL_SendConsistencyInfo().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -720,6 +722,22 @@ int R_StudioDrawPlayer_FnDetour_t::R_StudioDrawPlayer(int flags, hl::entity_stat
 	int ret = CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
 
 	return ret;
+}
+
+//---------------------------------------------------------------------------------
+
+bool CL_SendConsistencyInfo_FnDetour_t::install()
+{
+	initialize("CL_SendConsistencyInfo", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)CL_SendConsistencyInfo);
+}
+
+void CL_SendConsistencyInfo_FnDetour_t::CL_SendConsistencyInfo(hl::sizebuf_t* msg)
+{
+	if (!CResourceConsistencyBypass::the().detour_consistency_info(msg))
+	{
+		CMemoryFnDetourMgr::the().CL_SendConsistencyInfo().call(msg);
+	}
 }
 
 //---------------------------------------------------------------------------------

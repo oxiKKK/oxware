@@ -447,6 +447,13 @@ struct R_StudioDrawPlayer_FnDetour_t final : public GenericMemoryFnDetour_cdecl<
 	static int R_StudioDrawPlayer(int flags, hl::entity_state_t* pplayer);
 };
 
+// void CL_SendConsistencyInfo(sizebuf_t* msg)
+struct CL_SendConsistencyInfo_FnDetour_t final : public GenericMemoryFnDetour_cdecl<int, hl::sizebuf_t*>
+{
+	bool install();
+	static void CL_SendConsistencyInfo(hl::sizebuf_t* msg);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -493,6 +500,7 @@ public:
 	inline auto& CGame__AppActivate() { static CGame__AppActivate_FnDetour_t fnhook; return fnhook; }
 	inline auto& CHudAmmo__DrawCrosshair() { static CHudAmmo__DrawCrosshair_FnDetour_t fnhook; return fnhook; }
 	inline auto& R_StudioDrawPlayer() { static R_StudioDrawPlayer_FnDetour_t fnhook; return fnhook; }
+	inline auto& CL_SendConsistencyInfo() { static CL_SendConsistencyInfo_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

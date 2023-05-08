@@ -83,6 +83,10 @@ public:
 
 	// true if current process is running under WOW64 (is 32-bit)
 	bool running_32_bit_windows();
+
+	bool does_cmdline_parameter_exist(const std::string& substring);
+
+	std::string fix_directory_separators(const std::string& directory);
 };
 
 #endif // GENERICUTIL_H

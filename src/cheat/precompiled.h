@@ -199,6 +199,7 @@ namespace hl
 #include <hlsdk/interface/GameUI/IBaseUI.h>
 #include <hlsdk/interface/GameUI/IClientVGUI.h>
 #include <hlsdk/interface/IEngineVGui.h>
+#include <hlsdk/interface/IFileSystem.h>
 
 // game_shared
 #include <hlsdk/game_shared/shareddefs.h>
@@ -237,6 +238,7 @@ namespace hl
 #include "HLNetMessageIO.h"
 #include "build_num.h"
 #include "EngineInputManager.h"
+#include "GoldSrcMungificationAlgorigthms.h"
 
 // game
 #include "game/model/StudioModelData.h"
@@ -262,6 +264,7 @@ namespace hl
 #include "features/ESP.h"
 #include "features/VanillaCrosshair.h"
 #include "features/StuffCmdFilter.h"
+#include "features/ResourceConsistencyBypass.h"
 
 // ui
 #include "ui/IRendererContext.h"

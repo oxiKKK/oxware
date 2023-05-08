@@ -52,6 +52,21 @@ struct MSG_ReadBitCoordFnHook_t final : public GenericMemoryFnHook_cdecl<float> 
 struct MSG_ReadBitVec3CoordFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::vec_t*> { bool install() override; };
 
 //---------------------------------------------------------------------------
+// bit writing
+
+// void __cdecl MSG_StartBitWriting(sizebuf_t* buf);
+struct MSG_StartBitWritingFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*> { bool install() override; };
+
+// void __cdecl MSG_EndBitWriting(sizebuf_t* buf);
+struct MSG_EndBitWritingFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*> { bool install() override; };
+
+// void __cdecl MSG_WriteBits(uint32 data, int numbits);
+struct MSG_WriteBitsFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::uint32, int> { bool install() override; };
+
+// void __cdecl MSG_WriteBitData(void* src, int length);
+struct MSG_WriteBitDataFnHook_t final : public GenericMemoryFnHook_cdecl<void, void*, int> { bool install() override; };
+
+//---------------------------------------------------------------------------
 // reading
 
 // int __cdecl MSG_ReadChar();
@@ -140,6 +155,12 @@ public:
 	float read_bit_coord();
 	void read_bit_vec3coord(Vector& coord);
 
+	// bit writing
+	void start_bit_writing(hl::sizebuf_t* sb);
+	void end_bit_writing(hl::sizebuf_t* sb);
+	void write_bits(uint32_t data, int num_bits);
+	void write_bit_data(void* data, int num_bits);
+
 	// reading
 	void begin_silent_reading();
 	void end_silent_reading();
@@ -162,6 +183,16 @@ public:
 	void write_float(float f);
 	void write_string(const char* s);
 	void write_coord(float coord);
+
+	// writing to custom buffer
+	void write_char(hl::sizebuf_t* sb, int8_t i8);
+	void write_byte(hl::sizebuf_t* sb, uint8_t ui8);
+	void write_short(hl::sizebuf_t* sb, int16_t i16);
+	void write_word(hl::sizebuf_t* sb, uint16_t ui16);
+	void write_long(hl::sizebuf_t* sb, int32_t i32);
+	void write_float(hl::sizebuf_t* sb, float f);
+	void write_string(hl::sizebuf_t* sb, const char* s);
+	void write_coord(hl::sizebuf_t* sb, float coord);
 
 private:
 	inline auto& net_message() { static net_messageHook hook; return hook; };
@@ -200,6 +231,12 @@ private:
 	inline auto& MSG_ReadSBits() { static MSG_ReadSBitsFnHook_t hook; return hook; }
 	inline auto& MSG_ReadBitCoord() { static MSG_ReadBitCoordFnHook_t hook; return hook; }
 	inline auto& MSG_ReadBitVec3Coord() { static MSG_ReadBitVec3CoordFnHook_t hook; return hook; }
+
+	// bit writing
+	inline auto& MSG_StartBitWriting() { static MSG_StartBitWritingFnHook_t hook; return hook; }
+	inline auto& MSG_EndBitWriting() { static MSG_EndBitWritingFnHook_t hook; return hook; }
+	inline auto& MSG_WriteBits() { static MSG_WriteBitsFnHook_t hook; return hook; }
+	inline auto& MSG_WriteBitData() { static MSG_WriteBitDataFnHook_t hook; return hook; }
 
 	// reading
 	inline auto& MSG_ReadChar() { static MSG_ReadCharFnHook_t hook; return hook; }

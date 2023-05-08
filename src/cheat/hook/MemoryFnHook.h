@@ -89,6 +89,12 @@ struct VGuiWrap2_ConPrintf_FnHook_t final : public GenericMemoryFnHook_cdecl<voi
 // void ClearIOStates()
 struct ClearIOStates_FnHook_t final : public GenericMemoryFnHook_cdecl<int> { bool install(); };
 
+// int R_GetStudioBounds(const char* filename, float* mins, float* maxs)
+struct R_GetStudioBounds_FnHook_t final : public GenericMemoryFnHook_cdecl<int, const char*, float*, float*> { bool install(); };
+
+// int MD5_Hash_File(unsigned char* digest, char* pszFileName, BOOL bUsefopen, BOOL bSeed, unsigned int* seed)
+struct MD5_Hash_File_FnHook_t final : public GenericMemoryFnHook_cdecl<int, unsigned char*, char*, BOOL, BOOL, unsigned int*> { bool install(); };
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnHookMgr
@@ -106,6 +112,8 @@ public:
 	inline auto& VGuiWrap2_IsConsoleVisible() { static VGuiWrap2_IsConsoleVisible_FnHook_t hook; return hook; }
 	inline auto& VGuiWrap2_ConPrintf() { static VGuiWrap2_ConPrintf_FnHook_t hook; return hook; }
 	inline auto& ClearIOStates() { static ClearIOStates_FnHook_t hook; return hook; }
+	inline auto& R_GetStudioBounds() { static R_GetStudioBounds_FnHook_t hook; return hook; }
+	inline auto& MD5_Hash_File() { static MD5_Hash_File_FnHook_t hook; return hook; }
 };
 
 #endif // MEMORYFNHOOK_H

@@ -59,6 +59,9 @@ public:
 	bool at_least_once_focused() const { return m_at_least_once_focused; }
 	void set_at_least_once_focused() { m_at_least_once_focused = true; }
 
+	// the name varies from build to build
+	const wchar_t* get_engine_fs_module_name() const;
+
 private:
 	bool initialize();
 	bool run_frame();
@@ -69,7 +72,7 @@ private:
 	bool initialize_hook_managers();
 	void shutdown_hook_managers();
 
-	void check_for_xguard();
+	void check_for_clientside_protectors();
 	bool is_valid_game();
 	bool is_hardware();
 	bool validate_engine_build();

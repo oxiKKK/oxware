@@ -46,7 +46,7 @@
 
 int main()
 {
-	for (auto& p : std::filesystem::recursive_directory_iterator("E:\\GOLDSRC\\Full half-Life game w assets (win, osx, linux)"))
+	for (auto& p : std::filesystem::recursive_directory_iterator("path"))
 	{
 		if (std::filesystem::is_regular_file(p))
 		{
@@ -59,7 +59,7 @@ int main()
 
 const std::unordered_multiset<std::string> s_8684_vanilla_halflife_directory_files =
 {
-		"a3dapi.dll",
+	"a3dapi.dll",
 	"avcodec-53.dll",
 	"avformat-53.dll",
 	"avutil-51.dll",
@@ -5095,4 +5095,13 @@ const std::unordered_multiset<std::string> s_8684_vanilla_halflife_directory_fil
 	"voice_speex.dylib",
 	"voice_speex.so",
 	"vstdlib.dll",
+
+	// 4554 cs
+	"FileSystem_steam.dll",
+	"crashhandler.dll",
+	"dbg.dll",
+	"Steam.dll",
+	"tier0_s.dll",
+	"steam_api_c.dll",
+	"vstdlib_s.dll",
 };

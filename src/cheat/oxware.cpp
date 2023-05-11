@@ -100,6 +100,17 @@ bool CoXWARE::initialize_phase2()
 	return true;
 }
 
+const wchar_t* CoXWARE::get_engine_fs_module_name() const
+{
+	uintptr_t module = g_libloader_i->get_target_loaded_dll_base_address(L"filesystem_stdio.dll");
+	if (module != NULL)
+	{
+		return L"filesystem_stdio.dll";
+	}
+
+	return L"filesystem_steam.dll";
+}
+
 bool CoXWARE::initialize()
 {
 	CConsole::the().initialize(EOutputModule::CHEAT, g_devconsole_i);
@@ -136,7 +147,7 @@ bool CoXWARE::initialize()
 	// we cannot hook from those etc. So we need to wait for the engine to initialize.
 	//
 
-	check_for_xguard();
+	check_for_clientside_protectors();
 
 	// see for the renderer - before hooks! (because of hw.dll may missing, and we need it inside hook managers.)
 	if (!is_hardware())
@@ -416,12 +427,22 @@ void CoXWARE::shutdown_hook_managers()
 	CUserMSGDetourMgr::the().uninstall_hooks();
 }
 
-void CoXWARE::check_for_xguard()
+void CoXWARE::check_for_clientside_protectors()
 {
+	// https://github.com/2010kohtep/CSXGuard
 	bool is_xguard = g_libloader_i->is_dll_loaded(L"xguard.dll");
 	if (is_xguard)
 	{
 		CMessageBox::display_warning("You are using xguard. Be aware that this cheat isn't compatible with xguard or any similar software."
+									 " This means that some parts of this cheat may not work properly or worse, can even crash your game.");
+		return;
+	}
+
+	// Counter Strike Protector by 'quckly'
+	bool is_cs_protector = g_libloader_i->is_dll_loaded(L"client_save.dll");
+	if (is_cs_protector)
+	{
+		CMessageBox::display_warning("You are using CS protector. Be aware that this cheat isn't compatible with xguard or any similar software."
 									 " This means that some parts of this cheat may not work properly or worse, can even crash your game.");
 	}
 }

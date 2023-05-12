@@ -511,7 +511,7 @@ void CUIMenu::tab_render()
 			});
 
 		add_menu_child(
-			"Studio renderer", CMenuStyle::calc_child_size(350), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Studio renderer", CMenuStyle::calc_child_size(375), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				g_gui_widgets_i->add_padding({ 0, 5.0f });
@@ -540,6 +540,7 @@ void CUIMenu::tab_render()
 
 				g_gui_widgets_i->add_padding({ 0, 5.0f });
 				CUIMenuWidgets::the().add_checkbox("Disable animations", &mdlchams_disable_animations);
+				CUIMenuWidgets::the().add_checkbox("Enforce default VM", &mdlchams_force_default_viewmodel);
 			});
 
 		g_gui_widgets_i->goto_next_column();

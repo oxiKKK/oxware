@@ -80,6 +80,7 @@ public:
 
 	// check if nullptr!
 	hl::CBasePlayerWeapon* get_current_weapon();
+	std::string get_modelname_from_weapon(int wpnidx);
 
 	int get_weapon_accuracy_flags(int weapon_id, int weapon_flags);
 

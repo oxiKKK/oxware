@@ -515,6 +515,8 @@ void R_DrawViewModel_FnDetour_t::R_DrawViewModel()
 {
 	CViewmodelOffset::the().update();
 
+	CModelChams::the().force_default_models();
+	
 	CMemoryFnDetourMgr::the().R_DrawViewModel().call();
 }
 

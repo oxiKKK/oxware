@@ -298,6 +298,51 @@ hl::CBasePlayerWeapon* CGameUtil::get_current_weapon()
 	return weapons[cl->frames[cl->parsecountmod].clientdata.m_iId];
 }
 
+std::string CGameUtil::get_modelname_from_weapon(int wpnidx)
+{
+	if (wpnidx >= hl::WEAPON_P228 && wpnidx <= hl::WEAPON_P90)
+	{
+		switch (wpnidx)
+		{
+			case hl::WEAPON_P228:			return "models/v_p228.mdl";
+			case hl::WEAPON_GLOCK:			return "models/v_glock18.mdl";
+			case hl::WEAPON_SCOUT:			return "models/v_scout.mdl";
+			case hl::WEAPON_HEGRENADE:		return "models/v_hegrenade.mdl";
+			case hl::WEAPON_XM1014:			return "models/v_xm1014.mdl";
+			case hl::WEAPON_C4:				return "models/v_c4.mdl";
+			case hl::WEAPON_MAC10:			return "models/v_mac10.mdl";
+			case hl::WEAPON_AUG:			return "models/v_aug.mdl";
+			case hl::WEAPON_SMOKEGRENADE:	return "models/v_smokegrenade.mdl";
+			case hl::WEAPON_ELITE:			return "models/v_elite.mdl";
+			case hl::WEAPON_FIVESEVEN:		return "models/v_fiveseven.mdl";
+			case hl::WEAPON_UMP45:			return "models/v_ump45.mdl";
+			case hl::WEAPON_SG550:			return "models/v_sg550.mdl";
+			case hl::WEAPON_GALIL:			return "models/v_galil.mdl";
+			case hl::WEAPON_FAMAS:			return "models/v_famas.mdl";
+			case hl::WEAPON_USP:			return "models/v_usp.mdl";
+			case hl::WEAPON_GLOCK18:		return "models/v_glock18.mdl";
+			case hl::WEAPON_AWP:			return "models/v_awp.mdl";
+			case hl::WEAPON_MP5N:			return "models/v_mp5.mdl";
+			case hl::WEAPON_M249:			return "models/v_m249.mdl";
+			case hl::WEAPON_M3:				return "models/v_m3.mdl";
+			case hl::WEAPON_M4A1:			return "models/v_m4a1.mdl";
+			case hl::WEAPON_TMP:			return "models/v_tmp.mdl";
+			case hl::WEAPON_G3SG1:			return "models/v_g3sg1.mdl";
+			case hl::WEAPON_FLASHBANG:		return "models/v_flashbang.mdl";
+			case hl::WEAPON_DEAGLE:			return "models/v_deagle.mdl";
+			case hl::WEAPON_SG552:			return "models/v_sg552.mdl";
+			case hl::WEAPON_AK47:			return "models/v_ak47.mdl";
+			case hl::WEAPON_KNIFE:			return "models/v_knife.mdl";
+			case hl::WEAPON_P90:			return "models/v_p90.mdl";
+		}
+	}
+	else
+	{
+		return "";
+	}
+}
+
+
 int CGameUtil::get_weapon_accuracy_flags(int weapon_id, int weapon_flags)
 {
 	int flags = 0;

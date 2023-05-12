@@ -49,6 +49,7 @@ extern VarBoolean mdlchams_head_box_enable;
 extern VarColor mdlchams_head_box_color;
 extern VarBoolean mdlchams_render_real_playermodel;
 extern VarBoolean mdlchams_disable_animations;
+extern VarBoolean mdlchams_force_default_viewmodel;
 
 // indicator when we're drawing real playermodel inside iuser1
 #define IUSER1_REAL_PLAYERMODEL 0xDEAD
@@ -109,6 +110,8 @@ public:
 	bool studio_draw_skeleton();
 
 	void render_playerhead_hitbox();
+
+	void force_default_models();
 
 	// returns model that is currently being rendered inside studio code.
 	// this is set by the client dll using engine_studio_api_t::SetRenderModel().

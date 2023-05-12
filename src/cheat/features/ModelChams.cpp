@@ -55,6 +55,8 @@ VarColor mdlchams_head_box_color("mdlchams_head_box_color", "Color of the player
 VarBoolean mdlchams_render_real_playermodel("mdlchams_render_real_playermodel", "Renders real playermodel over the current one", false);
 VarBoolean mdlchams_disable_animations("mdlchams_disable_animations", "Disables animations on playermodels", false);
 
+VarBoolean mdlchams_force_default_viewmodel("mdlchams_force_default_viewmodel", "Enforces default viewmodel", false);
+
 void CModelChams::initialize()
 {
 	m_chammed_models.reserve(6);
@@ -430,6 +432,28 @@ void ChammedModel::process_color(float* lambert)
 			lambert[2] = color.b * lambert[2];
 
 			break;
+		}
+	}
+}
+
+void CModelChams::force_default_models()
+{
+	if (!mdlchams_force_default_viewmodel.get_value())
+	{
+		return;
+	}
+
+	auto cl = CMemoryHookMgr::the().cl().get();
+	auto vm = &cl->viewent;
+
+	auto wpn = CGameUtil::the().get_current_weapon();
+	if (wpn)
+	{
+		std::string wpn_name = CGameUtil::the().get_modelname_from_weapon(wpn->m_iId);
+
+		if (!wpn_name.empty())
+		{
+			vm->model = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnCL_LoadModel(wpn_name.c_str(), NULL);
 		}
 	}
 }

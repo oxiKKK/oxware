@@ -32,6 +32,7 @@
 
 #include "commondefs.h"
 #include "interface/IVariableManager.h"
+#include "interface/IBindManager.h"
 
 #include <map>
 #include <string>
@@ -53,7 +54,7 @@ public:
 	T get_max() const { return m_max; }
 
 	virtual std::string T_to_string(T v) const = 0;
-	virtual T string_to_T(const std::string& v) const = 0;
+	virtual T string_to_T(const std::string& v, bool& ok) const = 0;
 
 	virtual void clamp_value_if_needed() {}
 
@@ -74,7 +75,7 @@ public:
 	const T& get_max() const { return m_max; }
 
 	virtual std::string T_to_string(const T& v) const = 0;
-	virtual T string_to_T(const std::string& v) const = 0;
+	virtual T string_to_T(const std::string& v, bool& ok) const = 0;
 
 	virtual void clamp_value_if_needed() {}
 
@@ -130,7 +131,11 @@ public:
 	// class that derives from this has to override these.
 	virtual void set_from_string(const std::string& new_value)
 	{
-		assert(0 && "You have to override this function from your class!");
+		assert(0 && "You have to override this function from your class! (" __FUNCTION__ ")");
+	}
+	virtual void set_from_string(const std::string& new_value, bool& ok)
+	{
+		assert(0 && "You have to override this function from your class! (" __FUNCTION__ ")(2)");
 	}
 
 private:
@@ -181,11 +186,23 @@ public:
 
 	void set_from_string(const std::string& new_value) override
 	{
+		bool dummy;
+		set_from_string(new_value, dummy);
+	}
+
+	void set_from_string(const std::string& new_value, bool& ok) override
+	{
 		if (m_value_string != new_value)
 		{
-			m_value_string = new_value;
-			m_value = string_to_T(new_value);
+			bool ok;
+			float v = string_to_T(new_value, ok);
+			if (!ok)
+			{
+				return;
+			}
 
+			m_value = v;
+			m_value_string = new_value;
 			clamp_value_if_needed();
 		}
 	}
@@ -215,9 +232,18 @@ private:
 		return std::to_string(m_value);
 	}
 	
-	float string_to_T(const std::string& v) const override
+	float string_to_T(const std::string& v, bool& ok) const override
 	{
-		return std::stof(v);
+		ok = true;
+		try
+		{
+			return std::stof(v);
+		}
+		catch (...)
+		{
+			ok = false;
+			return 0;
+		}
 	}
 };
 
@@ -254,11 +280,23 @@ public:
 
 	void set_from_string(const std::string& new_value) override
 	{
+		bool dummy;
+		set_from_string(new_value, dummy);
+	}
+
+	void set_from_string(const std::string& new_value, bool& ok) override
+	{
 		if (m_value_string != new_value)
 		{
-			m_value_string = new_value;
-			m_value = string_to_T(new_value);
+			bool ok;
+			int v = string_to_T(new_value, ok);
+			if (!ok)
+			{
+				return;
+			}
 
+			m_value = v;
+			m_value_string = new_value;
 			clamp_value_if_needed();
 		}
 	}
@@ -269,9 +307,18 @@ private:
 		return std::to_string(v);
 	}
 	
-	int string_to_T(const std::string& v) const override
+	int string_to_T(const std::string& v, bool& ok) const override
 	{
-		return std::stoi(v);
+		ok = true;
+		try
+		{
+			return std::stoi(v);
+		}
+		catch (...)
+		{
+			ok = false;
+			return 0;
+		}
 	}
 };
 
@@ -297,10 +344,24 @@ public:
 
 	void set_from_string(const std::string& new_value) override
 	{
+		bool dummy;
+		set_from_string(new_value, dummy);
+	}
+
+	void set_from_string(const std::string& new_value, bool& ok) override
+	{
 		if (m_value_string != new_value)
 		{
+			bool ok;
+			bool v = string_to_T(new_value, ok);
+			if (!ok)
+			{
+				return;
+			}
+
+			m_value = v;
 			m_value_string = new_value;
-			m_value = string_to_T(new_value);
+			clamp_value_if_needed();
 		}
 	}
 
@@ -310,9 +371,19 @@ private:
 		return v == true ? "yes" : "no";
 	}
 	
-	bool string_to_T(const std::string& v) const override
+	bool string_to_T(const std::string& v, bool& ok) const override
 	{
-		return v == "yes" ? true : false;
+		ok = true;
+		if (v == "yes" || v == "1" || v == "true" || v == "on")
+		{
+			return true;
+		}
+		else if (v == "no" || v == "0" || v == "false" || v == "off")
+		{
+			return false;
+		}
+		ok = false;
+		return false;
 	}
 };
 
@@ -337,10 +408,24 @@ public:
 
 	void set_from_string(const std::string& new_value) override
 	{
+		bool dummy;
+		set_from_string(new_value, dummy);
+	}
+
+	void set_from_string(const std::string& new_value, bool& ok) override
+	{
 		if (m_value_string != new_value)
 		{
+			bool ok;
+			CColor v = string_to_T(new_value, ok);
+			if (!ok)
+			{
+				return;
+			}
+
+			m_value = v;
 			m_value_string = new_value;
-			m_value = string_to_T(new_value);
+			clamp_value_if_needed();
 		}
 	}
 
@@ -350,9 +435,9 @@ private:
 		return std::format("{}", v);
 	}
 	
-	CColor string_to_T(const std::string& v) const override
+	CColor string_to_T(const std::string& v, bool& ok) const override
 	{
-		return CColor::parse_color_out_of_string(v);
+		return CColor::parse_color_out_of_string(v, ok);
 	}
 };
 
@@ -377,10 +462,24 @@ public:
 
 	void set_from_string(const std::string& new_value) override
 	{
+		bool dummy;
+		set_from_string(new_value, dummy);
+	}
+
+	void set_from_string(const std::string& new_value, bool& ok) override
+	{
 		if (m_value_string != new_value)
 		{
+			bool ok;
+			KeyValue v = string_to_T(new_value, ok);
+			if (!ok)
+			{
+				return;
+			}
+
+			m_value = v;
 			m_value_string = new_value;
-			m_value = string_to_T(new_value);
+			clamp_value_if_needed();
 		}
 	}
 
@@ -390,9 +489,9 @@ private:
 		return std::format("{}", v);
 	}
 	
-	KeyValue string_to_T(const std::string& v) const override
+	KeyValue string_to_T(const std::string& v, bool& ok) const override
 	{
-		return KeyValue::parse_kv_out_of_string(v);
+		return KeyValue::parse_kv_out_of_string(v, ok);
 	}
 };
 
@@ -468,6 +567,7 @@ public:
 private:
 	void load_configuration() override
 	{
+		// load variables
 		g_variablemgr_i->for_each_variable(
 			[&](BaseVariable* var)
 			{
@@ -481,14 +581,13 @@ private:
 				}
 			});
 
-		if (!m_silent)
-		{
-			CConsole::the().info("Loaded variables.");
-		}
+		// load binds
+		g_bindmgr_i->create_binds_from_json(m_json);
 	}
 
 	void write_configuration() override
 	{
+		// export variables
 		g_variablemgr_i->for_each_variable(
 			[&](BaseVariable* var)
 			{
@@ -507,10 +606,8 @@ private:
 				}
 			});
 
-		if (!m_silent)
-		{
-			CConsole::the().info("Exported variables.");
-		}
+		// export binds
+		g_bindmgr_i->export_binds_to_json(m_json);
 	}
 };
 
@@ -518,7 +615,32 @@ private:
 // COMMANDS
 //
 
-using pfnCommandFunc_t = std::function<void()>;
+struct CmdArgs
+{
+	// implicit constructor
+	CmdArgs(const std::vector<std::string>& _args) : args(_args) {}
+
+	std::string get(size_t pos) const
+	{
+		std::string token;
+		try
+		{
+			token = args.at(pos);
+		}
+		catch (...)
+		{
+			CConsole::the().error("Failed to get token at position '{}'. Tokenized buffer size is {}.", pos, args.size());
+		}
+		return token;
+	}
+
+	size_t count() const { return args.size(); }
+
+private:
+	std::vector<std::string> args;
+};
+
+using pfnCommandFunc_t = std::function<void(BaseCommand* cmd, const CmdArgs& args)>;
 
 class BaseCommand
 {
@@ -545,9 +667,14 @@ public:
 	inline bool has_usage() const { return !m_usage.empty(); }
 	inline const char* get_usage() const { return m_usage.c_str(); }
 
-	void execute()
+	void execute(BaseCommand* cmd, const CmdArgs& args)
 	{
-		m_function();
+		m_function(cmd, args);
+	}
+
+	void print_usage()
+	{
+		CConsole::the().info("Usage: {} {}", m_name, m_usage);
 	}
 
 private:

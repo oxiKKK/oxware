@@ -88,6 +88,7 @@ enum EMenuTabId
 
 	// Config
 	UIMENU_Config,
+	UIMENU_Binds,
 
 	UIMENU_Max,
 };
@@ -153,11 +154,11 @@ public:
 // Menu class
 //
 
-class CUIMenu final : public IRenderingContext_KeyActivate
+class CUIMenu final : public IRenderingContext_Generic
 {
 public:
-	CUIMenu(const std::string& id, int virtual_key) :
-		IRenderingContext_KeyActivate(id, virtual_key)
+	CUIMenu(const std::string& id) :
+		IRenderingContext_Generic(id)
 	{
 	}
 
@@ -180,6 +181,7 @@ private:
 	void tab_miscellaneous2();
 	void tab_miscellaneous3();
 	void tab_config();
+	void tab_binds();
 
 	MenuTabSection m_tabsec_AIHelpers;
 	MenuTabSection m_tabsec_Visuals;

@@ -50,11 +50,9 @@ public:
 		m_interaction_is_locked = false;
 	}
 
-	virtual bool should_render() 
-	{
-		assert(0 && "You need to override this function! " __FUNCTION__);
-		return false;
-	}
+	virtual bool should_render() = 0;
+
+	virtual void toggle_rendering() = 0;
 
 	virtual void on_initialize() = 0;
 	virtual void on_render() = 0;
@@ -77,94 +75,70 @@ protected:
 	bool m_interaction_is_locked = true;
 };
 
-// rendering context activated by a key press.
-class IRenderingContext_KeyActivate : public IRenderingContext
+// rendering context activated from elsewhere
+class IRenderingContext_Generic : public IRenderingContext
 {
 public:
-	IRenderingContext_KeyActivate(const std::string& id, int virtual_key) :
-		IRenderingContext(id), m_virtual_key(virtual_key)
+	IRenderingContext_Generic(const std::string& id) :
+		IRenderingContext(id)
 	{
-		add_key_callback();
 	}
 
-	virtual bool should_render()
+	bool should_render()
 	{
 		return m_should_render;
 	}
 
-private:
-	void add_key_callback()
+	void toggle_rendering()
 	{
-		assert(m_virtual_key != NULL);
+		if (m_interaction_is_locked)
+		{
+			return;
+		}
 
-		g_user_input_i->add_key_press_callback(
-			m_virtual_key,
-			[this](UserKey_t* key)
-			{
-				if (m_interaction_is_locked)
-				{
-					return;
-				}
-				
-				m_should_render ^= 1;
-			});
+		m_should_render ^= 1;
 	}
 
 private:
-	int m_virtual_key = NULL;
-
 	bool m_should_render = false;
 };
 
-// rendering context that is activated by a key, but only if the context that it relies on is activated.
-// 
-// Note: We have to also provide key callback to this one, otherwise we could toggle it even when the reliant context wouldn't be being rendered at all.
-class IRenderingContext_KeyActivateReliantOther : public IRenderingContext
+// rendering context that is activated only if the context that it relies on is activated.
+class IRenderingContext_GenericReliantOther : public IRenderingContext
 {
 public:
-	IRenderingContext_KeyActivateReliantOther(const std::string& id, int virtual_key, IRenderingContext* reliant_ctx) :
-		IRenderingContext(id), m_virtual_key(virtual_key), m_reliant_ctx(reliant_ctx)
+	IRenderingContext_GenericReliantOther(const std::string& id, IRenderingContext* reliant_ctx) :
+		IRenderingContext(id), m_reliant_ctx(reliant_ctx)
 	{
-		add_key_callback();
 	}
 
-	virtual bool should_render()
+	bool should_render()
 	{
 		return m_reliant_ctx->should_render() && m_should_render;
 	}
 
-private:
-	void add_key_callback()
+	void toggle_rendering()
 	{
-		assert(m_virtual_key != NULL);
+		if (m_interaction_is_locked)
+		{
+			return;
+		}
 
-		g_user_input_i->add_key_press_callback(
-			m_virtual_key,
-			[this](UserKey_t* key)
+		if (m_reliant_ctx)
+		{
+			// only if the reliant context is rendering, e.g. we cannot show up the console if the menu isn't up.
+			if (m_reliant_ctx->should_render())
 			{
-				if (m_interaction_is_locked)
-				{
-					return;
-				}
-
-				if (m_reliant_ctx)
-				{
-					// only if the reliant context is rendering, e.g. we cannot show up the console if the menu isn't up.
-					if (m_reliant_ctx->should_render())
-					{
-						m_should_render ^= 1;
-					}
-				}
-				else
-				{
-					m_should_render ^= 1; // no reliant context, just switch normally
-				}
-			});
+				m_should_render ^= 1;
+			}
+		}
+		else
+		{
+			m_should_render ^= 1; // no reliant context, just switch normally
+		}
 	}
 
 private:
-	int m_virtual_key = NULL;
-
 	bool m_should_render = false;
 
 	IRenderingContext* m_reliant_ctx = nullptr;
@@ -179,9 +153,14 @@ public:
 	{
 	}
 
-	virtual bool should_render()
+	bool should_render()
 	{
 		return m_parent_ctx->should_render();
+	}
+
+	void toggle_rendering()
+	{
+		// not supported
 	}
 
 private:
@@ -197,7 +176,7 @@ public:
 	{
 	}
 
-	virtual bool should_render()
+	bool should_render()
 	{
 		bool parent_render = m_parent_ctx->should_render();
 
@@ -235,6 +214,11 @@ public:
 		}
 	}
 
+	void toggle_rendering()
+	{
+		// not supported
+	}
+
 protected:
 	std::chrono::duration<float, std::milli> time_elapsed_since_closed() const
 	{
@@ -266,7 +250,7 @@ public:
 	{
 	}
 
-	virtual bool should_render()
+	bool should_render()
 	{
 		// only one has to be active in order to fully force the render.
 		for (const auto& c : m_render_constain_callbacks)
@@ -276,6 +260,11 @@ public:
 		}
 
 		return false;
+	}
+
+	void toggle_rendering()
+	{
+		// not supported
 	}
 
 	void add_render_constain(const std::function<bool()>& callback)

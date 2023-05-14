@@ -68,22 +68,51 @@ public:
 		return (key() != other.key() || value() != other.value());
 	}
 
-	// expects [{}: {}]
 	static KeyValue parse_kv_out_of_string(const std::string& kv_string)
+	{
+		bool dummy;
+		return parse_kv_out_of_string(kv_string, dummy);
+	}
+
+	// expects [{}: {}]
+	static KeyValue parse_kv_out_of_string(const std::string& kv_string, bool& ok)
 	{
 		KeyValue result = {};
 
-		size_t semicolon = kv_string.find(":");
-		size_t end = kv_string.find("]");
+		ok = true;
+
+		size_t semicolon, end;
+
+		try
+		{
+			semicolon = kv_string.find(":");
+			end = kv_string.find("]");
+		}
+		catch (...)
+		{
+			ok = false;
+			return result;
+		}
 
 		if (semicolon == std::string::npos || end == std::string::npos)
 		{
 			assert("Invalid keyvalue string passed to " __FUNCTION__ ".");
+			ok = false;
 			return result;
 		}
 
-		std::string key = kv_string.substr(1, semicolon - 1);
-		std::string value = kv_string.substr(semicolon + 2, end - (semicolon + 2));
+		std::string key, value;
+
+		try
+		{
+			key = kv_string.substr(1, semicolon - 1);
+			value = kv_string.substr(semicolon + 2, end - (semicolon + 2));
+		}
+		catch (...)
+		{
+			ok = false;
+			return result;
+		}
 
 		if (key.empty())
 			key = "empty";

@@ -30,6 +30,40 @@
 
 VarInteger save_cfg_interval_sec("save_cfg_interval_sec", "Iterval in seconds for how often current settings should be saved.", 30, 10, 60);
 
+BaseCommand export_config(
+	"export_config", "<config name>",
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		if (args.count() == 1 || args.count() > 2)
+		{
+			cmd->print_usage();
+			return;
+		}
+
+		if (g_config_mgr_i->write_configuration(CFG_Variables, args.get(1)))
+		{
+			CConsole::the().info("Exported config '{}'.", args.get(1));
+		}
+	}
+);
+
+BaseCommand load_config(
+	"load_config", "<config name>",
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		if (args.count() == 1 || args.count() > 2)
+		{
+			cmd->print_usage();
+			return;
+		}
+
+		if (g_config_mgr_i->load_configuration(CFG_Variables, args.get(1)))
+		{
+			CConsole::the().info("Loaded config '{}'.", args.get(1));
+		}
+	}
+);
+
 IConfigManager* g_config_mgr_i = nullptr;
 
 class CConfigManager : public IConfigManager
@@ -110,7 +144,10 @@ bool CConfigManager::load_configuration(ECfgType type, const std::string& filena
 {
 	auto full_path = get_config_directory(filename);
 
-	//BaseCfgFile* cfg_file = new BaseCfgFile(type, full_path);
+	if (!full_path.has_extension() || full_path.extension() != ".json")
+	{
+		full_path.replace_extension("json");
+	}
 
 	bool success = false;
 
@@ -137,7 +174,10 @@ bool CConfigManager::write_configuration(ECfgType type, const std::string& filen
 {
 	auto full_path = get_config_directory(filename);
 
-	//BaseCfgFile* cfg_file = new BaseCfgFile(type, full_path);
+	if (!full_path.has_extension() || full_path.extension() != ".json")
+	{
+		full_path.replace_extension("json");
+	}
 
 	bool success = false;
 

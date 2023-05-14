@@ -85,6 +85,7 @@ public:
 	void pop_font();
 
 	void set_cursor_pos(const Vector2D& pos);
+	Vector2D get_cursor_pos();
 
 	void sameline(float offset_from_start_x = 0.0f, float spacing = -1.0);
 
@@ -126,7 +127,7 @@ public:
 	bool add_slider(const std::string& label, int* value, int* min, int* max, const char* format);
 
 	bool add_text_input(const std::string& label, char* buffer, size_t buffer_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, bool no_title = false, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
-	bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, bool no_title = false, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
+	bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
 
 	void add_padding(const Vector2D& size);
 	void add_spacing();
@@ -145,6 +146,8 @@ public:
 	void end_listbox();
 
 	bool add_selectable(const std::string& label, bool selected = false, ImGuiSelectableFlags flags = 0, const Vector2D& size = Vector2D(0, 0));
+
+	bool add_floating_button(const std::string& label, const Vector2D& last_cursor_pos, const Vector2D& button_pos, const Vector2D& button_size = Vector2D(0, 0), bool disabled = false, EButtonFlags flags = BUTTONFLAG_None);
 
 	//
 	// Tables/lists/columns
@@ -466,6 +469,11 @@ void CGUIWidgets::pop_font()
 void CGUIWidgets::set_cursor_pos(const Vector2D& pos)
 {
 	SetCursorPos(pos);
+}
+
+Vector2D CGUIWidgets::get_cursor_pos()
+{
+	return GetCursorPos();
 }
 
 void CGUIWidgets::sameline(float offset_from_start_x, float spacing)
@@ -811,7 +819,7 @@ bool CGUIWidgets::add_text_input(const std::string& label, char* buffer, size_t 
 		add_text(label, TEXTPROP_ColorRegular);
 	}
 
-	bool ret = add_text_input_ex(label, buffer, buffer_size, Vector2D(-1, 0), flags, no_title, callback, user_data);
+	bool ret = add_text_input_ex(label, buffer, buffer_size, Vector2D(-1, 0), flags, callback, user_data);
 
 	if (!no_title)
 	{
@@ -822,7 +830,7 @@ bool CGUIWidgets::add_text_input(const std::string& label, char* buffer, size_t 
 }
 
 bool CGUIWidgets::add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, 
-									ImGuiInputTextFlags flags, bool no_title, ImGuiInputTextCallback callback, void * user_data)
+									ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void * user_data)
 {
 	PushStyleColor(ImGuiCol_FrameBg, get_color<GUICLR_InputTextBg>());
 
@@ -1002,6 +1010,32 @@ void CGUIWidgets::end_listbox()
 bool CGUIWidgets::add_selectable(const std::string& label, bool selected, ImGuiSelectableFlags flags, const Vector2D& size)
 {
 	return Selectable(label.c_str(), selected, flags, size);
+}
+
+bool CGUIWidgets::add_floating_button(const std::string& label, const Vector2D& last_cursor_pos, const Vector2D& button_pos, const Vector2D& button_size,
+									  bool disabled, EButtonFlags flags)
+{
+	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
+
+	g_gui_widgets_i->set_cursor_pos(button_pos);
+
+	bool ret = false;
+
+	g_gui_widgets_i->add_child(
+		std::format("fbutton_{}", label),
+		button_size,
+		false, ImGuiWindowFlags_NoDecoration,
+		[&]()
+		{
+			if (g_gui_widgets_i->add_button(label, button_size, false, BUTTONFLAG_CenterLabel))
+			{
+				ret = true;
+			}
+		});
+
+	g_gui_widgets_i->pop_stylevar(1); // WindowPadding
+	g_gui_widgets_i->set_cursor_pos(last_cursor_pos);
+	return ret;
 }
 
 void CGUIWidgets::add_table(const std::string& name, uint32_t columns, ImGuiTableFlags flags, 

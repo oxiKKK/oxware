@@ -59,6 +59,12 @@
     <ClCompile Include="bytepattern_containers.cpp">
       <Filter>src\byte patterns</Filter>
     </ClCompile>
+    <ClCompile Include="BindManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="key_translation.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -70,6 +76,9 @@
     </ClInclude>
     <ClInclude Include="..\public\BaseVariable.h">
       <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="key_translation.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

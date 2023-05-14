@@ -28,6 +28,52 @@
 
 #include "precompiled.h"
 
+struct caseinsens_string_hash
+{
+	size_t operator()(const std::string& str) const
+	{
+		const char* s = str.c_str();
+		size_t h = 2166136261u;
+		for (size_t i = 0; i < str.length(); i++)
+		{
+			h ^= std::tolower(*s++);
+			h *= 16777619u;
+		}
+		return h;
+	}
+};
+
+struct caseinsens_string_compare
+{
+	bool operator()(const std::string& Left, const std::string& Right) const
+	{
+		return Left.size() == Right.size()
+			&& std::equal(Left.begin(), Left.end(), Right.begin(),
+			[](char a, char b)
+			{
+				return tolower(a) == tolower(b);
+			}
+		);
+	}
+};
+
+BaseCommand list_registered_key_names(
+	"list_registered_key_names", 
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		size_t n = 0;
+		g_user_input_i->for_all_user_keys(
+			[&n](UserKey_t* key)
+			{
+				n++;
+				if (!key->get_name().empty())
+				{
+					CConsole::the().info("0x{:<03X}: {}", n, key->get_name());
+				}
+			});
+	}
+);
+
 IUserInput* g_user_input_i = nullptr;
 
 class CUserInput : public IUserInput
@@ -39,16 +85,38 @@ public:
 	bool initialize();
 	void destroy();
 
+	bool is_valid_key(int virtual_key);
+
 	UserKey_t& get_key(int virtual_key, bool* valid_key = NULL);
 
-	bool add_key_press_callback(int virtual_key, const UserKeyPressCallbackFn& callback);
-	bool add_key_unpress_callback(int virtual_key, const UserKeyPressCallbackFn& callback);
+	std::string virtual_key_to_string(int virtual_key);
+	int string_to_virtual_key(const std::string& key_name);
+
+	bool add_key_press_callback(const std::string& id, int virtual_key, const UserKeyPressCallbackFn& callback);
+	bool add_key_unpress_callback(const std::string& id, int virtual_key, const UserKeyPressCallbackFn& callback);
+
+	bool remove_key_press_callback(const std::string& id, int virtual_key);
+	bool remove_key_unpress_callback(const std::string& id, int virtual_key);
+
+	void scan_for_any_key_press()
+	{
+		m_any_key_pressed = NULL;
+	}
+	int get_any_key_pressed() const { return m_any_key_pressed; }
+
+	void for_all_user_keys(const std::function<void(UserKey_t*)>& callback);
 
 private:
 	void update_keys(UINT uMsg, WPARAM wParam);
 
 private:
-	std::map<int, UserKey_t> m_userkeys;
+	std::unordered_map<int, UserKey_t> m_userkeys;
+
+	std::unordered_map<std::string, int, caseinsens_string_hash, caseinsens_string_compare> m_translation_table_string_to_vk;
+	std::unordered_map<int, std::string> m_translation_table_vk_to_string;
+	void initialize_key_translation_tables();
+
+	int m_any_key_pressed = NULL;
 };
 
 CUserInput g_user_input;
@@ -63,6 +131,8 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CUserInput, IUserInput, IUSERINPUT_INTERFACEID
 CUserInput::CUserInput()
 {
 	g_user_input_i = this;
+
+	initialize_key_translation_tables();
 }
 
 CUserInput::~CUserInput()
@@ -76,7 +146,11 @@ bool CUserInput::initialize()
 	g_window_msg_handler_i->add_msg_callback(
 		[this](UINT uMsg, WPARAM wParam)
 		{
-			if (wParam < k_key_range)
+			if (wParam < k_key_range || 
+				// mouse scroll
+				uMsg & WM_MOUSEWHEEL || 
+				// mouse buttons
+				uMsg & WM_LBUTTONDOWN || uMsg & WM_MBUTTONDOWN || uMsg & WM_RBUTTONDOWN || uMsg & WM_XBUTTONDOWN)
 			{
 				update_keys(uMsg, wParam);
 			}
@@ -86,6 +160,9 @@ bool CUserInput::initialize()
 	{
 		m_userkeys.insert(std::make_pair(i, CGenericUtil::the().virtual_key_to_string(i)));
 	}
+
+	m_userkeys[VK_MWHEELDOWN] = UserKey_t("mwheeldown");
+	m_userkeys[VK_MWHEELUP] = UserKey_t("mwheelup");
 
 	CConsole::the().info("Registered {} keys.", k_key_range);
 
@@ -100,9 +177,14 @@ void CUserInput::destroy()
 	// TODO: Stuff
 }
 
+bool CUserInput::is_valid_key(int virtual_key)
+{
+	return virtual_key >= 0 && virtual_key < k_key_range;
+}
+
 UserKey_t& CUserInput::get_key(int virtual_key, bool* valid_key)
 {
-	assert(virtual_key >= 0 && virtual_key < k_key_range);
+	assert(is_valid_key(virtual_key) && "tried to get invalid key");
 
 	if (valid_key)
 		*valid_key = false;
@@ -123,7 +205,33 @@ UserKey_t& CUserInput::get_key(int virtual_key, bool* valid_key)
 	return dummy;
 }
 
-bool CUserInput::add_key_press_callback(int virtual_key, const UserKeyPressCallbackFn& callback)
+std::string CUserInput::virtual_key_to_string(int virtual_key)
+{
+	try
+	{
+		return m_translation_table_vk_to_string.at(virtual_key);
+	}
+	catch (const std::exception&)
+	{
+		CConsole::the().error("Unrecognized virtual key! '{}'", CGenericUtil::the().virtual_key_to_string(virtual_key));
+		return "";
+	}
+}
+
+int CUserInput::string_to_virtual_key(const std::string& key_name)
+{	
+	try
+	{
+		return m_translation_table_string_to_vk.at(key_name);
+	}
+	catch (const std::exception&)
+	{
+		CConsole::the().error("Unrecognized key name! '{}'", key_name);
+		return NULL;
+	}
+}
+
+bool CUserInput::add_key_press_callback(const std::string& id, int virtual_key, const UserKeyPressCallbackFn& callback)
 {
 	bool found;
 	auto& key = get_key(virtual_key, &found);
@@ -132,12 +240,12 @@ bool CUserInput::add_key_press_callback(int virtual_key, const UserKeyPressCallb
 		return false;
 	}
 
-	key.add_on_pressed_callback(callback);
+	key.add_on_pressed_callback(id, callback);
 	CConsole::the().info("Added key press callback to virtual key {}", virtual_key);
 	return true;
 }
 
-bool CUserInput::add_key_unpress_callback(int virtual_key, const UserKeyPressCallbackFn& callback)
+bool CUserInput::add_key_unpress_callback(const std::string& id, int virtual_key, const UserKeyPressCallbackFn& callback)
 {
 	bool found;
 	auto& key = get_key(virtual_key, &found);
@@ -146,9 +254,45 @@ bool CUserInput::add_key_unpress_callback(int virtual_key, const UserKeyPressCal
 		return false;
 	}
 
-	key.add_on_unpressed_callback(callback);
+	key.add_on_unpressed_callback(id, callback);
 	CConsole::the().info("Added key unpress callback to virtual key {}", virtual_key);
 	return true;
+}
+
+bool CUserInput::remove_key_press_callback(const std::string& id, int virtual_key)
+{
+	bool found;
+	auto& key = get_key(virtual_key, &found);
+	if (!found)
+	{
+		return false;
+	}
+
+	key.remove_on_pressed_callback(id);
+	CConsole::the().info("Removed key press callback to virtual key {}", virtual_key);
+	return true;
+}
+
+bool CUserInput::remove_key_unpress_callback(const std::string& id, int virtual_key)
+{
+	bool found;
+	auto& key = get_key(virtual_key, &found);
+	if (!found)
+	{
+		return false;
+	}
+
+	key.remove_on_unpressed_callback(id);
+	CConsole::the().info("Removed key unpress callback to virtual key {}", virtual_key);
+	return true;
+}
+
+void CUserInput::for_all_user_keys(const std::function<void(UserKey_t*)>& callback)
+{
+	for (auto& [vk, key] : m_userkeys)
+	{
+		callback(&key);
+	}
 }
 
 void CUserInput::update_keys(UINT uMsg, WPARAM wParam)
@@ -158,8 +302,108 @@ void CUserInput::update_keys(UINT uMsg, WPARAM wParam)
 		return;
 	}
 
-	bool is_down = (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN);
+	if (uMsg == WM_MOUSEWHEEL)
+	{
+		// mouse wheel event
 
-	m_userkeys[wParam].update(is_down);
+		int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+		int code = delta < 0 ? VK_MWHEELDOWN : VK_MWHEELUP;
+		m_any_key_pressed = code;
+		m_userkeys[code].update(true);
+	}
+	else
+	{
+		// keyboard & mouse key event
+
+		bool is_down = false;
+
+		int vk = wParam;
+		switch (uMsg)
+		{
+			// regular keys
+			case WM_SYSKEYDOWN:
+			case WM_KEYDOWN:
+			{
+				is_down = true;
+				m_any_key_pressed = vk;
+				break;
+			}
+			// mouse buttons
+			case WM_LBUTTONDOWN:
+			case WM_LBUTTONUP:
+			{
+				vk = VK_LBUTTON;
+				is_down = (uMsg == WM_LBUTTONDOWN);
+				break;
+			}
+			case WM_MBUTTONDOWN:
+			case WM_MBUTTONUP:
+			{
+				vk = VK_MBUTTON;
+				is_down = (uMsg == WM_MBUTTONDOWN);
+				break;
+			}
+			case WM_RBUTTONDOWN:
+			case WM_RBUTTONUP:
+			{
+				vk = VK_RBUTTON;
+				is_down = (uMsg == WM_MBUTTONDOWN);
+				break;
+			}
+			case WM_XBUTTONDOWN:
+			case WM_XBUTTONUP:
+			{
+				switch (GET_XBUTTON_WPARAM(wParam))
+				{
+					case XBUTTON1:
+					{
+						vk = VK_XBUTTON1;
+						is_down = (uMsg == WM_XBUTTONDOWN);
+						break;
+					}
+					case XBUTTON2:
+					{
+						vk = VK_XBUTTON2;
+						is_down = (uMsg == WM_XBUTTONDOWN);
+						break;
+					}
+				}
+				break;
+			}
+			default:
+			{
+				is_down = false;
+				break;
+			}
+		}
+
+		m_any_key_pressed = vk;
+		m_userkeys[vk].update(is_down);
+	}
+}
+
+void CUserInput::initialize_key_translation_tables()
+{
+	// reserve, for speedup
+	m_translation_table_string_to_vk.reserve(k_key_range);
+	m_translation_table_vk_to_string.reserve(k_key_range);
+
+	// string -> vk
+	for (auto& [name, vk] : g_virtual_key_translation)
+	{
+		if (name && vk)
+		{
+			m_translation_table_string_to_vk[name] = vk;
+		}
+	}
+
+	// vk -> string
+	for (auto& [name, vk] : g_virtual_key_translation)
+	{
+		if (name && vk)
+		{
+			m_translation_table_vk_to_string[vk] = name;
+		}
+	}
 }
 

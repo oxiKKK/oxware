@@ -52,6 +52,7 @@
 #include <interface/IAppDataManager.h>
 #include <interface/ICodePerformaceProfiler.h>
 #include <interface/IBytePatternBank.h>
+#include <interface/IBindManager.h>
 
 #include <tier/GenericUtil.h>
 #include <tier/StringTools.h>
@@ -83,5 +84,6 @@
 // Current project
 // 
 //-------------------------------------------------------------------
+#include "key_translation.h"
 
 #endif // PRECOMPILED_H

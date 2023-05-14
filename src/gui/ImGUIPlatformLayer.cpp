@@ -62,6 +62,7 @@ private:
 			case GUICURSOR_Arrow: return ImGuiMouseCursor_Arrow;
 			case GUICURSOR_Hand: return ImGuiMouseCursor_Hand;
 			case GUICURSOR_Input: return ImGuiMouseCursor_TextInput;
+			case GUICURSOR_None: return ImGuiMouseCursor_None;
 		}
 
 		assert(0);

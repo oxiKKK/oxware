@@ -75,3 +75,17 @@
 - Fixed a bunch of input issues.
 - Fixed a bug where the head hitbox wouldn't sometimes be rendered when stood close to a player.
 
+
+# v1.0.3
+
+## Additions and improvements
+
+- Added rechecker bypass.
+- Implemented default viewmodel enforcement.
+- Implemented key binding system (beta).
+
+## Bugfixes
+
+- Fixed a bug where on the initial launch, when the game was focused before fully injected, the about dialog would not pop up and the window focus would be glitched until the focus was refreshed.
+- Fixed a bug where popup windows would retain window size from previously opened popups.
+

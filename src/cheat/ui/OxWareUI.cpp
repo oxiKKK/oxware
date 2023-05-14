@@ -28,6 +28,32 @@
 
 #include "precompiled.h"
 
+BaseCommand ui_toggle_menu(
+	"ui_toggle_menu",
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		COxWareUI::the().find_context("menu")->toggle_rendering();
+	}
+);
+
+BaseCommand ui_toggle_console(
+	"ui_toggle_console",
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		COxWareUI::the().find_context("console")->toggle_rendering();
+	}
+);
+
+#ifdef OX_ENABLE_CODE_PROFILE
+BaseCommand ui_toggle_perf_profiler_visualization(
+	"ui_toggle_perf_profiler_visualization",
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		COxWareUI::the().find_context("performace_profiler_visualization")->toggle_rendering();
+	}
+);
+#endif
+
 void COxWareUI::swapbuffers_detour(HDC hdc)
 {
 	if (CoXWARE::the().is_cheat_exiting())
@@ -91,14 +117,42 @@ void COxWareUI::schedule_popup(const std::string& window_title, const Vector2D& 
 	m_popup_window_flags = window_flags;
 }
 
+void COxWareUI::add_keybind_dialog(const std::function<void()>& on_key_bound_callback)
+{
+	m_popup_callback = [&]()
+	{
+		if (m_scanned_keypress)
+		{
+			m_scanned_keypress = false;
+			m_on_close_callback();
+			m_new_key_bound = NULL;
+			return;
+		}
+
+		bool b = g_gui_widgets_i->add_button(m_scan_keypress_mode ? "<enter a key>" : m_scanned_key, 
+											 Vector2D(-1.0f, -1.0f), false, BUTTONFLAG_CenterLabel);
+
+		if (b)
+		{
+			m_scan_keypress_mode = true;
+			m_new_key_bound = NULL;
+			g_user_input_i->scan_for_any_key_press(); // start scanning
+		}
+	};
+
+	m_on_close_callback = on_key_bound_callback;
+	m_popup_window_size = Vector2D(210, 140);
+	m_popup_window_title = "Create new bind";
+	m_popup_window_flags = ImGuiWindowFlags_NoResize;
+}
+
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void COxWareUI::initialize(HWND wnd)
 {
+	m_hwnd = wnd;
+
 	// window proc message handler
 	g_window_msg_handler_i->initialize(wnd);
-
-	// keyboard/mouse I/O
-	g_user_input_i->initialize();
 
 	if (!g_imgui_platform_layer_i->create_new_layer(IMPLATFORM_win32, wnd, [this]() { render_imgui(); }))
 	{
@@ -123,6 +177,28 @@ void COxWareUI::initialize(HWND wnd)
 		});
 
 	instantiate_rendering_contexts();
+
+	// add default keys
+	g_user_input_i->add_key_press_callback(
+		"toggle_menu", VK_INSERT, 
+		[](const std::string& id, UserKey_t* key)
+		{
+			COxWareUI::the().find_context("menu")->toggle_rendering();
+		});
+	g_user_input_i->add_key_press_callback(
+		"toggle_console", VK_OEM_3, 
+		[](const std::string& id, UserKey_t* key)
+		{
+			COxWareUI::the().find_context("console")->toggle_rendering();
+		});
+#ifdef OX_ENABLE_CODE_PROFILE
+	g_user_input_i->add_key_press_callback(
+		"toggle_perf_profiler_visualization", VK_F11, 
+		[](const std::string& id, UserKey_t* key)
+		{
+			COxWareUI::the().find_context("performace_profiler_visualization")->toggle_rendering();
+		});
+#endif
 
 	m_original_context = wglGetCurrentContext();
 	m_cheat_context = wglCreateContext(m_hdc);
@@ -160,9 +236,11 @@ void COxWareUI::run_ui()
 		}
 	}
 
+	g_bindmgr_i->set_can_execute_binds(!m_is_any_interactible_rendering_context_active);
+
 	// welcoming popup dialog
 	static bool once = false;
-	if (!once && CoXWARE::the().at_least_once_focused())
+	if (!once && (CoXWARE::the().at_least_once_focused() || GetFocus() == m_hwnd))
 	{
 		bool show_welcome_popup = g_registry_i->read_int(REG_OXWARE, "already_shown_welcome_popup") == 0;
 		if (show_welcome_popup)
@@ -171,6 +249,29 @@ void COxWareUI::run_ui()
 		}
 	
 		once = true;
+	}
+
+	// key scanning mode
+	if (m_scan_keypress_mode && !m_scanned_keypress)
+	{
+		int vk_pressed = g_user_input_i->get_any_key_pressed();
+		if (vk_pressed != NULL)
+		{
+			if (vk_pressed != VK_ESCAPE)
+			{
+				// end scanning
+				m_scanned_key = g_user_input_i->virtual_key_to_string(vk_pressed);
+				if (m_scanned_key.empty())
+				{
+					m_scanned_key = "<invalid key>";
+				}
+
+				m_new_key_bound = vk_pressed;
+			}
+
+			m_scan_keypress_mode = false;
+			m_scanned_keypress = true;
+		}
 	}
 
 	if (!m_contexts_to_be_rendered.empty() || (m_popup_callback != nullptr))
@@ -207,12 +308,18 @@ void COxWareUI::render_imgui()
 
 		g_gui_widgets_i->pop_executing_popup_code();
 	}
+
+	if (m_scan_keypress_mode)
+	{
+		// if in key scanning mode, we don't want to render the cursor
+		g_imgui_platform_layer_i->override_cursor(GUICURSOR_None);
+	}
+
+	g_imgui_platform_layer_i->should_render_imgui_cursor(true);
 }
 
 void COxWareUI::post_render()
 {
-	g_imgui_platform_layer_i->should_render_imgui_cursor(m_is_any_interactible_rendering_context_active);
-
 	handle_ingame_mouseevents();
 }
 
@@ -317,11 +424,11 @@ void COxWareUI::instantiate_rendering_contexts()
 	// just little bit of speedup, since we're using a vector of pointers, allocate them in one memory region.
 	m_rendering_contexts.reserve(64);
 
-	instantiate_single_rendering_context(&ctx_Menu, new CUIMenu("menu", VK_F1));
+	instantiate_single_rendering_context(&ctx_Menu, new CUIMenu("menu"));
 	instantiate_single_rendering_context(&ctx_FeatureList, new CUIFeatureList("feature_list", ctx_Menu));
-	instantiate_single_rendering_context(&ctx_Console, new CUIConsole("console", VK_OEM_3, ctx_Menu));
+	instantiate_single_rendering_context(&ctx_Console, new CUIConsole("console", ctx_Menu));
 #ifdef OX_ENABLE_CODE_PROFILE
-	instantiate_single_rendering_context(&ctx_PerfProfilerVisualization, new CUIPerfProfilerVisualization("performace_profiler_visualization", VK_F2, ctx_Menu));
+	instantiate_single_rendering_context(&ctx_PerfProfilerVisualization, new CUIPerfProfilerVisualization("performace_profiler_visualization", ctx_Menu));
 #endif
 	instantiate_single_rendering_context(&ctx_MenuBackground, new CUIMenuBackground("menu_background", ctx_Menu, 250ms));
 
@@ -437,9 +544,9 @@ void COxWareUI::render_popup()
 
 	g_gui_widgets_i->center_next_window_pos(ImGuiCond_Always);
 	g_gui_widgets_i->set_next_window_rounding(CMenuStyle::k_rounding_factor, ImDrawFlags_RoundCornersTopRight | ImDrawFlags_RoundCornersBottomLeft);
-	g_gui_widgets_i->set_next_window_size(m_popup_window_size, (m_popup_window_flags & ImGuiWindowFlags_NoResize) ? ImGuiCond_Always : ImGuiCond_Once);
+	g_gui_widgets_i->set_next_window_size(m_popup_window_size, ImGuiCond_Appearing);
 
-	g_gui_thememgr_i->push_color(GUICLR_ChildBackground, {});
+	g_gui_thememgr_i->push_color(GUICLR_ChildBackground, CColor());
 
 	int window_flags =
 		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav |

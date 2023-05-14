@@ -30,11 +30,11 @@
 #define UIPERFPROFILERVISUALIZATION_H
 #pragma once
 
-class CUIPerfProfilerVisualization final : public IRenderingContext_KeyActivateReliantOther
+class CUIPerfProfilerVisualization final : public IRenderingContext_GenericReliantOther
 {
 public:
-	CUIPerfProfilerVisualization(const std::string& id, int virtual_key, IRenderingContext* reliant_ctx) :
-		IRenderingContext_KeyActivateReliantOther(id, virtual_key, reliant_ctx)
+	CUIPerfProfilerVisualization(const std::string& id, IRenderingContext* reliant_ctx) :
+		IRenderingContext_GenericReliantOther(id, reliant_ctx)
 	{
 	}
 

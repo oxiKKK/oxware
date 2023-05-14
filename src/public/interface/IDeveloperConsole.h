@@ -71,8 +71,6 @@ enum class EOutputModule : unsigned int
 };
 constexpr unsigned k_num_output_modules = (unsigned)EOutputModule::COUNT;
 
-typedef int(__cdecl*m_hl_execute_cmd_pfn_t)(const char* cmd);
-
 class IDeveloperConsole : public IBaseInterface
 {
 public:
@@ -88,8 +86,6 @@ public:
 	virtual void unregister_module(EOutputModule which) = 0;
 
 	virtual FilePath_t get_logfile_path() = 0;
-
-	virtual void provide_hl_execute_cmd_pfn(m_hl_execute_cmd_pfn_t pfn) = 0;
 
 protected:
 	template<typename T>

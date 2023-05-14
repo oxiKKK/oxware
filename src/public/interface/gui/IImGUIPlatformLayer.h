@@ -67,6 +67,7 @@ enum EGUICursor
 	GUICURSOR_Arrow, 
 	GUICURSOR_Hand, 
 	GUICURSOR_Input, 
+	GUICURSOR_None, 
 };
 
 // interface that can be accessed from external modules

@@ -117,6 +117,7 @@ public:
 	virtual void pop_font() = 0;
 
 	virtual void set_cursor_pos(const Vector2D& pos) = 0;
+	virtual Vector2D get_cursor_pos() = 0;
 
 	virtual void sameline(float offset_from_start_x = 0.0f, float spacing = -1.0f) = 0;
 
@@ -158,7 +159,7 @@ public:
 	virtual bool add_slider(const std::string& label, int* value, int* min, int* max, const char* format) = 0;
 
 	virtual bool add_text_input(const std::string& label, char* buffer, size_t buffer_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, bool no_title = false, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr) = 0;
-	virtual bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, bool no_title = false, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr) = 0;
+	virtual bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr) = 0;
 
 	virtual void add_padding(const Vector2D& size) = 0;
 	virtual void add_spacing() = 0;
@@ -177,6 +178,8 @@ public:
 	virtual void end_listbox() = 0;
 
 	virtual bool add_selectable(const std::string& label, bool selected = false, ImGuiSelectableFlags flags = 0, const Vector2D& size = Vector2D(0, 0)) = 0;
+
+	virtual bool add_floating_button(const std::string& label, const Vector2D& last_cursor_pos, const Vector2D& button_pos, const Vector2D& button_size = Vector2D(0, 0), bool disabled = false, EButtonFlags flags = BUTTONFLAG_None) = 0;
 
 	//
 	// Tables/lists/columns

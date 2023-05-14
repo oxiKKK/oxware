@@ -39,11 +39,13 @@
 #include "interface/IDeveloperConsole.h"
 #include "interface/gui/IGUIWidgets.h"
 #include <interface/gui/IGUIFontManager.h>
+#include <interface/gui/IGUIThemeManager.h>
 #include <interface/IAppdataManager.h>
 #include <interface/IVariableManager.h>
 
 #include "tier/StringTools.h"
 #include "tier/MessageBox.h"
+#include "tier/GenericUtil.h"
 
 #include "BaseVariable.h"
 
@@ -74,11 +76,6 @@ public:
 
 	FilePath_t get_logfile_path();
 
-	void provide_hl_execute_cmd_pfn(m_hl_execute_cmd_pfn_t pfn)
-	{
-		m_hl_execute_cmd_pfn = pfn;
-	}
-
 private:
 	std::string generate_logfilename();
 
@@ -91,20 +88,6 @@ private:
 	}
 
 	int text_edit_callback(ImGuiInputTextCallbackData* data);
-
-	int execute_hl_command(const char* cmd)
-	{
-		if (m_hl_execute_cmd_pfn)
-		{
-			return m_hl_execute_cmd_pfn(cmd);
-		}
-		else
-		{
-			return 0;
-		}
-	}
-
-	m_hl_execute_cmd_pfn_t m_hl_execute_cmd_pfn;
 
 private:
 	// used only within this file as a convenience
@@ -150,7 +133,7 @@ private:
 
 BaseCommand clear(
 	"clear",
-	[&]()
+	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		g_devconsole_i->flush_screen();
 	}
@@ -233,6 +216,7 @@ void CDeveloperConsole::render()
 	const float footer_height_to_reserve = -32.0f;
 
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 4.0f, 4.0f });
+
 	g_gui_widgets_i->add_child(
 		"console", { 0.0f, footer_height_to_reserve }, true, ImGuiWindowFlags_HorizontalScrollbar, [this]()
 		{
@@ -278,6 +262,19 @@ void CDeveloperConsole::render()
 			}
 		});
 
+	g_gui_widgets_i->pop_stylevar(1); // WindowPadding
+
+	auto window_size = g_gui_widgets_i->get_current_window_size();
+	auto button_size = Vector2D(25, 25);
+	auto cursor_pos = g_gui_widgets_i->get_cursor_pos();
+	if (g_gui_widgets_i->add_floating_button(";", cursor_pos, { window_size.x - 25.0f - button_size.x, 25.0f }, button_size, false, BUTTONFLAG_CenterLabel))
+	{
+		CGenericUtil::the().copy_to_clipboard(";");
+		print_console(EOutputCategory::INFO, "Copied ';' to clipboard!");
+	}
+
+	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 4.0f, 4.0f });
+
 	static char buffer[256];
 	ImGuiInputTextFlags input_text_flags = 
 		ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | 
@@ -287,75 +284,21 @@ void CDeveloperConsole::render()
 	{
 		if (buffer[0])
 		{
-			bool add_to_history = false;
-			bool cmd_buffer_tokenized = false;
-			if (!strnicmp(buffer, "hl ", 3))
+			// feed the parser with new buffer
+			g_variablemgr_i->execute_command(buffer);
+
+			if (m_entered_commands.size() > 20)
 			{
-				const char* s = buffer + 3;
-
-				if (s[0])
-				{
-					// hl command
-					if (!execute_hl_command(s))
-					{
-						print_console(EOutputCategory::ERROR, std::format("Bad HL command: {}", s));
-					}
-					else
-					{
-						print_console(EOutputCategory::INFO, std::format("HL command: {}", s));
-					}
-
-					add_to_history = true;
-				}
-			}
-			else
-			{
-				// feed the parser with new buffer
-				g_variablemgr_i->update_cmd_buffer(buffer);
-				cmd_buffer_tokenized = true;
-
-				// our command - only the name before first space.
-				std::string str_buffer = buffer;
-				std::string command_name = buffer;
-
-				auto space = str_buffer.find(' ');
-				if (space != std::string::npos)
-				{
-					command_name = str_buffer.substr(0, space);
-				}
-
-				auto cmd = g_variablemgr_i->query_command(command_name.c_str());
-
-				if (cmd)
-				{
-					cmd->execute();
-					print_console(EOutputCategory::INFO, std::format("{}", str_buffer));
-				}
-				else
-				{
-					print_console(EOutputCategory::INFO, std::format("Unknown command '{}'", command_name));
-				}
-
-				add_to_history = true;
+				m_entered_commands.pop_front();
 			}
 
-			if (add_to_history)
-			{
-				if (m_entered_commands.size() > 20)
-				{
-					m_entered_commands.pop_front();
-				}
-
-				if (!cmd_buffer_tokenized)
-				{
-					// feed the parser with new buffer
-					g_variablemgr_i->update_cmd_buffer(buffer);
-				}
-
-				m_entered_commands.push_back(buffer);
-			}
+			m_entered_commands.push_back(buffer);
 
 			strcpy(buffer, "");
+		}
+		else
+		{
+			print_console(EOutputCategory::INFO, "> ");
 		}
 
 		reclaim_focus = true;
@@ -368,7 +311,7 @@ void CDeveloperConsole::render()
 		g_gui_widgets_i->set_keyboard_focus_here(-1); // Auto focus previous widget
 	}
 
-	g_gui_widgets_i->pop_stylevar(1);
+	g_gui_widgets_i->pop_stylevar(1); // WindowPadding
 }
 
 void CDeveloperConsole::print(EOutputModule module, EOutputCategory category, const std::string& what, bool printed_already, std::chrono::system_clock::time_point time)
@@ -580,16 +523,6 @@ int CDeveloperConsole::text_edit_callback(ImGuiInputTextCallbackData* data)
 			{
 				case ImGuiKey_UpArrow:
 				{
-					history_pos++;
-
-					if (history_pos > (int)(m_entered_commands.size() - 1))
-					{
-						history_pos = 0;
-					}
-					break;
-				}
-				case ImGuiKey_DownArrow:
-				{
 					history_pos--;
 
 					if (history_pos < 0)
@@ -598,12 +531,25 @@ int CDeveloperConsole::text_edit_callback(ImGuiInputTextCallbackData* data)
 					}
 					break;
 				}
+				case ImGuiKey_DownArrow:
+				{
+					history_pos++;
+
+					if (history_pos > (int)(m_entered_commands.size() - 1))
+					{
+						history_pos = 0;
+					}
+					break;
+				}
 			}
 
-			auto& item = m_entered_commands.at(history_pos);
+			if (!m_entered_commands.empty())
+			{
+				auto& item = m_entered_commands.at(history_pos);
 
-			g_gui_widgets_i->delete_chars_on_textinput_buffer(data, 0, data->BufTextLen);
-			g_gui_widgets_i->insert_chars_to_textinput_buffer(data, 0, item.c_str());
+				g_gui_widgets_i->delete_chars_on_textinput_buffer(data, 0, data->BufTextLen);
+				g_gui_widgets_i->insert_chars_to_textinput_buffer(data, 0, item.c_str());
+			}
 
 			break;
 		}

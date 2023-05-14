@@ -40,6 +40,7 @@
 IGLFWApp* g_glfw_app_i = nullptr;
 IGUIWidgets* g_gui_widgets_i = nullptr;
 IGUIFontManager* g_gui_fontmgr_i = nullptr;
+IGUIThemeManager* g_gui_thememgr_i = nullptr;
 
 // Util
 IImportBank* g_importbank_i = nullptr;
@@ -130,8 +131,9 @@ bool CMainLoader::load_and_initialize_dependencies()
 		g_glfw_app_i = mod.get_interface<IGLFWApp>(IGLFWAPP_INTERFACEID);
 		g_gui_widgets_i = mod.get_interface<IGUIWidgets>(IGUIWIDGETS_INTERFACEID);
 		g_gui_fontmgr_i = mod.get_interface<IGUIFontManager>(IGUIFONTMANAGER_INTERFACEID);
+		g_gui_thememgr_i = mod.get_interface<IGUIThemeManager>(IGUITHEMEMANAGER_INTERFACEID);
 
-		return g_glfw_app_i && g_gui_widgets_i && g_gui_fontmgr_i;
+		return g_glfw_app_i && g_gui_widgets_i && g_gui_fontmgr_i && g_gui_thememgr_i;
 	}))
 	{
 		return false;
@@ -295,6 +297,7 @@ void CMainLoader::unload_dependencies()
 	g_glfw_app_i = nullptr;
 	g_gui_widgets_i = nullptr;	
 	g_gui_fontmgr_i = nullptr;
+	g_gui_thememgr_i = nullptr;
 
 	// Util
 	g_importbank_i = nullptr;

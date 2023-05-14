@@ -30,7 +30,7 @@
 
 BaseCommand command_list(
 	"command_list",
-	[&]()
+	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		CConsole::the().info("{:<3}: {:<24} {}", "id", "name", "parameters");
 		int num = 0;
@@ -47,7 +47,7 @@ BaseCommand command_list(
 
 BaseCommand variable_list(
 	"variable_list",
-	[&]()
+	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		CConsole::the().info("{:<3}: {:<32} {:<10} {:<10} {:<10}", "id", "name", "value", "min", "max");
 		int num = 0;
@@ -66,7 +66,7 @@ BaseCommand variable_list(
 
 BaseCommand help(
 	"help",
-	[&]()
+	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		CConsole::the().info("Help:");
 		CConsole::the().info("To see the list of available commands, type \"variable_list\" and press enter.");
@@ -76,27 +76,33 @@ BaseCommand help(
 	}
 );
 
+#if 0 // tokenizer test
 BaseCommand tokenize(
 	"tokenize", "<token1> <token2> <token3>",
-	[&]()
+	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
+		if (args.count() == 1 || args.count() > 3)
+		{
+			cmd->print_usage();
+			return;
+		}
 
 		{
-			std::string token = g_variablemgr_i->get_token(1);
+			std::string token = args.get(1);
 			if (!token.empty())
 			{
 				CConsole::the().info("1st token: '{}'", token);
 			}
 		}
 		{
-			std::string token = g_variablemgr_i->get_token(2);
+			std::string token = args.get(2);
 			if (!token.empty())
 			{
 				CConsole::the().info("2nd token: '{}'", token);
 			}
 		}
 		{
-			std::string token = g_variablemgr_i->get_token(3);
+			std::string token = args.get(3);
 			if (!token.empty())
 			{
 				CConsole::the().info("3rd token: '{}'", token);
@@ -104,6 +110,7 @@ BaseCommand tokenize(
 		}
 	}
 );
+#endif
 
 IVariableManager* g_variablemgr_i = nullptr;
 
@@ -126,19 +133,12 @@ public:
 	void for_each_variable(const std::function<void(BaseVariable*)>& callback);
 	void for_each_command(const std::function<void(BaseCommand*)>& callback);
 
-	//
-	// command parsing
-	//
+	void execute_command(const std::string& command_sequence, bool silent = false);
 
-	const std::string& get_last_command_buffer() { return m_last_cmd_buffer; }
-
-	// return empty string if not found.
-	std::string get_token(size_t pos);
-
-	// call every time new command is entered
-	void update_cmd_buffer(const std::string& new_buffer);
-
-	void tokenize_last_cmdbuf();
+	void provide_hl_execute_cmd_pfn(m_hl_execute_cmd_pfn_t pfn)
+	{
+		m_hl_execute_cmd_pfn = pfn;
+	}
 
 private:
 	std::unordered_set<BaseVariable*> m_registered_variables;
@@ -147,9 +147,25 @@ private:
 	bool did_overflow_vars(BaseVariable* var);
 	bool did_overflow_cmds(BaseCommand* cmd);
 
-	std::string m_last_cmd_buffer;
+	void tokenize_command(const std::string& command_buffer);
+	std::vector<std::string> m_current_cmd_tokens;
 
-	std::vector<std::string> m_cmd_tokens;
+	void execute_internal(const std::string& command, bool silent);
+	void execute_halflife_command(const std::string& full_hl_command, bool silent);
+
+	int execute_hl_command(const char* cmd)
+	{
+		if (m_hl_execute_cmd_pfn)
+		{
+			return m_hl_execute_cmd_pfn(cmd);
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	m_hl_execute_cmd_pfn_t m_hl_execute_cmd_pfn;
 };
 
 CVariableManager g_variablemgr;
@@ -291,6 +307,51 @@ void CVariableManager::for_each_command(const std::function<void(BaseCommand*)>&
 	}
 }
 
+void CVariableManager::execute_command(const std::string& command_sequence, bool silent)
+{
+	// collect individual commands separated by ';'
+	std::string current_command;
+	bool in_quotes = false;
+	for (size_t i = 0; i < command_sequence.length(); i++)
+	{
+		const char c = command_sequence[i];
+
+		bool last = (i == command_sequence.length() - 1);
+
+		if (c == '"' && !in_quotes)
+		{
+			in_quotes = true;
+		}
+		else if (in_quotes && c == '"')
+		{
+			if (!last)
+			{
+				in_quotes = false;
+			}
+		}
+
+		if ((c == ';' && !in_quotes) || last) // the last case, too
+		{
+			if (last)
+			{
+				current_command.push_back(c);
+			}
+
+			// trim leading spaces, if any
+			current_command.erase(0, current_command.find_first_not_of(' '));
+
+			// execute the command in place
+			execute_internal(current_command, silent);
+			
+			current_command.clear();
+		}
+		else
+		{
+			current_command.push_back(c);
+		}
+	}
+}
+
 bool CVariableManager::did_overflow_vars(BaseVariable* var)
 {
 	if (m_registered_variables.size() >= k_max_variables_absolute)
@@ -315,56 +376,138 @@ bool CVariableManager::did_overflow_cmds(BaseCommand* cmd)
 	return false;
 }
 
-//--------------------------------------------------------------------------------------------------------------------
-// COMMAND PARSING
-// 
-
-std::string CVariableManager::get_token(size_t pos)
+void CVariableManager::execute_internal(const std::string& command, bool silent)
 {
-	std::string token;
-	try
+	if (command.substr(0, 3) == "hl ")
 	{
-		token = m_cmd_tokens.at(pos);
+		execute_halflife_command(command.substr(3), silent); // pass in full command
+		return;
 	}
-	catch (...)
-	{
-		CConsole::the().error("Failed to get token at position '{}'. Tokenized buffer size is {}.", pos, m_cmd_tokens.size());
-	}
-	return token;
-}
 
-void CVariableManager::update_cmd_buffer(const std::string& new_buffer)
-{
-	m_last_cmd_buffer = new_buffer;
+	tokenize_command(command);
 
-	tokenize_last_cmdbuf();
-}
-
-// The command buffer is a buffer containing tokens. Each token is separated by a space.
-void CVariableManager::tokenize_last_cmdbuf()
-{
-	if (m_last_cmd_buffer.empty())
+	if (m_current_cmd_tokens.empty())
 	{
 		return;
 	}
 
-	m_cmd_tokens.clear();
+	auto& cmd_name = m_current_cmd_tokens.front();
+	auto cmd = query_command(cmd_name.c_str());
+	if (!cmd)
+	{
+		// try variable
+		auto var = query_variable(cmd_name.c_str());
+		if (!var)
+		{
+			if (!silent)
+			{
+				CConsole::the().info("> Unknown command '{}'", command);
+			}
+			return;
+		}
+		else
+		{
+			if (m_current_cmd_tokens.size() == 1)
+			{
+				if (!silent)
+				{
+					CConsole::the().info("> '{}' is '{}'", cmd_name, var->get_value_string());
+				}
+			}
+			else
+			{
+				std::string value_raw = command.substr(cmd_name.length() + 1);
+
+				// erase quotes, they're useless here.
+				value_raw.erase(std::remove(value_raw.begin(), value_raw.end(), '"'), value_raw.end());
+				bool ok;
+				var->set_from_string(value_raw, ok);
+
+				if (!silent)
+				{
+					if (ok)
+					{
+						CConsole::the().info("> Set '{}' to '{}'", cmd_name, value_raw);
+					}
+					else
+					{
+						CConsole::the().error("> Invalid variable value: '{}'", value_raw);
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		if (!silent)
+		{
+			CConsole::the().info("> {}", command);
+		}
+
+		cmd->execute(cmd, m_current_cmd_tokens);
+	}
+}
+
+void CVariableManager::execute_halflife_command(const std::string& full_hl_command, bool silent)
+{
+	const char* s = full_hl_command.c_str();
+	// hl command
+	if (!execute_hl_command(s))
+	{
+		if (!silent)
+		{
+			CConsole::the().info("> Bad HL command: {}", full_hl_command);
+		}
+	}
+	else
+	{
+		if (!silent)
+		{
+			CConsole::the().info("> HL command: {}", full_hl_command);
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------------------------------------------
+// COMMAND PARSING
+// 
+
+void CVariableManager::tokenize_command(const std::string& command_buffer)
+{
+	assert(!command_buffer.empty() && "passed empty command buffer to " __FUNCTION__ ". This shouldn't happen.");
+
+	m_current_cmd_tokens.clear();
 
 	std::string current_token;
-	for (size_t i = 0; i < m_last_cmd_buffer.length(); i++)
+	bool in_quotes = false; // ignore spaces and such
+	for (size_t i = 0; i < command_buffer.length(); i++)
 	{
-		const char c = m_last_cmd_buffer[i];
+		const char c = command_buffer[i];
 
-		bool last = (i == m_last_cmd_buffer.length() - 1);
+		bool last = (i == command_buffer.length() - 1);
 
-		if (c == ' ' || last) // the last case, too
+		if (c == '"' && !in_quotes)
 		{
-			if (last)
+			in_quotes = true;
+			continue;
+		}
+		else if (in_quotes && c == '"')
+		{
+			if (!last)
+			{
+				in_quotes = false;
+				continue; // look for ending quote
+			}
+		}
+
+		if ((c == ' ' && !in_quotes) || last) // the last case, too
+		{
+			if (last && !in_quotes)
 			{
 				current_token.push_back(c);
 			}
 
-			m_cmd_tokens.push_back(current_token);
+			m_current_cmd_tokens.push_back(current_token);
 			current_token.clear();
 		}
 		else

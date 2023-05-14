@@ -66,6 +66,7 @@ std::array<TabCallbackFn, UIMENU_Max> CUIMenu::s_active_tab_callback_translation
 		&CUIMenu::tab_miscellaneous2,		// UIMENU_Miscellaneous2
 		&CUIMenu::tab_miscellaneous3,		// UIMENU_Miscellaneous3
 		&CUIMenu::tab_config,				// UIMENU_Config
+		&CUIMenu::tab_binds,				// UIMENU_Binds
 	}
 };
 
@@ -159,8 +160,9 @@ void CUIMenu::on_initialize()
 	//m_tabsec_Miscellaneous.add_tab({ UIMENU_Miscellaneous3, &CUIMenu::tab_miscellaneous3, "Miscellaneous3", "TODO item description" });
 	m_tab_sections.push_back(&m_tabsec_Miscellaneous);
 
-	m_tabsec_Configuration.set_label("Config");
+	m_tabsec_Configuration.set_label("Configuration");
 	m_tabsec_Configuration.add_tab({ UIMENU_Config, &CUIMenu::tab_config, "Config", "TODO item description" });
+	m_tabsec_Configuration.add_tab({ UIMENU_Binds, &CUIMenu::tab_binds, "Binds", "TODO item description" });
 	m_tab_sections.push_back(&m_tabsec_Configuration);
 }
 
@@ -1017,7 +1019,7 @@ void CUIMenu::tab_config()
 
 									auto path = g_config_mgr_i->get_config_directory(name_buffer);
 
-									if (!path.has_extension())
+									if (!path.has_extension() || path.extension() != ".json")
 									{
 										path.replace_extension("json");
 									}
@@ -1110,6 +1112,211 @@ void CUIMenu::tab_config()
 					}
 				});
 		});
+}
+
+void CUIMenu::tab_binds()
+{
+	auto last_cursor_pos = g_gui_widgets_i->get_cursor_pos();
+
+	// buffers for every key we have
+	static constexpr int buffer_len = 4096;
+	static std::unordered_map<int, std::array<char, buffer_len>> command_buffers;
+
+	add_menu_child(
+		"Binds", CMenuStyle::child_full_width(-1.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			g_gui_widgets_i->add_spacing();
+
+			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_CellPadding, { 2.0f, 1.0f });
+
+			if (g_gui_widgets_i->begin_columns("binds_column", 2))
+			{
+				g_gui_widgets_i->setup_column_fixed_width(100.0f);
+				g_gui_widgets_i->setup_column_fixed_width(283.0f);
+
+				g_gui_widgets_i->goto_next_column();
+				g_gui_widgets_i->add_text("Key name");
+				g_gui_widgets_i->goto_next_column();
+				g_gui_widgets_i->add_text("Command");
+
+				g_gui_widgets_i->end_columns();
+			}
+
+			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
+
+			g_gui_widgets_i->add_separator();
+
+			g_gui_widgets_i->add_child(
+				"binds_area", Vector2D(-1.0f, -1.0f), false, ImGuiWindowFlags_None, 
+				[&]()
+				{
+					if (g_gui_widgets_i->begin_columns("binds_column_nested", 3))
+					{
+						g_gui_widgets_i->setup_column_fixed_width(100.0f);
+						g_gui_widgets_i->setup_column_fixed_width(283.0f);
+
+						int bind_to_be_removed = -1;
+						std::pair<int, std::string> bind_to_be_rebound = { NULL, "" };
+						g_bindmgr_i->for_each_bind(
+							[&](int vk, const std::string& cmd)
+							{
+								g_gui_widgets_i->goto_next_column();
+								std::string key_name = g_user_input_i->virtual_key_to_string(vk);
+								if (key_name.empty())
+								{
+									bind_to_be_removed = vk;
+									return;
+								}
+								if (g_gui_widgets_i->add_button(std::format("{}##{}", key_name, vk), Vector2D(-1.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
+								{
+									static int current_vk = 0;
+									if (current_vk != vk)
+									{
+										current_vk = vk;
+									}
+
+									COxWareUI::the().update_scanned_key(std::format("<{}>", key_name));
+
+									COxWareUI::the().add_keybind_dialog(
+										[]()
+										{
+											int vk = COxWareUI::the().get_new_key_bound();
+											if (vk == NULL)
+											{
+												return;
+											}
+
+											// see if the key name is valid
+											std::string key_name = g_user_input_i->virtual_key_to_string(vk);
+											if (key_name.empty())
+											{
+												// if it's not, just don't change the bind
+												return;
+											}
+
+											// rebind same command to different key
+											auto cmd = g_bindmgr_i->get_command_sequence_bound_to_key(current_vk);
+											g_bindmgr_i->remove_bind(current_vk); // remove old bind
+											g_bindmgr_i->add_bind(vk, cmd); // bind to a new key
+
+											current_vk = 0;
+										});
+								}
+
+								g_gui_widgets_i->goto_next_column();
+
+								// unique insertion
+								std::array<char, buffer_len>* arr;
+								try
+								{
+									// this should be O(1), but hehe, whatever..
+									arr = &command_buffers.at(vk);
+								}
+								catch (...)
+								{
+									auto [iter, did_insert] = command_buffers.insert(std::make_pair(vk, std::array<char, buffer_len>{}));
+
+									strncpy((*iter).second.data(), cmd.c_str(), buffer_len);
+									arr = &(*iter).second;
+								}
+
+								struct callback_data
+								{
+									int len;
+									int vk;
+								};
+
+								static auto textinput_callback = [](ImGuiInputTextCallbackData* data) -> int
+								{
+									switch (data->EventFlag)
+									{
+										case ImGuiInputTextFlags_CallbackAlways:
+										{
+											auto [last_length, vk] = *(callback_data*)data->UserData;
+											if (last_length != data->BufTextLen)
+											{
+												if (data->BufTextLen != 0)
+												{
+													g_bindmgr_i->add_bind(vk, data->Buf, true);
+												}
+											}
+											break;
+										}
+									}
+									return 1;
+								};
+
+								callback_data d = { strlen(arr->data()), vk };
+								if (g_gui_widgets_i->add_text_input_ex(key_name.c_str(), arr->data(), arr->size(),
+																	   Vector2D(-1.0f, 0.0f), ImGuiInputTextFlags_CallbackAlways,
+																	   textinput_callback, (void*)&d))
+								{
+								}
+
+								g_gui_widgets_i->goto_next_column();
+
+								if (g_gui_widgets_i->add_button(std::format("-##{}", key_name), Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
+								{
+									if (!arr->empty())
+									{
+										bind_to_be_removed = vk; // remove after the iteration. avoids random iterator crashes
+									}
+								}
+							});
+
+						if (bind_to_be_removed != -1)
+						{
+							strncpy(command_buffers[bind_to_be_removed].data(), "", command_buffers[bind_to_be_removed].size());
+							g_bindmgr_i->remove_bind(bind_to_be_removed);
+						}
+
+						g_gui_widgets_i->goto_next_column();
+
+						if (g_gui_widgets_i->add_button("+##newbind", Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
+						{
+							COxWareUI::the().update_scanned_key("<new key>");
+							COxWareUI::the().add_keybind_dialog(
+								[]()
+								{
+									int vk = COxWareUI::the().get_new_key_bound();
+									if (vk == NULL)
+									{
+										return;
+									}
+
+									g_bindmgr_i->add_bind(vk, "");
+								});
+						}
+
+						g_gui_widgets_i->end_columns();
+					}
+				});
+			
+			g_gui_widgets_i->pop_stylevar();
+			g_gui_widgets_i->pop_stylevar();
+		});
+
+	auto window_size = g_gui_widgets_i->get_current_window_size();
+	auto button_size = Vector2D(25, 25);
+	if (g_gui_widgets_i->add_floating_button(";", last_cursor_pos, { window_size.x - 23.0f - button_size.x, 30.0f }, 
+											 button_size, false, BUTTONFLAG_CenterLabel))
+	{
+		CGenericUtil::the().copy_to_clipboard(";");
+	}
+
+	std::string label = "unbind all";
+	auto label_size = g_gui_fontmgr_i->calc_font_text_size(g_gui_fontmgr_i->get_default_font(), label.c_str());
+	auto button1_size = Vector2D(label_size.x + 5.0f * 2, 25);
+	if (g_gui_widgets_i->add_floating_button(label, last_cursor_pos, { window_size.x - 23.0f - button_size.x - 3.0f - button1_size.x, 30.0f },
+											 button1_size, false, BUTTONFLAG_CenterLabel))
+	{
+		for (auto& [key, e] : command_buffers)
+		{
+			strncpy(e.data(), "", e.size());
+		}
+		g_bindmgr_i->remove_all_binds();
+	}
 }
 
 //---------------------------------------------------------------------------------------------------

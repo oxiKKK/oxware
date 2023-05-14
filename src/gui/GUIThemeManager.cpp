@@ -30,6 +30,7 @@ public:
 	void set_new_theme(const char* name_identifier);
 
 	void push_color(EGUIColor id, const CColor& color);
+	void push_color(EGUIColor id, float alpha);
 	void pop_color(size_t amount = 1);
 
 private:

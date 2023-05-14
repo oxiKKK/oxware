@@ -46,6 +46,7 @@ IAppDataManager* g_appdata_mgr_i = nullptr;
 IVariableManager* g_variablemgr_i = nullptr;
 ICodePerfProfiler* g_code_perf_profiler_i = nullptr;
 IBytePatternBank* g_bytepattern_bank_i = nullptr;
+IBindManager* g_bindmgr_i = nullptr;
 
 bool CoXWARE::run(injector_information_package_t* ifp)
 {
@@ -86,8 +87,10 @@ bool CoXWARE::initialize_phase2()
 		return false;
 	}
 
-	g_devconsole_i->provide_hl_execute_cmd_pfn((m_hl_execute_cmd_pfn_t)CMemoryHookMgr::the().cl_enginefuncs().get()->pfnClientCmd);
+	g_variablemgr_i->provide_hl_execute_cmd_pfn((m_hl_execute_cmd_pfn_t)CMemoryHookMgr::the().cl_enginefuncs().get()->pfnClientCmd);
 	
+	g_bindmgr_i->initialize();
+
 	CFeatureManager::the().initialize();
 
 	CModelChams::the().initialize();
@@ -129,6 +132,9 @@ bool CoXWARE::initialize()
 		CInjectedDllIPCLayerClient::the().report_error("Couldn't initialize directory hirearchy.");
 		return false;
 	}
+
+	// keyboard/mouse I/O
+	g_user_input_i->initialize();
 
 	if (!g_config_mgr_i->initialize())
 	{
@@ -223,9 +229,10 @@ bool CoXWARE::load_and_initialize_dependencies()
 		g_variablemgr_i = mod.get_interface<IVariableManager>(IVARIABLEMANAGER_INTERFACEID);
 		g_code_perf_profiler_i = mod.get_interface<ICodePerfProfiler>(ICODEPERFPROFILER_INTERFACEID);
 		g_bytepattern_bank_i = mod.get_interface<IBytePatternBank>(IBYTEPATTERNBANK_INTERFACEID);
+		g_bindmgr_i = mod.get_interface<IBindManager>(IBINDMANAGER_INTERFACEID);
 
 		return g_importbank_i && g_registry_i && g_filesystem_i && g_user_input_i && g_window_msg_handler_i && g_config_mgr_i &&
-			g_appdata_mgr_i && g_variablemgr_i && g_code_perf_profiler_i && g_bytepattern_bank_i;
+			g_appdata_mgr_i && g_variablemgr_i && g_code_perf_profiler_i && g_bytepattern_bank_i && g_bindmgr_i;
 	}))
 	{
 		return false;
@@ -350,6 +357,7 @@ void CoXWARE::unload_dependencies()
 	g_variablemgr_i = nullptr;
 	g_code_perf_profiler_i = nullptr;
 	g_bytepattern_bank_i = nullptr;
+	g_bindmgr_i = nullptr;
 }
 
 bool CoXWARE::initialize_hook_managers()

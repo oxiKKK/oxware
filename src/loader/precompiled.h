@@ -50,6 +50,7 @@
 #include <interface/gui/IGLFWApp.h>
 #include <interface/gui/IGUIWidgets.h>
 #include <interface/gui/IGUIFontManager.h>
+#include <interface/gui/IGUIThemeManager.h>
 
 #include <tier/GenericUtil.h>
 #include <tier/StringTools.h>

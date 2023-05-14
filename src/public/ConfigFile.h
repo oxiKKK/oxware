@@ -38,13 +38,13 @@
 
 enum ECfgType
 {
-	CFG_Variables,
+	CFG_Variables, // under variables there're also binds
 	// ...
 };
 
 static const char* cfg_type_to_string[] =
 {
-	/*CFG_Variables*/ "Variables",
+	/*CFG_Variables*/	"Variables",
 };
 
 class BaseCfgFile
@@ -82,6 +82,11 @@ public:
 
 		ofs.close();
 
+		if (!m_silent)
+		{
+			CConsole::the().info("Wrote {}.", cfg_type_to_string[m_cfg_type]);
+		}
+
 		return true;
 	}
 
@@ -112,6 +117,11 @@ public:
 		ifs.close();
 
 		load_configuration();
+
+		if (!m_silent)
+		{
+			CConsole::the().info("Loaded {}.", cfg_type_to_string[m_cfg_type]);
+		}
 
 		return true;
 	}

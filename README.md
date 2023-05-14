@@ -126,9 +126,12 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - Custom HUD rendering 🌈 such as:
 	- displaying currently held weapon 🔫
 	- displaying current velocity 
+- Default viewmodel enforcement
+- rechecker bypass
 - instantaneous cheat unload (either via loader or cheat menu)
 - injection using manual mapping 🗺
 - custom UI (modified version of imgui)
+- key binding
 - configuration files ⚙
 
 ## To be done

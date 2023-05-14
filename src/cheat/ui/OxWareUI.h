@@ -50,6 +50,8 @@ public:
 						const std::function<void()>& contents, const std::function<void()>& on_close_callback,
 						ImGuiWindowFlags window_flags = 0);
 
+	void add_keybind_dialog(const std::function<void()>& on_key_bound_callback);
+
 	void add_background_rendering_constrain(const std::function<bool()>& callback)
 	{
 		ctx_BackgroundRendering->add_render_constain(callback);
@@ -67,6 +69,9 @@ public:
 
 	// aka the "about" dialog
 	void create_welcome_popup();
+
+	int get_new_key_bound() const { return m_new_key_bound; }
+	void update_scanned_key(const std::string& key) { m_scanned_key = key; }
 
 private:
 	void initialize(HWND wnd);
@@ -89,6 +94,7 @@ private:
 private:
 	bool m_is_any_interactible_rendering_context_active = false;
 
+	HWND m_hwnd;
 	HDC m_hdc;
 	HGLRC m_cheat_context, m_original_context;
 
@@ -112,6 +118,12 @@ private:
 
 	void render_popup();
 	void on_popup_close();
+
+	// key binding
+	bool m_scan_keypress_mode = false;
+	bool m_scanned_keypress = false;
+	std::string m_scanned_key = "<key>";
+	int m_new_key_bound = NULL;
 };
 
 template<typename T>

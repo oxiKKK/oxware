@@ -30,12 +30,14 @@
 #define IUSERINPUT_H
 #pragma once
 
+#include "Console.h"
+
 #include <functional>
 
 static constexpr size_t k_key_range = 0x100;
 
 class UserKey_t;
-typedef std::function<void(UserKey_t*)> UserKeyPressCallbackFn;
+typedef std::function<void(const std::string&, UserKey_t*)> UserKeyPressCallbackFn;
 
 class UserKey_t
 {
@@ -72,30 +74,56 @@ public:
 
 	inline bool is_down() const { return m_is_down; }
 
-	void add_on_pressed_callback(const UserKeyPressCallbackFn& c)
+	void add_on_pressed_callback(const std::string& id, const UserKeyPressCallbackFn& c)
 	{
-		m_on_pressed_callbacks.push_back(c);
+		m_on_pressed_callbacks.insert({ id, c });
 	}
 
-	void add_on_unpressed_callback(const UserKeyPressCallbackFn& c)
+	void add_on_unpressed_callback(const std::string& id, const UserKeyPressCallbackFn& c)
 	{
-		m_on_unpressed_callbacks.push_back(c);
+		m_on_unpressed_callbacks.insert({ id, c });
 	}
+
+	void remove_on_pressed_callback(const std::string& id)
+	{
+		try
+		{
+			m_on_pressed_callbacks.erase(id);
+		}
+		catch (...)
+		{
+			CConsole::the().error("Couldn't remove on-pressed callback '{}'", id);
+		}
+	}
+
+	void remove_on_unpressed_callback(const std::string& id)
+	{
+		try
+		{
+			m_on_unpressed_callbacks.erase(id);
+		}
+		catch (...)
+		{
+			CConsole::the().error("Couldn't remove on-unpressed callback '{}'", id);
+		}
+	}
+
+	inline const std::string& get_name() const { return m_name; }
 
 private:
 	void execute_on_pressed_callbacks()
 	{
-		for (auto& c : m_on_pressed_callbacks)
+		for (auto& [id, c] : m_on_pressed_callbacks)
 		{
-			c(this);
+			c(id, this);
 		}
 	}
 
 	void execute_on_unpressed_callbacks()
 	{
-		for (auto& c : m_on_unpressed_callbacks)
+		for (auto& [id, c] : m_on_unpressed_callbacks)
 		{
-			c(this);
+			c(id, this);
 		}
 	}
 
@@ -107,8 +135,9 @@ private:
 	bool m_toggle_state = false, m_press_lock = false;
 	std::chrono::high_resolution_clock::time_point m_pressed_timestamp;
 
-	std::vector<UserKeyPressCallbackFn> m_on_pressed_callbacks;
-	std::vector<UserKeyPressCallbackFn> m_on_unpressed_callbacks;
+	// every callback has an id
+	std::unordered_map<std::string, UserKeyPressCallbackFn> m_on_pressed_callbacks;
+	std::unordered_map<std::string, UserKeyPressCallbackFn> m_on_unpressed_callbacks;
 };
 
 class IUserInput : public IBaseInterface
@@ -117,11 +146,24 @@ public:
 	virtual bool initialize() = 0;
 	virtual void destroy() = 0;
 
+	virtual bool is_valid_key(int virtual_key) = 0;
+
 	// cannot return nullptr however, if not found, valid_key is set to false.
 	virtual UserKey_t& get_key(int virtual_key, bool* valid_key = NULL) = 0;
 
-	virtual bool add_key_press_callback(int virtual_key, const UserKeyPressCallbackFn& callback) = 0;
-	virtual bool add_key_unpress_callback(int virtual_key, const UserKeyPressCallbackFn& callback) = 0;
+	virtual std::string virtual_key_to_string(int virtual_key) = 0;
+	virtual int string_to_virtual_key(const std::string& key_name) = 0;
+
+	virtual bool add_key_press_callback(const std::string& id, int virtual_key, const UserKeyPressCallbackFn& callback) = 0;
+	virtual bool add_key_unpress_callback(const std::string& id, int virtual_key, const UserKeyPressCallbackFn& callback) = 0;
+
+	virtual bool remove_key_press_callback(const std::string& id, int virtual_key) = 0;
+	virtual bool remove_key_unpress_callback(const std::string& id, int virtual_key) = 0;
+
+	virtual void scan_for_any_key_press() = 0;
+	virtual int get_any_key_pressed() const = 0;
+
+	virtual void for_all_user_keys(const std::function<void(UserKey_t*)>& callback) = 0;
 };
 
 extern IUserInput* g_user_input_i;

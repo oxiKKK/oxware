@@ -130,20 +130,38 @@ public:
 		return &r;
 	}
 
-	// expects [r: {} g: {} b: {} a: {}]
 	static CColor parse_color_out_of_string(const std::string& color_string)
+	{
+		bool dummy;
+		return parse_color_out_of_string(color_string, dummy);
+	}
+
+	// expects [r: {} g: {} b: {} a: {}]
+	static CColor parse_color_out_of_string(const std::string& color_string, bool& ok)
 	{
 		CColor result = {};
 
-		auto parse_color = [&color_string](const std::string& token) -> float
+		ok = true;
+
+		auto parse_color = [&color_string, &ok](const std::string& token) -> float
 		{
 			auto pos = color_string.find(token);
 			if (pos == std::string::npos)
 			{
 				assert("Invalid colors string passed to " __FUNCTION__ ".");
+				ok = false;
 				return 0.0f;
 			}
-			return std::stof(color_string.substr(pos + token.length(), color_string.find(" ", pos + token.length())));
+
+			try
+			{
+				return std::stof(color_string.substr(pos + token.length(), color_string.find(" ", pos + token.length())));
+			}
+			catch (...)
+			{
+				ok = false;
+				return 0.0f;
+			}
 		};
 
 		return { parse_color("r: "), parse_color("g: "), parse_color("b: "), parse_color("a: "), };

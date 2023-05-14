@@ -30,11 +30,11 @@
 #define UICONSOLE_H
 #pragma once
 
-class CUIConsole final : public IRenderingContext_KeyActivateReliantOther
+class CUIConsole final : public IRenderingContext_GenericReliantOther
 {
 public:
-	CUIConsole(const std::string& id, int virtual_key, IRenderingContext* reliant_ctx) :
-		IRenderingContext_KeyActivateReliantOther(id, virtual_key, reliant_ctx)
+	CUIConsole(const std::string& id, IRenderingContext* reliant_ctx) :
+		IRenderingContext_GenericReliantOther(id, reliant_ctx)
 	{
 	}
 

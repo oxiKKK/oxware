@@ -69,6 +69,8 @@ class LoadableModuleObject;
 class StaticVariableContainer;
 class StaticCommandContainer;
 
+typedef int(__cdecl*m_hl_execute_cmd_pfn_t)(const char* cmd);
+
 class IVariableManager : public IBaseInterface
 {
 public:
@@ -85,19 +87,9 @@ public:
 	virtual void for_each_variable(const std::function<void(BaseVariable*)>& callback) = 0;
 	virtual void for_each_command(const std::function<void(BaseCommand*)>& callback) = 0;
 
-	//
-	// command parsing
-	//
+	virtual void execute_command(const std::string& command_sequence, bool silent = false) = 0;
 
-	virtual const std::string& get_last_command_buffer() = 0;
-
-	// return empty string if not found.
-	virtual std::string get_token(size_t pos) = 0;
-
-	// call every time new command is entered
-	virtual void update_cmd_buffer(const std::string& new_buffer) = 0;
-
-	virtual void tokenize_last_cmdbuf() = 0;
+	virtual void provide_hl_execute_cmd_pfn(m_hl_execute_cmd_pfn_t pfn) = 0;
 };
 
 extern IVariableManager* g_variablemgr_i;

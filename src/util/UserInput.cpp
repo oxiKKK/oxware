@@ -377,7 +377,10 @@ void CUserInput::update_keys(UINT uMsg, WPARAM wParam)
 			}
 		}
 
-		m_any_key_pressed = vk;
+		if (is_down)
+		{
+			m_any_key_pressed = vk;
+		}
 		m_userkeys[vk].update(is_down);
 	}
 }

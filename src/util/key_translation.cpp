@@ -74,7 +74,7 @@ const std::array<key_t, k_key_range> g_virtual_key_translation =
 		{ "mouse4",			VK_XBUTTON1		},
 		{ "mouse5",			VK_XBUTTON2		},
 
-		{ "kp_home",		VK_HOME			},
+		{ "kp_home",		VK_NUMPAD7		},
 		{ "kp_uparrow",		VK_NUMPAD8		},
 		{ "kp_pgup",		VK_NUMPAD9		},
 		{ "kp_leftarrow",	VK_NUMPAD4		},

@@ -31,7 +31,7 @@
 IBindManager* g_bindmgr_i = nullptr;
 
 BaseCommand _bind(
-	"bind", "<key> <command>",
+	"bind", "<key> <command>", "Binds command to a key",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		if (args.count() == 1 || args.count() > 3)
@@ -61,7 +61,7 @@ BaseCommand _bind(
 );
 
 BaseCommand list_binds(
-	"list_binds", 
+	"list_binds", "Prints all currently bound binds",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		CConsole::the().info("{:<3}: {:<16} {}", "id", "key", "command");
@@ -79,7 +79,7 @@ BaseCommand list_binds(
 );
 
 BaseCommand unbind(
-	"unbind", "<key>",
+	"unbind", "<key>", "Unbinds a key",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		if (args.count() != 2)

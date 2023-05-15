@@ -29,7 +29,7 @@
 #include "precompiled.h"
 
 BaseCommand ui_toggle_menu(
-	"ui_toggle_menu",
+	"ui_toggle_menu", "Toggles menu on/off",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		COxWareUI::the().find_context("menu")->toggle_rendering();
@@ -37,7 +37,7 @@ BaseCommand ui_toggle_menu(
 );
 
 BaseCommand ui_toggle_console(
-	"ui_toggle_console",
+	"ui_toggle_console", "Toggles console on/off",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		COxWareUI::the().find_context("console")->toggle_rendering();
@@ -46,7 +46,7 @@ BaseCommand ui_toggle_console(
 
 #ifdef OX_ENABLE_CODE_PROFILE
 BaseCommand ui_toggle_perf_profiler_visualization(
-	"ui_toggle_perf_profiler_visualization",
+	"ui_toggle_perf_profiler_visualization", "Toggles performance profiler visualization on/off",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		COxWareUI::the().find_context("performace_profiler_visualization")->toggle_rendering();
@@ -334,7 +334,7 @@ void COxWareUI::create_welcome_popup()
 
 			g_gui_widgets_i->add_spacing();
 
-			g_gui_widgets_i->add_text("Press F1 to begin the cheating experience! :)", TEXTPROP_Wrapped);
+			g_gui_widgets_i->add_text("Press INSERT to begin the cheating experience! :) Or simply re-bind the key to whatever you like!", TEXTPROP_Wrapped);
 
 			float sections_padding = 10.0f;
 

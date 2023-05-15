@@ -31,7 +31,7 @@
 VarInteger save_cfg_interval_sec("save_cfg_interval_sec", "Iterval in seconds for how often current settings should be saved.", 30, 10, 60);
 
 BaseCommand export_config(
-	"export_config", "<config name>",
+	"export_config", "<config name>", "Exports a json config file",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		if (args.count() == 1 || args.count() > 2)
@@ -48,7 +48,7 @@ BaseCommand export_config(
 );
 
 BaseCommand load_config(
-	"load_config", "<config name>",
+	"load_config", "<config name>", "Loads a json config file",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		if (args.count() == 1 || args.count() > 2)

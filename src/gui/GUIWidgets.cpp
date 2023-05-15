@@ -190,7 +190,7 @@ public:
 	//
 
 	void begin_tab(const std::string& label, ImGuiTabBarFlags flags);
-	void add_tab_item(const std::string& label, bool border, const Vector2D& size, const std::function<void()>& pfn_contents);
+	void add_tab_item(const std::string& label, bool border, const Vector2D& size, const std::function<void()>& pfn_contents, const Vector2D& child_padding);
 	void end_tab();
 
 	//
@@ -1097,10 +1097,15 @@ void CGUIWidgets::begin_tab(const std::string& label, ImGuiTabBarFlags flags)
 	BeginTabBar(label.c_str(), flags);
 }
 
-void CGUIWidgets::add_tab_item(const std::string& label, bool border, const Vector2D& size, const std::function<void()>& pfn_contents)
+void CGUIWidgets::add_tab_item(const std::string& label, bool border, const Vector2D& size, const std::function<void()>& pfn_contents, const Vector2D& child_padding)
 {
 	if (BeginTabItem(label.c_str()))
 	{
+		if (!child_padding.IsZero())
+		{
+			PushStyleVar(ImGuiStyleVar_WindowPadding, child_padding);
+		}
+
 		BeginChild(label.c_str(), size, border);
 
 		if (pfn_contents)
@@ -1109,6 +1114,12 @@ void CGUIWidgets::add_tab_item(const std::string& label, bool border, const Vect
 		}
 
 		EndChild();
+
+		if (!child_padding.IsZero())
+		{
+			PopStyleVar(); // padding
+		}
+
 		EndTabItem();
 	}
 }

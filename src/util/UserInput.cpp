@@ -58,7 +58,7 @@ struct caseinsens_string_compare
 };
 
 BaseCommand list_registered_key_names(
-	"list_registered_key_names", 
+	"list_registered_key_names", "Prints out all the keys that the cheat subsystems are currently aware of",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		size_t n = 0;

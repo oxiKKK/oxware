@@ -49,7 +49,7 @@ IBytePatternBank* g_bytepattern_bank_i = nullptr;
 IBindManager* g_bindmgr_i = nullptr;
 
 BaseCommand unload_cheat(
-	"unload_cheat", 
+	"unload_cheat", "Unloads the cheat. Same as unloading the cheat through menu.",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		CoXWARE::the().end_cheat_execution();

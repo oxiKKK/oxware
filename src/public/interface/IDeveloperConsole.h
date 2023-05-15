@@ -86,6 +86,7 @@ public:
 	virtual void unregister_module(EOutputModule which) = 0;
 
 	virtual FilePath_t get_logfile_path() = 0;
+	virtual FilePath_t get_logfile_path_fancy() = 0; // with %appdata% instead of the actual directory
 
 protected:
 	template<typename T>

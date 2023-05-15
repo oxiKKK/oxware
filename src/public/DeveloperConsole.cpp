@@ -40,6 +40,7 @@
 #include "interface/gui/IGUIWidgets.h"
 #include <interface/gui/IGUIFontManager.h>
 #include <interface/gui/IGUIThemeManager.h>
+#include <interface/gui/IGUIWindowRendering.h>
 #include <interface/IAppdataManager.h>
 #include <interface/IVariableManager.h>
 
@@ -75,6 +76,7 @@ public:
 	void unregister_module(EOutputModule which);
 
 	FilePath_t get_logfile_path();
+	FilePath_t get_logfile_path_fancy(); // with %appdata% instead of the actual directory
 
 private:
 	std::string generate_logfilename();
@@ -132,7 +134,7 @@ private:
 };
 
 BaseCommand clear(
-	"clear",
+	"clear", "Clears the console",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		g_devconsole_i->flush_screen();
@@ -215,6 +217,37 @@ void CDeveloperConsole::render()
 {
 	const float footer_height_to_reserve = -32.0f;
 
+	g_gui_widgets_i->add_text("Console", TEXTPROP_None, g_gui_fontmgr_i->get_font("segoeui", FONT_BIGGEST, FONTDEC_Regular));
+
+	auto window_size = g_gui_widgets_i->get_current_window_size();
+	auto window_pos = g_gui_widgets_i->get_current_window_pos();
+
+	auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Regular);
+
+	float spacing = 25.0f;
+	float offset_from_the_right = 80.0f;
+	float y_offset = 15.0f;
+
+	// lines
+	auto label = std::format("{} lines", m_contents.size());
+	auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, label.c_str());
+	g_gui_window_rendering_i->render_text(
+		g_gui_window_rendering_i->get_foreground_drawlist(),
+		font,
+		{ window_pos.x + window_size.x - offset_from_the_right - label_size.x, window_pos.y + y_offset },
+		g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextBlack>(),
+		label);
+
+	// logging path
+	auto label1 = std::format("logging to \"{}\"", get_logfile_path_fancy());
+	auto label1_size = g_gui_fontmgr_i->calc_font_text_size(font, label1.c_str());
+	g_gui_window_rendering_i->render_text(
+		g_gui_window_rendering_i->get_foreground_drawlist(),
+		font,
+		{ window_pos.x + window_size.x - offset_from_the_right - label_size.x - spacing - label1_size.x, window_pos.y + y_offset },
+		g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextBlack>(),
+		label1);
+
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 4.0f, 4.0f });
 
 	g_gui_widgets_i->add_child(
@@ -264,10 +297,9 @@ void CDeveloperConsole::render()
 
 	g_gui_widgets_i->pop_stylevar(1); // WindowPadding
 
-	auto window_size = g_gui_widgets_i->get_current_window_size();
 	auto button_size = Vector2D(25, 25);
 	auto cursor_pos = g_gui_widgets_i->get_cursor_pos();
-	if (g_gui_widgets_i->add_floating_button(";", cursor_pos, { window_size.x - 25.0f - button_size.x, 25.0f }, button_size, false, BUTTONFLAG_CenterLabel))
+	if (g_gui_widgets_i->add_floating_button(";", cursor_pos, { window_size.x - 25.0f - button_size.x, 5.0f }, button_size, false, BUTTONFLAG_CenterLabel))
 	{
 		CGenericUtil::the().copy_to_clipboard(";");
 		print_console(EOutputCategory::INFO, "Copied ';' to clipboard!");
@@ -400,6 +432,13 @@ static FilePath_t get_appdata_dir()
 FilePath_t CDeveloperConsole::get_logfile_path()
 {
 	auto logdir = get_appdata_dir() / m_logfile_path_current;
+	auto logfile = logdir / generate_logfilename();
+	return logfile;
+}
+
+FilePath_t CDeveloperConsole::get_logfile_path_fancy()
+{
+	auto logdir = std::filesystem::path("%appdata%") / m_logfile_path_current;
 	auto logfile = logdir / generate_logfilename();
 	return logfile;
 }

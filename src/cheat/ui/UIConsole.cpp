@@ -42,11 +42,15 @@ void CUIConsole::on_render()
 		ImGuiWindowFlags_NoSavedSettings | 
 		ImGuiWindowFlags_NoNav;
 
+	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 8.0f, 2.0f });
+
 	g_gui_widgets_i->create_new_window(
 		"console", window_flags, [&]()
 		{
 			g_gui_widgets_i->add_console();
 		});
+
+	g_gui_widgets_i->pop_stylevar(); // padding
 }
 
 void CUIConsole::on_destroy()

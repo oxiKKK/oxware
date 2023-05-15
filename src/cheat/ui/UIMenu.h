@@ -90,6 +90,10 @@ enum EMenuTabId
 	UIMENU_Config,
 	UIMENU_Binds,
 
+	// Other
+	UIMENU_CommandList,
+	UIMENU_VariableList,
+
 	UIMENU_Max,
 };
 
@@ -182,11 +186,14 @@ private:
 	void tab_miscellaneous3();
 	void tab_config();
 	void tab_binds();
+	void tab_cmdlist();
+	void tab_varlist();
 
 	MenuTabSection m_tabsec_AIHelpers;
 	MenuTabSection m_tabsec_Visuals;
 	MenuTabSection m_tabsec_Miscellaneous;
 	MenuTabSection m_tabsec_Configuration;
+	MenuTabSection m_tabsec_Other;
 
 	void add_menu_child(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents);
 

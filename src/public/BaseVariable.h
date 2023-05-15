@@ -138,6 +138,11 @@ public:
 		assert(0 && "You have to override this function from your class! (" __FUNCTION__ ")(2)");
 	}
 
+	struct less
+	{
+		inline bool operator()(BaseVariable* a, BaseVariable* b) const { return a->m_name < b->m_name; }
+	};
+
 private:
 	void add_to_global_list();
 
@@ -645,23 +650,26 @@ using pfnCommandFunc_t = std::function<void(BaseCommand* cmd, const CmdArgs& arg
 class BaseCommand
 {
 public:
-	BaseCommand(const std::string& name, const pfnCommandFunc_t& func) :
+	BaseCommand(const std::string& name, const std::string& description, const pfnCommandFunc_t& func) :
 		m_name(name), 
 		m_usage(""),
+		m_description(description),
 		m_function(func)
 	{
 		add_to_global_list();
 	}
 
-	BaseCommand(const std::string& name, const std::string& usage, const pfnCommandFunc_t& func) :
+	BaseCommand(const std::string& name, const std::string& usage, const std::string& description, const pfnCommandFunc_t& func) :
 		m_name(name), 
 		m_usage(usage), 
+		m_description(description),
 		m_function(func)
 	{
 		add_to_global_list();
 	}
 
 	inline const char* get_name() const { return m_name.c_str(); }
+	inline const char* get_description() const { return m_description.c_str(); }
 
 	// usage
 	inline bool has_usage() const { return !m_usage.empty(); }
@@ -677,11 +685,16 @@ public:
 		CConsole::the().info("Usage: {} {}", m_name, m_usage);
 	}
 
+	struct less
+	{
+		inline bool operator()(BaseCommand* a, BaseCommand* b) const { return a->m_name < b->m_name; }
+	};
+
 private:
 	void add_to_global_list();
 
 protected:
-	std::string m_name, m_usage;
+	std::string m_name, m_usage, m_description;
 
 	pfnCommandFunc_t m_function;
 };

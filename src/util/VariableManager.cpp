@@ -29,7 +29,7 @@
 #include "precompiled.h"
 
 BaseCommand command_list(
-	"command_list",
+	"command_list", "Prints out all registered commands",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		CConsole::the().info("{:<3}: {:<24} {}", "id", "name", "parameters");
@@ -46,7 +46,7 @@ BaseCommand command_list(
 );
 
 BaseCommand variable_list(
-	"variable_list",
+	"variable_list", "Prints out all registered variables",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		CConsole::the().info("{:<3}: {:<32} {:<10} {:<10} {:<10}", "id", "name", "value", "min", "max");
@@ -65,7 +65,7 @@ BaseCommand variable_list(
 );
 
 BaseCommand help(
-	"help",
+	"help", "Prints out some information that may help you",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		CConsole::the().info("Help:");
@@ -78,7 +78,7 @@ BaseCommand help(
 
 #if 0 // tokenizer test
 BaseCommand tokenize(
-	"tokenize", "<token1> <token2> <token3>",
+	"tokenize", "<token1> <token2> <token3>", "Debugging command to test the command tokenizer",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		if (args.count() == 1 || args.count() > 3)
@@ -114,6 +114,8 @@ BaseCommand tokenize(
 
 IVariableManager* g_variablemgr_i = nullptr;
 
+#include <set>
+
 class CVariableManager : public IVariableManager
 {
 public:
@@ -141,8 +143,8 @@ public:
 	}
 
 private:
-	std::unordered_set<BaseVariable*> m_registered_variables;
-	std::unordered_set<BaseCommand*> m_registered_commands;
+	std::set<BaseVariable*, BaseVariable::less> m_registered_variables;
+	std::set<BaseCommand*, BaseCommand::less> m_registered_commands;
 
 	bool did_overflow_vars(BaseVariable* var);
 	bool did_overflow_cmds(BaseCommand* cmd);

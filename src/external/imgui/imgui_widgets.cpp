@@ -955,6 +955,12 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
     ItemAdd(bb_frame, id, NULL, ImGuiItemFlags_NoNav);
     ButtonBehavior(bb, id, &hovered, &held, ImGuiButtonFlags_NoNavFocus);
 
+    // oxware added
+    if (hovered || held)
+    {
+        SetMouseCursor(ImGuiMouseCursor_Hand);
+    }
+
     const ImS64 scroll_max = ImMax((ImS64)1, size_contents_v - size_avail_v);
     float scroll_ratio = ImSaturate((float)*p_scroll_v / (float)scroll_max);
     float grab_v_norm = scroll_ratio * (scrollbar_size_v - grab_h_pixels) / scrollbar_size_v; // Grab position in normalized space

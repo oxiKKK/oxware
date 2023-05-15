@@ -222,7 +222,7 @@ public:
 	//
 
 	virtual void begin_tab(const std::string& label, ImGuiTabBarFlags flags) = 0;
-	virtual void add_tab_item(const std::string& label, bool border, const Vector2D& size, const std::function<void()>& pfn_contents) = 0;
+	virtual void add_tab_item(const std::string& label, bool border, const Vector2D& size, const std::function<void()>& pfn_contents, const Vector2D& child_padding = {}) = 0;
 	virtual void end_tab() = 0;
 
 	//

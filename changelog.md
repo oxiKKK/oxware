@@ -83,6 +83,11 @@
 - Added rechecker bypass.
 - Implemented default viewmodel enforcement.
 - Implemented key binding system (beta).
+- Changed the cheat menu key from F1 to `INSERT`!
+- Added hand cursor when hovered / held over scrollbar.
+- Increased scrollbar width from 9 px to 10 px and added rounding to it.
+- Improved console UI.
+- Added Variable&Command lists to the menu.
 
 ## Bugfixes
 

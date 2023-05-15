@@ -67,6 +67,8 @@ std::array<TabCallbackFn, UIMENU_Max> CUIMenu::s_active_tab_callback_translation
 		&CUIMenu::tab_miscellaneous3,		// UIMENU_Miscellaneous3
 		&CUIMenu::tab_config,				// UIMENU_Config
 		&CUIMenu::tab_binds,				// UIMENU_Binds
+		&CUIMenu::tab_cmdlist,				// UIMENU_CommandList
+		&CUIMenu::tab_varlist,				// UIMENU_VariableList
 	}
 };
 
@@ -164,6 +166,11 @@ void CUIMenu::on_initialize()
 	m_tabsec_Configuration.add_tab({ UIMENU_Config, &CUIMenu::tab_config, "Config", "TODO item description" });
 	m_tabsec_Configuration.add_tab({ UIMENU_Binds, &CUIMenu::tab_binds, "Binds", "TODO item description" });
 	m_tab_sections.push_back(&m_tabsec_Configuration);
+
+	m_tabsec_Other.set_label("Other");
+	m_tabsec_Other.add_tab({ UIMENU_CommandList, &CUIMenu::tab_cmdlist, "Command list", "TODO item description" });
+	m_tabsec_Other.add_tab({ UIMENU_VariableList, &CUIMenu::tab_varlist, "Variable list", "TODO item description" });
+	m_tab_sections.push_back(&m_tabsec_Other);
 }
 
 void CUIMenu::on_render()
@@ -172,7 +179,9 @@ void CUIMenu::on_render()
 	g_gui_widgets_i->set_next_window_size(CMenuStyle::k_menu_rect_size, ImGuiCond_Once);
 	g_gui_widgets_i->set_next_window_rounding(CMenuStyle::k_rounding_factor, ImDrawFlags_RoundCornersTopRight | ImDrawFlags_RoundCornersBottomLeft);
 
-	static constexpr auto window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav;
+	static constexpr auto window_flags = 
+		ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav 
+		| ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
 
 	auto segoeui_extra = g_gui_fontmgr_i->get_font("segoeui", FONT_EXTRA, FONTDEC_Bold);
 	auto segoeui_small = g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Bold);
@@ -1317,6 +1326,141 @@ void CUIMenu::tab_binds()
 		}
 		g_bindmgr_i->remove_all_binds();
 	}
+}
+
+void CUIMenu::tab_cmdlist()
+{
+	add_menu_child(
+		"Command list", CMenuStyle::child_full_width(-1.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			static char buffer[256];
+			static bool once = false;
+			if (!once)
+			{
+				strcpy_s(buffer, "");
+				once = true;
+			}
+
+			if (g_gui_widgets_i->add_text_input_ex("Search for a variable", buffer, sizeof(buffer),
+												   Vector2D(-1.0f, 0.0f)))
+			{
+			};
+
+			bool should_filter = buffer[0];
+
+			g_gui_widgets_i->add_table(
+				"command_list", 4, 
+				ImGuiTableFlags_HeaderTextOnly | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY,
+				[]()
+				{
+					static auto flags = ImGuiTableColumnFlags_NoReorder;
+
+					g_gui_widgets_i->table_setup_column_fixed_width("N", 25.0f, flags);
+					g_gui_widgets_i->table_setup_column("Name", flags);
+					g_gui_widgets_i->table_setup_column("Usage", flags);
+					g_gui_widgets_i->table_setup_column("Description", flags);
+				}, 
+				[&]()
+				{
+					auto small_font = g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Regular);
+					g_gui_widgets_i->push_font(small_font->m_precached_font_object);
+
+					int n = 0;
+					g_variablemgr_i->for_each_command(
+						[&](BaseCommand* cmd)
+						{
+							if (should_filter && !strstr(cmd->get_name(), buffer))
+							{
+								return;
+							}
+							
+							g_gui_widgets_i->table_next_column();
+							g_gui_widgets_i->add_text(std::format("{}", ++n));
+							g_gui_widgets_i->table_next_column();
+							g_gui_widgets_i->add_text(cmd->get_name());
+							g_gui_widgets_i->table_next_column();
+							g_gui_widgets_i->add_text(cmd->has_usage() ? cmd->get_usage() : "");
+							g_gui_widgets_i->table_next_column();
+							g_gui_widgets_i->add_text(cmd->get_description());
+						});
+
+					g_gui_widgets_i->pop_font();
+
+				});
+		});
+}
+
+void CUIMenu::tab_varlist()
+{
+	add_menu_child(
+		"Variable list", CMenuStyle::child_full_width(-1.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			static char buffer[256];
+			static bool once = false;
+			if (!once)
+			{
+				strcpy_s(buffer, "");
+				once = true;
+			}
+
+			if (g_gui_widgets_i->add_text_input_ex("Search for a variable", buffer, sizeof(buffer),
+												   Vector2D(-1.0f, 0.0f)))
+			{
+			};
+
+			bool should_filter = buffer[0];
+
+			g_gui_widgets_i->add_table(
+				"variable_list", 7,
+				ImGuiTableFlags_HeaderTextOnly | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY,
+				[]()
+				{
+					static auto flags = ImGuiTableColumnFlags_NoReorder;
+
+					g_gui_widgets_i->table_setup_column_fixed_width("N", 25.0f, flags);
+					g_gui_widgets_i->table_setup_column("Name", flags);
+					g_gui_widgets_i->table_setup_column_fixed_width("Value", 60.0f, flags);
+					g_gui_widgets_i->table_setup_column_fixed_width("Default", 60.0f, flags);
+					g_gui_widgets_i->table_setup_column_fixed_width("Min", 60.0f, flags);
+					g_gui_widgets_i->table_setup_column_fixed_width("Max", 60.0f, flags);
+					g_gui_widgets_i->table_setup_column("Description", flags);
+				},
+				[&]()
+				{
+					auto small_font = g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Regular);
+					g_gui_widgets_i->push_font(small_font->m_precached_font_object);
+
+					int n = 0;
+					g_variablemgr_i->for_each_variable(
+						[&](BaseVariable* var)
+						{
+							if (should_filter && !strstr(var->get_name(), buffer))
+							{
+								return;
+							}
+
+							g_gui_widgets_i->table_next_column();
+							g_gui_widgets_i->add_text(std::format("{}", ++n));
+							g_gui_widgets_i->table_next_column();
+							g_gui_widgets_i->add_text(var->get_name());
+							g_gui_widgets_i->table_next_column();
+							g_gui_widgets_i->add_text(var->get_value_string());
+							g_gui_widgets_i->table_next_column();
+							g_gui_widgets_i->add_text(var->get_default_value_string());
+							g_gui_widgets_i->table_next_column();
+							g_gui_widgets_i->add_text(var->get_min_string());
+							g_gui_widgets_i->table_next_column();
+							g_gui_widgets_i->add_text(var->get_max_string());
+							g_gui_widgets_i->table_next_column();
+							g_gui_widgets_i->add_text(var->get_description());
+						});
+
+					g_gui_widgets_i->pop_font();
+
+				});
+		});
 }
 
 //---------------------------------------------------------------------------------------------------

@@ -51,6 +51,7 @@
 #include <interface/gui/IGUIWidgets.h>
 #include <interface/gui/IGUIFontManager.h>
 #include <interface/gui/IGUIThemeManager.h>
+#include <interface/gui/IGUIWindowRendering.h>
 
 #include <tier/GenericUtil.h>
 #include <tier/StringTools.h>

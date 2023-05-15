@@ -1179,7 +1179,7 @@ void CUIMenu::tab_binds()
 									COxWareUI::the().update_scanned_key(std::format("<{}>", key_name));
 
 									COxWareUI::the().add_keybind_dialog(
-										[]()
+										[&]()
 										{
 											int vk = COxWareUI::the().get_new_key_bound();
 											if (vk == NULL)

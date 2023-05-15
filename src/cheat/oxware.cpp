@@ -48,6 +48,14 @@ ICodePerfProfiler* g_code_perf_profiler_i = nullptr;
 IBytePatternBank* g_bytepattern_bank_i = nullptr;
 IBindManager* g_bindmgr_i = nullptr;
 
+BaseCommand unload_cheat(
+	"unload_cheat", 
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		CoXWARE::the().end_cheat_execution();
+	}
+);
+
 bool CoXWARE::run(injector_information_package_t* ifp)
 {
 	m_ifp = ifp;

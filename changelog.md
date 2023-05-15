@@ -89,6 +89,11 @@
 - Improved console UI.
 - Added Variable&Command lists to the menu.
 - Added fancy cl_showfps rendering (custom).
+
+<details><summary>Spoiler</summary>
+	<img src="https://i.imgur.com/owRASUO.png" width="60%" height="60%"></img>
+</details><br>
+
 - Added new "others" tab in the menu.
 
 ## Bugfixes

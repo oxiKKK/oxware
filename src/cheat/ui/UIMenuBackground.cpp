@@ -33,8 +33,8 @@ void CUIMenuBackground::on_initialize()
 	m_fade_density = 0.0f;
 }
 
+// fast rand
 static unsigned long x = 123456789, y = 362436069, z = 521288629;
-
 unsigned long xorshf96() {          //period 2^96-1
 	unsigned long t;
 	x ^= x << 16;
@@ -53,13 +53,44 @@ void CUIMenuBackground::on_render()
 {
 	update_density();
 
-	g_gui_window_rendering_i->render_box(g_gui_window_rendering_i->get_background_drawlist(), 
-										 { 0.0f, 0.0f }, g_imgui_platform_layer_i->get_screen_size(), {0.0f, 0.0f, 0.0f, m_fade_density});
+	if (ui_background_fade.get_value())
+	{
+		g_gui_window_rendering_i->render_box(g_gui_window_rendering_i->get_background_drawlist(),
+											 { 0.0f, 0.0f }, g_imgui_platform_layer_i->get_screen_size(), { 0.0f, 0.0f, 0.0f, m_fade_density });
+	}
 
 	//
 	// rain
 	//
 
+	if (ui_background_rain.get_value())
+	{
+		render_rain();
+	}
+}
+
+void CUIMenuBackground::on_destroy()
+{
+}
+
+void CUIMenuBackground::update_density()
+{
+	if (m_is_rendering_timeless)
+	{
+		m_fade_density = time_elapsed_since_opened() / m_threshold;
+		m_fade_density = std::min(m_fade_density, k_max_fade_density);
+	}
+	else
+	{
+		if (time_elapsed_since_closed() < m_threshold)
+		{
+			m_fade_density = k_max_fade_density - (time_elapsed_since_closed() / m_threshold);
+		}
+	}
+}
+
+void CUIMenuBackground::render_rain()
+{
 	auto screen = g_imgui_platform_layer_i->get_screen_size();
 
 	if (m_rain.size() > 1000)
@@ -102,33 +133,13 @@ void CUIMenuBackground::on_render()
 			}
 
 			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_background_drawlist(), 
-				it->relative_pos, it->relative_pos + Vector2D(0.0f, it->random_factor), 
+				g_gui_window_rendering_i->get_background_drawlist(),
+				it->relative_pos, it->relative_pos + Vector2D(0.0f, it->random_factor),
 				CColor(230, 230, 230, (int)(m_fade_density * (180.0f / 255.0f) * 255.0f)), 1);
 		}
 		else
 		{
 			// out of bounds. we could erase it here, but I think that that would be too slow
-		}
-	}
-}
-
-void CUIMenuBackground::on_destroy()
-{
-}
-
-void CUIMenuBackground::update_density()
-{
-	if (m_is_rendering_timeless)
-	{
-		m_fade_density = time_elapsed_since_opened() / m_threshold;
-		m_fade_density = std::min(m_fade_density, k_max_fade_density);
-	}
-	else
-	{
-		if (time_elapsed_since_closed() < m_threshold)
-		{
-			m_fade_density = k_max_fade_density - (time_elapsed_since_closed() / m_threshold);
 		}
 	}
 }

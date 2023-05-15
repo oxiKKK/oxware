@@ -454,6 +454,13 @@ struct CL_SendConsistencyInfo_FnDetour_t final : public GenericMemoryFnDetour_cd
 	static void CL_SendConsistencyInfo(hl::sizebuf_t* msg);
 };
 
+// void SCR_DrawFPS()
+struct SCR_DrawFPS_FnDetour_t final : public GenericMemoryFnDetour_cdecl<>
+{
+	bool install();
+	static void SCR_DrawFPS();
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -501,6 +508,7 @@ public:
 	inline auto& CHudAmmo__DrawCrosshair() { static CHudAmmo__DrawCrosshair_FnDetour_t fnhook; return fnhook; }
 	inline auto& R_StudioDrawPlayer() { static R_StudioDrawPlayer_FnDetour_t fnhook; return fnhook; }
 	inline auto& CL_SendConsistencyInfo() { static CL_SendConsistencyInfo_FnDetour_t fnhook; return fnhook; }
+	inline auto& SCR_DrawFPS() { static SCR_DrawFPS_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

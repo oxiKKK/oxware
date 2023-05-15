@@ -418,64 +418,6 @@ int CGameUtil::get_player_flags()
 	return cldata->flags;
 }
 
-void CGameUtil::render_circle_opengl(float cx, float cy, float radius, int num_segments, float width, bool blend, int r, int g, int b, int a)
-{
-	// https://stackoverflow.com/questions/22444450/drawing-circle-with-opengl
-
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glBlendFunc(GL_SRC_ALPHA, blend ? GL_ONE_MINUS_SRC_ALPHA : GL_ONE);
-
-	glColor4ub(r, g, b, a);
-
-	glLineWidth(width);
-
-	glBegin(GL_LINE_LOOP);
-	for (int ii = 0; ii < num_segments; ii++)
-	{
-		float theta = 2.0f * std::numbers::pi_v<float> * float(ii) / float(num_segments); // get the current angle
-
-		float x = radius * cosf(theta); // calculate the x component
-		float y = radius * sinf(theta); // calculate the y component
-
-		glVertex2f(x + cx, y + cy); // output vertex
-
-	}
-	glEnd();
-
-	glColor3ub(255, 255, 255);
-
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
-}
-
-void CGameUtil::render_line_opengl(const Vector2D& from, const Vector2D& to, float width, bool blend, int r, int g, int b, int a)
-{
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glBlendFunc(GL_SRC_ALPHA, blend ? GL_ONE_MINUS_SRC_ALPHA : GL_ONE);
-
-	glColor4ub(r, g, b, a);
-
-	glLineWidth(width);
-
-	glBegin(GL_LINES);
-
-	glVertex2f(from.x, from.y);
-	glVertex2f(to.x, to.y);
-
-	glEnd();
-
-	glColor3ub(255, 255, 255);
-
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
-}
-
 bool CGameUtil::player_can_shoot()
 {
 	auto cldata = get_current_frame_clientdata();

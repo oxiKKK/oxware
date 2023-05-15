@@ -68,6 +68,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	CHudAmmo__DrawCrosshair().install();
 	R_StudioDrawPlayer().install();
 	CL_SendConsistencyInfo().install();
+	SCR_DrawFPS().install();
 
 	return true;
 }
@@ -119,6 +120,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	CHudAmmo__DrawCrosshair().uninstall();
 	R_StudioDrawPlayer().uninstall();
 	CL_SendConsistencyInfo().uninstall();
+	SCR_DrawFPS().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -743,3 +745,18 @@ void CL_SendConsistencyInfo_FnDetour_t::CL_SendConsistencyInfo(hl::sizebuf_t* ms
 }
 
 //---------------------------------------------------------------------------------
+
+bool SCR_DrawFPS_FnDetour_t::install()
+{
+	initialize("SCR_DrawFPS", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)SCR_DrawFPS);
+}
+
+void SCR_DrawFPS_FnDetour_t::SCR_DrawFPS()
+{
+	// this is in fact a good place to render custom engine stuff from
+
+	CEngineRendering::the().repaint();
+
+	CMemoryFnDetourMgr::the().SCR_DrawFPS().call();
+}

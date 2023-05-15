@@ -239,6 +239,7 @@ namespace hl
 #include "build_num.h"
 #include "EngineInputManager.h"
 #include "GoldSrcMungificationAlgorigthms.h"
+#include "EngineRendering.h"
 
 // game
 #include "game/model/StudioModelData.h"
@@ -265,6 +266,7 @@ namespace hl
 #include "features/VanillaCrosshair.h"
 #include "features/StuffCmdFilter.h"
 #include "features/ResourceConsistencyBypass.h"
+#include "features/IngameScreenRendering.h"
 
 // ui
 #include "ui/IRendererContext.h"

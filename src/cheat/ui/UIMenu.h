@@ -79,7 +79,7 @@ enum EMenuTabId
 	UIMENU_Viewmodel,
 	UIMENU_World,
 	UIMENU_Render,
-	UIMENU_Visuals4,
+	UIMENU_Screen,
 
 	// Miscellaneous
 	UIMENU_Exploits,
@@ -93,6 +93,7 @@ enum EMenuTabId
 	// Other
 	UIMENU_CommandList,
 	UIMENU_VariableList,
+	UIMENU_Others,
 
 	UIMENU_Max,
 };
@@ -180,6 +181,7 @@ private:
 	void tab_viewmodel();
 	void tab_world();
 	void tab_render();
+	void tab_screen();
 	void tab_visuals4();
 	void tab_exploits();
 	void tab_miscellaneous2();
@@ -188,6 +190,7 @@ private:
 	void tab_binds();
 	void tab_cmdlist();
 	void tab_varlist();
+	void tab_others();
 
 	MenuTabSection m_tabsec_AIHelpers;
 	MenuTabSection m_tabsec_Visuals;

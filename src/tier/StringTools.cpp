@@ -75,3 +75,98 @@ std::string CStringTools::format_date(const std::chrono::system_clock::time_poin
 
 	return date;
 }
+
+std::string CStringTools::pretify_file_size(float value)
+{
+	return pretify_value(value, 2, true, true);
+}
+
+std::string CStringTools::pretify_value(float value, int digits_after_decimal, bool use_binary_base, bool mebibytes)
+{
+	static char output[8][32];
+	static int  current;
+
+	float		onekb = use_binary_base ? 1024.0f : 1000.0f;
+	float		onemb = onekb * onekb;
+
+	char *out = output[current];
+	current = (current + 1) & (8 - 1);
+
+	char suffix[8];
+
+	// First figure out which bin to use
+	if (value > onemb)
+	{
+		value /= onemb;
+		snprintf(suffix, sizeof(suffix), mebibytes ? " MiB" : " MB");
+	}
+	else if (value > onekb)
+	{
+		value /= onekb;
+		snprintf(suffix, sizeof(suffix), mebibytes ? " KiB" : " KB");
+	}
+	else
+	{
+		snprintf(suffix, sizeof(suffix), " bytes");
+	}
+
+	char val[32];
+
+	// Clamp to >= 0
+	digits_after_decimal = std::max(digits_after_decimal, 0);
+
+	// If it's basically integral, don't do any decimals
+	if (fabs(value - (int)value) < 0.00001)
+	{
+		snprintf(val, sizeof(val), "%i%s", (int)value, suffix);
+	}
+	else
+	{
+		char fmt[32];
+
+		// Otherwise, create a format string for the decimals
+		snprintf(fmt, sizeof(fmt), "%%.%if%s", digits_after_decimal, suffix);
+		snprintf(val, sizeof(val), fmt, value);
+	}
+
+	// Copy from in to out
+	char *i = val;
+	char *o = out;
+
+	// Search for decimal or if it was integral, find the space after the raw number
+	char *dot = strstr(i, ".");
+	if (!dot)
+	{
+		dot = strstr(i, " ");
+	}
+
+	// Compute position of dot
+	int pos = dot - i;
+	// Don't put a comma if it's <= 3 long
+	pos -= 3;
+
+	while (*i)
+	{
+		// If pos is still valid then insert a comma every third digit, except if we would be
+		//  putting one in the first spot
+		if (pos >= 0 && !(pos % 3))
+		{
+			// Never in first spot
+			if (o != out)
+			{
+				*o++ = ',';
+			}
+		}
+
+		// Count down comma position
+		pos--;
+
+		// Copy rest of data as normal
+		*o++ = *i++;
+	}
+
+	// Terminate
+	*o = 0;
+
+	return out;
+}

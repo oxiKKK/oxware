@@ -28,6 +28,10 @@
 
 #include "precompiled.h"
 
+VarBoolean ui_background_rain("ui_background_rain", "Toggles on/off the background rain when UI is up", true);
+VarBoolean ui_background_fade("ui_background_fade", "Toggles on/off the background fade animation when UI is up", true);
+VarBoolean ui_render_feature_list("ui_render_feature_list", "Toggles on/off rendering of the feature list", true);
+
 BaseCommand ui_toggle_menu(
 	"ui_toggle_menu", "Toggles menu on/off",
 	[&](BaseCommand* cmd, const CmdArgs& args)

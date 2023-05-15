@@ -96,6 +96,9 @@ void CFeatureManager::precache_features()
 	// Flashbang fade
 	add_new_feature(BaseFeature(&flashfademod_enable, "Flashbang fade"));
 
+	// InGame Screen rendering
+	add_new_feature(BaseFeature(&ingamescreen_better_cl_showfps, "Better cl_showfps"));
+
 	
 	CConsole::the().info("Precached all features.");
 }

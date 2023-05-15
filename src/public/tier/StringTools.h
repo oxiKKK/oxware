@@ -46,6 +46,9 @@ public:
 
 	std::string format_timestamp_log(const std::chrono::system_clock::time_point& point);
 	std::string format_date(const std::chrono::system_clock::time_point& point);
+
+	std::string pretify_file_size(float value);
+	std::string pretify_value(float value, int digits_after_decimal = 2, bool use_binary_base = false, bool mebibytes = false);
 };
 
 #endif // STRINGTOOLS_H

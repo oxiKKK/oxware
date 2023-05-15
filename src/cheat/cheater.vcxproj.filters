@@ -206,6 +206,12 @@
     <ClCompile Include="vanilla_halflife_dir_file_database.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
+    <ClCompile Include="features\IngameScreenRendering.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineRendering.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -366,6 +372,12 @@
       <Filter>src\util</Filter>
     </ClInclude>
     <ClInclude Include="vanilla_halflife_dir_file_database.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="features\IngameScreenRendering.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineRendering.h">
       <Filter>src\util</Filter>
     </ClInclude>
   </ItemGroup>

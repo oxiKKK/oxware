@@ -34,6 +34,11 @@ void CUIFeatureList::on_initialize()
 
 void CUIFeatureList::on_render()
 {
+	if (!ui_render_feature_list.get_value())
+	{
+		return;
+	}
+
 	g_gui_widgets_i->set_next_window_pos({}, ImGuiCond_Once);
 	g_gui_widgets_i->set_next_window_size({ 300, g_imgui_platform_layer_i->get_screen_size().y }, ImGuiCond_Once);
 

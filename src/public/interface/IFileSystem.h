@@ -61,6 +61,7 @@ public:
 	virtual bool do_exist(const FilePath_t& path) = 0;
 
 	virtual uintmax_t file_size(const FilePath_t& path) = 0;
+	virtual uintmax_t directory_size(const FilePath_t& path) = 0;
 
 	virtual bool copy(const FilePath_t& from, const FilePath_t& to, ECopyOptions options = ECopyOptions::none) = 0;
 	virtual bool rename(const FilePath_t& from, const FilePath_t& to) = 0;

@@ -45,6 +45,7 @@ public:
 	bool do_exist(const FilePath_t& path);
 
 	uintmax_t file_size(const FilePath_t& path);
+	uintmax_t directory_size(const FilePath_t& path);
 
 	bool copy(const FilePath_t& from, const FilePath_t& to, ECopyOptions options = ECopyOptions::none);
 	bool rename(const FilePath_t& from, const FilePath_t& to);
@@ -102,22 +103,75 @@ CFileSystem::~CFileSystem()
 
 bool CFileSystem::is_directory(const FilePath_t& path)
 {
-	return std::filesystem::is_directory(path);
+	std::error_code errc;
+	bool ret = std::filesystem::is_directory(path, errc);
+	if (errc)
+	{
+		m_last_error = errc;
+		return false;
+	}
+	return ret;
 }
 
 bool CFileSystem::is_file(const FilePath_t& path)
 {
-	return std::filesystem::is_regular_file(path);
+	std::error_code errc;
+	bool ret = std::filesystem::is_regular_file(path, errc);
+	if (errc)
+	{
+		m_last_error = errc;
+		return false;
+	}
+	return ret;
 }
 
 bool CFileSystem::do_exist(const FilePath_t& path)
 {
-	return std::filesystem::exists(path);
+	std::error_code errc;
+	bool ret = std::filesystem::exists(path, errc);
+	if (errc)
+	{
+		m_last_error = errc;
+		return false;
+	}
+	return ret;
 }
 
 uintmax_t CFileSystem::file_size(const FilePath_t& path)
 {
-	return std::filesystem::file_size(path);
+	std::error_code errc;
+	uintmax_t size = std::filesystem::file_size(path, errc);
+	if (errc)
+	{
+		m_last_error = errc;
+		return false;
+	}
+	return size;
+}
+
+uintmax_t CFileSystem::directory_size(const FilePath_t& path)
+{
+	std::error_code errc;
+	uintmax_t size = 0;
+
+	iterate_through_files(
+		path, true, 
+		[&](const FilePath_t& directory)
+		{
+			if (!is_file(directory))
+			{
+				return;
+			}
+
+			size += file_size(directory);
+		});
+	
+	if (errc)
+	{
+		m_last_error = errc;
+		return false;
+	}
+	return size;
 }
 
 bool CFileSystem::copy(const FilePath_t& from, const FilePath_t& to, ECopyOptions options)
@@ -252,19 +306,25 @@ bool CFileSystem::create_directory(const FilePath_t& path)
 
 void CFileSystem::iterate_through_files(const FilePath_t& directory, bool recursive, const std::function<void(const FilePath_t&directory)>& callback)
 {
+	std::error_code errc;
 	if (recursive)
 	{
-		for (const auto& file : std::filesystem::recursive_directory_iterator(directory))
+		for (const auto& file : std::filesystem::recursive_directory_iterator(directory, errc))
 		{
 			callback(file.path());
 		}
 	}
 	else
 	{
-		for (const auto& file : std::filesystem::directory_iterator(directory))
+		for (const auto& file : std::filesystem::directory_iterator(directory, errc))
 		{
 			callback(file.path());
 		}
+	}
+
+	if (errc)
+	{
+		m_last_error = errc;
 	}
 }
 

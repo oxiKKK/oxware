@@ -88,6 +88,8 @@
 - Increased scrollbar width from 9 px to 10 px and added rounding to it.
 - Improved console UI.
 - Added Variable&Command lists to the menu.
+- Added fancy cl_showfps rendering (custom).
+- Added new "others" tab in the menu.
 
 ## Bugfixes
 

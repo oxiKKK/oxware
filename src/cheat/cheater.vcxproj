@@ -353,6 +353,8 @@
     </ClCompile>
     <ClCompile Include="build_num.cpp" />
     <ClCompile Include="EngineInputManager.cpp" />
+    <ClCompile Include="EngineRendering.cpp" />
+    <ClCompile Include="features\IngameScreenRendering.cpp" />
     <ClCompile Include="features\ResourceConsistencyBypass.cpp" />
     <ClCompile Include="features\BulletTrace.cpp" />
     <ClCompile Include="features\BypassGameConstrains.cpp" />
@@ -436,6 +438,8 @@
     <ClInclude Include="build_num.h" />
     <ClInclude Include="custom_format_cheat.h" />
     <ClInclude Include="EngineInputManager.h" />
+    <ClInclude Include="EngineRendering.h" />
+    <ClInclude Include="features\IngameScreenRendering.h" />
     <ClInclude Include="features\ResourceConsistencyBypass.h" />
     <ClInclude Include="features\BulletTrace.h" />
     <ClInclude Include="features\BypassGameConstrains.h" />

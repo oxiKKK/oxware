@@ -296,7 +296,7 @@ void CVanillaCrosshair::draw()
 #else
 		// would be inefficient to use fillRGBA for this.
 		int segments = std::clamp((int)(crosshair_dist / 3.0f), 16, 64);
-		CGameUtil::the().render_circle_opengl((float)(w / 2), (float)(h / 2), crosshair_dist, segments, (float)t, !crosshair_translucent.get_value(), r, g, b, a);
+		CEngineRendering::the().render_circle_opengl((float)(w / 2), (float)(h / 2), crosshair_dist, segments, (float)t, !crosshair_translucent.get_value(), r, g, b, a);
 #endif
 	}
 #if 0 // little silly, would need some work xD

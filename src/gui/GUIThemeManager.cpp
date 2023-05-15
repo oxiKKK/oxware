@@ -146,7 +146,7 @@ void CGUIThemeManager::sync_with_imgui()
 
 	style.ScrollbarSize = 10.f;
 	style.ScrollbarRounding = 8.f;
-	style.GrabMinSize = 24.0f;
+	style.GrabMinSize = 12.0f;
 	style.ChildRounding = style.FrameRounding = style.PopupRounding = 4.0f;
 	style.WindowPadding = { 10.f, 15.f };
 }

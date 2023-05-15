@@ -53,6 +53,8 @@ public:
 private:
 	void update_density();
 
+	void render_rain();
+
 private:
 	inline static constexpr float k_max_fade_density = 0.6f; // [0, 1] scale
 	float m_fade_density;

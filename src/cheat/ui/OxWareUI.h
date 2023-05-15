@@ -30,6 +30,10 @@
 #define OXWAREUI_H
 #pragma once
 
+extern VarBoolean ui_background_rain;
+extern VarBoolean ui_background_fade;
+extern VarBoolean ui_render_feature_list;
+
 class COxWareUI
 {
 public:

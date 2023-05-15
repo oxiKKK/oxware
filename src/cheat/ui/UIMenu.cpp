@@ -61,7 +61,7 @@ std::array<TabCallbackFn, UIMENU_Max> CUIMenu::s_active_tab_callback_translation
 		&CUIMenu::tab_viewmodel,			// UIMENU_Viewmodel
 		&CUIMenu::tab_world,				// UIMENU_World
 		&CUIMenu::tab_render,				// UIMENU_Render
-		&CUIMenu::tab_visuals4,				// UIMENU_Visuals4
+		&CUIMenu::tab_screen,				// UIMENU_Screeb
 		&CUIMenu::tab_exploits,				// UIMENU_Exploits
 		&CUIMenu::tab_miscellaneous2,		// UIMENU_Miscellaneous2
 		&CUIMenu::tab_miscellaneous3,		// UIMENU_Miscellaneous3
@@ -69,6 +69,7 @@ std::array<TabCallbackFn, UIMENU_Max> CUIMenu::s_active_tab_callback_translation
 		&CUIMenu::tab_binds,				// UIMENU_Binds
 		&CUIMenu::tab_cmdlist,				// UIMENU_CommandList
 		&CUIMenu::tab_varlist,				// UIMENU_VariableList
+		&CUIMenu::tab_others,				// UIMENU_Others
 	}
 };
 
@@ -153,7 +154,7 @@ void CUIMenu::on_initialize()
 	m_tabsec_Visuals.set_label("Visuals");
 	m_tabsec_Visuals.add_tab({ UIMENU_World, &CUIMenu::tab_world, "World", "TODO item description" });
 	m_tabsec_Visuals.add_tab({ UIMENU_Render, &CUIMenu::tab_render, "Render", "TODO item description" });
-	//m_tabsec_Visuals.add_tab({ UIMENU_Visuals4, &CUIMenu::tab_visuals4, "Visuals4", "TODO item description" });
+	m_tabsec_Visuals.add_tab({ UIMENU_Screen, &CUIMenu::tab_screen, "Screen", "TODO item description" });
 	m_tab_sections.push_back(&m_tabsec_Visuals);
 
 	m_tabsec_Miscellaneous.set_label("Miscellaneous");
@@ -170,6 +171,7 @@ void CUIMenu::on_initialize()
 	m_tabsec_Other.set_label("Other");
 	m_tabsec_Other.add_tab({ UIMENU_CommandList, &CUIMenu::tab_cmdlist, "Command list", "TODO item description" });
 	m_tabsec_Other.add_tab({ UIMENU_VariableList, &CUIMenu::tab_varlist, "Variable list", "TODO item description" });
+	m_tabsec_Other.add_tab({ UIMENU_Others, &CUIMenu::tab_others, "Others", "TODO item description" });
 	m_tab_sections.push_back(&m_tabsec_Other);
 }
 
@@ -644,6 +646,99 @@ void CUIMenu::tab_render()
 				CUIMenuWidgets::the().add_listbox("Type ##hidden", &crosshair_type, { "Classic", "T-Shaped", "Circular" });
 
 				CUIMenuWidgets::the().add_color_edit("Color", &crosshair_color);
+			});
+
+		g_gui_widgets_i->end_columns();
+	}
+}
+
+void CUIMenu::tab_screen()
+{
+	if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
+	{
+		g_gui_widgets_i->goto_next_column();
+
+		add_menu_child(
+			"Flashbang fade", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox_with_color("Enable", &flashfademod_enable, &flashfademod_color);
+
+				CUIMenuWidgets::the().add_slider("Fade factor", "%0.1f", &flashfademod_fade_factor);
+			});
+
+		add_menu_child(
+			"ESP", CMenuStyle::calc_child_size(415), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &esp_enable);
+
+				g_gui_widgets_i->add_spacing();
+
+				CUIMenuWidgets::the().add_checkbox("Box background", &esp_background);
+				CUIMenuWidgets::the().add_listbox("Box type", &esp_box_type, { "Normal", "Corners" });
+
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Player");
+				CUIMenuWidgets::the().add_checkbox("Enable ##player", &esp_player_enable);
+				CUIMenuWidgets::the().add_checkbox("Show name", &esp_player_name);
+
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Entity");
+				CUIMenuWidgets::the().add_checkbox("Enable ##ents", &esp_entity_enable);
+
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Sound");
+				CUIMenuWidgets::the().add_checkbox("Enable ##sound", &esp_sound_enable);
+				CUIMenuWidgets::the().add_slider("Display life", "%0.1f seconds", &esp_sound_interval);
+				CUIMenuWidgets::the().add_checkbox("Filter local", &esp_sound_filter_local);
+				CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
+			});
+
+		g_gui_widgets_i->goto_next_column();
+
+		add_menu_child(
+			"HUD rendering", CMenuStyle::calc_child_size(215), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Custom rendering");
+
+				CUIMenuWidgets::the().add_checkbox("Enable", &hud_render);
+				CUIMenuWidgets::the().add_checkbox("Current weapon", &hud_render_current_weapon);
+				CUIMenuWidgets::the().add_checkbox("Velocity", &hud_render_velocity);
+
+				g_gui_widgets_i->add_padding({ 0, 5.0f });
+				g_gui_widgets_i->add_separtor_with_text("Colors");
+
+				CUIMenuWidgets::the().add_checkbox_with_color("HUD Color", &hud_color_enable, &hud_color);
+			});
+
+		add_menu_child(
+			"Custom vanilla crosshair", CMenuStyle::calc_child_size(280), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &crosshair_enable);
+				CUIMenuWidgets::the().add_checkbox("Dynamic", &crosshair_dynamic);
+				CUIMenuWidgets::the().add_checkbox("Translucent", &crosshair_translucent);
+				CUIMenuWidgets::the().add_checkbox("Static", &crosshair_static);
+
+				CUIMenuWidgets::the().add_slider("Size", "%0.0f", &crosshair_size, "vanilla");
+				CUIMenuWidgets::the().add_slider("Gap", "%0.0f", &crosshair_gap, "vanilla");
+				CUIMenuWidgets::the().add_slider("Thickness", "%0.0f pixels", &crosshair_thickness);
+
+				CUIMenuWidgets::the().add_listbox("Type ##hidden", &crosshair_type, { "Classic", "T-Shaped", "Circular" });
+
+				CUIMenuWidgets::the().add_color_edit("Color", &crosshair_color);
+			});
+
+		add_menu_child(
+			"Other", CMenuStyle::calc_child_size(150), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Better cl_showfps", &ingamescreen_better_cl_showfps);
+				CUIMenuWidgets::the().add_checkbox("Background", &ingamescreen_better_cl_showfps_background);
+				CUIMenuWidgets::the().add_listbox("Position", &ingamescreen_better_cl_showfps_position, { "Top left", "Top right", "bottom right", "bottom left" });
 			});
 
 		g_gui_widgets_i->end_columns();
@@ -1461,6 +1556,87 @@ void CUIMenu::tab_varlist()
 
 				});
 		});
+}
+
+void CUIMenu::tab_others()
+{
+	if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
+	{
+		g_gui_widgets_i->goto_next_column();
+
+		add_menu_child(
+			"UI", CMenuStyle::calc_child_size(120), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable rain", &ui_background_rain);
+				CUIMenuWidgets::the().add_checkbox("Enable background fade", &ui_background_fade);
+				CUIMenuWidgets::the().add_checkbox("Render feature list", &ui_render_feature_list);
+			});
+
+		g_gui_widgets_i->goto_next_column();
+		
+		add_menu_child(
+			"Storage", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Regular);
+
+				auto cheat_directory = g_filesystem_i->get_appdata_path();
+
+				static uintmax_t cheat_directory_size = 0, logs_directory_size = 0, cfg_directory_size = 0;
+
+				static auto t1 = std::chrono::high_resolution_clock::now();
+
+				if (std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - t1).count() > 0.250)
+				{
+					cheat_directory_size = g_filesystem_i->directory_size(cheat_directory);
+					logs_directory_size = g_filesystem_i->directory_size(cheat_directory / "log");
+					cfg_directory_size = g_filesystem_i->directory_size(cheat_directory / "config");
+
+					t1 = std::chrono::high_resolution_clock::now();
+				}
+
+				g_gui_widgets_i->add_text(std::format("Currently occupied space on your computer: {}", 
+													  CStringTools::the().pretify_file_size((float)cheat_directory_size)), TEXTPROP_Wrapped, font);
+
+				g_gui_widgets_i->add_separator();
+				
+				g_gui_widgets_i->add_text(std::format("logs: {}",
+													  CStringTools::the().pretify_file_size((float)logs_directory_size)), TEXTPROP_Wrapped, font);
+				g_gui_widgets_i->add_text(std::format("configs: {}", 
+													  CStringTools::the().pretify_file_size((float)cfg_directory_size)), TEXTPROP_Wrapped, font);
+
+				g_gui_widgets_i->add_separator();
+
+				if (g_gui_widgets_i->add_button("open cheat storage directory", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+				{
+					CGenericUtil::the().open_folder_inside_explorer(cheat_directory.string());
+				}
+
+				if (g_gui_widgets_i->add_button("clear unnecessary files", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+				{
+					g_filesystem_i->iterate_through_files(
+						cheat_directory / "log", false, 
+						[](const FilePath_t& dir)
+						{
+							if (g_filesystem_i->is_file(dir))
+							{
+								g_filesystem_i->remove(dir);
+							}
+						});
+				}
+
+				VarInteger* var = (VarInteger*)g_variablemgr_i->query_variable("num_logfiles_to_keep");
+
+				if (var)
+				{
+					g_gui_widgets_i->add_spacing();
+					CUIMenuWidgets::the().add_slider("Logfiles to keep", "%0.0f", var);
+				}
+			});
+
+		g_gui_widgets_i->end_columns();
+	}
 }
 
 //---------------------------------------------------------------------------------------------------

@@ -54,7 +54,7 @@
 #include <deque>
 #include <map>
 
-VarInteger num_logfiles_to_keep("num_logfiles_to_keep", "Amount of logfiles to keep. Older logfiles will be automatically removed.", 10);
+VarInteger num_logfiles_to_keep("num_logfiles_to_keep", "Amount of logfiles to keep. Older logfiles will be automatically removed.", 10, 1, 30);
 
 IDeveloperConsole* g_devconsole_i = nullptr;
 

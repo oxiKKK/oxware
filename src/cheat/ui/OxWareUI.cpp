@@ -319,7 +319,7 @@ void COxWareUI::render_imgui()
 		g_imgui_platform_layer_i->override_cursor(GUICURSOR_None);
 	}
 
-	g_imgui_platform_layer_i->should_render_imgui_cursor(true);
+	g_imgui_platform_layer_i->should_render_imgui_cursor(m_is_any_interactible_rendering_context_active);
 }
 
 void COxWareUI::post_render()

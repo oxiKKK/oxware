@@ -98,9 +98,6 @@
     <ClCompile Include="features\FeatureManager.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
-    <ClCompile Include="GameUtil.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
     <ClCompile Include="features\FieldOfViewChanger.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
@@ -146,14 +143,8 @@
     <ClCompile Include="hook\SVCFuncDetour.cpp">
       <Filter>src\hooking</Filter>
     </ClCompile>
-    <ClCompile Include="HLNetMessageIO.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
     <ClCompile Include="features\ViewmodelOffset.cpp">
       <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="MathUtil.cpp">
-      <Filter>src\util</Filter>
     </ClCompile>
     <ClCompile Include="features\ServerLiar.cpp">
       <Filter>src\features</Filter>
@@ -166,9 +157,6 @@
     </ClCompile>
     <ClCompile Include="features\BulletTrace.cpp">
       <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="build_num.cpp">
-      <Filter>src\util</Filter>
     </ClCompile>
     <ClCompile Include="hook\UserMSGDetour.cpp">
       <Filter>src\hooking</Filter>
@@ -194,22 +182,37 @@
     <ClCompile Include="hook\HookTests.cpp">
       <Filter>src\hooking\tests</Filter>
     </ClCompile>
-    <ClCompile Include="EngineInputManager.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
     <ClCompile Include="features\ResourceConsistencyBypass.cpp">
       <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="GoldSrcMungificationAlgorigthms.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
-    <ClCompile Include="vanilla_halflife_dir_file_database.cpp">
-      <Filter>src\util</Filter>
     </ClCompile>
     <ClCompile Include="features\IngameScreenRendering.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
-    <ClCompile Include="EngineRendering.cpp">
+    <ClCompile Include="util\EngineInputManager.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\EngineRendering.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\GameUtil.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\GoldSrcMungificationAlgorigthms.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\HLNetMessageIO.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\MathUtil.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\vanilla_halflife_dir_file_database.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\build_num.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\GoldSrcCommandManager.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
   </ItemGroup>
@@ -263,9 +266,6 @@
     <ClInclude Include="features\FeatureManager.h">
       <Filter>src\features</Filter>
     </ClInclude>
-    <ClInclude Include="GameUtil.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
     <ClInclude Include="features\FieldOfViewChanger.h">
       <Filter>src\features</Filter>
     </ClInclude>
@@ -311,14 +311,8 @@
     <ClInclude Include="hook\SVCFuncDetour.h">
       <Filter>src\hooking</Filter>
     </ClInclude>
-    <ClInclude Include="HLNetMessageIO.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
     <ClInclude Include="features\ViewmodelOffset.h">
       <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="MathUtil.h">
-      <Filter>src\util</Filter>
     </ClInclude>
     <ClInclude Include="features\ServerLiar.h">
       <Filter>src\features</Filter>
@@ -331,9 +325,6 @@
     </ClInclude>
     <ClInclude Include="features\BulletTrace.h">
       <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="build_num.h">
-      <Filter>src\util</Filter>
     </ClInclude>
     <ClInclude Include="hook\UserMSGDetour.h">
       <Filter>src\hooking</Filter>
@@ -362,22 +353,37 @@
     <ClInclude Include="hook\HookTests.h">
       <Filter>src\hooking\tests</Filter>
     </ClInclude>
-    <ClInclude Include="EngineInputManager.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
     <ClInclude Include="features\ResourceConsistencyBypass.h">
       <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="GoldSrcMungificationAlgorigthms.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
-    <ClInclude Include="vanilla_halflife_dir_file_database.h">
-      <Filter>src\util</Filter>
     </ClInclude>
     <ClInclude Include="features\IngameScreenRendering.h">
       <Filter>src\features</Filter>
     </ClInclude>
-    <ClInclude Include="EngineRendering.h">
+    <ClInclude Include="util\build_num.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\EngineInputManager.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\EngineRendering.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\GameUtil.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\GoldSrcMungificationAlgorigthms.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\HLNetMessageIO.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\MathUtil.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\vanilla_halflife_dir_file_database.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\GoldSrcCommandManager.h">
       <Filter>src\util</Filter>
     </ClInclude>
   </ItemGroup>

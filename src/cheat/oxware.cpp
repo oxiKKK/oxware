@@ -377,6 +377,8 @@ bool CoXWARE::initialize_hook_managers()
 		return false;
 	}
 
+	CGoldSrcCommandMgr::the().initialize();
+
 	// HL interface hook
 	if (!CHLInterfaceHook::the().install_hooks())
 	{

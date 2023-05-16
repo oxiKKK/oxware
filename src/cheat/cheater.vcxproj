@@ -351,9 +351,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="build_num.cpp" />
-    <ClCompile Include="EngineInputManager.cpp" />
-    <ClCompile Include="EngineRendering.cpp" />
     <ClCompile Include="features\IngameScreenRendering.cpp" />
     <ClCompile Include="features\ResourceConsistencyBypass.cpp" />
     <ClCompile Include="features\BulletTrace.cpp" />
@@ -369,7 +366,6 @@
     <ClCompile Include="features\StuffCMDFilter.cpp" />
     <ClCompile Include="features\VanillaCrosshair.cpp" />
     <ClCompile Include="features\ViewmodelOffset.cpp" />
-    <ClCompile Include="GameUtil.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="features\FeatureManager.cpp" />
     <ClCompile Include="game\EntityManager.cpp" />
@@ -379,8 +375,6 @@
     <ClCompile Include="game\model\SpriteModelData.cpp" />
     <ClCompile Include="game\model\StudioModelData.cpp" />
     <ClCompile Include="game\SpriteManager.cpp" />
-    <ClCompile Include="GoldSrcMungificationAlgorigthms.cpp" />
-    <ClCompile Include="HLNetMessageIO.cpp" />
     <ClCompile Include="hook\client_dll\MemoryHookCBaseStuff.cpp" />
     <ClCompile Include="hook\HLInterfaceHook.cpp" />
     <ClCompile Include="hook\HookTests.cpp" />
@@ -390,7 +384,6 @@
     <ClCompile Include="hook\SVCFuncDetour.cpp" />
     <ClCompile Include="hook\UserMSGDetour.cpp" />
     <ClCompile Include="InjectedDllIPCLayerClient.cpp" />
-    <ClCompile Include="MathUtil.cpp" />
     <ClCompile Include="oxware.cpp" />
     <ClCompile Include="precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -420,13 +413,18 @@
     <ClCompile Include="ui\UIMenuBackground.cpp" />
     <ClCompile Include="ui\UIMenuWidgets.cpp" />
     <ClCompile Include="ui\UIPerformanceProfilerVisualization.cpp" />
-    <ClCompile Include="vanilla_halflife_dir_file_database.cpp">
+    <ClCompile Include="util\build_num.cpp" />
+    <ClCompile Include="util\EngineInputManager.cpp" />
+    <ClCompile Include="util\EngineRendering.cpp" />
+    <ClCompile Include="util\GameUtil.cpp" />
+    <ClCompile Include="util\GoldSrcCommandManager.cpp" />
+    <ClCompile Include="util\GoldSrcMungificationAlgorigthms.cpp" />
+    <ClCompile Include="util\HLNetMessageIO.cpp" />
+    <ClCompile Include="util\MathUtil.cpp" />
+    <ClCompile Include="util\vanilla_halflife_dir_file_database.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -435,10 +433,7 @@
     <ClInclude Include="..\public\Console.h" />
     <ClInclude Include="..\public\DependencyLoader.h" />
     <ClInclude Include="..\public\interface.h" />
-    <ClInclude Include="build_num.h" />
     <ClInclude Include="custom_format_cheat.h" />
-    <ClInclude Include="EngineInputManager.h" />
-    <ClInclude Include="EngineRendering.h" />
     <ClInclude Include="features\IngameScreenRendering.h" />
     <ClInclude Include="features\ResourceConsistencyBypass.h" />
     <ClInclude Include="features\BulletTrace.h" />
@@ -454,7 +449,6 @@
     <ClInclude Include="features\StuffCMDFilter.h" />
     <ClInclude Include="features\VanillaCrosshair.h" />
     <ClInclude Include="features\ViewmodelOffset.h" />
-    <ClInclude Include="GameUtil.h" />
     <ClInclude Include="features\FeatureManager.h" />
     <ClInclude Include="game\EntityManager.h" />
     <ClInclude Include="game\GenericEnt.h" />
@@ -463,8 +457,6 @@
     <ClInclude Include="game\model\SpriteModelData.h" />
     <ClInclude Include="game\model\StudioModelData.h" />
     <ClInclude Include="game\SpriteManager.h" />
-    <ClInclude Include="GoldSrcMungificationAlgorigthms.h" />
-    <ClInclude Include="HLNetMessageIO.h" />
     <ClInclude Include="hook\client_dll\MemoryHookCBaseStuff.h" />
     <ClInclude Include="hook\HLInterfaceHook.h" />
     <ClInclude Include="hook\HookTests.h" />
@@ -473,7 +465,6 @@
     <ClInclude Include="hook\MemoryHook.h" />
     <ClInclude Include="hook\SVCFuncDetour.h" />
     <ClInclude Include="hook\UserMSGDetour.h" />
-    <ClInclude Include="MathUtil.h" />
     <ClInclude Include="oxware.h" />
     <ClInclude Include="precompiled.h" />
     <ClInclude Include="ui\IRendererContext.h" />
@@ -485,7 +476,15 @@
     <ClInclude Include="ui\UIMenuBackground.h" />
     <ClInclude Include="ui\UIMenuWidgets.h" />
     <ClInclude Include="ui\UIPerformanceProfilerVisualization.h" />
-    <ClInclude Include="vanilla_halflife_dir_file_database.h" />
+    <ClInclude Include="util\build_num.h" />
+    <ClInclude Include="util\EngineInputManager.h" />
+    <ClInclude Include="util\EngineRendering.h" />
+    <ClInclude Include="util\GameUtil.h" />
+    <ClInclude Include="util\GoldSrcCommandManager.h" />
+    <ClInclude Include="util\GoldSrcMungificationAlgorigthms.h" />
+    <ClInclude Include="util\HLNetMessageIO.h" />
+    <ClInclude Include="util\MathUtil.h" />
+    <ClInclude Include="util\vanilla_halflife_dir_file_database.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -217,7 +217,7 @@ void CEngineInput::toggle_relative_mouse_mode(bool enable)
 	auto& enginefuncs_hook = CMemoryHookMgr::the().cl_enginefuncs();
 	if (enginefuncs_hook.is_installed())
 	{
-		auto m_rawinput = enginefuncs_hook.get()->pfnGetCvarPointer((char*)"m_rawinput");
+		auto m_rawinput = CGoldSrcCommandMgr::the().get_cvar("m_rawinput");
 		if (m_rawinput && m_rawinput->value != 0.0f)
 		{
 			SDL_SetRelativeMouseMode(enable);

@@ -93,7 +93,7 @@ void CForceEnableDisabled::update_disable_sponly_cvars()
 			for (auto& disabled_sponly_cvar : m_saved_sponly_cvars)
 			{
 				// find the cvar we have disabled
-				auto cvar = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer((char*)disabled_sponly_cvar.c_str());
+				auto cvar = CGoldSrcCommandMgr::the().get_cvar(disabled_sponly_cvar);
 				if (!cvar)
 				{
 					continue;

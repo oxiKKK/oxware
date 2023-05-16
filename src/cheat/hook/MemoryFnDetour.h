@@ -461,6 +461,20 @@ struct SCR_DrawFPS_FnDetour_t final : public GenericMemoryFnDetour_cdecl<>
 	static void SCR_DrawFPS();
 };
 
+// void Cmd_AddMallocCommand(char* cmd_name, xcommand_t function, int flag)
+struct Cmd_AddMallocCommand_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, char*, hl::xcommand_t, int>
+{
+	bool install();
+	static void Cmd_AddMallocCommand(char* cmd_name, hl::xcommand_t function, int flag);
+};
+
+// cvar_t* hudRegisterVariable(char* szName, char* szValue, int flags)
+struct hudRegisterVariable_FnDetour_t final : public GenericMemoryFnDetour_cdecl<hl::cvar_t*, char*, char*, int>
+{
+	bool install();
+	static hl::cvar_t* hudRegisterVariable(char* szName, char* szValue, int flags);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -509,6 +523,8 @@ public:
 	inline auto& R_StudioDrawPlayer() { static R_StudioDrawPlayer_FnDetour_t fnhook; return fnhook; }
 	inline auto& CL_SendConsistencyInfo() { static CL_SendConsistencyInfo_FnDetour_t fnhook; return fnhook; }
 	inline auto& SCR_DrawFPS() { static SCR_DrawFPS_FnDetour_t fnhook; return fnhook; }
+	inline auto& Cmd_AddMallocCommand() { static Cmd_AddMallocCommand_FnDetour_t fnhook; return fnhook; }
+	inline auto& hudRegisterVariable() { static hudRegisterVariable_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

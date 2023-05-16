@@ -32,7 +32,7 @@
 
 #include "precompiled.h"
 
-#include "vanilla_halflife_dir_file_database.h"
+#include "util/vanilla_halflife_dir_file_database.h"
 
 VarBoolean consistencybypass_enable("consistencybypass_enable", "Enables resource consistency bypass.", false);
 VarBoolean consistencybypass_log("consistencybypass_log", "Logs every file that gets requested to be processed by the server", false);

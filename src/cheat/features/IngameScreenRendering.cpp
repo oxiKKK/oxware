@@ -55,7 +55,7 @@ void CIngameScreenRendering::better_cl_showfps()
 
 	if (!cl_showfps)
 	{
-		cl_showfps = enginefuncs->pfnGetCvarPointer((char*)"cl_showfps");
+		cl_showfps = CGoldSrcCommandMgr::the().get_cvar("cl_showfps");
 	}
 
 	// cvar is on

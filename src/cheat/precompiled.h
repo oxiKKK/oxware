@@ -233,13 +233,14 @@ namespace hl
 #include "hook/client_dll/MemoryHookCBaseStuff.h"
 
 // util
-#include "GameUtil.h"
-#include "MathUtil.h"
-#include "HLNetMessageIO.h"
-#include "build_num.h"
-#include "EngineInputManager.h"
-#include "GoldSrcMungificationAlgorigthms.h"
-#include "EngineRendering.h"
+#include "util/GameUtil.h"
+#include "util/MathUtil.h"
+#include "util/HLNetMessageIO.h"
+#include "util/build_num.h"
+#include "util/EngineInputManager.h"
+#include "util/GoldSrcMungificationAlgorigthms.h"
+#include "util/EngineRendering.h"
+#include "util/GoldSrcCommandManager.h"
 
 // game
 #include "game/model/StudioModelData.h"

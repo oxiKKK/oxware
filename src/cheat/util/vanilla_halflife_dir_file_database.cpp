@@ -32,7 +32,7 @@
 // This is used inside the cheat for rechecker bypass.
 //
 
-#include "vanilla_halflife_dir_file_database.h"
+#include "util/vanilla_halflife_dir_file_database.h"
 
 /*
 	Folloging script was used to output this:

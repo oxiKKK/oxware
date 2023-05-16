@@ -69,6 +69,8 @@ bool CMemoryFnDetourMgr::install_hooks()
 	R_StudioDrawPlayer().install();
 	CL_SendConsistencyInfo().install();
 	SCR_DrawFPS().install();
+	Cmd_AddMallocCommand().install();
+	hudRegisterVariable().install();
 
 	return true;
 }
@@ -121,6 +123,8 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	R_StudioDrawPlayer().uninstall();
 	CL_SendConsistencyInfo().uninstall();
 	SCR_DrawFPS().uninstall();
+	Cmd_AddMallocCommand().uninstall();
+	hudRegisterVariable().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -711,7 +715,12 @@ int R_StudioDrawPlayer_FnDetour_t::R_StudioDrawPlayer(int flags, hl::entity_stat
 	// draw first so we don't clip through original model
 	if (mdlchams_render_real_playermodel.get_value())
 	{
-		auto cl_minmodels = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer((char*)"cl_minmodels");
+		static hl::cvar_t* cl_minmodels = nullptr;
+		if (!cl_minmodels)
+		{
+			cl_minmodels = CGoldSrcCommandMgr::the().get_cvar("cl_minmodels");
+		}
+
 		cl_minmodels->value = 1;
 
 		CModelChams::the().toggle_rendering_real_playermodel();
@@ -759,4 +768,72 @@ void SCR_DrawFPS_FnDetour_t::SCR_DrawFPS()
 	CEngineRendering::the().repaint();
 
 	CMemoryFnDetourMgr::the().SCR_DrawFPS().call();
+}
+
+//---------------------------------------------------------------------------------
+
+bool Cmd_AddMallocCommand_FnDetour_t::install()
+{
+	initialize("Cmd_AddMallocCommand", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)Cmd_AddMallocCommand);
+}
+
+void Cmd_AddMallocCommand_FnDetour_t::Cmd_AddMallocCommand(char* cmd_name, hl::xcommand_t function, int flag)
+{
+	// sadly, the function doesn't return the new command entry pointer, so we have to search for it...
+
+	//
+	// so far what I had gathered from studying the GS command code:
+	// 
+	// there are two functions that can add commands:
+	// 1) Cmd_AddCommandWithFlags	- is only called from the host initialization code and cannot be called after.
+	// 2) Cmd_AddMallocCommand		- can be called after initialization, is used by mods. This one is the only one
+	//								  that I am aware of that can add commands at runtime.
+	// 
+	// commands can be also removed, but they're only at initialization or shutdown. From mod you aren't able to do that AFAIk.
+	// 
+	// commands with FCMD_HUD flag are added by the client dll (mod).
+	// commands with FCMD_GAME flag are added by the game dll.
+	// commands with FCMD_WRAPPER flag are added by the SystemWrapper interface. (this is used by gameUI)
+	//
+
+	CMemoryFnDetourMgr::the().Cmd_AddMallocCommand().call(cmd_name, function, flag);
+
+	// now the cmd has been added, search for it.
+	//
+	// the function goes like this:
+	//
+	// cmd->next = cmd_functions;
+	// cmd_functions = cmd;
+	//
+	// so I assume that cmd_functions points to the newly added entry.
+	auto cmd = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetFirstCmdFunctionHandle(); // cannot be null
+	CGoldSrcCommandMgr::the().register_cmd(cmd->name, cmd);
+}
+
+//---------------------------------------------------------------------------------
+
+bool hudRegisterVariable_FnDetour_t::install()
+{
+	initialize("hudRegisterVariable", L"hw.dll");
+	return detour_using_memory_address((uintptr_t*)hudRegisterVariable, (uintptr_t*)CMemoryHookMgr::the().cl_enginefuncs().get()->pfnRegisterVariable);
+}
+
+hl::cvar_t* hudRegisterVariable_FnDetour_t::hudRegisterVariable(char* szName, char* szValue, int flags)
+{
+	auto cvar = CMemoryFnDetourMgr::the().hudRegisterVariable().call(szName, szValue, flags);
+
+	//
+	// with cvars its easier than with commands. Cvars are added only by Cvar_RegisterVariable, which is
+	// exported to clientdlls via pfnRegisterVariable. There's no other way to register cvars.
+	// 
+	// cvars cannot be unregistered. they are only unregistered at shutdown or initialization. same with cmds.
+	//
+
+	if (cvar)
+	{
+		CGoldSrcCommandMgr::the().register_cvar(cvar->name, cvar);
+	}
+
+	return cvar;
 }

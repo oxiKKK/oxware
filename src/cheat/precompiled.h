@@ -268,6 +268,7 @@ namespace hl
 #include "features/StuffCmdFilter.h"
 #include "features/ResourceConsistencyBypass.h"
 #include "features/IngameScreenRendering.h"
+#include "features/Movement.h"
 
 // ui
 #include "ui/IRendererContext.h"

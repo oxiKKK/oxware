@@ -215,6 +215,9 @@
     <ClCompile Include="util\GoldSrcCommandManager.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
+    <ClCompile Include="features\Movement.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -385,6 +388,9 @@
     </ClInclude>
     <ClInclude Include="util\GoldSrcCommandManager.h">
       <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="features\Movement.h">
+      <Filter>src\features</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

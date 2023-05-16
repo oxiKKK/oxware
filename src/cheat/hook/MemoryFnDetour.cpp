@@ -71,6 +71,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	SCR_DrawFPS().install();
 	Cmd_AddMallocCommand().install();
 	hudRegisterVariable().install();
+	MSG_WriteUsercmd().install();
 
 	return true;
 }
@@ -125,6 +126,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	SCR_DrawFPS().uninstall();
 	Cmd_AddMallocCommand().uninstall();
 	hudRegisterVariable().uninstall();
+	MSG_WriteUsercmd().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -837,3 +839,20 @@ hl::cvar_t* hudRegisterVariable_FnDetour_t::hudRegisterVariable(char* szName, ch
 
 	return cvar;
 }
+
+//---------------------------------------------------------------------------------
+
+bool MSG_WriteUsercmd_FnDetour_t::install()
+{
+	initialize("MSG_WriteUsercmd", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)MSG_WriteUsercmd);
+}
+
+void MSG_WriteUsercmd_FnDetour_t::MSG_WriteUsercmd(hl::sizebuf_t* buf, hl::usercmd_t* to, hl::usercmd_t* from)
+{
+	CMovement::the().update_air_stuck(to);
+
+	CMemoryFnDetourMgr::the().MSG_WriteUsercmd().call(buf, to, from);
+}
+
+//---------------------------------------------------------------------------------

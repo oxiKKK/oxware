@@ -475,6 +475,13 @@ struct hudRegisterVariable_FnDetour_t final : public GenericMemoryFnDetour_cdecl
 	static hl::cvar_t* hudRegisterVariable(char* szName, char* szValue, int flags);
 };
 
+// void MSG_WriteUsercmd(sizebuf_t* buf, usercmd_t* to, usercmd_t* from);
+struct MSG_WriteUsercmd_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, hl::sizebuf_t*, hl::usercmd_t*, hl::usercmd_t*>
+{
+	bool install();
+	static void MSG_WriteUsercmd(hl::sizebuf_t* buf, hl::usercmd_t* to, hl::usercmd_t* from);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -525,6 +532,7 @@ public:
 	inline auto& SCR_DrawFPS() { static SCR_DrawFPS_FnDetour_t fnhook; return fnhook; }
 	inline auto& Cmd_AddMallocCommand() { static Cmd_AddMallocCommand_FnDetour_t fnhook; return fnhook; }
 	inline auto& hudRegisterVariable() { static hudRegisterVariable_FnDetour_t fnhook; return fnhook; }
+	inline auto& MSG_WriteUsercmd() { static MSG_WriteUsercmd_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

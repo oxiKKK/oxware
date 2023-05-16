@@ -61,8 +61,9 @@ std::array<TabCallbackFn, UIMENU_Max> CUIMenu::s_active_tab_callback_translation
 		&CUIMenu::tab_viewmodel,			// UIMENU_Viewmodel
 		&CUIMenu::tab_world,				// UIMENU_World
 		&CUIMenu::tab_render,				// UIMENU_Render
-		&CUIMenu::tab_screen,				// UIMENU_Screeb
+		&CUIMenu::tab_screen,				// UIMENU_Screen
 		&CUIMenu::tab_exploits,				// UIMENU_Exploits
+		&CUIMenu::tab_movement,				// UIMENU_Movement
 		&CUIMenu::tab_miscellaneous2,		// UIMENU_Miscellaneous2
 		&CUIMenu::tab_miscellaneous3,		// UIMENU_Miscellaneous3
 		&CUIMenu::tab_config,				// UIMENU_Config
@@ -159,6 +160,7 @@ void CUIMenu::on_initialize()
 
 	m_tabsec_Miscellaneous.set_label("Miscellaneous");
 	m_tabsec_Miscellaneous.add_tab({ UIMENU_Exploits, &CUIMenu::tab_exploits, "Exploits", "TODO item description" });
+	m_tabsec_Miscellaneous.add_tab({ UIMENU_Movement, &CUIMenu::tab_movement, "Movement", "TODO item description" });
 	//m_tabsec_Miscellaneous.add_tab({ UIMENU_Miscellaneous2, &CUIMenu::tab_miscellaneous2, "Miscellaneous2", "TODO item description" });
 	//m_tabsec_Miscellaneous.add_tab({ UIMENU_Miscellaneous3, &CUIMenu::tab_miscellaneous3, "Miscellaneous3", "TODO item description" });
 	m_tab_sections.push_back(&m_tabsec_Miscellaneous);
@@ -947,6 +949,27 @@ void CUIMenu::tab_exploits()
 			// too much code to have inside of the menu...
 			CServerLiar::the().render_ui();
 		});
+}
+
+void CUIMenu::tab_movement()
+{
+	if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
+	{
+		g_gui_widgets_i->goto_next_column();
+
+		add_menu_child(
+			"Air stuck", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &movement_air_stuck_enable);
+
+				CUIMenuWidgets::the().add_slider("Intensity", "%0.0f", &movement_air_stuck_intensity, "froze");
+			});
+
+		g_gui_widgets_i->goto_next_column();
+
+		g_gui_widgets_i->end_columns();
+	}
 }
 
 void CUIMenu::tab_miscellaneous2()

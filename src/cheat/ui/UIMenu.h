@@ -83,6 +83,7 @@ enum EMenuTabId
 
 	// Miscellaneous
 	UIMENU_Exploits,
+	UIMENU_Movement,
 	UIMENU_Miscellaneous2,
 	UIMENU_Miscellaneous3,
 
@@ -184,6 +185,7 @@ private:
 	void tab_screen();
 	void tab_visuals4();
 	void tab_exploits();
+	void tab_movement();
 	void tab_miscellaneous2();
 	void tab_miscellaneous3();
 	void tab_config();

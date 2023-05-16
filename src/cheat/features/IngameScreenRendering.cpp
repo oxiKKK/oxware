@@ -76,7 +76,7 @@ void CIngameScreenRendering::better_cl_showfps()
 	rolling_ft = FPS_AVG_FRAC * rolling_ft + (1.0 - FPS_AVG_FRAC) * ft;
 	double fps = 1.0 / rolling_ft;
 
-	auto label = std::format("{:.3f} fps ({:.3f} ms)", fps, rolling_ft);
+	auto label = std::format("{:.3f} fps ({:.3f} ms)", fps, rolling_ft * 1000.0);
 
 	if (is_on_map)
 	{

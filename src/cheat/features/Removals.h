@@ -40,6 +40,8 @@ extern VarBoolean remove_hud_health;
 extern VarBoolean remove_hud_timer;
 extern VarBoolean remove_hud_money;
 
+extern VarBoolean remove_motd;
+
 class CRemovals
 {
 public:
@@ -49,6 +51,8 @@ public:
 	bool remove_screenshake();
 
 	void remove_hud_modifier();
+
+	bool remove_motd();
 };
 
 #endif // REMOVALS_H

@@ -96,9 +96,11 @@
 
 - Added new "others" tab in the menu.
 - Added air stuck.
+- Added MOTD removal
 
 ## Bugfixes
 
 - Fixed a bug where on the initial launch, when the game was focused before fully injected, the about dialog would not pop up and the window focus would be glitched until the focus was refreshed.
 - Fixed a bug where popup windows would retain window size from previously opened popups.
+- Fixed crashes when restarting/quitting the game.
 

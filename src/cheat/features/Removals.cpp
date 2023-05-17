@@ -65,3 +65,10 @@ void CRemovals::remove_hud_modifier()
 		prev_return_flags = return_flags;
 	}
 }
+
+VarBoolean remove_motd("remove_motd", "When on, no MOTD dialog will be shown", false);
+
+bool CRemovals::remove_motd()
+{
+	return ::remove_motd.get_value();
+}

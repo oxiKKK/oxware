@@ -31,6 +31,7 @@
 bool CUserMSGDetourMgr::install_hooks()
 {
 	if (!HideWeapon_fn().install_usermsg(HideWeapon_f, "HideWeapon")) return false;
+	if (!MOTD_fn().install_usermsg(MOTD_f, "MOTD")) return false;
 
 	return true;
 }
@@ -45,6 +46,7 @@ void CUserMSGDetourMgr::uninstall_hooks()
 	}
 
 	HideWeapon_fn().uninstall();
+	MOTD_fn().uninstall();
 }
 
 //---------------------------------------------------------------------------------
@@ -52,4 +54,14 @@ void CUserMSGDetourMgr::uninstall_hooks()
 int CUserMSGDetourMgr::HideWeapon_f(const char* pszName, int iSize, void* pbuf)
 {
 	return CUserMSGDetourMgr::the().HideWeapon_fn().call_usermsg(iSize, pbuf);
+}
+
+int CUserMSGDetourMgr::MOTD_f(const char* pszName, int iSize, void* pbuf)
+{
+	if (CRemovals::the().remove_motd())
+	{
+		return 0;
+	}
+
+	return CUserMSGDetourMgr::the().MOTD_fn().call_usermsg(iSize, pbuf);
 }

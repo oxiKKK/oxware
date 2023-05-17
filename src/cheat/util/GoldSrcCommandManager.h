@@ -37,6 +37,7 @@ public:
 
 public:
 	void initialize();
+	void shutdown();
 
 	hl::cvar_t* get_cvar(const std::string& name);
 	hl::cmd_function_t* get_cmd(const std::string& name);

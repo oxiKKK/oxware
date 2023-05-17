@@ -169,6 +169,16 @@ void CBaseInjector::update()
 		return;
 	}
 
+	if (m_should_reinject)
+	{
+		CConsole::the().info("Re-Injecting '{}' into target process '{}'...", m_reinjection_data.dll_path.filename(), m_reinjection_data.exe_name);
+
+		inject_to_target_process(m_reinjection_data.exe_name.c_str(), m_reinjection_data.dll_path);
+
+		m_reinjection_data = {};
+		m_should_reinject = false;
+	}
+
 	for (auto it = m_injected_dlls.begin(); it != m_injected_dlls.end(); it++)
 	{
 		if (it->second->is_unloaded())
@@ -239,6 +249,14 @@ void CBaseInjector::update()
 
 				goto erase_current_entry;
 			}
+			case C2I_Restarting:
+			{
+				prepare_for_reinjection(it->second->get_dll_exe_name().c_str(), it->second->get_dll_filepath());
+
+				it->second->unload(false);
+
+				goto erase_current_entry;
+			}
 			default:
 			{
 				assert(0);
@@ -279,6 +297,14 @@ bool CBaseInjector::inject_to_target_process(const char* execuatable_name, const
 	}
 
 	return true;
+}
+
+void CBaseInjector::prepare_for_reinjection(const char* execuatable_name, const FilePath_t& dll_path)
+{
+	CConsole::the().info("Client module requested its re-injection... preparing stuff...");
+
+	m_reinjection_data = { execuatable_name, dll_path };
+	m_should_reinject = true;
 }
 
 EModuleUnloadWaitResult CBaseInjector::hang_till_module_unloads(const FilePath_t& module_path, IInjectableModuleObject* module,

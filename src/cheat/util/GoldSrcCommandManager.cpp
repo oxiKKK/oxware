@@ -105,6 +105,14 @@ void CGoldSrcCommandMgr::initialize()
 	CConsole::the().info("GoldSrc Command Manager initialized.");
 }
 
+void CGoldSrcCommandMgr::shutdown()
+{
+	CConsole::the().info("Shutting down GoldSrc Command Manager...");
+
+	m_cvars.clear();
+	m_commands.clear();
+}
+
 hl::cvar_t* CGoldSrcCommandMgr::get_cvar(const std::string& name)
 {
 	try

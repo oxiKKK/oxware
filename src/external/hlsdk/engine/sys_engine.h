@@ -13,8 +13,16 @@
 *
 ****/
 
+enum QuitType
+{
+	QUIT_NOTQUITTING = 0,
+	QUIT_TODESKTOP,
+	QUIT_RESTART
+};
+
 class CEngine
 {
+public:
 	void*			__vtable;
 
 	int				m_nQuitting;

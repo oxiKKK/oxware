@@ -219,6 +219,9 @@ public:
 
 	inline bool is_successfully_injected() const { return m_successfully_injected; }
 
+	inline const FilePath_t& get_dll_filepath() const { return m_dll_filepath; }
+	inline const std::string& get_dll_exe_name() const { return m_exe_name; }
+
 protected:
 	FilePath_t m_dll_filepath;
 	std::string m_exe_name;

@@ -69,6 +69,17 @@ public:
 	}
 
 private:
+	void prepare_for_reinjection(const char* execuatable_name, const FilePath_t& dll_path);
+	bool m_should_reinject = false;
+
+	struct reinjection_data_t
+	{
+		std::string exe_name;
+		FilePath_t dll_path;
+	};
+	reinjection_data_t m_reinjection_data;
+
+private:
 	// hang till all modules are unloaded. This is needed when the injector is exiting, it needs to wait a little bit
 	// for injected modules to respond..
 #ifdef _DEBUG

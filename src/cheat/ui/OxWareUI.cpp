@@ -67,12 +67,11 @@ void COxWareUI::swapbuffers_detour(HDC hdc)
 
 	m_hdc = hdc;
 
-	static bool gui_initialized = false;
-	if (!gui_initialized)
+	if (!m_initialized)
 	{
 		initialize(WindowFromDC(hdc));
 
-		gui_initialized = true;
+		m_initialized = true;
 	}
 
 	run_ui();
@@ -96,6 +95,8 @@ void COxWareUI::destroy()
 	g_user_input_i->destroy();
 
 	g_imgui_platform_layer_i->destroy_layer();
+
+	m_initialized = false;
 }
 
 IRenderingContext* COxWareUI::find_context(const std::string& id) const
@@ -452,6 +453,8 @@ void COxWareUI::destroy_rendering_contexts()
 		ctx->on_destroy();
 		delete ctx;
 	}
+
+	m_rendering_contexts.clear();
 }
 
 void COxWareUI::handle_ingame_mouseevents()

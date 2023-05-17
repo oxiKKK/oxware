@@ -44,6 +44,7 @@ enum EClient2Injector
 
 	// runtime
 	C2I_Unloading,			// the client module is unloading
+	C2I_Restarting,			// the client module want to restart
 
 	C2I_Max
 };

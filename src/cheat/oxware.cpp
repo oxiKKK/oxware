@@ -150,17 +150,6 @@ bool CoXWARE::initialize()
 		return false;
 	}
 
-	//
-	// We, as a cheat dll, are reliant on the game. Hence, we need to wait till the game fully initializes.
-	// We do this by loading our module first, then initialize game-independent subsystems for the module, and
-	// then we hook the host_initialized globalvar and then we wait for the engine to execute it. After it is executed, 
-	// the cheat initialization continues for subsystems that are reliant on the game. (the main cheat initialization
-	// starts there..)
-	// 
-	// For example the engine dll loads up client.dll or vgui2.dll, but since our module is loaded before that, 
-	// we cannot hook from those etc. So we need to wait for the engine to initialize.
-	//
-
 	check_for_clientside_protectors();
 
 	// see for the renderer - before hooks! (because of hw.dll may missing, and we need it inside hook managers.)
@@ -186,13 +175,40 @@ bool CoXWARE::initialize()
 		return false;
 	}
 
-	if (!CMemoryHookMgr::the().host_initialized().install())
+	//
+	// We, as a cheat dll, are reliant on the game. Hence, we need to wait till the game fully initializes.
+	// We do this by loading our module first, then initialize game-independent subsystems for the module, and
+	// then we hook the host_initialized globalvar and then we wait for the engine to execute it. After it is executed, 
+	// the cheat initialization continues for subsystems that are reliant on the game. (the main cheat initialization
+	// starts there..)
+	// 
+	// For example the engine dll loads up client.dll or vgui2.dll, but since our module is loaded before that, 
+	// we cannot hook from those etc. So we need to wait for the engine to initialize.
+	//
+
+	auto& host_initialized = CMemoryHookMgr::the().host_initialized();
+	if (!host_initialized.install())
 	{
 		CInjectedDllIPCLayerClient::the().report_error("Fatal error, couldn't find the 'host_initialized' crucial global variable.");
 		return false;
 	}
 
-	// see initialize_phase2() function.
+	int tries = 0;
+	static int tries_max = 20;
+	static const auto wait_time = 0.5s;
+	while (!*host_initialized.get())
+	{
+		CConsole::the().warning("Waiting for the engine to initialize...{}", tries != 0 ? std::format(" ({}x)", tries) : "");
+
+		std::this_thread::sleep_for(wait_time);
+		if (++tries >= tries_max) // don't run this infinitely
+		{
+			CInjectedDllIPCLayerClient::the().report_error("Fatal error, tried {}x but the engine didn't initialize after launching.", tries_max);
+			return false;
+		}
+	}
+
+	initialize_phase2();
 
 	return true;
 }
@@ -208,9 +224,11 @@ void CoXWARE::shutdown()
 
 	CFeatureManager::the().shutdown();
 
-	CIngameScreenRendering::the().better_cl_showfps_on_unload();
+	CIngameScreenRendering::the().shutdown();
 
 	COxWareUI::the().destroy();
+
+	CGoldSrcCommandMgr::the().shutdown();
 
 	shutdown_hook_managers();
 
@@ -297,22 +315,6 @@ bool CoXWARE::run_frame()
 		return false;
 	}
 
-	// initialize after the engine has initialized.
-	static bool initialize_once = true;
-	if (initialize_once)
-	{
-		// watch till this gets triggered.
-		if (CMemoryHookMgr::the().host_initialized().is_installed()
-			&& CMemoryHookMgr::the().host_initialized().get() != FALSE)
-		{
-			if (!initialize_phase2())
-			{
-				return false;
-			}
-			initialize_once = false;
-		}
-	}
-
 	//-------------------------------------------------------------------------
 	// Update code
 
@@ -349,7 +351,6 @@ void CoXWARE::unload_dependencies()
 	CDependencyLoader::the().unload_all();
 
 	// At this point all of the interfaces we obtained are gone.
-	g_devconsole_i = nullptr;
 	g_gui_widgets_i = nullptr;
 	g_gui_fontmgr_i = nullptr;
 	g_imgui_platform_layer_i = nullptr;

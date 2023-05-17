@@ -41,6 +41,10 @@ public:
 
 public:
 	void better_cl_showfps();
+
+	void shutdown();
+
+private:
 	void better_cl_showfps_on_unload();
 
 private:

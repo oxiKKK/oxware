@@ -578,21 +578,39 @@ void __thiscall CEngine__Unload_FnDetour_t::CEngine__Unload(hl::CEngine* ecx)
 {
 	CConsole::the().info("Game is closing, shutting down cheat...");
 
+	// don't unload this detour when calling CMemoryFnDetourMgr::uninstall_hooks().
 	CMemoryFnDetourMgr::the().toggle_unloading_from_CEngine__Unload();
 
-	// shut down the cheat in the next iteration of the topmost update function and when the loop will
-	// actually break, don't tell the loader we're unloading, because we wouldn't have enough time to finish
-	// with this code - the loader would unload our module..
+	bool engine_restarting = ecx->m_nQuitting == hl::QUIT_RESTART;
+	
+	// set up the shutdown of the cheat. this triggers a check inside the main loop that is executing
+	// on another thread. worst possible time to wait is 0.5s (if there's no hang), because the main loop updates
+	// every 0.5s.
 	CoXWARE::the().end_cheat_execution(true);
 
-	// ok now we SHOULD fully shutted down and we can redirect this to the engine again.
-	// I say should, because if the update function somehow hangs before it can proceed to the next iteration, we can fail here.
-	// Hence, wait a little.
-	std::this_thread::sleep_for(0.250s);
+	while (!CoXWARE::the().is_shutted_down())
+	{
+		// hang till we fully shut down, if we hang in the shutdown process, we're fucked.
+		std::this_thread::sleep_for(0.1s);
+	}
+
 	CMemoryFnDetourMgr::the().CEngine__Unload().call(ecx);
 	CMemoryFnDetourMgr::the().CEngine__Unload().uninstall();
 
-	CInjectedDllIPCLayerClient::the().write_code(C2I_Unloading);
+	if (engine_restarting)
+	{
+		// restart the cheat. this will fire a signal inside the loader and it will unload the module 
+		// first and then load it back in.
+		CInjectedDllIPCLayerClient::the().write_code(C2I_Restarting);
+	}
+	else
+	{
+		// engine qutting, we're fully shutted down, so just tell the loader to fully unload us.
+		CInjectedDllIPCLayerClient::the().write_code(C2I_Unloading);
+
+		// wait a little bit so that the loader can keep up with the unload code...
+		std::this_thread::sleep_for(std::chrono::milliseconds(CBaseInjector::k_update_threshold_ms * 4));
+	}
 }
 
 //---------------------------------------------------------------------------------

@@ -116,3 +116,11 @@ void CIngameScreenRendering::better_cl_showfps_on_unload()
 		}
 	}
 }
+
+void CIngameScreenRendering::shutdown()
+{
+	better_cl_showfps_on_unload();
+
+	cl_showfps = nullptr;
+	cl_showfps_was_on = false;
+}

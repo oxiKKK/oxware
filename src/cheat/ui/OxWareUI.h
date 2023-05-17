@@ -98,6 +98,8 @@ private:
 private:
 	bool m_is_any_interactible_rendering_context_active = false;
 
+	bool m_initialized = false;
+
 	HWND m_hwnd;
 	HDC m_hdc;
 	HGLRC m_cheat_context, m_original_context;

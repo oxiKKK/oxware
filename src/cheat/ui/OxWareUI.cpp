@@ -240,7 +240,7 @@ void COxWareUI::run_ui()
 		}
 	}
 
-	g_bindmgr_i->set_can_execute_binds(!m_is_any_interactible_rendering_context_active);
+	g_bindmgr_i->set_can_execute_binds(!m_is_any_interactible_rendering_context_active && !CEngineInput::the().is_gameui_rendering());
 
 	// welcoming popup dialog
 	static bool once = false;

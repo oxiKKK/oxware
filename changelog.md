@@ -95,6 +95,7 @@
 </details><br>
 
 - Added new "others" tab in the menu.
+- Added air stuck.
 
 ## Bugfixes
 

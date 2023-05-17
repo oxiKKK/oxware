@@ -127,6 +127,8 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 	- displaying currently held weapon 🔫
 	- displaying current velocity 
 - Default viewmodel enforcement
+- Movement
+	- air stuck
 - fancy custom cl_showfps rendering
 - rechecker bypass
 - instantaneous cheat unload (either via loader or cheat menu)

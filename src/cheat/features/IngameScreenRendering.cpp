@@ -34,16 +34,13 @@ VarInteger ingamescreen_better_cl_showfps_position("ingamescreen_better_cl_showf
 
 void CIngameScreenRendering::better_cl_showfps()
 {
-	static bool was_on = false;
-
-	static hl::cvar_t* cl_showfps = nullptr;
 	if (!ingamescreen_better_cl_showfps.get_value())
 	{
-		if (was_on)
+		if (cl_showfps_was_on)
 		{
 			cl_showfps->value = 1.0f;
 			strcpy(cl_showfps->string, "1");
-			was_on = false;
+			cl_showfps_was_on = false;
 		}
 
 		return;
@@ -61,7 +58,7 @@ void CIngameScreenRendering::better_cl_showfps()
 	// cvar is on
 	if (cl_showfps->value != 0.0f)
 	{
-		was_on = true;
+		cl_showfps_was_on = true;
 		cl_showfps->value = 0.0f;
 		strcpy(cl_showfps->string, "0");
 	}
@@ -103,4 +100,19 @@ void CIngameScreenRendering::better_cl_showfps()
 
 	CEngineRendering::the().render_engine_text(pos, ingamescreen_better_cl_showfps_background.get_value(),
 											   CColor(255, 255, 255), label, lw);
+}
+
+void CIngameScreenRendering::better_cl_showfps_on_unload()
+{
+	// restore original cl_showfps state
+
+	if (ingamescreen_better_cl_showfps.get_value())
+	{
+		if (cl_showfps_was_on)
+		{
+			cl_showfps->value = 1.0f;
+			strcpy(cl_showfps->string, "1");
+			cl_showfps_was_on = false;
+		}
+	}
 }

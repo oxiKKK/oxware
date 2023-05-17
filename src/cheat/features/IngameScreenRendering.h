@@ -41,6 +41,11 @@ public:
 
 public:
 	void better_cl_showfps();
+	void better_cl_showfps_on_unload();
+
+private:
+	bool cl_showfps_was_on = false;
+	hl::cvar_t* cl_showfps = nullptr;
 };
 
 #endif // INGAMESCREENRENDERING_H

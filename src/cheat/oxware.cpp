@@ -208,6 +208,8 @@ void CoXWARE::shutdown()
 
 	CFeatureManager::the().shutdown();
 
+	CIngameScreenRendering::the().better_cl_showfps_on_unload();
+
 	COxWareUI::the().destroy();
 
 	shutdown_hook_managers();

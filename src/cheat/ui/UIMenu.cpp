@@ -419,6 +419,7 @@ void CUIMenu::tab_world()
 			{
 				CUIMenuWidgets::the().add_checkbox("Remove screenshake", &remove_screenshake);
 				CUIMenuWidgets::the().add_checkbox("Remove MOTD", &remove_motd);
+				CUIMenuWidgets::the().add_checkbox("Remove sniper scopes", &remove_sniper_scope);
 
 				g_gui_widgets_i->add_spacing();
 				CUIMenuWidgets::the().add_description_text("In order to disable in-game fog, use \"gl_fog\" command.");
@@ -991,11 +992,11 @@ void CUIMenu::tab_config()
 		{
 			// first = error or not, second = status message
 			static std::pair<bool, std::string> current_status = {};
-			static auto status_tm = std::chrono::high_resolution_clock::now();
+			static uint32_t status_tm = GetTickCount();
 			auto status_msg = [](const std::string& msg, bool error)
 			{
 				current_status = std::make_pair(error, msg);
-				status_tm = std::chrono::high_resolution_clock::now();
+				status_tm = GetTickCount();
 			};
 
 			static std::vector<FilePath_t> configs;
@@ -1015,14 +1016,14 @@ void CUIMenu::tab_config()
 					});
 			};
 
-			static auto last_searched = std::chrono::high_resolution_clock::now();
+			static uint32_t last_searched = GetTickCount();
 
 			// search each # amount of ms
-			static constexpr float interval_ms = 250;
-			if (std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - last_searched).count() > interval_ms)
+			static constexpr uint32_t interval_ms = 250;
+			if (GetTickCount() - last_searched > interval_ms)
 			{
 				search_for_configs();
-				last_searched = std::chrono::high_resolution_clock::now();
+				last_searched = GetTickCount();
 			}
 
 			static FilePath_t selected_cfg = {};
@@ -1228,9 +1229,9 @@ void CUIMenu::tab_config()
 				"status", { -1.0f, -1.0f }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
 				[&]()
 				{
-					float dur_sec = std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - status_tm).count();
+					uint32_t dur_sec = (GetTickCount() - status_tm) * 1000;
 					auto [error, msg] = current_status;
-					if (!msg.empty() && dur_sec < 3.0f)
+					if (!msg.empty() && dur_sec < 3)
 					{
 						auto color = error ? CColor(112, 0, 0, 170) : CColor(0, 112, 0, 170);
 
@@ -1609,15 +1610,15 @@ void CUIMenu::tab_others()
 
 				static uintmax_t cheat_directory_size = 0, logs_directory_size = 0, cfg_directory_size = 0;
 
-				static auto t1 = std::chrono::high_resolution_clock::now();
+				static uint32_t t1 = GetTickCount();
 
-				if (std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - t1).count() > 0.250)
+				if (GetTickCount() - t1 > 250)
 				{
 					cheat_directory_size = g_filesystem_i->directory_size(cheat_directory);
 					logs_directory_size = g_filesystem_i->directory_size(cheat_directory / "log");
 					cfg_directory_size = g_filesystem_i->directory_size(cheat_directory / "config");
 
-					t1 = std::chrono::high_resolution_clock::now();
+					t1 = GetTickCount();
 				}
 
 				g_gui_widgets_i->add_text(std::format("Currently occupied space on your computer: {}", 

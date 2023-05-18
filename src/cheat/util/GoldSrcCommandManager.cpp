@@ -63,7 +63,7 @@ void CGoldSrcCommandMgr::initialize()
 
 	CConsole::the().info("Registered {} cvars and {} commands.", m_cvars.size(), m_commands.size());
 
-#if 1 // measurements (MEASURED IN DEBUG MODE, MAY BE MUCH FASTER IN RETAIL OR RELEASE)
+#if 0 // measurements (MEASURED IN DEBUG MODE, MAY BE MUCH FASTER IN RETAIL OR RELEASE)
 	auto t1 = std::chrono::high_resolution_clock::now();
 	auto _cvar = get_cvar("fps_max");//
 	CConsole::the().info("Took {} seconds (ours)", std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - t1).count());

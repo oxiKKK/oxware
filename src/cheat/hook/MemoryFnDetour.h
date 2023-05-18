@@ -482,6 +482,13 @@ struct MSG_WriteUsercmd_FnDetour_t final : public GenericMemoryFnDetour_cdecl<vo
 	static void MSG_WriteUsercmd(hl::sizebuf_t* buf, hl::usercmd_t* to, hl::usercmd_t* from);
 };
 
+// int __thiscall CHudSniperScope__Draw(CHudSniperScope *const this, float flTime)
+struct CHudSniperScope__Draw_FnDetour_t final : public GenericMemoryFnDetour_thiscall<int, void*, float>
+{
+	bool install();
+	static int __thiscall CHudSniperScope__Draw(void* ecx, float flTime);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -533,6 +540,7 @@ public:
 	inline auto& Cmd_AddMallocCommand() { static Cmd_AddMallocCommand_FnDetour_t fnhook; return fnhook; }
 	inline auto& hudRegisterVariable() { static hudRegisterVariable_FnDetour_t fnhook; return fnhook; }
 	inline auto& MSG_WriteUsercmd() { static MSG_WriteUsercmd_FnDetour_t fnhook; return fnhook; }
+	inline auto& CHudSniperScope__Draw() { static CHudSniperScope__Draw_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

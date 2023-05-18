@@ -39,7 +39,9 @@ void CEntityMgr::update()
 
 	auto cl = CMemoryHookMgr::the().cl().get();
 
+#if 0
 	auto t1 = std::chrono::high_resolution_clock::now();
+#endif
 
 	for (int i = 0; i < cl->num_entities; i++)
 	{

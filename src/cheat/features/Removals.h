@@ -42,6 +42,8 @@ extern VarBoolean remove_hud_money;
 
 extern VarBoolean remove_motd;
 
+extern VarBoolean remove_sniper_scope;
+
 class CRemovals
 {
 public:
@@ -53,6 +55,8 @@ public:
 	void remove_hud_modifier();
 
 	bool remove_motd();
+
+	bool remove_sniper_scope();
 };
 
 #endif // REMOVALS_H

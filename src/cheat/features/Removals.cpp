@@ -72,3 +72,10 @@ bool CRemovals::remove_motd()
 {
 	return ::remove_motd.get_value();
 }
+
+VarBoolean remove_sniper_scope("remove_sniper_scope", "Removes sniper scope when scoped in", false);
+
+bool CRemovals::remove_sniper_scope()
+{
+	return ::remove_sniper_scope.get_value();
+}

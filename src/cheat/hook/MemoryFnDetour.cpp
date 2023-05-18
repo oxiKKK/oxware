@@ -72,6 +72,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	Cmd_AddMallocCommand().install();
 	hudRegisterVariable().install();
 	MSG_WriteUsercmd().install();
+	CHudSniperScope__Draw().install();
 
 	return true;
 }
@@ -127,6 +128,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	Cmd_AddMallocCommand().uninstall();
 	hudRegisterVariable().uninstall();
 	MSG_WriteUsercmd().uninstall();
+	CHudSniperScope__Draw().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -871,6 +873,24 @@ void MSG_WriteUsercmd_FnDetour_t::MSG_WriteUsercmd(hl::sizebuf_t* buf, hl::userc
 	CMovement::the().update_air_stuck(to);
 
 	CMemoryFnDetourMgr::the().MSG_WriteUsercmd().call(buf, to, from);
+}
+
+//---------------------------------------------------------------------------------
+
+bool CHudSniperScope__Draw_FnDetour_t::install()
+{
+	initialize("CHudSniperScope::Draw", L"client.dll");
+	return detour_using_bytepattern((uintptr_t*)CHudSniperScope__Draw);
+}
+
+int __thiscall CHudSniperScope__Draw_FnDetour_t::CHudSniperScope__Draw(void* ecx, float flTime)
+{
+	if (CRemovals::the().remove_sniper_scope())
+	{
+		return 1;
+	}
+
+	return CMemoryFnDetourMgr::the().CHudSniperScope__Draw().call(ecx, flTime);
 }
 
 //---------------------------------------------------------------------------------

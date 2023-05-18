@@ -226,7 +226,7 @@ void CServerLiar::render_cvarfilter_slot(VarKeyValue* var)
 
 			// update status text
 			m_current_status = std::format("Set fake value of '{}' to '{}'", var->get_value().key(), m_input_buffers[value]);
-			m_status_update = std::chrono::high_resolution_clock::now();
+			m_status_update_ms = GetTickCount();
 		}
 	}
 }

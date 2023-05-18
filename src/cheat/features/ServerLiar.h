@@ -81,9 +81,9 @@ private:
 	std::unordered_map<std::string, size_t> m_filtered_cvars;
 	char m_input_buffers[k_max_filtered_cvars][256];
 
-	bool keep_status_alive() const { return std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - m_status_update).count() < 5; }
+	bool keep_status_alive() const { return (GetTickCount() - m_status_update_ms) < 5000; }
 
-	std::chrono::high_resolution_clock::time_point m_status_update;
+	uint32_t m_status_update_ms;
 	std::string m_current_status;
 
 	std::vector<VarKeyValue*> m_variables;

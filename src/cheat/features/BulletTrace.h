@@ -33,11 +33,11 @@
 struct bullet_trace_t
 {
 	Vector start_org, end_org;
-	std::chrono::high_resolution_clock::time_point fire_time;
+	uint32_t m_fire_time_ms;
 
-	float get_life_duration() const
+	uint32_t get_life_duration_ms() const
 	{
-		return std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - fire_time).count();
+		return GetTickCount() - m_fire_time_ms;
 	}
 };
 

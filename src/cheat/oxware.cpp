@@ -300,7 +300,7 @@ bool CoXWARE::run_frame()
 	}
 	else
 	{
-		m_main_frame_update = std::chrono::high_resolution_clock::now();
+		m_main_frame_update_ms = GetTickCount();
 	}
 
 	// keep communication with the injector on

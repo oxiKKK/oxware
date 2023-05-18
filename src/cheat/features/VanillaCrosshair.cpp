@@ -144,14 +144,14 @@ void CVanillaCrosshair::draw()
 	}
 
 	// for time-based calculations, rather then fps-based
-	static auto prev_cross_time = std::chrono::high_resolution_clock::now();
+	static uint32_t prev_cross_time = GetTickCount();
 
 	// simulate 100fps frametimes...
-	bool flip_every_1_ms = false;
-	if (std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - prev_cross_time).count() > 10)
+	bool flip_every_N_ms = false;
+	if (GetTickCount() - prev_cross_time > 10)
 	{
-		flip_every_1_ms = true;
-		prev_cross_time = std::chrono::high_resolution_clock::now();
+		flip_every_N_ms = true;
+		prev_cross_time = GetTickCount();
 	}
 
 	auto screen_info = CGameUtil::the().get_engine_screen_info();
@@ -204,7 +204,7 @@ void CVanillaCrosshair::draw()
 
 	if (m_ammo_last_check >= *shots_fired_ptr)
 	{
-		if (flip_every_1_ms)
+		if (flip_every_N_ms)
 		{
 			m_crosshair_gap -= (0.013f * m_crosshair_gap + 0.1f);
 		}

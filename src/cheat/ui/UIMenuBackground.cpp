@@ -97,13 +97,13 @@ void CUIMenuBackground::render_rain()
 		m_rain.pop_front();
 
 	// for time-based calculations, rather then fps-based
-	static auto prev_cross_time = std::chrono::high_resolution_clock::now();
+	static uint32_t prev_cross_time = GetTickCount();
 
 	bool flip_every_N_ms = false;
-	if (std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - prev_cross_time).count() > 5)
+	if (GetTickCount() - prev_cross_time > 5)
 	{
 		flip_every_N_ms = true;
-		prev_cross_time = std::chrono::high_resolution_clock::now();
+		prev_cross_time = GetTickCount();
 	}
 
 	if (flip_every_N_ms)

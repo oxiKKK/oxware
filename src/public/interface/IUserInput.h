@@ -58,7 +58,7 @@ public:
 		if (m_is_down && m_press_lock == false)
 		{
 			m_press_lock = true;
-			m_pressed_timestamp = std::chrono::high_resolution_clock::now();
+			m_pressed_timestamp_ms = GetTickCount();
 			execute_on_pressed_callbacks();
 		}
 
@@ -70,7 +70,7 @@ public:
 	}
 
 	// time in seconds
-	inline float time_down() const { return std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - m_pressed_timestamp).count(); }
+	inline float time_down() const { return (GetTickCount() - m_pressed_timestamp_ms) * 1000; }
 
 	inline bool is_down() const { return m_is_down; }
 
@@ -133,7 +133,7 @@ private:
 	std::string m_name = "unknown";
 
 	bool m_toggle_state = false, m_press_lock = false;
-	std::chrono::high_resolution_clock::time_point m_pressed_timestamp;
+	uint32_t m_pressed_timestamp_ms;
 
 	// every callback has an id
 	std::unordered_map<std::string, UserKeyPressCallbackFn> m_on_pressed_callbacks;

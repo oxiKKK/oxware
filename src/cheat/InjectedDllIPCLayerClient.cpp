@@ -87,11 +87,10 @@ EInjector2Client CInjectedDllIPCLayerClient::read_code() const
 bool CInjectedDllIPCLayerClient::heart_beating()
 {
 	static size_t last_sequence = 0;
-	static auto last_heartbeat = std::chrono::high_resolution_clock::now();
+	static uint32_t last_heartbeat = GetTickCount();
 	if (m_ipc->m_heartbeat_sequence == last_sequence)
 	{
-		if (std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - last_heartbeat).count()
-			> k_havent_received_hbeat_in_seconds)
+		if (GetTickCount() - last_heartbeat > k_havent_received_hbeat_in_seconds * 1000)
 		{
 			CConsole::the().info("Fatal - Injector stopped beating. Haven't received heart beat in {} seconds. Destroying...", k_havent_received_hbeat_in_seconds);
 			return false;
@@ -101,7 +100,7 @@ bool CInjectedDllIPCLayerClient::heart_beating()
 	{
 		// injector sent new one
 		last_sequence = m_ipc->m_heartbeat_sequence;
-		last_heartbeat = std::chrono::high_resolution_clock::now();
+		last_heartbeat = GetTickCount();
 	}
 
 	return true;

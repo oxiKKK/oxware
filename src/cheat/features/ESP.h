@@ -48,14 +48,14 @@ static const int k_step_display_interval_s = 10;
 
 struct PlayerStepSound
 {
-	float get_life_duration() const
+	uint32_t get_life_duration_ms() const
 	{
-		return std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - spawntime).count();
+		return GetTickCount() - spawntime_ms;
 	}
 
 	Vector origin;
 	int entid;
-	std::chrono::high_resolution_clock::time_point spawntime;
+	uint32_t spawntime_ms;
 };
 
 class CESP

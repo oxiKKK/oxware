@@ -49,7 +49,7 @@ void CBulletTrace::on_bullet_fired(
 
 	CConsole::the().info("traced_bullet_impact: {}", traced_bullet_impact);
 
-	m_bullets_fired.push_back({ source, traced_bullet_impact, std::chrono::high_resolution_clock::now() });
+	m_bullets_fired.push_back({ source, traced_bullet_impact, GetTickCount() });
 }
 
 void CBulletTrace::on_render()
@@ -58,7 +58,7 @@ void CBulletTrace::on_render()
 	{
 		auto& oldest_bullet = m_bullets_fired.front();
 	
-		if (oldest_bullet.get_life_duration() > 5.0f)
+		if (oldest_bullet.get_life_duration_ms() > 5000)
 		{
 			m_bullets_fired.pop_front();
 		}

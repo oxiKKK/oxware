@@ -162,9 +162,8 @@ void CBaseInjector::destroy()
 void CBaseInjector::update()
 {
 	// update only each #
-	static auto last_check_time = std::chrono::high_resolution_clock::now();
-	if (std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - last_check_time).count()
-		< k_update_threshold_ms)
+	static uint32_t last_check_time = GetTickCount();
+	if (GetTickCount() - last_check_time < k_update_threshold_ms)
 	{
 		return;
 	}
@@ -276,7 +275,7 @@ void CBaseInjector::update()
 		}
 	}
 
-	last_check_time = std::chrono::high_resolution_clock::now();
+	last_check_time = GetTickCount();
 }
 
 bool CBaseInjector::inject_to_target_process(const char* execuatable_name, const FilePath_t& dll_path)

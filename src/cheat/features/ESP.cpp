@@ -57,7 +57,7 @@ void CESP::initialize_gui()
 
 void CESP::register_player_step(const Vector& origin, int entid)
 {
-	m_stepsounds.push_back({ origin, entid, std::chrono::high_resolution_clock::now() });
+	m_stepsounds.push_back({ origin, entid, GetTickCount()});
 }
 
 void CESP::on_render()
@@ -264,13 +264,13 @@ void CESP::render_entities()
 
 void CESP::render_sound()
 {
-	float max = esp_sound_interval.get_value();
+	uint32_t max = ((uint32_t)esp_sound_interval.get_value()) * 1000;
 
 	if (!m_stepsounds.empty())
 	{
 		auto& last_sound = m_stepsounds.front();
 
-		if (last_sound.get_life_duration() > max)
+		if (last_sound.get_life_duration_ms() > max)
 		{
 			m_stepsounds.pop_front();
 		}
@@ -291,7 +291,7 @@ void CESP::render_sound()
 		Vector2D screen;
 		if (CGameUtil::the().world_to_screen(step.origin, screen))
 		{
-			float life_dur = step.get_life_duration();
+			uint32_t life_dur = step.get_life_duration_ms();
 			if (life_dur == 0)
 			{
 				// assert there's no division by 0
@@ -322,6 +322,29 @@ void CESP::render_sound()
 				{
 					step_color = player->get_color_based_on_team();
 				}
+			}
+			else
+			{
+#if 0
+				// some servers have anticheat for sound-esp that they basically send invalid entid when a stepsound is
+				// made, hence confusing our team-recognition code. 
+				// 
+				// However, this code is really, really slow.. (but usually works)
+				for (auto& [index, plr] : CEntityMgr::the().m_known_players)
+				{
+					auto ent = plr.cl_entity();
+					if (!ent)
+					{
+						continue;
+					}
+
+					if (step.origin < ent->origin + 100.0f && step.origin > ent->origin - 100.0f)
+					{
+						step_color = plr.get_color_based_on_team();
+						break;
+					}
+				}
+#endif
 			}
 
 			g_gui_window_rendering_i->render_box_outline(

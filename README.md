@@ -45,7 +45,7 @@ Both the cheat and loader have developer consoles built inside of them that you 
 
 ## Cheat menu in-game
 
-![The cheat](https://i.imgur.com/KcBhkEW.png)
+![The cheat](https://i.imgur.com/nek7Sst.png)
 
 ## The loader
 

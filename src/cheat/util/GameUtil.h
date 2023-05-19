@@ -74,27 +74,14 @@ public:
 
 	std::string parse_viewmodel_name(hl::model_t* model);
 
-	// get local player velocity calculated by playermove code
-	float get_local_velocity_2d();
-	float get_local_velocity_3d();
+	float compute_ground_angle_for_origin(const Vector& origin, float trace_distance = 4096.0f);
+	float compute_distance_to_ground(const Vector& origin, float trace_distance = 4096.0f);
 
 	// check if nullptr!
 	hl::CBasePlayerWeapon* get_current_weapon();
 	std::string get_modelname_from_weapon(int wpnidx);
 
 	int get_weapon_accuracy_flags(int weapon_id, int weapon_flags);
-
-	hl::clientdata_t* get_current_frame_clientdata();
-
-	// returns g_iPlayerFlags (in original cstrike client dll)
-	// aka playermove flags (FL_ONGROUND etc - FL_* macros)
-	int get_player_flags();
-
-	// iuser3 cstrike flags
-	bool player_can_shoot();
-	bool player_freeze_time_over();
-	bool player_in_bomb_zone();
-	bool player_holding_shield();
 
 private:
 	void locate_engine_compile_timestamp();

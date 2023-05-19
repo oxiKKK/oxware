@@ -40,8 +40,10 @@ public:
 
 public:
 	void update_air_stuck(hl::usercmd_t* to);
+	void update_clientmove(float frametime, hl::usercmd_t *cmd);
 
 private:
+	void bunnyhop_update(float frametime, hl::usercmd_t *cmd);
 };
 
 #endif // MOVEMENT_H

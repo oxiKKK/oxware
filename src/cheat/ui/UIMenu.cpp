@@ -414,7 +414,7 @@ void CUIMenu::tab_world()
 		g_gui_widgets_i->goto_next_column();
 
 		add_menu_child(
-			"Removals", CMenuStyle::calc_child_size(285), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Removals", CMenuStyle::calc_child_size(320), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Remove screenshake", &remove_screenshake);
@@ -1245,6 +1245,7 @@ void CUIMenu::tab_config()
 
 void CUIMenu::tab_binds()
 {
+#if 0
 	auto last_cursor_pos = g_gui_widgets_i->get_cursor_pos();
 
 	// buffers for every key we have
@@ -1325,9 +1326,12 @@ void CUIMenu::tab_binds()
 											}
 
 											// rebind same command to different key
-											auto cmd = g_bindmgr_i->get_command_sequence_bound_to_key(current_vk);
-											g_bindmgr_i->remove_bind(current_vk); // remove old bind
-											g_bindmgr_i->add_bind(vk, cmd); // bind to a new key
+											auto bind = g_bindmgr_i->get_bind(current_vk);
+											if (bind)
+											{
+												g_bindmgr_i->remove_bind(current_vk); // remove old bind
+												g_bindmgr_i->add_bind(vk, bind->cmd_sequence); // bind to a new key
+											}
 
 											current_vk = 0;
 										});
@@ -1446,6 +1450,7 @@ void CUIMenu::tab_binds()
 		}
 		g_bindmgr_i->remove_all_binds();
 	}
+#endif
 }
 
 void CUIMenu::tab_cmdlist()

@@ -45,6 +45,17 @@ public:
 	void angle_vectors(const Vector& angles, Vector& forward, Vector& right, Vector& up);
 
 	void vector_transform(const Vector& vector, const float(*transformation_matrix)[4], Vector& transformed);
+
+	inline float deg2rad(float x)
+	{
+		return (x * (M_PI / 180.0f));
+	}
+
+	inline float rad2deg(float x)
+	{
+		return (x * (180.0f / M_PI));
+	}
+
 };
 
 #endif // MATHUTIL_H

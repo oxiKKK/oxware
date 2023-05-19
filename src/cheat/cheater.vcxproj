@@ -373,6 +373,7 @@
     <ClCompile Include="game\GenericEnt.cpp" />
     <ClCompile Include="game\GenericMdl.cpp" />
     <ClCompile Include="game\GenericPlayer.cpp" />
+    <ClCompile Include="game\LocalPlayerState.cpp" />
     <ClCompile Include="game\model\SpriteModelData.cpp" />
     <ClCompile Include="game\model\StudioModelData.cpp" />
     <ClCompile Include="game\SpriteManager.cpp" />
@@ -456,6 +457,7 @@
     <ClInclude Include="game\GenericEnt.h" />
     <ClInclude Include="game\GenericMdl.h" />
     <ClInclude Include="game\GenericPlayer.h" />
+    <ClInclude Include="game\LocalPlayerState.h" />
     <ClInclude Include="game\model\SpriteModelData.h" />
     <ClInclude Include="game\model\StudioModelData.h" />
     <ClInclude Include="game\SpriteManager.h" />

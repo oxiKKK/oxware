@@ -218,6 +218,9 @@
     <ClCompile Include="features\Movement.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
+    <ClCompile Include="game\LocalPlayerState.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -391,6 +394,9 @@
     </ClInclude>
     <ClInclude Include="features\Movement.h">
       <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="game\LocalPlayerState.h">
+      <Filter>src\game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -31,10 +31,10 @@
 IBindManager* g_bindmgr_i = nullptr;
 
 BaseCommand _bind(
-	"bind", "<key> <command>", "Binds command to a key",
+	"bind", "<key> <command> <flags>", "Binds command to a key that is executed only once after the key was pressed.",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
-		if (args.count() == 1 || args.count() > 3)
+		if (args.count() == 1 || args.count() > 4)
 		{
 			cmd->print_usage();
 			return;
@@ -47,15 +47,59 @@ BaseCommand _bind(
 			{
 				return;
 			}
-			auto cmd_seq = g_bindmgr_i->get_command_sequence_bound_to_key(vk);
-			if (!cmd_seq.empty())
+			auto bind = g_bindmgr_i->get_bind(vk);
+			if (bind && !bind->cmd_sequence_0.empty())
 			{
-				CConsole::the().info("'{}' is bound to '{}'", args.get(1), cmd_seq);
+				CConsole::the().info("'{}' is bound to '{}'", args.get(1), bind->cmd_sequence_0);
 			}
 		}
 		else
 		{
-			g_bindmgr_i->add_bind(args.get(1), args.get(2));
+			EBindFlags f = BINDFLAG_None;
+
+			if (args.count() > 4)
+			{
+				f = g_bindmgr_i->parse_flags_out_of_string(args.get(4));
+			}
+
+			g_bindmgr_i->add_bind(args.get(1), args.get(2), f);
+		}
+	}
+);
+
+BaseCommand bind_toggle(
+	"bind_toggle", "<key> <key down command> <key release command> <flags>", "Binds two commands to a key, each executing at push down and push up of the key.",
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		if (args.count() == 1 || args.count() > 5)
+		{
+			cmd->print_usage();
+			return;
+		}
+		
+		if (args.count() == 2)
+		{
+			int vk = g_user_input_i->string_to_virtual_key(args.get(1));
+			if (vk == NULL)
+			{
+				return;
+			}
+			auto bind = g_bindmgr_i->get_bind(vk);
+			if (bind && !bind->cmd_sequence_0.empty())
+			{
+				CConsole::the().info("'{}' is bound to '{}'", args.get(1), bind->cmd_sequence_0);
+			}
+		}
+		else
+		{
+			EBindFlags f = BINDFLAG_None;
+
+			if (args.count() > 4)
+			{
+				f = g_bindmgr_i->parse_flags_out_of_string(args.get(4));
+			}
+
+			g_bindmgr_i->add_bind_toggle(args.get(1), args.get(2), args.get(3), f);
 		}
 	}
 );
@@ -64,16 +108,17 @@ BaseCommand list_binds(
 	"list_binds", "Prints all currently bound binds",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
-		CConsole::the().info("{:<3}: {:<16} {}", "id", "key", "command");
+		CConsole::the().info("{:<3}: {:<16} {:<32} {:<32} {:<16} {}", "id", "key", "command", "command 1", "type", "flags");
 		int num = 0;
 		g_bindmgr_i->for_each_bind(
-			[&](int vk, const std::string& cmd)
+			[&](int vk, const bind_t& bind)
 			{
 				num++;
-				CConsole::the().info("{:<3}: {:<16} \"{}\"", num, g_user_input_i->virtual_key_to_string(vk), cmd);
+				CConsole::the().info("{:<3}: {:<16} {:<32} {:<32} {:<16} {}", num, g_user_input_i->virtual_key_to_string(vk), 
+									 bind.cmd_sequence_0, bind.cmd_sequence_1, bind.type, bind.flags);
 			});
 
-		CConsole::the().info("------------------------------");
+		CConsole::the().info("--------------------------------------------------------------------------------------------------------------------------------");
 		CConsole::the().info("There is total of {} binds.", num);
 	}
 );
@@ -104,27 +149,39 @@ public:
 	void create_binds_from_json(const nlohmann::json& json);
 	void export_binds_to_json(nlohmann::json& json);
 
-	void add_bind(int virtual_key, const std::string& command_sequence, bool silen);
-	void remove_bind(int virtual_key, bool silen);
+	void add_bind(int virtual_key, const std::string& command_sequence, EBindFlags flags, bool silent);
+	void add_bind_toggle(int virtual_key, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent);
 
-	void add_bind(const std::string& key_name, const std::string& command_sequence, bool silen);
+	void add_bind(const std::string& key_name, const std::string& command_sequence, EBindFlags flags, bool silent);
+	void add_bind_toggle(const std::string& key_name, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent);
+
 	void remove_bind(const std::string& key_name, bool silen);
+	void remove_bind(int virtual_key, bool silen);
 
 	void remove_all_binds();
 
-	std::string get_command_sequence_bound_to_key(int virtual_key);
-	std::string get_command_sequence_bound_to_key(const std::string& key_name);
+	bind_t* get_bind(int virtual_key);
+	bind_t* get_bind(const std::string& key_name);
 
-	void for_each_bind(const std::function<void(int, const std::string&)>& callback);
-
-	bool is_there_a_command_bound_to_some_key(const std::string& cmd);
+	void for_each_bind(const std::function<void(int, const bind_t&)>& callback);
 
 	void set_can_execute_binds(bool can) { m_can_execute_binds = can; }
 	bool can_execute_binds() const { return m_can_execute_binds; }
 
+	EBindFlags parse_flags_out_of_string(const std::string& flags_str);
+
+private:
+	void register_keypress_event_on_push(UserKey_t& key, int virtual_key, bind_t& new_bind);
+	void register_keypress_event_toggle(UserKey_t& key, int virtual_key, bind_t& new_bind);
+
+	void register_bind_internal(int virtual_key, UserKey_t& key, const std::string& command_seq, 
+								const std::string& command_seq1, EBindType type, EBindFlags flags, bool silent);
+
+	static void execute_bind_internal(int virtual_key, bind_t* bind);
+
 private:
 	// virtual key as key :) and command sequence as value
-	std::map<int, std::string> m_registerd_binds;
+	std::map<int, bind_t> m_registerd_binds;
 
 	bool m_can_execute_binds = false;
 };
@@ -160,29 +217,119 @@ void CBindManager::shutdown()
 
 void CBindManager::create_binds_from_json(const nlohmann::json& json)
 {
+	const nlohmann::json* binds = nullptr;
+
 	try
 	{
-		auto& binds = json.at("binds");
-		if (binds.empty())
+		binds = &json.at("binds");
+	}
+	catch (...)
+	{
+		// there aren't any binds
+		return;
+	}
+
+	/*
+		"binds": {
+			"f4": {
+				"command":	"ui_toggle_menu",
+				"type":		"toggle",
+				"flags":	"force_execution"
+			}
+		}
+	*/
+
+	for (auto& [key, bound_key] : binds->items())
+	{
+		std::string cmd_str, cmd1_str, type_str, flags_str;
+
+		auto try_to_parse = [&](const std::string& what, std::string& output, bool doesnt_matter = false) {
+			try
+			{
+				auto& key = bound_key.at(what);
+				output = key.get<std::string>();
+				return true;
+			}
+			catch (...)
+			{
+				if (!doesnt_matter)
+				{
+					CConsole::the().error("Error parsing '{}' field for key '{}'", what, key);
+				}
+				output = "";
+				return false;
+			}
+		};
+
+		// commnad
+		if (!try_to_parse("command", cmd_str))
 		{
-			return;
+			continue;
 		}
 
-		for (auto& [key, bind] : binds.items())
+		// type
+		if (!try_to_parse("type", type_str))
 		{
-			auto key_command = bind.get<std::string>();
-			add_bind(key, key_command, false);
+			continue;
 		}
-	}
-	catch (const nlohmann::json::exception& e)
-	{
-		CConsole::the().error("JSON error: {}", e.what());
+
+		// flags
+		if (!try_to_parse("flags", flags_str, true))
+		{
+			// doesn't have to return, this is optional
+		}
+
+		// bind type
+		EBindType type;
+		if (type_str == "on_push")
+		{
+			type = BIND_OnPush;
+		}
+		else if (type_str == "toggle")
+		{
+			type = BIND_Toggle;
+
+			if (!try_to_parse("command1", cmd1_str))
+			{
+				CConsole::the().error("You have to provide second command, too, when binding repeateable command");
+				continue;
+			}
+		}
+		else
+		{
+			if (type_str.empty())
+			{
+				CConsole::the().error("Bound key '{}' without any bind type! A key must be provided a bind type when bound!", key);
+			}
+			else
+			{
+				CConsole::the().error("Unrecognized bind type '{}' for key '{}'", key, type_str);
+			}
+			continue;
+		}
+
+		// bind flags
+		EBindFlags flags = parse_flags_out_of_string(flags_str);
+
+		switch (type)
+		{
+			case BIND_OnPush:
+			{
+				add_bind(key, cmd_str, flags, false);
+				break;
+			}
+			case BIND_Toggle:
+			{
+				add_bind_toggle(key, cmd_str, cmd1_str, flags, false);
+				break;
+			}
+		}
 	}
 }
 
 void CBindManager::export_binds_to_json(nlohmann::json& json)
 {
-	for (const auto& [vk, cmd] : m_registerd_binds)
+	for (const auto& [vk, bind] : m_registerd_binds)
 	{
 		auto key_name = g_user_input_i->virtual_key_to_string(vk);
 		if (key_name.empty())
@@ -190,9 +337,60 @@ void CBindManager::export_binds_to_json(nlohmann::json& json)
 			continue;
 		}
 
+		/*
+			"binds": {
+				"f4": {
+					"command":	"ui_toggle_menu",
+					"type":		"toggle",
+					"flags":	"force_execution"
+				}
+			}
+		*/
+
+		auto write_json_bind = [&](const std::string name, const std::string value)
+		{
+			if (value.empty())
+			{
+				CConsole::the().error("Error while writing binds: Couldn't write empty value to key '{}'", name);
+				return;
+			}
+
+			try
+			{
+				json["binds"][key_name][name] = value;
+			}
+			catch (const nlohmann::json::exception& e)
+			{
+				CConsole::the().error("JSON error while trying to write key '{}' and value '{}': {}", name, value, e.what());
+			}
+		};
+
 		try
 		{
-			json["binds"][key_name] = cmd;
+			write_json_bind("command", bind.cmd_sequence_0);
+
+			std::string type_str;
+			switch (bind.type)
+			{
+				case BIND_OnPush: type_str = "on_push"; break;
+				case BIND_Toggle: type_str = "repeat"; break;
+			}
+
+			write_json_bind("type", type_str);
+
+			if (bind.type == BIND_Toggle)
+			{
+				write_json_bind("command1", bind.cmd_sequence_1);
+			}
+
+			std::string flags_str = "none";
+			switch (bind.type)
+			{
+				case BINDFLAG_ForceExecution: flags_str = "force_execution";
+				// NOTE: Don't forget to separate them by ',' when adding more flags here.
+			}
+
+			json["binds"][key_name]["flags"] = flags_str;
 		}
 		catch (const nlohmann::json::exception& e)
 		{
@@ -201,7 +399,7 @@ void CBindManager::export_binds_to_json(nlohmann::json& json)
 	}
 }
 
-void CBindManager::add_bind(int virtual_key, const std::string& command_sequence, bool silent)
+void CBindManager::add_bind(int virtual_key, const std::string& command_sequence, EBindFlags flags, bool silent)
 {	
 	if (!g_user_input_i->is_valid_key(virtual_key))
 	{
@@ -217,46 +415,26 @@ void CBindManager::add_bind(int virtual_key, const std::string& command_sequence
 		return;
 	}
 
-	std::string key_name = g_user_input_i->virtual_key_to_string(virtual_key);
-	
-	try
+	register_bind_internal(virtual_key, key, command_sequence, "", BIND_Toggle, flags, silent);
+}
+
+void CBindManager::add_bind_toggle(int virtual_key, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent)
+{
+	if (!g_user_input_i->is_valid_key(virtual_key))
 	{
-		auto [it, did_insert] = m_registerd_binds.insert({ virtual_key, command_sequence });
-		if (!did_insert)
-		{
-			// re-bind
-			(*it).second = command_sequence;
-		}
-	}
-	catch (...)
-	{
-		CConsole::the().error("Failed to create new bind for key '{}'! (duplicated id?)", key_name);
+		CConsole::the().error("Tried to bind invalid key: {}", virtual_key);
 		return;
 	}
 
-	key.add_on_pressed_callback(
-		std::format("vk_{}", virtual_key),
-		[&](const std::string& id, UserKey_t* key)
-		{
-			int vk = std::stoi(id.substr(3));
-			std::string key_name = g_user_input_i->virtual_key_to_string(vk);
-			std::string cmd_seq = g_bindmgr_i->get_command_sequence_bound_to_key(vk);
-
-			if (!g_bindmgr_i->can_execute_binds() && 
-				// kinda dumb, but whatever, maybe TODO in the future? Improve?
-				cmd_seq != "ui_toggle_menu" && cmd_seq != "ui_toggle_console")
-			{
-				return;
-			}
-
-			CConsole::the().info("Executing bind for key '{}': '{}'", key_name, cmd_seq);
-			g_variablemgr_i->execute_command(cmd_seq);
-		});
-
-	if (!silent)
+	bool found;
+	auto& key = g_user_input_i->get_key(virtual_key, &found);
+	if (!found)
 	{
-		CConsole::the().info("Bound '{}' to key '{}'.", command_sequence, key_name);
+		CConsole::the().info("Failed to bind command to a key '{}'. The key was not found", virtual_key);
+		return;
 	}
+
+	register_bind_internal(virtual_key, key, key_down_command_sequence, key_up_command_sequence, BIND_Toggle, flags, silent);
 }
 
 void CBindManager::remove_bind(int virtual_key, bool silent)
@@ -272,6 +450,32 @@ void CBindManager::remove_bind(int virtual_key, bool silent)
 
 	std::string key_name = g_user_input_i->virtual_key_to_string(virtual_key);
 
+	auto bind = get_bind(virtual_key);
+	if (!bind)
+	{
+		return;
+	}
+
+	switch (bind->type)
+	{
+		case BIND_OnPush:
+		{
+			key.remove_on_pressed_callback(std::format("vk_{}", virtual_key));
+			break;
+		}
+		case BIND_Toggle:
+		{
+			key.remove_on_pressed_callback(std::format("vk_{}", virtual_key));
+			key.remove_on_unpressed_callback(std::format("vk_{}", virtual_key));
+			break;
+		}
+		default:
+		{
+			assert(0 && "Cannot unbind bind with invalid bind type!");
+			break;
+		}
+	}
+
 	try
 	{
 		m_registerd_binds.erase(virtual_key);
@@ -282,15 +486,13 @@ void CBindManager::remove_bind(int virtual_key, bool silent)
 		return;
 	}
 
-	key.remove_on_pressed_callback(std::format("vk_{}", virtual_key));
-
 	if (!silent)
 	{
 		CConsole::the().info("Unbound key '{}'.", key_name);
 	}
 }
 
-void CBindManager::add_bind(const std::string& key_name, const std::string& command_sequence, bool silent)
+void CBindManager::add_bind(const std::string& key_name, const std::string& command_sequence, EBindFlags flags, bool silent)
 {
 	int vk = g_user_input_i->string_to_virtual_key(key_name);
 	if (vk == NULL)
@@ -298,7 +500,18 @@ void CBindManager::add_bind(const std::string& key_name, const std::string& comm
 		return;
 	}
 
-	add_bind(vk, command_sequence, silent);
+	add_bind(vk, command_sequence, flags, silent);
+}
+
+void CBindManager::add_bind_toggle(const std::string& key_name, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent)
+{
+	int vk = g_user_input_i->string_to_virtual_key(key_name);
+	if (vk == NULL)
+	{
+		return;
+	}
+
+	add_bind_toggle(vk, key_down_command_sequence, key_up_command_sequence, flags, silent);
 }
 
 void CBindManager::remove_bind(const std::string& key_name, bool silent)
@@ -327,46 +540,170 @@ void CBindManager::remove_all_binds()
 	}
 }
 
-std::string CBindManager::get_command_sequence_bound_to_key(int virtual_key)
+bind_t* CBindManager::get_bind(int virtual_key)
 {
 	try
 	{
-		return m_registerd_binds.at(virtual_key);
+		return &m_registerd_binds.at(virtual_key);
 	}
 	catch (...)
 	{
 		std::string key_name = g_user_input_i->virtual_key_to_string(virtual_key);
 		CConsole::the().error("Virtual key '{}' not bound!", key_name);
-		return "";
+		return nullptr;
 	}
 }
 
-std::string CBindManager::get_command_sequence_bound_to_key(const std::string& key_name)
+bind_t* CBindManager::get_bind(const std::string& key_name)
 {
 	int vk = g_user_input_i->string_to_virtual_key(key_name);
 	if (vk == NULL)
 	{
-		return "";
+		return nullptr;
 	}
 
-	return get_command_sequence_bound_to_key(vk);
+	return get_bind(vk);
 }
 
-void CBindManager::for_each_bind(const std::function<void(int, const std::string&)>& callback)
+void CBindManager::for_each_bind(const std::function<void(int, const bind_t&)>& callback)
 {
-	for (const auto [vk, cmd] : m_registerd_binds)
+	for (const auto [vk, bind] : m_registerd_binds)
 	{
-		callback(vk, cmd);
+		callback(vk, bind);
 	}
 }
 
-bool CBindManager::is_there_a_command_bound_to_some_key(const std::string& cmd)
+EBindFlags CBindManager::parse_flags_out_of_string(const std::string& flags_str)
 {
-	for (const auto& [vk, _cmd] : m_registerd_binds)
+	EBindFlags flags = BINDFLAG_None;
+	std::string current_token;
+	for (size_t i = 0; i < flags_str.length(); i++)
 	{
-		if (_cmd.find(cmd) != std::string::npos)
-			return true;
+		char c = flags_str[i];
+		bool last = (i == flags_str.length() - 1);
+		if (c == ',' || last)
+		{
+			if (last)
+			{
+				current_token.push_back(c);
+			}
+
+			// trim space
+			current_token.erase(current_token.find_last_not_of(' ') + 1); // suffixing spaces
+			current_token.erase(0, current_token.find_first_not_of(' ')); // prefixing spaces
+
+			if (current_token == "force_execution")
+			{
+				flags |= BINDFLAG_ForceExecution;
+			}
+
+			current_token.clear(); // throw out after used
+
+		}
+		else
+		{
+			current_token.push_back(c);
+		}
+	}
+	return flags;
+}
+
+void CBindManager::register_keypress_event_on_push(UserKey_t& key, int virtual_key, bind_t& new_bind)
+{
+	// on pressed, once
+	key.add_on_pressed_callback(
+		std::format("vk_{}", virtual_key),
+		[](const std::string& id, UserKey_t* key)
+		{
+			int vk = std::stoi(id.substr(3));
+			auto bind = g_bindmgr_i->get_bind(vk);
+
+			if (bind)
+			{
+				execute_bind_internal(vk, bind);
+			}
+		});
+}
+
+void CBindManager::register_keypress_event_toggle(UserKey_t& key, int virtual_key, bind_t& new_bind)
+{
+	// on pressed, once
+	key.add_on_pressed_callback(
+		std::format("vk_{}", virtual_key),
+		[](const std::string& id, UserKey_t* key)
+		{
+			int vk = std::stoi(id.substr(3));
+			auto bind = g_bindmgr_i->get_bind(vk);
+
+			if (bind)
+			{
+				execute_bind_internal(vk, bind);
+			}
+		});
+
+	// on released, once
+	key.add_on_unpressed_callback(
+		std::format("vk_{}", virtual_key),
+		[](const std::string& id, UserKey_t* key)
+		{
+			int vk = std::stoi(id.substr(3));
+			auto bind = g_bindmgr_i->get_bind(vk);
+
+			if (bind)
+			{
+				execute_bind_internal(vk, bind);
+			}
+		});
+}
+
+void CBindManager::register_bind_internal(int virtual_key, UserKey_t& key, const std::string& command_seq, const std::string& command_seq1, EBindType type, EBindFlags flags, bool silent)
+{
+	std::string key_name = g_user_input_i->virtual_key_to_string(virtual_key);
+
+	try
+	{
+		bind_t bind = { command_seq, command_seq1, type, flags };
+		auto [it, did_insert] = m_registerd_binds.insert({ virtual_key, bind });
+		if (!did_insert)
+		{
+			// re-bind
+			(*it).second = bind;
+		}
+
+		switch (type)
+		{
+			case BIND_OnPush:
+			{
+				register_keypress_event_on_push(key, virtual_key, bind);
+				break;
+			}
+			case BIND_Toggle:
+			{
+				register_keypress_event_toggle(key, virtual_key, bind);
+				break;
+			}
+		}
+	}
+	catch (...)
+	{
+		CConsole::the().error("Failed to create new bind for key '{}'! (duplicated id?)", key_name);
+		return;
 	}
 
-	return false;
+	if (!silent)
+	{
+		CConsole::the().info("Bound '{}' to key '{}'.", command_seq, key_name);
+	}
+}
+
+void CBindManager::execute_bind_internal(int virtual_key, bind_t* bind)
+{
+	// see for binds that we filter under some conditions
+	if (!g_bindmgr_i->can_execute_binds() && !(bind->flags & BINDFLAG_ForceExecution))
+	{
+		return;
+	}
+
+	std::string key_name = g_user_input_i->virtual_key_to_string(virtual_key);
+	g_variablemgr_i->execute_command(bind->cmd_sequence_1);
 }

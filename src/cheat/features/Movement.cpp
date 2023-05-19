@@ -40,3 +40,62 @@ void CMovement::update_air_stuck(hl::usercmd_t* to)
 
 	to->msec = movement_air_stuck_intensity.get_value();
 }
+
+void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
+{
+	bunnyhop_update(frametime, cmd);
+}
+
+void CMovement::bunnyhop_update(float frametime, hl::usercmd_t *cmd)
+{
+	static bool flip_flop = false;
+
+	if (flip_flop)
+	{
+		flip_flop = !flip_flop;
+		return;
+	}
+
+	static int ground_frame = 0;
+
+	float distance = abs(CLocalPlayerState::the().get_ground_dist() / CLocalPlayerState::the().get_fall_velocity() / frametime * 2);
+
+	bool is_onground = CLocalPlayerState::the().is_on_ground();
+	float velocity_2d = CLocalPlayerState::the().get_local_velocity_2d();
+	float maxspeed = CLocalPlayerState::the().get_maxspeed();
+
+	return;
+	CConsole::the().info("maxspeed: {}", maxspeed);
+
+	if (is_onground)
+	{
+		cmd->buttons |= IN_JUMP;
+		return;
+	}
+	return;
+
+	if (!flip_flop && (is_onground || (distance >= 5 && distance <= 18)))
+	{
+		if (velocity_2d <= maxspeed * 1.2f)
+		{
+			cmd->buttons |= IN_JUMP;
+			flip_flop = true;
+		}
+		else
+		{
+			if (is_onground)
+			{
+				//if (ground_frame < 5)
+				//{
+				//	ground_frame++;
+				//}
+				//else
+				{
+					cmd->buttons |= IN_JUMP;
+					flip_flop = true;
+					ground_frame = 0;
+				}
+			}
+		}
+	}
+}

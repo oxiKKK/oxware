@@ -141,6 +141,20 @@ BaseCommand clear(
 	}
 );
 
+BaseCommand print(
+	"print", "Prints string to the console",
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		if (args.count() <= 1)
+		{
+			cmd->print_usage();
+			return;
+		}
+
+		g_devconsole_i->print(EOutputModule::CONSOLE, EOutputCategory::INFO, args.get(1));
+	}
+);
+
 CDeveloperConsole g_dev_console;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CDeveloperConsole, IDeveloperConsole, IDEVELOPERCONSOLE_INTERFACEID, g_dev_console);
 

@@ -261,26 +261,36 @@ std::string CGameUtil::parse_viewmodel_name(hl::model_t* model)
 	return vm_str.substr(2);
 }
 
-float CGameUtil::get_local_velocity_2d()
+float CGameUtil::compute_ground_angle_for_origin(const Vector& origin, float trace_distance)
 {
-	auto pm = *CMemoryHookMgr::the().pmove().get();
-	if (pm)
-	{
-		return pm->velocity.Length2D();
-	}
+	Vector trace_end = Vector(origin.x, origin.y, -trace_distance); // trace as back as this
 
-	return 0.0f;
+	hl::pmtrace_t* tr = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnPM_TraceLine(
+		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalPlayerState::the().is_ducking() ? 1 : 0, -1);
+	
+	// plane normal returns the [0, 1] scale of rotation of the plane [0°, 90°].
+	//
+	//	  plane			|  		
+	//		|  			|  		   0
+ 	//		|-----> 1	|   90°----^----- plane
+	//		|			|  
+	//		0°			|  
+	//
+	return CMathUtil::the().rad2deg(acosf(tr->plane.normal.z));
 }
 
-float CGameUtil::get_local_velocity_3d()
+float CGameUtil::compute_distance_to_ground(const Vector& origin, float trace_distance)
 {
-	auto pm = *CMemoryHookMgr::the().pmove().get();
-	if (pm)
-	{
-		return pm->velocity.Length();
-	}
+	Vector trace_end = Vector(origin.x, origin.y, -trace_distance); // trace as back as this
 
-	return 0.0f;
+	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs().get();
+
+	int player_hull = CLocalPlayerState::the().is_ducking() ? 1 : 0;
+	
+	hl::pmtrace_t* tr = cl_enginefuncs->pfnPM_TraceLine(
+		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, player_hull, -1);
+	
+	return origin.z - tr->endpos.z;
 }
 
 hl::CBasePlayerWeapon* CGameUtil::get_current_weapon()
@@ -293,9 +303,13 @@ hl::CBasePlayerWeapon* CGameUtil::get_current_weapon()
 
 	auto weapons = *client_wpns_hook.get();
 
-	auto cl = CMemoryHookMgr::the().cl().get();
+	auto cldata = CLocalPlayerState::the().get_current_frame_clientdata();
+	if (!cldata)
+	{
+		return NULL;
+	}
 
-	return weapons[cl->frames[cl->parsecountmod].clientdata.m_iId];
+	return weapons[cldata->m_iId];
 }
 
 std::string CGameUtil::get_modelname_from_weapon(int wpnidx)
@@ -336,10 +350,8 @@ std::string CGameUtil::get_modelname_from_weapon(int wpnidx)
 			case hl::WEAPON_P90:			return "models/v_p90.mdl";
 		}
 	}
-	else
-	{
-		return "";
-	}
+
+	return "";
 }
 
 
@@ -400,58 +412,6 @@ int CGameUtil::get_weapon_accuracy_flags(int weapon_id, int weapon_flags)
 	}
 
 	return flags;
-}
-
-hl::clientdata_t* CGameUtil::get_current_frame_clientdata()
-{
-	auto cl = CMemoryHookMgr::the().cl().get();
-
-	return &cl->frames[cl->parsecountmod].clientdata;
-}
-
-int CGameUtil::get_player_flags()
-{
-	auto cldata = get_current_frame_clientdata();
-	if (!cldata)
-		return 0;
-
-	return cldata->flags;
-}
-
-bool CGameUtil::player_can_shoot()
-{
-	auto cldata = get_current_frame_clientdata();
-	if (!cldata)
-		return 0;
-
-	return cldata->iuser3 & PLAYER_CAN_SHOOT;
-}
-
-bool CGameUtil::player_freeze_time_over()
-{
-	auto cldata = get_current_frame_clientdata();
-	if (!cldata)
-		return 0;
-
-	return cldata->iuser3 & PLAYER_FREEZE_TIME_OVER;
-}
-
-bool CGameUtil::player_in_bomb_zone()
-{
-	auto cldata = get_current_frame_clientdata();
-	if (!cldata)
-		return 0;
-
-	return cldata->iuser3 & PLAYER_IN_BOMB_ZONE;
-}
-
-bool CGameUtil::player_holding_shield()
-{
-	auto cldata = get_current_frame_clientdata();
-	if (!cldata)
-		return 0;
-
-	return cldata->iuser3 & PLAYER_HOLDING_SHIELD;
 }
 
 void CGameUtil::locate_engine_compile_timestamp()

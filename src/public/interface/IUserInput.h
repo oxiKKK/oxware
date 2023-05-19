@@ -61,8 +61,7 @@ public:
 			m_pressed_timestamp_ms = GetTickCount();
 			execute_on_pressed_callbacks();
 		}
-
-		if (!m_is_down && m_press_lock == true)
+		else if (!m_is_down && m_press_lock == true)
 		{
 			m_press_lock = false;
 			execute_on_unpressed_callbacks();

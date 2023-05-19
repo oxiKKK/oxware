@@ -239,6 +239,8 @@ void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::
 {
 	CMemoryFnDetourMgr::the().ClientDLL_CreateMove().call(frametime, cmd, active);
 
+	CLocalPlayerState::the().update_clientmove(frametime, cmd);
+
 	if (COxWareUI::the().should_disable_ingame_input())
 	{
 		// disable all movement when the menu is up. This is called by CL_Move() when the game expects
@@ -246,6 +248,29 @@ void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::
 		cmd->buttons = 0;
 		cmd->forwardmove = cmd->sidemove = cmd->upmove = 0;
 	}
+
+	CMovement::the().update_clientmove(frametime, cmd);
+
+	auto start = CLocalPlayerState::the().get_origin();
+	auto end = CLocalPlayerState::the().get_origin() - Vector(0.0f, 0.0f, CLocalPlayerState::the().get_ground_dist());
+
+	short BeamIndex = CMemoryHookMgr::the().cl_enginefuncs().get()->pEventAPI->EV_FindModelIndex("sprites/laserbeam.spr");
+	CMemoryHookMgr::the().cl_enginefuncs().get()->pEfxAPI->R_BeamPoints(
+		start,
+		end,
+		BeamIndex,
+		0.01f, 0.4f, 0, 32, 2, 0, 0, 255, 0, 0);
+
+	//Vector vForward, vRight, vUp;
+	//Vector vAngle = cmd->viewangles;
+	//CMathUtil::the().angle_vectors(vAngle, vForward, vRight, vUp);
+	//int beamindex = CMemoryHookMgr::the().cl_enginefuncs().get()->pEventAPI->EV_FindModelIndex("sprites/laserbeam.spr");
+	//hl::pmtrace_t tr;
+	//CMemoryHookMgr::the().cl_enginefuncs().get()->pEventAPI->EV_SetTraceHull(2);
+	//CMemoryHookMgr::the().cl_enginefuncs().get()->pEventAPI->EV_PlayerTrace(start, start + vForward * 8192, PM_GLASS_IGNORE, -1, &tr);
+	//
+	//CMemoryHookMgr::the().cl_enginefuncs().get()->pEfxAPI->R_BeamPoints(start, tr.endpos, beamindex, 0.65f, 0.4f, 0, 32, 2, 0, 0, 255, 0, 0);
+
 }
 
 //---------------------------------------------------------------------------------

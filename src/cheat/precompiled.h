@@ -250,6 +250,7 @@ namespace hl
 #include "game/GenericPlayer.h"
 #include "game/EntityManager.h"
 #include "game/SpriteManager.h"
+#include "game/LocalPlayerState.h"
 
 // features
 #include "features/FeatureManager.h"

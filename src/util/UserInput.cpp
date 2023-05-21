@@ -98,11 +98,14 @@ public:
 	bool remove_key_press_callback(const std::string& id, int virtual_key);
 	bool remove_key_unpress_callback(const std::string& id, int virtual_key);
 
-	void scan_for_any_key_press()
+	void activate_key_binding_mode()
 	{
-		m_any_key_pressed = NULL;
+		reset_bound_key();
+		m_key_binding_mode = true;
 	}
-	int get_any_key_pressed() const { return m_any_key_pressed; }
+	bool is_in_key_binding_mode() { return m_key_binding_mode; }
+	int get_bound_key() const { return m_any_key_pressed; }
+	void reset_bound_key() { m_any_key_pressed = NULL; }
 
 	void for_all_user_keys(const std::function<void(UserKey_t*)>& callback);
 
@@ -117,6 +120,7 @@ private:
 	void initialize_key_translation_tables();
 
 	int m_any_key_pressed = NULL;
+	bool m_key_binding_mode = false;
 };
 
 CUserInput g_user_input;
@@ -307,9 +311,16 @@ void CUserInput::update_keys(UINT uMsg, WPARAM wParam)
 		// mouse wheel event
 
 		int delta = GET_WHEEL_DELTA_WPARAM(wParam);
-		int code = delta < 0 ? VK_MWHEELDOWN : VK_MWHEELUP;
-		m_any_key_pressed = code;
-		m_userkeys[code].update(true);
+		int vk = delta < 0 ? VK_MWHEELDOWN : VK_MWHEELUP;
+		if (m_key_binding_mode)
+		{
+			m_any_key_pressed = vk;
+			m_key_binding_mode = false;
+		}
+		else
+		{
+			m_userkeys[vk].update(true);
+		}
 	}
 	else
 	{
@@ -325,7 +336,6 @@ void CUserInput::update_keys(UINT uMsg, WPARAM wParam)
 			case WM_KEYDOWN:
 			{
 				is_down = true;
-				m_any_key_pressed = vk;
 				break;
 			}
 			// mouse buttons
@@ -377,11 +387,15 @@ void CUserInput::update_keys(UINT uMsg, WPARAM wParam)
 			}
 		}
 
-		if (is_down)
+		if (m_key_binding_mode && is_down)
 		{
 			m_any_key_pressed = vk;
+			m_key_binding_mode = false;
 		}
-		m_userkeys[vk].update(is_down);
+		else
+		{
+			m_userkeys[vk].update(is_down);
+		}
 	}
 }
 

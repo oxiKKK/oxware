@@ -51,6 +51,8 @@ public:
 	void add_description_text(const char* additional_desc, const char* readmore_string = nullptr, bool no_padding = false);
 	void add_description_text_ex(const char* additional_desc, const std::function<void()>& callback = nullptr, bool no_padding = false);
 
+	void add_menu_child(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents);
+
 private:
 	void handle_widget_hover(BaseVariable* var);
 

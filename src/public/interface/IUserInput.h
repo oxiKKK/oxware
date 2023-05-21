@@ -69,7 +69,7 @@ public:
 	}
 
 	// time in seconds
-	inline float time_down() const { return (GetTickCount() - m_pressed_timestamp_ms) * 1000; }
+	inline uint32_t time_down() const { return (GetTickCount() - m_pressed_timestamp_ms) * 1000; }
 
 	inline bool is_down() const { return m_is_down; }
 
@@ -159,8 +159,10 @@ public:
 	virtual bool remove_key_press_callback(const std::string& id, int virtual_key) = 0;
 	virtual bool remove_key_unpress_callback(const std::string& id, int virtual_key) = 0;
 
-	virtual void scan_for_any_key_press() = 0;
-	virtual int get_any_key_pressed() const = 0;
+	virtual void activate_key_binding_mode() = 0;
+	virtual bool is_in_key_binding_mode() = 0;
+	virtual int get_bound_key() const = 0;
+	virtual void reset_bound_key() = 0;
 
 	virtual void for_all_user_keys(const std::function<void(UserKey_t*)>& callback) = 0;
 };

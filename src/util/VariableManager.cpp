@@ -114,8 +114,6 @@ BaseCommand tokenize(
 
 IVariableManager* g_variablemgr_i = nullptr;
 
-#include <set>
-
 class CVariableManager : public IVariableManager
 {
 public:
@@ -441,7 +439,7 @@ void CVariableManager::execute_internal(const std::string& command, bool silent)
 	}
 	else
 	{
-		if (!silent)
+		if (!silent )
 		{
 			CConsole::the().info("> {}", command);
 		}

@@ -221,6 +221,9 @@
     <ClCompile Include="game\LocalPlayerState.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
+    <ClCompile Include="ui\UIKeyBinding.cpp">
+      <Filter>src\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -397,6 +400,9 @@
     </ClInclude>
     <ClInclude Include="game\LocalPlayerState.h">
       <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\UIKeyBinding.h">
+      <Filter>src\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

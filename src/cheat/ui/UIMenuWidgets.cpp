@@ -266,6 +266,17 @@ void CUIMenuWidgets::add_description_text_ex(const char* additional_desc, const 
 	}
 }
 
+void CUIMenuWidgets::add_menu_child(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents)
+{
+	g_gui_widgets_i->set_next_window_rounding(CMenuStyle::k_child_contents_rounding, ImDrawFlags_RoundCornersTopLeft | ImDrawFlags_RoundCornersTopRight);
+
+	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, CMenuStyle::k_child_contents_padding);
+
+	g_gui_widgets_i->add_child_with_header(label, size, border, flags, pfn_contents);
+
+	g_gui_widgets_i->pop_stylevar(1);
+}
+
 void CUIMenuWidgets::handle_widget_hover(BaseVariable* var)
 {
 	if (g_gui_widgets_i->is_last_widget_hovered())

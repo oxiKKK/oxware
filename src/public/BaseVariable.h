@@ -647,29 +647,39 @@ private:
 
 using pfnCommandFunc_t = std::function<void(BaseCommand* cmd, const CmdArgs& args)>;
 
+enum ECommandFlags
+{
+	CMDFLAGS_None = 0, 
+
+	CMDFLAGS_ExecuteOverUI = BIT(0),
+};
+
 class BaseCommand
 {
 public:
-	BaseCommand(const std::string& name, const std::string& description, const pfnCommandFunc_t& func) :
+	BaseCommand(const std::string& name, const std::string& description, const pfnCommandFunc_t& func, ECommandFlags flags = CMDFLAGS_None) :
 		m_name(name), 
 		m_usage(""),
 		m_description(description),
-		m_function(func)
+		m_function(func), 
+		m_flags(flags)
 	{
 		add_to_global_list();
 	}
 
-	BaseCommand(const std::string& name, const std::string& usage, const std::string& description, const pfnCommandFunc_t& func) :
+	BaseCommand(const std::string& name, const std::string& usage, const std::string& description, const pfnCommandFunc_t& func, ECommandFlags flags = CMDFLAGS_None) :
 		m_name(name), 
 		m_usage(usage), 
 		m_description(description),
-		m_function(func)
+		m_function(func), 
+		m_flags(flags)
 	{
 		add_to_global_list();
 	}
 
 	inline const char* get_name() const { return m_name.c_str(); }
 	inline const char* get_description() const { return m_description.c_str(); }
+	inline ECommandFlags get_flags() const { return m_flags; }
 
 	// usage
 	inline bool has_usage() const { return !m_usage.empty(); }
@@ -697,6 +707,8 @@ protected:
 	std::string m_name, m_usage, m_description;
 
 	pfnCommandFunc_t m_function;
+
+	ECommandFlags m_flags;
 };
 
 //--------------------------------------------------------------------------------------------------------------------

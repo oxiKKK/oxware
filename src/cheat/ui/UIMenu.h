@@ -200,8 +200,6 @@ private:
 	MenuTabSection m_tabsec_Configuration;
 	MenuTabSection m_tabsec_Other;
 
-	void add_menu_child(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents);
-
 	EMenuTabId m_active_tab_id = UIMENU_Blank;
 
 	// Active offset for rendering tabs & section labels.

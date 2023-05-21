@@ -64,8 +64,8 @@ public:
 	Vector2D get_current_window_pos();
 	Vector2D get_current_window_size();
 
-	void schedule_modal_dialog(const std::string& label);
-	void execute_modal_popup(const std::string& name, ImGuiWindowFlags flags, const std::function<bool()>& callback);
+	void schedule_simple_popup_dialog(const std::string& label);
+	void execute_simple_popup_popup(const std::string& name, const Vector2D& size, ImGuiWindowFlags flags, const std::function<void()>& callback);
 
 	//
 	// Properties
@@ -396,25 +396,20 @@ Vector2D CGUIWidgets::get_current_window_size()
 	return GetWindowSize();
 }
 
-void CGUIWidgets::schedule_modal_dialog(const std::string& label)
+void CGUIWidgets::schedule_simple_popup_dialog(const std::string& label)
 {
 	OpenPopup(label.c_str()); 
 }
 
-void CGUIWidgets::execute_modal_popup(const std::string& name, ImGuiWindowFlags flags, const std::function<bool()>& callback)
+void CGUIWidgets::execute_simple_popup_popup(const std::string& name, const Vector2D& size, ImGuiWindowFlags flags, const std::function<void()>& callback)
 {
-	// Always center this window when appearing
-	ImVec2 center = GetMainViewport()->GetCenter();
-	SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	SetNextWindowSize(size, ImGuiCond_Always);
 
-	if (BeginPopupModal(name.c_str(), NULL, flags))
+	if (BeginPopup(name.c_str(), flags))
 	{
 		if (callback)
 		{
-			if (callback())
-			{
-				CloseCurrentPopup();
-			}
+			callback();
 		}
 
 		EndPopup();
@@ -1141,31 +1136,8 @@ void CGUIWidgets::add_console()
 
 void CGUIWidgets::add_bullet_text_internal(const std::string& text, ETextProperties properties, FontObject_t* font)
 {
-	ImGuiWindow* window = GetCurrentWindow();
-	if (window->SkipItems)
-		return;
-
-	if (!font)
-	{
-		font = g_gui_fontmgr_i->get_default_font();
-	}
-
-	ImGuiContext& g = *GImGui;
-	const ImGuiStyle& style = g.Style;
-
-	const ImVec2 label_size = g_gui_fontmgr_i->calc_font_text_size(font, text.c_str());
-	const ImVec2 total_size = ImVec2(g.FontSize + (label_size.x > 0.0f ? (label_size.x + style.FramePadding.x * 2) : 0.0f), label_size.y);  // Empty text doesn't add padding
-	ImVec2 pos = window->DC.CursorPos;
-	pos.y += window->DC.CurrLineTextBaseOffset;
-	ItemSize(total_size, 0.0f);
-	ImRect bb(pos, pos + total_size);
-	if (!ItemAdd(bb, 0))
-		return;
-
-	// Render
-	ImU32 text_col = GetColorU32(ImGuiCol_Text);
-	RenderBullet(window->DrawList, bb.Min + ImVec2(style.FramePadding.x + g.FontSize * 0.5f, g.FontSize * 0.5f), text_col);
-	RenderText(bb.Min + ImVec2(g.FontSize + style.FramePadding.x * 2, 0.0f), text.c_str(), NULL, false);
+	Bullet();
+	add_text(text, properties, font);
 }
 
 void CGUIWidgets::add_window_centered_text_ex(const std::string& text, const CColor& text_color, FontObject_t* font)

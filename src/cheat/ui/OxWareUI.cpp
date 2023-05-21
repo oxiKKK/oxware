@@ -122,35 +122,6 @@ void COxWareUI::schedule_popup(const std::string& window_title, const Vector2D& 
 	m_popup_window_flags = window_flags;
 }
 
-void COxWareUI::add_keybind_dialog(const std::function<void()>& on_key_bound_callback)
-{
-	m_popup_callback = [&]()
-	{
-		if (m_scanned_keypress)
-		{
-			m_scanned_keypress = false;
-			m_on_close_callback();
-			m_new_key_bound = NULL;
-			return;
-		}
-
-		bool b = g_gui_widgets_i->add_button(m_scan_keypress_mode ? "<enter a key>" : m_scanned_key, 
-											 Vector2D(-1.0f, -1.0f), false, BUTTONFLAG_CenterLabel);
-
-		if (b)
-		{
-			m_scan_keypress_mode = true;
-			m_new_key_bound = NULL;
-			g_user_input_i->scan_for_any_key_press(); // start scanning
-		}
-	};
-
-	m_on_close_callback = on_key_bound_callback;
-	m_popup_window_size = Vector2D(210, 140);
-	m_popup_window_title = "Create new bind";
-	m_popup_window_flags = ImGuiWindowFlags_NoResize;
-}
-
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void COxWareUI::initialize(HWND wnd)
 {
@@ -241,8 +212,6 @@ void COxWareUI::run_ui()
 		}
 	}
 
-	g_bindmgr_i->set_can_execute_binds(!m_is_any_interactible_rendering_context_active && !CEngineInput::the().is_gameui_rendering());
-
 	// welcoming popup dialog
 	static bool once = false;
 	if (!once && (CoXWARE::the().at_least_once_focused() || GetFocus() == m_hwnd))
@@ -256,28 +225,7 @@ void COxWareUI::run_ui()
 		once = true;
 	}
 
-	// key scanning mode
-	if (m_scan_keypress_mode && !m_scanned_keypress)
-	{
-		int vk_pressed = g_user_input_i->get_any_key_pressed();
-		if (vk_pressed != NULL)
-		{
-			if (vk_pressed != VK_ESCAPE)
-			{
-				// end scanning
-				m_scanned_key = g_user_input_i->virtual_key_to_string(vk_pressed);
-				if (m_scanned_key.empty())
-				{
-					m_scanned_key = "<invalid key>";
-				}
-
-				m_new_key_bound = vk_pressed;
-			}
-
-			m_scan_keypress_mode = false;
-			m_scanned_keypress = true;
-		}
-	}
+	CUIKeyBinding::the().update();
 
 	if (!m_contexts_to_be_rendered.empty() || (m_popup_callback != nullptr))
 	{
@@ -314,7 +262,7 @@ void COxWareUI::render_imgui()
 		g_gui_widgets_i->pop_executing_popup_code();
 	}
 
-	if (m_scan_keypress_mode)
+	if (g_user_input_i->is_in_key_binding_mode())
 	{
 		// if in key scanning mode, we don't want to render the cursor
 		g_imgui_platform_layer_i->override_cursor(GUICURSOR_None);

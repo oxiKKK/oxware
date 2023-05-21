@@ -52,35 +52,10 @@ struct std::formatter<EBindType> : std::formatter<std::string> {
 	}
 };
 
-enum EBindFlags
-{
-	BINDFLAG_None = 0,
-	BINDFLAG_ForceExecution = BIT(0), // executes even when execution is normally disabled (e.g. when UI is up)
-};
-
-DEFINE_ENUM_BITWISE_OPERATORS(EBindFlags);
-
-template <>
-struct std::formatter<EBindFlags> : std::formatter<std::string> {
-	auto format(EBindFlags flags, std::format_context& ctx) {
-
-		std::string flags_str;
-		if (flags & BINDFLAG_ForceExecution)
-		{
-			flags_str = "force_execution";
-		}
-
-		// NOTE: Don't forget to add separator ', ' after the first command
-
-		return std::formatter<string>::format(flags_str, ctx);
-	}
-};
-
 struct bind_t
 {
 	std::string cmd_sequence_0, cmd_sequence_1;
 	EBindType type;
-	EBindFlags flags;
 };
 
 class IBindManager 
@@ -92,11 +67,11 @@ public:
 	virtual void create_binds_from_json(const nlohmann::json& json) = 0;
 	virtual void export_binds_to_json(nlohmann::json& json) = 0;
 
-	virtual void add_bind(int virtual_key, const std::string& command_sequence, EBindFlags flags = BINDFLAG_None, bool silent = false) = 0;
-	virtual void add_bind(const std::string& key_name, const std::string& command_sequence, EBindFlags flags = BINDFLAG_None, bool silent = false) = 0;
+	virtual void add_bind(int virtual_key, const std::string& command_sequence, bool silent = false) = 0;
+	virtual void add_bind(const std::string& key_name, const std::string& command_sequence, bool silent = false) = 0;
 
-	virtual void add_bind_toggle(int virtual_key, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags = BINDFLAG_None, bool silent = false) = 0;
-	virtual void add_bind_toggle(const std::string& key_name, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags = BINDFLAG_None, bool silent = false) = 0;
+	virtual void add_bind_toggle(int virtual_key, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, bool silent = false) = 0;
+	virtual void add_bind_toggle(const std::string& key_name, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, bool silent = false) = 0;
 
 	virtual void remove_bind(int virtual_key, bool silent = false) = 0;
 	virtual void remove_bind(const std::string& key_name, bool silent = false) = 0;
@@ -108,10 +83,7 @@ public:
 
 	virtual void for_each_bind(const std::function<void(int, const bind_t&)>& callback) = 0;
 
-	virtual void set_can_execute_binds(bool can) = 0;
-	virtual bool can_execute_binds() const = 0;
-
-	virtual EBindFlags parse_flags_out_of_string(const std::string& flags_str) = 0;
+	virtual bool is_key_bindable(int vk) = 0;
 };
 
 extern IBindManager* g_bindmgr_i;

@@ -413,7 +413,7 @@ void CUIMenu::tab_world()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Removals", CMenuStyle::calc_child_size(320), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -449,7 +449,7 @@ void CUIMenu::tab_world()
 
 		g_gui_widgets_i->goto_next_column();
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Viewmodel offset", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -458,7 +458,7 @@ void CUIMenu::tab_world()
 				CUIMenuWidgets::the().add_slider("Amount", "%0.1f", &viewmodel_offset_value);
 			});
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Smoke visuals", CMenuStyle::calc_child_size(180), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -482,7 +482,7 @@ void CUIMenu::tab_render()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Field of view", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -490,7 +490,7 @@ void CUIMenu::tab_render()
 				CUIMenuWidgets::the().add_slider("FOV scale", "%0.01fx", &custom_fov_value);
 			});
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Flashbang fade", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -499,7 +499,7 @@ void CUIMenu::tab_render()
 				CUIMenuWidgets::the().add_slider("Fade factor", "%0.1f", &flashfademod_fade_factor);
 			});
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"ESP", CMenuStyle::calc_child_size(415), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -527,7 +527,7 @@ void CUIMenu::tab_render()
 				CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
 			});
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Studio renderer", CMenuStyle::calc_child_size(375), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -562,7 +562,7 @@ void CUIMenu::tab_render()
 
 		g_gui_widgets_i->goto_next_column();
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Model chams", CMenuStyle::calc_child_size(350), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -617,7 +617,7 @@ void CUIMenu::tab_render()
 				CUIMenuWidgets::the().add_slider("Speed", "%0.0fx", &mdlchams_rainbow_speed);
 			});
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"HUD rendering", CMenuStyle::calc_child_size(215), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -634,7 +634,7 @@ void CUIMenu::tab_render()
 				CUIMenuWidgets::the().add_checkbox_with_color("HUD Color", &hud_color_enable, &hud_color);
 			});
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Custom vanilla crosshair", CMenuStyle::calc_child_size(280), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -662,7 +662,7 @@ void CUIMenu::tab_screen()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Flashbang fade", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -671,7 +671,7 @@ void CUIMenu::tab_screen()
 				CUIMenuWidgets::the().add_slider("Fade factor", "%0.1f", &flashfademod_fade_factor);
 			});
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"ESP", CMenuStyle::calc_child_size(415), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -701,7 +701,7 @@ void CUIMenu::tab_screen()
 
 		g_gui_widgets_i->goto_next_column();
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"HUD rendering", CMenuStyle::calc_child_size(215), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -718,7 +718,7 @@ void CUIMenu::tab_screen()
 				CUIMenuWidgets::the().add_checkbox_with_color("HUD Color", &hud_color_enable, &hud_color);
 			});
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Custom vanilla crosshair", CMenuStyle::calc_child_size(280), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -736,7 +736,7 @@ void CUIMenu::tab_screen()
 				CUIMenuWidgets::the().add_color_edit("Color", &crosshair_color);
 			});
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Other", CMenuStyle::calc_child_size(150), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -756,7 +756,7 @@ void CUIMenu::tab_visuals4()
 
 void CUIMenu::tab_exploits()
 {
-	add_menu_child(
+	CUIMenuWidgets::the().add_menu_child(
 		"Server command filter", CMenuStyle::child_full_width(210.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
@@ -851,7 +851,7 @@ void CUIMenu::tab_exploits()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Bypass game constrains", CMenuStyle::calc_child_size(335), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -875,7 +875,7 @@ void CUIMenu::tab_exploits()
 
 		g_gui_widgets_i->goto_next_column();
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Frame skip", CMenuStyle::calc_child_size(175), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -894,7 +894,7 @@ void CUIMenu::tab_exploits()
 				CUIMenuWidgets::the().add_slider("FPS limit", "~%0.0f frames/sec", &frame_skip_maxfps);
 			});
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Consistency bypass", CMenuStyle::calc_child_size(175), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -914,7 +914,7 @@ void CUIMenu::tab_exploits()
 		g_gui_widgets_i->end_columns();
 	}
 
-	add_menu_child(
+	CUIMenuWidgets::the().add_menu_child(
 		"Lie to the server", CMenuStyle::child_full_width(400.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[this]()
 		{
@@ -959,7 +959,7 @@ void CUIMenu::tab_movement()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Air stuck", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -986,7 +986,7 @@ void CUIMenu::tab_miscellaneous3()
 
 void CUIMenu::tab_config()
 {
-	add_menu_child(
+	CUIMenuWidgets::the().add_menu_child(
 		"Configuration", CMenuStyle::child_full_width(-1.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
@@ -1245,217 +1245,12 @@ void CUIMenu::tab_config()
 
 void CUIMenu::tab_binds()
 {
-#if 0
-	auto last_cursor_pos = g_gui_widgets_i->get_cursor_pos();
-
-	// buffers for every key we have
-	static constexpr int buffer_len = 4096;
-	static std::unordered_map<int, std::array<char, buffer_len>> command_buffers;
-
-	add_menu_child(
-		"Binds", CMenuStyle::child_full_width(-1.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			g_gui_widgets_i->add_spacing();
-
-			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_CellPadding, { 2.0f, 1.0f });
-
-			if (g_gui_widgets_i->begin_columns("binds_column", 2))
-			{
-				g_gui_widgets_i->setup_column_fixed_width(100.0f);
-				g_gui_widgets_i->setup_column_fixed_width(283.0f);
-
-				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("Key name");
-				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("Command");
-
-				g_gui_widgets_i->end_columns();
-			}
-
-			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
-
-			g_gui_widgets_i->add_separator();
-
-			g_gui_widgets_i->add_child(
-				"binds_area", Vector2D(-1.0f, -1.0f), false, ImGuiWindowFlags_None, 
-				[&]()
-				{
-					if (g_gui_widgets_i->begin_columns("binds_column_nested", 3))
-					{
-						g_gui_widgets_i->setup_column_fixed_width(100.0f);
-						g_gui_widgets_i->setup_column_fixed_width(283.0f);
-
-						int bind_to_be_removed = -1;
-						std::pair<int, std::string> bind_to_be_rebound = { NULL, "" };
-						g_bindmgr_i->for_each_bind(
-							[&](int vk, const std::string& cmd)
-							{
-								g_gui_widgets_i->goto_next_column();
-								std::string key_name = g_user_input_i->virtual_key_to_string(vk);
-								if (key_name.empty())
-								{
-									bind_to_be_removed = vk;
-									return;
-								}
-								if (g_gui_widgets_i->add_button(std::format("{}##{}", key_name, vk), Vector2D(-1.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
-								{
-									static int current_vk = 0;
-									if (current_vk != vk)
-									{
-										current_vk = vk;
-									}
-
-									COxWareUI::the().update_scanned_key(std::format("<{}>", key_name));
-
-									COxWareUI::the().add_keybind_dialog(
-										[&]()
-										{
-											int vk = COxWareUI::the().get_new_key_bound();
-											if (vk == NULL)
-											{
-												return;
-											}
-
-											// see if the key name is valid
-											std::string key_name = g_user_input_i->virtual_key_to_string(vk);
-											if (key_name.empty())
-											{
-												// if it's not, just don't change the bind
-												return;
-											}
-
-											// rebind same command to different key
-											auto bind = g_bindmgr_i->get_bind(current_vk);
-											if (bind)
-											{
-												g_bindmgr_i->remove_bind(current_vk); // remove old bind
-												g_bindmgr_i->add_bind(vk, bind->cmd_sequence); // bind to a new key
-											}
-
-											current_vk = 0;
-										});
-								}
-
-								g_gui_widgets_i->goto_next_column();
-
-								// unique insertion
-								std::array<char, buffer_len>* arr;
-								try
-								{
-									// this should be O(1), but hehe, whatever..
-									arr = &command_buffers.at(vk);
-								}
-								catch (...)
-								{
-									auto [iter, did_insert] = command_buffers.insert(std::make_pair(vk, std::array<char, buffer_len>{}));
-
-									strncpy((*iter).second.data(), cmd.c_str(), buffer_len);
-									arr = &(*iter).second;
-								}
-
-								struct callback_data
-								{
-									int len;
-									int vk;
-								};
-
-								static auto textinput_callback = [](ImGuiInputTextCallbackData* data) -> int
-								{
-									switch (data->EventFlag)
-									{
-										case ImGuiInputTextFlags_CallbackAlways:
-										{
-											auto [last_length, vk] = *(callback_data*)data->UserData;
-											if (last_length != data->BufTextLen)
-											{
-												if (data->BufTextLen != 0)
-												{
-													g_bindmgr_i->add_bind(vk, data->Buf, true);
-												}
-											}
-											break;
-										}
-									}
-									return 1;
-								};
-
-								callback_data d = { strlen(arr->data()), vk };
-								if (g_gui_widgets_i->add_text_input_ex(key_name.c_str(), arr->data(), arr->size(),
-																	   Vector2D(-1.0f, 0.0f), ImGuiInputTextFlags_CallbackAlways,
-																	   textinput_callback, (void*)&d))
-								{
-								}
-
-								g_gui_widgets_i->goto_next_column();
-
-								if (g_gui_widgets_i->add_button(std::format("-##{}", key_name), Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
-								{
-									if (!arr->empty())
-									{
-										bind_to_be_removed = vk; // remove after the iteration. avoids random iterator crashes
-									}
-								}
-							});
-
-						if (bind_to_be_removed != -1)
-						{
-							strncpy(command_buffers[bind_to_be_removed].data(), "", command_buffers[bind_to_be_removed].size());
-							g_bindmgr_i->remove_bind(bind_to_be_removed);
-						}
-
-						g_gui_widgets_i->goto_next_column();
-
-						if (g_gui_widgets_i->add_button("+##newbind", Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
-						{
-							COxWareUI::the().update_scanned_key("<new key>");
-							COxWareUI::the().add_keybind_dialog(
-								[]()
-								{
-									int vk = COxWareUI::the().get_new_key_bound();
-									if (vk == NULL)
-									{
-										return;
-									}
-
-									g_bindmgr_i->add_bind(vk, "");
-								});
-						}
-
-						g_gui_widgets_i->end_columns();
-					}
-				});
-			
-			g_gui_widgets_i->pop_stylevar();
-			g_gui_widgets_i->pop_stylevar();
-		});
-
-	auto window_size = g_gui_widgets_i->get_current_window_size();
-	auto button_size = Vector2D(25, 25);
-	if (g_gui_widgets_i->add_floating_button(";", last_cursor_pos, { window_size.x - 23.0f - button_size.x, 30.0f }, 
-											 button_size, false, BUTTONFLAG_CenterLabel))
-	{
-		CGenericUtil::the().copy_to_clipboard(";");
-	}
-
-	std::string label = "unbind all";
-	auto label_size = g_gui_fontmgr_i->calc_font_text_size(g_gui_fontmgr_i->get_default_font(), label.c_str());
-	auto button1_size = Vector2D(label_size.x + 5.0f * 2, 25);
-	if (g_gui_widgets_i->add_floating_button(label, last_cursor_pos, { window_size.x - 23.0f - button_size.x - 3.0f - button1_size.x, 30.0f },
-											 button1_size, false, BUTTONFLAG_CenterLabel))
-	{
-		for (auto& [key, e] : command_buffers)
-		{
-			strncpy(e.data(), "", e.size());
-		}
-		g_bindmgr_i->remove_all_binds();
-	}
-#endif
+	CUIKeyBinding::the().render_interactible_bind_list();
 }
 
 void CUIMenu::tab_cmdlist()
 {
-	add_menu_child(
+	CUIMenuWidgets::the().add_menu_child(
 		"Command list", CMenuStyle::child_full_width(-1.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
@@ -1518,7 +1313,7 @@ void CUIMenu::tab_cmdlist()
 
 void CUIMenu::tab_varlist()
 {
-	add_menu_child(
+	CUIMenuWidgets::the().add_menu_child(
 		"Variable list", CMenuStyle::child_full_width(-1.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
@@ -1594,7 +1389,7 @@ void CUIMenu::tab_others()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"UI", CMenuStyle::calc_child_size(120), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -1605,7 +1400,7 @@ void CUIMenu::tab_others()
 
 		g_gui_widgets_i->goto_next_column();
 		
-		add_menu_child(
+		CUIMenuWidgets::the().add_menu_child(
 			"Storage", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -1667,17 +1462,4 @@ void CUIMenu::tab_others()
 
 		g_gui_widgets_i->end_columns();
 	}
-}
-
-//---------------------------------------------------------------------------------------------------
-
-void CUIMenu::add_menu_child(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents)
-{
-	g_gui_widgets_i->set_next_window_rounding(CMenuStyle::k_child_contents_rounding, ImDrawFlags_RoundCornersTopLeft | ImDrawFlags_RoundCornersTopRight);
-
-	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, CMenuStyle::k_child_contents_padding);
-
-	g_gui_widgets_i->add_child_with_header(label, size, border, flags, pfn_contents);
-
-	g_gui_widgets_i->pop_stylevar(1);
 }

@@ -246,7 +246,7 @@ void COxWareUI::run_ui()
 
 void COxWareUI::render_imgui()
 {
-	g_gui_widgets_i->block_input_on_all_except_popup(is_in_popup_dialog());
+	g_gui_widgets_i->block_input_on_all_except_popup(is_in_popup_dialog() || g_user_input_i->is_in_key_binding_mode());
 
 	for (IRenderingContext* ctx : m_contexts_to_be_rendered)
 	{

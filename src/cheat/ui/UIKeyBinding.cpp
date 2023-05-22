@@ -231,7 +231,6 @@ void CUIKeyBinding::render_interactible_bind_list()
 						if (g_gui_widgets_i->add_button("+##newbind", Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
 						{
 							g_gui_widgets_i->schedule_simple_popup_dialog("new_bind_popup");
-
 						}
 
 						g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
@@ -340,8 +339,10 @@ void CUIKeyBinding::add_keybind_dialog(const std::function<void(int vk)>& on_key
 		[&]()
 		{
 			// reset this so that we don't see the last key bound after we open new dialog
-			m_key_scan_button_info.at("new_key").label = "<new key>";
+			m_key_scan_button_info.at("new_key").label = "<press any key>";
 			force_binding_mode = true;
+
+			m_on_key_bound_callback = nullptr;
 		}, ImGuiWindowFlags_NoResize);
 }
 
@@ -357,7 +358,7 @@ void CUIKeyBinding::add_keyscan_button(const std::string& id, const Vector2D& si
 	}
 	catch (...)
 	{
-		auto [iter, did_insert] = m_key_scan_button_info.insert(std::make_pair(id, "<new key>"));
+		auto [iter, did_insert] = m_key_scan_button_info.insert(std::make_pair(id, "<press any key>"));
 		info = &(*iter).second;
 		return;
 	}
@@ -413,8 +414,6 @@ void CUIKeyBinding::switch_to_key_binding_mode(key_scan_button_info_t* info,
 		m_on_key_bound_callback = on_key_bound_callback;
 	}
 	g_user_input_i->activate_key_binding_mode();
-
-	g_gui_widgets_i->block_input_on_all_except_popup(true);
 }
 
 void CUIKeyBinding::end_key_binding_mode(int vk_pressed)
@@ -436,8 +435,6 @@ void CUIKeyBinding::end_key_binding_mode(int vk_pressed)
 	// reset all states for the future
 	reset_state();
 	g_user_input_i->reset_bound_key();
-
-	g_gui_widgets_i->block_input_on_all_except_popup(false);
 }
 
 void CUIKeyBinding::keep_bound_keys_up_to_date()

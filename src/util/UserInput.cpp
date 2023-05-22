@@ -154,7 +154,9 @@ bool CUserInput::initialize()
 				// mouse scroll
 				uMsg & WM_MOUSEWHEEL || 
 				// mouse buttons
-				uMsg & WM_LBUTTONDOWN || uMsg & WM_MBUTTONDOWN || uMsg & WM_RBUTTONDOWN || uMsg & WM_XBUTTONDOWN)
+				uMsg & WM_LBUTTONDOWN || uMsg & WM_MBUTTONDOWN || uMsg & WM_RBUTTONDOWN || uMsg & WM_XBUTTONDOWN ||
+				uMsg & WM_LBUTTONUP || uMsg & WM_MBUTTONUP || uMsg & WM_RBUTTONUP || uMsg & WM_XBUTTONUP
+				)
 			{
 				update_keys(uMsg, wParam);
 			}
@@ -301,11 +303,6 @@ void CUserInput::for_all_user_keys(const std::function<void(UserKey_t*)>& callba
 
 void CUserInput::update_keys(UINT uMsg, WPARAM wParam)
 {
-	if (wParam == NULL)
-	{
-		return;
-	}
-
 	if (uMsg == WM_MOUSEWHEEL)
 	{
 		// mouse wheel event
@@ -357,7 +354,7 @@ void CUserInput::update_keys(UINT uMsg, WPARAM wParam)
 			case WM_RBUTTONUP:
 			{
 				vk = VK_RBUTTON;
-				is_down = (uMsg == WM_MBUTTONDOWN);
+				is_down = (uMsg == WM_RBUTTONDOWN);
 				break;
 			}
 			case WM_XBUTTONDOWN:
@@ -394,7 +391,7 @@ void CUserInput::update_keys(UINT uMsg, WPARAM wParam)
 		}
 		else
 		{
-			m_userkeys[vk].update(is_down);
+ 			m_userkeys[vk].update(is_down);
 		}
 	}
 }

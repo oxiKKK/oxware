@@ -80,7 +80,6 @@ private:
 		// reset everything and prepare for fresh new key binding
 
 		m_current_key_being_bound = nullptr;
-		m_on_key_bound_callback = nullptr;
 	}
 };
 

@@ -35,6 +35,7 @@
 enum EBindType
 {
 	BIND_OnPush,	// executes the command only once, after the key has been pushed
+
 	BIND_Toggle,	// executes the first command as soon as the key is pressed, then executes the second
 					// command after the key has been released.
 };

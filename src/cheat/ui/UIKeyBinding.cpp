@@ -304,6 +304,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 				g_gui_widgets_i->add_text("There are currently two types of binds:", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_bullet_text("On push - Activates the command when the key has been pressed, only once.", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_bullet_text("Toggle - Activates the first command when the key has been pressed and then the second command when the key has been unpressed.", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_bullet_text("Action - Involves binding commands with \"+\" prefix, just like in CS 1.6 (+attack, etc.)", TEXTPROP_Wrapped);
 
 				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
 				g_gui_widgets_i->add_separtor_with_text("Ways of binding a key");
@@ -321,6 +322,14 @@ void CUIKeyBinding::render_interactible_bind_list()
 				g_gui_widgets_i->add_separtor_with_text("Binding through the UI");
 
 				g_gui_widgets_i->add_text("Use the UI to bind any command sequence to a key. Inside the \"bind\" tab, there are all of the current binds listed.", TEXTPROP_Wrapped);
+
+				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
+				g_gui_widgets_i->add_separtor_with_text("Binding Action commands");
+
+				g_gui_widgets_i->add_text("In order to bind an action command, use the \"bind\" command and use commands with \"+\" prefix.", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_text("For example: bind \"V\" \"+movement_bhop\".", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_spacing();
+				g_gui_widgets_i->add_text("You can also use the UI. Just create a new \"Toggle\" bind, and add a command with \"+\" prefix and the same command with \"-\" prefix.", TEXTPROP_Wrapped);
 			});
 	}
 }

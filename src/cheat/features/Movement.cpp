@@ -31,6 +31,24 @@
 VarBoolean movement_air_stuck_enable("movement_air_stuck_enable", "Allows to get stuck in the mid air, when on", false);
 VarInteger movement_air_stuck_intensity("movement_air_stuck_intensity", "Determines how \"froze\" you will be", 0, 0, 5);
 
+static bool do_bhop = false;
+
+BaseCommand down_movement_bhop(
+	"+movement_bhop", "Toggles bunnyhop", 
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		do_bhop = true;
+	}
+);
+
+BaseCommand up_movement_bhop(
+	"-movement_bhop", "Toggles bunnyhop", 
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		do_bhop = false;
+	}
+);
+
 void CMovement::update_air_stuck(hl::usercmd_t* to)
 {
 	if (!movement_air_stuck_enable.get_value())
@@ -43,7 +61,10 @@ void CMovement::update_air_stuck(hl::usercmd_t* to)
 
 void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 {
-	bunnyhop_update(frametime, cmd);
+	if (do_bhop)
+	{
+		bunnyhop_update(frametime, cmd);
+	}
 }
 
 void CMovement::bunnyhop_update(float frametime, hl::usercmd_t *cmd)
@@ -64,14 +85,11 @@ void CMovement::bunnyhop_update(float frametime, hl::usercmd_t *cmd)
 	float velocity_2d = CLocalPlayerState::the().get_local_velocity_2d();
 	float maxspeed = CLocalPlayerState::the().get_maxspeed();
 
-	return;
-	CConsole::the().info("maxspeed: {}", maxspeed);
-
 	if (is_onground)
 	{
 		cmd->buttons |= IN_JUMP;
-		return;
 	}
+
 	return;
 
 	if (!flip_flop && (is_onground || (distance >= 5 && distance <= 18)))

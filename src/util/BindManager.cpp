@@ -39,7 +39,7 @@ BaseCommand _bind(
 			cmd->print_usage();
 			return;
 		}
-		
+
 		if (args.count() == 2)
 		{
 			int vk = g_user_input_i->string_to_virtual_key(args.get(1));
@@ -62,7 +62,20 @@ BaseCommand _bind(
 		}
 		else
 		{
-			g_bindmgr_i->add_bind(args.get(1), args.get(2));
+			std::string cmd = args.get(2);
+
+			bool is_action_cmd = cmd[0] == '+';
+
+			if (!is_action_cmd)
+			{
+				g_bindmgr_i->add_bind(args.get(1), cmd);
+			}
+			else
+			{
+				std::string cmd1 = '-' + cmd.substr(1);
+
+				g_bindmgr_i->add_bind_toggle(args.get(1), cmd, cmd1);
+			}
 		}
 	}
 );

@@ -634,7 +634,7 @@ struct CmdArgs
 		}
 		catch (...)
 		{
-			CConsole::the().error("Failed to get token at position '{}'. Tokenized buffer size is {}.", pos, args.size());
+			CConsole::the().derror("Failed to get token at position '{}'. Tokenized buffer size is {}.", pos, args.size());
 		}
 		return token;
 	}

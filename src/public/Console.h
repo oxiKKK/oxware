@@ -54,15 +54,39 @@ public:
 	}
 
 	template <class... _Types>
+	void dinfo(const std::format_string<_Types...> _Fmt, _Types&&... _Args)
+	{
+#ifdef _DEBUG
+		print_generic(EOutputCategory::INFO, std::vformat(_Fmt.get(), std::make_format_args(_Args...)));
+#endif
+	}
+
+	template <class... _Types>
 	void error(const std::format_string<_Types...> _Fmt, _Types&&... _Args)
 	{
 		print_generic(EOutputCategory::ERROR, std::vformat(_Fmt.get(), std::make_format_args(_Args...)));
+	}
+	
+	template <class... _Types>
+	void derror(const std::format_string<_Types...> _Fmt, _Types&&... _Args)
+	{
+#ifdef _DEBUG
+		print_generic(EOutputCategory::ERROR, std::vformat(_Fmt.get(), std::make_format_args(_Args...)));
+#endif
 	}
 
 	template <class... _Types>
 	void warning(const std::format_string<_Types...> _Fmt, _Types&&... _Args)
 	{
 		print_generic(EOutputCategory::WARNING, std::vformat(_Fmt.get(), std::make_format_args(_Args...)));
+	}
+
+	template <class... _Types>
+	void dwarning(const std::format_string<_Types...> _Fmt, _Types&&... _Args)
+	{
+#ifdef _DEBUG
+		print_generic(EOutputCategory::WARNING, std::vformat(_Fmt.get(), std::make_format_args(_Args...)));
+#endif
 	}
 
 	inline bool is_initialized() const { return m_initialized; };

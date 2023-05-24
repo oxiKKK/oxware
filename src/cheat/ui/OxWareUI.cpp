@@ -225,7 +225,7 @@ void COxWareUI::run_ui()
 		once = true;
 	}
 
-	CUIKeyBinding::the().update();
+	g_bindmgr_i->set_ui_running(m_is_any_interactible_rendering_context_active);
 
 	if (!m_contexts_to_be_rendered.empty() || (m_popup_callback != nullptr))
 	{

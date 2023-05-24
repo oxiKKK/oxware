@@ -97,7 +97,7 @@ public:
 	virtual Vector2D get_current_window_size() = 0;
 
 	virtual void schedule_simple_popup_dialog(const std::string& label) = 0;
-	virtual void execute_simple_popup_popup(const std::string& name, const Vector2D& size, ImGuiWindowFlags flags, const std::function<void()>& callback) = 0;
+	virtual bool execute_simple_popup_popup(const std::string& name, const Vector2D& size, ImGuiWindowFlags flags, const std::function<void()>& callback) = 0;
 
 	//
 	// Properties

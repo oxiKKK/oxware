@@ -385,6 +385,7 @@
     <ClCompile Include="hook\MemoryHook.cpp" />
     <ClCompile Include="hook\SVCFuncDetour.cpp" />
     <ClCompile Include="hook\UserMSGDetour.cpp" />
+    <ClCompile Include="InCommands.cpp" />
     <ClCompile Include="InjectedDllIPCLayerClient.cpp" />
     <ClCompile Include="oxware.cpp" />
     <ClCompile Include="precompiled.cpp">
@@ -470,6 +471,7 @@
     <ClInclude Include="hook\MemoryHook.h" />
     <ClInclude Include="hook\SVCFuncDetour.h" />
     <ClInclude Include="hook\UserMSGDetour.h" />
+    <ClInclude Include="InCommands.h" />
     <ClInclude Include="oxware.h" />
     <ClInclude Include="precompiled.h" />
     <ClInclude Include="ui\IRendererContext.h" />

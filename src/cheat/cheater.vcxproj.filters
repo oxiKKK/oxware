@@ -224,6 +224,9 @@
     <ClCompile Include="ui\UIKeyBinding.cpp">
       <Filter>src\UI</Filter>
     </ClCompile>
+    <ClCompile Include="InCommands.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -403,6 +406,9 @@
     </ClInclude>
     <ClInclude Include="ui\UIKeyBinding.h">
       <Filter>src\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="InCommands.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

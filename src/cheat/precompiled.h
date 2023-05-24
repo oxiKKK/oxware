@@ -221,6 +221,7 @@ namespace hl
 // 
 //-------------------------------------------------------------------
 #include "oxware.h"
+#include "InCommands.h"
 
 // hooks
 #include "hook/HookTests.h"

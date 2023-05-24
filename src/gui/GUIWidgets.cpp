@@ -65,7 +65,7 @@ public:
 	Vector2D get_current_window_size();
 
 	void schedule_simple_popup_dialog(const std::string& label);
-	void execute_simple_popup_popup(const std::string& name, const Vector2D& size, ImGuiWindowFlags flags, const std::function<void()>& callback);
+	bool execute_simple_popup_popup(const std::string& name, const Vector2D& size, ImGuiWindowFlags flags, const std::function<void()>& callback);
 
 	//
 	// Properties
@@ -401,7 +401,7 @@ void CGUIWidgets::schedule_simple_popup_dialog(const std::string& label)
 	OpenPopup(label.c_str()); 
 }
 
-void CGUIWidgets::execute_simple_popup_popup(const std::string& name, const Vector2D& size, ImGuiWindowFlags flags, const std::function<void()>& callback)
+bool CGUIWidgets::execute_simple_popup_popup(const std::string& name, const Vector2D& size, ImGuiWindowFlags flags, const std::function<void()>& callback)
 {
 	SetNextWindowSize(size, ImGuiCond_Always);
 
@@ -413,7 +413,11 @@ void CGUIWidgets::execute_simple_popup_popup(const std::string& name, const Vect
 		}
 
 		EndPopup();
+
+		return true;
 	}
+
+	return false;
 }
 
 void CGUIWidgets::push_disbled()

@@ -44,6 +44,8 @@ public:
 
 private:
 	void bunnyhop_update(float frametime, hl::usercmd_t *cmd);
+
+	static InCommandSimple bunnyhop;
 };
 
 #endif // MOVEMENT_H

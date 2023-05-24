@@ -31,23 +31,23 @@
 VarBoolean movement_air_stuck_enable("movement_air_stuck_enable", "Allows to get stuck in the mid air, when on", false);
 VarInteger movement_air_stuck_intensity("movement_air_stuck_intensity", "Determines how \"froze\" you will be", 0, 0, 5);
 
-static bool do_bhop = false;
-
-BaseCommand down_movement_bhop(
-	"+movement_bhop", "Toggles bunnyhop", 
-	[&](BaseCommand* cmd, const CmdArgs& args)
-	{
-		do_bhop = true;
-	}
+InCommandSimple CMovement::bunnyhop = InCommandSimple(
+	"movement_bhop"
 );
 
-BaseCommand up_movement_bhop(
-	"-movement_bhop", "Toggles bunnyhop", 
-	[&](BaseCommand* cmd, const CmdArgs& args)
+#if 0 // test
+InCommandCustom incmd_test = InCommandCustom(
+	"incmd_test", 
+	[](InCommandCustom* _this)
 	{
-		do_bhop = false;
+		CConsole::the().info("dn");
+	},
+	[](InCommandCustom* _this)
+	{
+		CConsole::the().info("up");
 	}
 );
+#endif
 
 void CMovement::update_air_stuck(hl::usercmd_t* to)
 {
@@ -61,7 +61,7 @@ void CMovement::update_air_stuck(hl::usercmd_t* to)
 
 void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 {
-	if (do_bhop)
+	if (bunnyhop.is_active())
 	{
 		bunnyhop_update(frametime, cmd);
 	}

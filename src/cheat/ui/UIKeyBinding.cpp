@@ -50,6 +50,8 @@ void CUIKeyBinding::update()
 
 void CUIKeyBinding::render_interactible_bind_list()
 {
+	update();
+
 	auto last_cursor_pos = g_gui_widgets_i->get_cursor_pos();
 
 	CUIMenuWidgets::the().add_menu_child(
@@ -81,10 +83,18 @@ void CUIKeyBinding::render_interactible_bind_list()
 				"binds_list", Vector2D(-1.0f, -1.0f), false, ImGuiWindowFlags_None,
 				[&]()
 				{
-					if (g_gui_widgets_i->begin_columns("binds_column_nested", 4))
+					if (g_gui_widgets_i->begin_columns("binds_column_nested", 3))
 					{
 						g_gui_widgets_i->setup_column_fixed_width(100.0f);
-						g_gui_widgets_i->setup_column_fixed_width(263.0f);
+						g_gui_widgets_i->setup_column_fixed_width(285.0f);
+
+						// for the '...' button
+						static struct popup_state_t
+						{
+							int vk;
+							bound_key_t* key;
+							std::string key_name;
+						} popup_st{};
 
 						int bind_to_be_removed = -1;
 						std::pair<int, std::string> bind_to_be_rebound = { NULL, "" };
@@ -203,22 +213,81 @@ void CUIKeyBinding::render_interactible_bind_list()
 
 								g_gui_widgets_i->goto_next_column();
 
-								if (g_gui_widgets_i->add_button(std::format("-##{}", key_name), Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
+								if (g_gui_widgets_i->add_button(std::format("...##{}", key_name), Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
 								{
-									bind_to_be_removed = vk; // remove after the iteration. avoids random iterator crashes
+									popup_st = { vk, bound_key, key_name };
+
+									g_gui_widgets_i->schedule_simple_popup_dialog("bind_popup");
+								}
+							});
+
+						g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
+						static bool was_popup_opened = false;
+						bool popup_opened = g_gui_widgets_i->execute_simple_popup_popup(
+							"bind_popup", { 140, 125 }, ImGuiWindowFlags_NoMove,
+							[&]()
+							{
+								if (g_gui_widgets_i->add_button("Remove", { -1.0f, 0.0f }, false))
+								{
+									bind_to_be_removed = popup_st.vk; // remove after the iteration. avoids random iterator crashes
+									g_gui_widgets_i->close_current_popup();
 								}
 
-								g_gui_widgets_i->goto_next_column();
-
+								auto bound_key = popup_st.key;
 								if (bound_key->has_two_cmds)
 								{
-									if (g_gui_widgets_i->add_button(std::format("{}##{}", bound_key->state == 0 ? "0" : "1", key_name), 
-																	Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
+									if (g_gui_widgets_i->add_button(std::format("{}##{}", bound_key->state == 1 ? "Switch to first" : "Switch to second", popup_st.key_name),
+																	Vector2D(-1.0f, 0.0f), false))
 									{
 										bound_key->state ^= 1;
+										g_gui_widgets_i->close_current_popup();
+									}
+								}
+
+								g_gui_widgets_i->add_spacing();
+								g_gui_widgets_i->add_separator();
+								g_gui_widgets_i->add_spacing();
+
+								if (g_gui_widgets_i->add_checkbox("Execute over UI", &bound_key->f_execute_over_ui))
+								{
+									auto bind = g_bindmgr_i->get_bind(popup_st.vk);
+									if (bind)
+									{
+										if (bound_key->f_execute_over_ui)
+										{
+											bind->flags |= BINDFLAG_ExecuteOverUI;
+										}
+										else
+										{
+											bind->flags &= ~BINDFLAG_ExecuteOverUI;
+										}
+									}
+								}
+
+								if (g_gui_widgets_i->add_checkbox("Silent", &bound_key->f_silent))
+								{
+									auto bind = g_bindmgr_i->get_bind(popup_st.vk);
+									if (bind)
+									{
+										if (bound_key->f_silent)
+										{
+											bind->flags |= BINDFLAG_Silent;
+										}
+										else
+										{
+											bind->flags &= ~BINDFLAG_Silent;
+										}
 									}
 								}
 							});
+						g_gui_widgets_i->pop_stylevar();
+
+						// on close
+						if (was_popup_opened != popup_opened && !popup_opened)
+						{
+							popup_st = {};
+							was_popup_opened = popup_opened;
+						}
 
 						if (bind_to_be_removed != -1)
 						{
@@ -304,7 +373,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 				g_gui_widgets_i->add_text("There are currently two types of binds:", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_bullet_text("On push - Activates the command when the key has been pressed, only once.", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_bullet_text("Toggle - Activates the first command when the key has been pressed and then the second command when the key has been unpressed.", TEXTPROP_Wrapped);
-				g_gui_widgets_i->add_bullet_text("Action - Involves binding commands with \"+\" prefix, just like in CS 1.6 (+attack, etc.)", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_bullet_text("InCommand - Involves binding commands with \"+\" prefix, just like in CS 1.6 (+attack, etc.)", TEXTPROP_Wrapped);
 
 				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
 				g_gui_widgets_i->add_separtor_with_text("Ways of binding a key");
@@ -324,9 +393,9 @@ void CUIKeyBinding::render_interactible_bind_list()
 				g_gui_widgets_i->add_text("Use the UI to bind any command sequence to a key. Inside the \"bind\" tab, there are all of the current binds listed.", TEXTPROP_Wrapped);
 
 				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
-				g_gui_widgets_i->add_separtor_with_text("Binding Action commands");
+				g_gui_widgets_i->add_separtor_with_text("Binding InCommands");
 
-				g_gui_widgets_i->add_text("In order to bind an action command, use the \"bind\" command and use commands with \"+\" prefix.", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_text("In order to bind an InCommand, use the \"bind\" command and use commands with \"+\" prefix.", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_text("For example: bind \"V\" \"+movement_bhop\".", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_spacing();
 				g_gui_widgets_i->add_text("You can also use the UI. Just create a new \"Toggle\" bind, and add a command with \"+\" prefix and the same command with \"-\" prefix.", TEXTPROP_Wrapped);
@@ -457,6 +526,9 @@ void CUIKeyBinding::keep_bound_keys_up_to_date()
 			{
 				strncpy(m_bound_keys[vk].cmd_0.data(), bind.cmd_sequence_0.c_str(), buffer_len);
 				strncpy(m_bound_keys[vk].cmd_1.data(), bind.cmd_sequence_1.c_str(), buffer_len);
+
+				m_bound_keys[vk].f_execute_over_ui = (float)(bind.flags & BINDFLAG_ExecuteOverUI);
+				m_bound_keys[vk].f_silent = (float)(bind.flags & BINDFLAG_Silent);
 			});
 
 		t = GetTickCount();
@@ -484,6 +556,9 @@ bound_key_t* CUIKeyBinding::insert_new_key_bind(int vk, const bind_t& bind)
 	{
 		(*iter).second.has_two_cmds = true;
 	}
+
+	(*iter).second.f_execute_over_ui = (float)(bind.flags & BINDFLAG_ExecuteOverUI);
+	(*iter).second.f_silent = (float)(bind.flags & BINDFLAG_Silent);
 
 	strncpy((*iter).second.cmd_0.data(), bind.cmd_sequence_0.c_str(), buffer_len);
 	strncpy((*iter).second.cmd_1.data(), bind.cmd_sequence_1.c_str(), buffer_len);

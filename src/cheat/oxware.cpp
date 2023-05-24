@@ -95,6 +95,8 @@ bool CoXWARE::initialize_phase2()
 		return false;
 	}
 
+	CInCommands::the().initialize();
+
 	g_variablemgr_i->provide_hl_execute_cmd_pfn((m_hl_execute_cmd_pfn_t)CMemoryHookMgr::the().cl_enginefuncs().get()->pfnClientCmd);
 	
 	g_bindmgr_i->initialize();

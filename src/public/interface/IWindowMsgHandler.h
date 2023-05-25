@@ -42,7 +42,7 @@ enum EWndProcReturnType
 	WNDPROCRET_Generic,		// call CallWindowProcA
 };
 
-typedef std::function<void(UINT uMsg, WPARAM wParam)> WndProcCallbackFn;
+typedef std::function<void(UINT uMsg, WPARAM wParam, LPARAM lParam)> WndProcCallbackFn;
 typedef std::function<EWndProcReturnType(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, LRESULT* lpReturnValue)> WndProcRetCallbackFn;
 
 class IWindowMsgHandler : public IBaseInterface

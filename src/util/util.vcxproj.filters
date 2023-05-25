@@ -11,6 +11,9 @@
     <Filter Include="src\byte patterns">
       <UniqueIdentifier>{6a435da9-22ae-4a6d-af19-3744a3ef7b8e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\keys">
+      <UniqueIdentifier>{5e4afc3f-5936-4063-bcb4-29bf73866166}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="precompiled.cpp" />
@@ -63,7 +66,7 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="key_translation.cpp">
-      <Filter>src</Filter>
+      <Filter>src\keys</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,7 +81,7 @@
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="key_translation.h">
-      <Filter>src</Filter>
+      <Filter>src\keys</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

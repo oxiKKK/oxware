@@ -38,6 +38,9 @@
     <Filter Include="src\hooking\tests">
       <UniqueIdentifier>{1180bbf8-fe7c-4f66-863b-ac02629f6341}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\features\movement">
+      <UniqueIdentifier>{7d77aac3-7222-486b-bbb0-37da7873bb3a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -215,9 +218,6 @@
     <ClCompile Include="util\GoldSrcCommandManager.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-    <ClCompile Include="features\Movement.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
     <ClCompile Include="game\LocalPlayerState.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
@@ -226,6 +226,15 @@
     </ClCompile>
     <ClCompile Include="InCommands.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="features\movement\BunnyHop.cpp">
+      <Filter>src\features\movement</Filter>
+    </ClCompile>
+    <ClCompile Include="features\movement\Movement.cpp">
+      <Filter>src\features\movement</Filter>
+    </ClCompile>
+    <ClCompile Include="features\movement\AirStuck.cpp">
+      <Filter>src\features\movement</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -398,9 +407,6 @@
     <ClInclude Include="util\GoldSrcCommandManager.h">
       <Filter>src\util</Filter>
     </ClInclude>
-    <ClInclude Include="features\Movement.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
     <ClInclude Include="game\LocalPlayerState.h">
       <Filter>src\game</Filter>
     </ClInclude>
@@ -409,6 +415,15 @@
     </ClInclude>
     <ClInclude Include="InCommands.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="features\movement\BunnyHop.h">
+      <Filter>src\features\movement</Filter>
+    </ClInclude>
+    <ClInclude Include="features\movement\Movement.h">
+      <Filter>src\features\movement</Filter>
+    </ClInclude>
+    <ClInclude Include="features\movement\AirStuck.h">
+      <Filter>src\features\movement</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

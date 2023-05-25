@@ -352,7 +352,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="features\IngameScreenRendering.cpp" />
-    <ClCompile Include="features\Movement.cpp" />
+    <ClCompile Include="features\movement\AirStuck.cpp" />
+    <ClCompile Include="features\movement\BunnyHop.cpp" />
+    <ClCompile Include="features\movement\Movement.cpp" />
     <ClCompile Include="features\ResourceConsistencyBypass.cpp" />
     <ClCompile Include="features\BulletTrace.cpp" />
     <ClCompile Include="features\BypassGameConstrains.cpp" />
@@ -439,7 +441,9 @@
     <ClInclude Include="..\public\interface.h" />
     <ClInclude Include="custom_format_cheat.h" />
     <ClInclude Include="features\IngameScreenRendering.h" />
-    <ClInclude Include="features\Movement.h" />
+    <ClInclude Include="features\movement\AirStuck.h" />
+    <ClInclude Include="features\movement\BunnyHop.h" />
+    <ClInclude Include="features\movement\Movement.h" />
     <ClInclude Include="features\ResourceConsistencyBypass.h" />
     <ClInclude Include="features\BulletTrace.h" />
     <ClInclude Include="features\BypassGameConstrains.h" />

@@ -110,7 +110,7 @@ public:
 	void for_all_user_keys(const std::function<void(UserKey_t*)>& callback);
 
 private:
-	void update_keys(UINT uMsg, WPARAM wParam);
+	void update_keys(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
 	std::unordered_map<int, UserKey_t> m_userkeys;
@@ -148,7 +148,7 @@ bool CUserInput::initialize()
 {
 	// add user input handler to the window proc
 	g_window_msg_handler_i->add_msg_callback(
-		[this](UINT uMsg, WPARAM wParam)
+		[this](UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			if (wParam < k_key_range || 
 				// mouse scroll
@@ -158,7 +158,7 @@ bool CUserInput::initialize()
 				uMsg & WM_LBUTTONUP || uMsg & WM_MBUTTONUP || uMsg & WM_RBUTTONUP || uMsg & WM_XBUTTONUP
 				)
 			{
-				update_keys(uMsg, wParam);
+				update_keys(uMsg, wParam, lParam);
 			}
 		});
 
@@ -301,7 +301,7 @@ void CUserInput::for_all_user_keys(const std::function<void(UserKey_t*)>& callba
 	}
 }
 
-void CUserInput::update_keys(UINT uMsg, WPARAM wParam)
+void CUserInput::update_keys(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (uMsg == WM_MOUSEWHEEL)
 	{
@@ -325,14 +325,22 @@ void CUserInput::update_keys(UINT uMsg, WPARAM wParam)
 
 		bool is_down = false;
 
-		int vk = wParam;
+		int vk = NULL;
 		switch (uMsg)
 		{
 			// regular keys
 			case WM_SYSKEYDOWN:
 			case WM_KEYDOWN:
 			{
+				vk = wParam;
 				is_down = true;
+				break;
+			}
+			case WM_SYSKEYUP:
+			case WM_KEYUP:
+			{
+				vk = wParam;
+				is_down = false;
 				break;
 			}
 			// mouse buttons
@@ -377,21 +385,19 @@ void CUserInput::update_keys(UINT uMsg, WPARAM wParam)
 				}
 				break;
 			}
-			default:
-			{
-				is_down = false;
-				break;
-			}
 		}
 
-		if (m_key_binding_mode && is_down)
+		if (vk != NULL)
 		{
-			m_any_key_pressed = vk;
-			m_key_binding_mode = false;
-		}
-		else
-		{
- 			m_userkeys[vk].update(is_down);
+			if (m_key_binding_mode && is_down)
+			{
+				m_any_key_pressed = vk;
+				m_key_binding_mode = false;
+			}
+			else
+			{
+				m_userkeys[vk].update(is_down);
+			}
 		}
 	}
 }

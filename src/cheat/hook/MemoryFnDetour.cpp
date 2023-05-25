@@ -251,6 +251,7 @@ void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::
 
 	CMovement::the().update_clientmove(frametime, cmd);
 
+#if 0
 	auto start = CLocalPlayerState::the().get_origin();
 	auto end = CLocalPlayerState::the().get_origin() - Vector(0.0f, 0.0f, CLocalPlayerState::the().get_ground_dist());
 
@@ -270,7 +271,7 @@ void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::
 	//CMemoryHookMgr::the().cl_enginefuncs().get()->pEventAPI->EV_PlayerTrace(start, start + vForward * 8192, PM_GLASS_IGNORE, -1, &tr);
 	//
 	//CMemoryHookMgr::the().cl_enginefuncs().get()->pEfxAPI->R_BeamPoints(start, tr.endpos, beamindex, 0.65f, 0.4f, 0, 32, 2, 0, 0, 255, 0, 0);
-
+#endif
 }
 
 //---------------------------------------------------------------------------------
@@ -895,7 +896,7 @@ bool MSG_WriteUsercmd_FnDetour_t::install()
 
 void MSG_WriteUsercmd_FnDetour_t::MSG_WriteUsercmd(hl::sizebuf_t* buf, hl::usercmd_t* to, hl::usercmd_t* from)
 {
-	CMovement::the().update_air_stuck(to);
+	CMovement::the().update_msg_writeusercmd(to);
 
 	CMemoryFnDetourMgr::the().MSG_WriteUsercmd().call(buf, to, from);
 }

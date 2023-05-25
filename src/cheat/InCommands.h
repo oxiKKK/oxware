@@ -33,7 +33,7 @@
 class BaseInCommand
 {
 public:
-	BaseInCommand(const std::string& command_name) :
+	explicit BaseInCommand(const std::string& command_name) :
 		m_command_name(command_name)
 	{
 	}
@@ -55,7 +55,7 @@ protected:
 class InCommandSimple : public BaseInCommand
 {
 public:
-	InCommandSimple(const std::string& command_name) :
+	explicit InCommandSimple(const std::string& command_name) :
 		BaseInCommand(command_name)
 	{
 		add_to_global_list();
@@ -72,8 +72,8 @@ using fnInCommandCustomCallback = void(*)(InCommandCustom* _this);
 class InCommandCustom : public BaseInCommand
 {
 public:
-	InCommandCustom(const std::string& command_name, 
-					const fnInCommandCustomCallback& dn, const fnInCommandCustomCallback& up) :
+	explicit InCommandCustom(const std::string& command_name,
+							 const fnInCommandCustomCallback& dn, const fnInCommandCustomCallback& up) :
 		BaseInCommand(command_name),
 		m_command_dn(dn), 
 		m_command_up(up)

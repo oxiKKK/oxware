@@ -64,6 +64,8 @@ public:
 	inline float get_ground_angle() const { return m_ground_angle; }
 	inline float get_ground_dist() const { return m_ground_dist; }
 
+	inline bool is_surfing() const { return m_is_surfing; }
+
 private:
 	hl::frame_t* m_current_frame = nullptr;
 
@@ -75,6 +77,8 @@ private:
 	float m_ground_dist = 0.0f;
 
 	hl::playermove_t* m_pmove = nullptr;
+
+	bool m_is_surfing = false;
 };
 
 #endif // LOCALPLAYERSTATE_H

@@ -45,7 +45,7 @@ public:
 	inline WNDPROC get_wnd_proc() const { return m_wnd_proc; }
 	inline WndProcRetCallbackFn get_return_callback() const { return m_return_callback; }
 
-	void run_callbacks(UINT uMsg, WPARAM wParam);
+	void run_callbacks(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
 	std::vector<WndProcCallbackFn> m_callbacks;
@@ -116,18 +116,18 @@ void CWindowMsgHandler::add_msg_return_callback(const WndProcRetCallbackFn& call
 	m_return_callback = callback;
 }
 
-void CWindowMsgHandler::run_callbacks(UINT uMsg, WPARAM wParam)
+void CWindowMsgHandler::run_callbacks(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	for (auto& c : m_callbacks)
 	{
-		c(uMsg, wParam);
+		c(uMsg, wParam, lParam);
 	}
 }
 
 LRESULT CWindowMsgHandler::wndproc_hook(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// run all user added external callbacks
-	g_window_msg_handler.run_callbacks(uMsg, wParam);
+	g_window_msg_handler.run_callbacks(uMsg, wParam, lParam);
 
 	// return callback allows us to remotely return from this routine.
 	auto ret_callback = g_window_msg_handler.get_return_callback();

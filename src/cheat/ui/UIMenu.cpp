@@ -970,6 +970,14 @@ void CUIMenu::tab_movement()
 
 		g_gui_widgets_i->goto_next_column();
 
+		CUIMenuWidgets::the().add_menu_child(
+			"Bunny hop", CMenuStyle::calc_child_size(120), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &movement_bhop_enable);
+				CUIMenuWidgets::the().add_listbox("Method", &movement_bhop_method, { "Emulate scrolling", "+/-jump" });
+			});
+
 		g_gui_widgets_i->end_columns();
 	}
 }

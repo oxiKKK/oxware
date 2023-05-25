@@ -519,7 +519,7 @@ void CUIKeyBinding::keep_bound_keys_up_to_date()
 {
 	// refresh the list so that it keeps up to date
 	static uint32_t t = GetTickCount();
-	if (GetTickCount() - t > 5000)
+	if (GetTickCount() - t > 500)
 	{
 		g_bindmgr_i->for_each_bind(
 			[&](int vk, const bind_t& bind)

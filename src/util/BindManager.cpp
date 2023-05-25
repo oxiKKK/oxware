@@ -34,7 +34,7 @@ BaseCommand _bind(
 	"bind", "<key> <command> <flags>", "Binds command to a key that is executed only once after the key was pressed.",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
-		if (args.count() == 1 || args.count() > 3)
+		if (args.count() == 1 || args.count() > 4)
 		{
 			cmd->print_usage();
 			return;
@@ -91,7 +91,7 @@ BaseCommand bind_toggle(
 	"bind_toggle", "<key> <key down command> <key release command> <flags>", "Binds two commands to a key, each executing at push down and push up of the key.",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
-		if (args.count() == 1 || args.count() > 4)
+		if (args.count() == 1 || args.count() > 5)
 		{
 			cmd->print_usage();
 			return;
@@ -715,10 +715,7 @@ void CBindManager::register_keypress_event_toggle(UserKey_t& key, int virtual_ke
 
 			if (bind)
 			{
-				if (g_bindmgr_i->is_ui_running() && !(bind->flags & BINDFLAG_ExecuteOverUI))
-				{
-					return;
-				}
+				// always execute release callbacks, even we're on top of UI
 
 				g_variablemgr_i->execute_command(bind->cmd_sequence_1, bind->flags & BINDFLAG_Silent);
 			}

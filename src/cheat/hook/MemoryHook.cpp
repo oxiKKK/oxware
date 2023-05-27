@@ -56,6 +56,8 @@ bool CMemoryHookMgr::install_hooks()
 	if (!r_model().install()) return false;
 	if (!pstudiohdr().install()) return false;
 	if (!pStudioAPI().install()) return false;
+	if (!host_framecount().install()) return false;
+	if (!realtime().install()) return false;
 
 	return true;
 }
@@ -447,6 +449,46 @@ void pStudioAPI_MemoryHook::test_hook()
 			auto pStudioAPI = *p;
 			return pStudioAPI->StudioDrawModel && pStudioAPI->StudioDrawPlayer && pStudioAPI->version == STUDIO_INTERFACE_VERSION;
 		});
+}
+
+//-----------------------------------------------------------------------------
+
+bool host_framecount_MemoryHook::install()
+{
+	initialize("host_framecount", L"hw.dll");
+	return install_using_bytepattern(1);
+}
+
+void host_framecount_MemoryHook::test_hook()
+{
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+	{
+		return *p > 1;
+	});
+}
+
+//-----------------------------------------------------------------------------
+
+bool realtime_MemoryHook::install()
+{
+	initialize("realtime", L"hw.dll");
+	return install_using_bytepattern(1);
+}
+
+void realtime_MemoryHook::test_hook()
+{
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+	{
+		return *p > 0.0;
+	});
 }
 
 //-----------------------------------------------------------------------------

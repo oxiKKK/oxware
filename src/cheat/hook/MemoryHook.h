@@ -381,6 +381,20 @@ struct pStudioAPI_MemoryHook final : public GenericMemoryHook<hl::r_studio_inter
 	void test_hook() override;
 };
 
+// int host_framecount;
+struct host_framecount_MemoryHook final : public GenericMemoryHook<int>
+{ 
+	bool install() override; 
+	void test_hook() override;
+};
+
+// double realtime;
+struct realtime_MemoryHook final : public GenericMemoryHook<double>
+{ 
+	bool install() override; 
+	void test_hook() override;
+};
+
 //-----------------------------------------------------------------------------
 
 class CMemoryHookMgr
@@ -414,6 +428,8 @@ public:
 	inline static auto& r_model() { static r_model_MemoryHook hook; return hook; };
 	inline static auto& pstudiohdr() { static pstudiohdr_MemoryHook hook; return hook; };
 	inline static auto& pStudioAPI() { static pStudioAPI_MemoryHook hook; return hook; };
+	inline static auto& host_framecount() { static host_framecount_MemoryHook hook; return hook; };
+	inline static auto& realtime() { static realtime_MemoryHook hook; return hook; };
 };
 
 #endif // MEMORYHOOK_H

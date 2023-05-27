@@ -83,6 +83,9 @@ public:
 
 	int get_weapon_accuracy_flags(int weapon_id, int weapon_flags);
 
+	// replica of CL_RecordHUDCommand
+	void record_hud_command(const char* cmdname);
+
 private:
 	void locate_engine_compile_timestamp();
 

@@ -31,7 +31,11 @@
 #pragma once
 
 extern VarBoolean movement_bhop_enable;
-extern VarInteger movement_bhop_method;
+extern VarInteger movement_bhop_mode;
+extern VarInteger movement_bhop_legit_method;
+extern VarInteger movement_bhop_legit_ground_dist_min;
+extern VarInteger movement_bhop_legit_ground_dist_max;
+extern VarBoolean movement_bhop_legit_noslowdown;
 
 enum ESimulJumpMethod
 {
@@ -48,15 +52,18 @@ public:
 	void update(float frametime, hl::usercmd_t *cmd);
 
 private:
-	void simulate_jump(float frametime, hl::usercmd_t* cmd, ESimulJumpMethod method);
+	void legit_bhop(float frametime, hl::usercmd_t* cmd);
+	void rage_bhop(float frametime, hl::usercmd_t* cmd);
 
-	void exec_jump_cmd(bool do_the_jump);
-	bool m_was_in_jump_lock;
+	void simulate_jump(float frametime, hl::usercmd_t* cmd, ESimulJumpMethod method);
+	void force_jump_cmd_buttons(hl::usercmd_t* cmd, bool do_the_jump);
+
+	bool m_retained_in_jump;
 
 	float m_simul_start_gnddist;
 	void determine_random_gnddist_for_jump_simul(bool on_ground);
 
-	float m_fall_velocity_factor;
+	bool noslowdown_hop(hl::usercmd_t* cmd, bool will_be_on_ground_next_frame);
 };
 
 #endif // BUNNYHOP_H

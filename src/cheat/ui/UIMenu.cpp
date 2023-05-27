@@ -971,11 +971,46 @@ void CUIMenu::tab_movement()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child(
-			"Bunny hop", CMenuStyle::calc_child_size(120), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Bunny hop", CMenuStyle::calc_child_size(335), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Enable", &movement_bhop_enable);
-				CUIMenuWidgets::the().add_listbox("Method", &movement_bhop_method, { "Emulate scrolling", "+/-jump" });
+
+				CUIMenuWidgets::the().add_listbox("Mode", &movement_bhop_mode, { "Legit", "Rage" });
+
+				g_gui_widgets_i->add_spacing();
+				g_gui_widgets_i->add_separator();
+
+				if (movement_bhop_mode.get_value() == 0) // legit
+				{
+					CUIMenuWidgets::the().add_listbox("Method", &movement_bhop_legit_method, { "Emulate scrolling", "+/-jump commands" });
+
+					g_gui_widgets_i->add_text("Min&Max ground distance");
+					g_gui_widgets_i->add_spacing();
+					CUIMenuWidgets::the().add_slider_nolabel("Minimal ground distance", "%0.0f units", &movement_bhop_legit_ground_dist_min);
+					CUIMenuWidgets::the().add_slider_nolabel("Maximal ground distance", "%0.0f units", &movement_bhop_legit_ground_dist_max);
+
+					if (movement_bhop_legit_method.get_value() == 0)
+					{
+						g_gui_widgets_i->push_disbled();
+					}
+
+					CUIMenuWidgets::the().add_checkbox("No slow-down", &movement_bhop_legit_noslowdown, 
+													   "Tries to perform the jump at the exact time you hit the ground. "
+													   "This is not perfect, but helps you to not lose speed that much.");
+
+					if (movement_bhop_legit_method.get_value() == 0)
+					{
+						g_gui_widgets_i->pop_disabled();
+					}
+				}
+				else if (movement_bhop_mode.get_value() == 1) // rage
+				{
+					CUIMenuWidgets::the().add_description_text(
+						"Rage bhop is highly obviously to someone, who analyzes your demo - be careful where you use it. "
+						"\n\nHowever, it suits well for HVH scenarious or simply for servers where no one cares about bhop hacks. "
+						"It also has no-slow-down capabilities.");
+				}
 			});
 
 		g_gui_widgets_i->end_columns();

@@ -123,8 +123,8 @@ public:
 
 	bool add_color_edit(const std::string& label, float rgba[4], ImGuiColorEditFlags flags);
 
-	bool add_slider(const std::string& label, float* value, float* min, float* max, const char* format);
-	bool add_slider(const std::string& label, int* value, int* min, int* max, const char* format);
+	bool add_slider(const std::string& label, float* value, float* min, float* max, const char* format, bool no_label);
+	bool add_slider(const std::string& label, int* value, int* min, int* max, const char* format, bool no_label);
 
 	bool add_text_input(const std::string& label, char* buffer, size_t buffer_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, bool no_title = false, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
 	bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
@@ -218,7 +218,7 @@ private:
 	bool begin_combo_internal(const char* label, const char* preview_label, ImGuiComboFlags flags = 0);
 
 	template<typename T>
-	bool add_slider_internal(const char* label, T* value, T* min, T* max, const char* format, ImGuiDataType data_type, ImGuiSliderFlags flags = ImGuiSliderFlags_None);
+	bool add_slider_internal(const char* label, T* value, T* min, T* max, const char* format, ImGuiDataType data_type, bool no_label, ImGuiSliderFlags flags = ImGuiSliderFlags_None);
 
 	// helpers
 	template<EGUIColor clr> requires(clr > GUICLR_NONE && clr < GUICLR_MAX)
@@ -784,9 +784,9 @@ bool CGUIWidgets::add_color_edit(const std::string& label, float rgba[4], ImGuiC
 	return ret;
 }
 
-bool CGUIWidgets::add_slider(const std::string& label, float* value, float* min, float* max, const char* format)
+bool CGUIWidgets::add_slider(const std::string& label, float* value, float* min, float* max, const char* format, bool no_label)
 {
-	bool ret = add_slider_internal(label.c_str(), value, min, max, format, ImGuiDataType_Float);
+	bool ret = add_slider_internal(label.c_str(), value, min, max, format, ImGuiDataType_Float, no_label);
 
 	if (IsItemHovered())
 	{
@@ -796,9 +796,9 @@ bool CGUIWidgets::add_slider(const std::string& label, float* value, float* min,
 	return ret;
 }
 
-bool CGUIWidgets::add_slider(const std::string & label, int* value, int* min, int* max, const char* format)
+bool CGUIWidgets::add_slider(const std::string & label, int* value, int* min, int* max, const char* format, bool no_label)
 {
-	bool ret = add_slider_internal(label.c_str(), value, min, max, format, ImGuiDataType_S32);
+	bool ret = add_slider_internal(label.c_str(), value, min, max, format, ImGuiDataType_S32, no_label);
 
 	if (IsItemHovered())
 	{
@@ -2122,7 +2122,7 @@ void CGUIWidgets::color_picker_options_popup(const float* ref_col, ImGuiColorEdi
 }
 
 template<typename T>
-bool CGUIWidgets::add_slider_internal(const char* label, T* value, T* min, T* max, const char* format, ImGuiDataType data_type, ImGuiSliderFlags flags)
+bool CGUIWidgets::add_slider_internal(const char* label, T* value, T* min, T* max, const char* format, ImGuiDataType data_type, bool no_label, ImGuiSliderFlags flags)
 {
 	ImGuiWindow* window = GetCurrentWindow();
 	if (window->SkipItems)
@@ -2135,14 +2135,19 @@ bool CGUIWidgets::add_slider_internal(const char* label, T* value, T* min, T* ma
 
 	ImVec2 label_size = CalcTextSize(label, NULL, true);
 
-	ImRect frame_bb({ window->DC.CursorPos.x + window->Size.x / 2.f, window->DC.CursorPos.y },
+	if (no_label)
+	{
+		label_size.x = 0;
+	}
+
+	ImRect frame_bb({ window->DC.CursorPos.x + (no_label ? 0.0f : (window->Size.x / 2.f)), window->DC.CursorPos.y },
 						  window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
 	ImRect total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
 
 	char label_fixed[256];
 	strcpy(label_fixed, label);
 
-	if (label_size.x > frame_bb.Min.x - window->DC.CursorPos.x - 1.f)
+	if (label_size.x > 0.0f && label_size.x > frame_bb.Min.x - window->DC.CursorPos.x - 1.f)
 	{
 		const float char_size = label_size.x / strlen(label_fixed);
 

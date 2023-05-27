@@ -152,6 +152,7 @@ public:
 
 	virtual std::string virtual_key_to_string(int virtual_key) = 0;
 	virtual int string_to_virtual_key(const std::string& key_name) = 0;
+	virtual int engine_key_to_virtual_key(int engine_key) = 0;
 
 	virtual bool add_key_press_callback(const std::string& id, int virtual_key, const UserKeyPressCallbackFn& callback) = 0;
 	virtual bool add_key_unpress_callback(const std::string& id, int virtual_key, const UserKeyPressCallbackFn& callback) = 0;

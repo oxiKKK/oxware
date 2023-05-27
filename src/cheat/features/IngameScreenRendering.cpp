@@ -53,6 +53,12 @@ void CIngameScreenRendering::better_cl_showfps()
 	if (!cl_showfps)
 	{
 		cl_showfps = CGoldSrcCommandMgr::the().get_cvar("cl_showfps");
+		if (!cl_showfps)
+		{
+			return; // can be null when we're in the unloading stage and we unload CmdMgr before hooks, 
+					// sometimes this gets called by the engine once more but sinde the CmdMgr is unloaded, 
+					// we can't find the cvar.
+		}
 	}
 
 	// cvar is on

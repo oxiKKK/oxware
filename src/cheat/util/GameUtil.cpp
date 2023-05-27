@@ -414,6 +414,50 @@ int CGameUtil::get_weapon_accuracy_flags(int weapon_id, int weapon_flags)
 	return flags;
 }
 
+#pragma pack(push, 1)
+struct hud_command_t
+{
+	byte	cmd;
+	float	time;
+	int		frame;
+	char	szNameBuf[64];
+};
+#pragma pack(pop)
+
+void CGameUtil::record_hud_command(const char* cmdname)
+{
+	auto cls = CMemoryHookMgr::the().cls().get();
+
+	if (!cls->demorecording || cls->spectator)
+	{
+		return;
+	}
+
+	auto host_framecount = CMemoryHookMgr::the().host_framecount().get();
+	static int prev_frame = 0;
+	if (*host_framecount == prev_frame)
+	{
+		return;
+	}
+
+	auto realtime = CMemoryHookMgr::the().realtime().get();
+
+	// Prepare new command header
+	hud_command_t cmd;
+	cmd.cmd = 3;
+	cmd.time = *realtime - cls->demostarttime;
+	cmd.frame = *host_framecount - cls->demostartframe;
+
+	// Prepare name buffer
+	memset(cmd.szNameBuf, NULL, sizeof(cmd.szNameBuf));
+	strncpy(cmd.szNameBuf, cmdname, sizeof(cmd.szNameBuf) - 1);
+	cmd.szNameBuf[sizeof(cmd.szNameBuf) - 4] = '\0';
+
+	CHLInterfaceHook::the().IFileSystem()->Write(&cmd, sizeof(hud_command_t), cls->demofile);
+
+	prev_frame = *host_framecount;
+}
+
 void CGameUtil::locate_engine_compile_timestamp()
 {
 	if (!m_engine_compile_date.empty())

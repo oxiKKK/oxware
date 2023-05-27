@@ -207,6 +207,12 @@ void Key_Event_FnDetour_t::Key_Event(int key, hl::qboolean down)
 		return;
 	}
 
+	// see if this key is bound inside our cheat. if yes, prefer executing our key over engine key.
+	if (g_bindmgr_i->is_key_bound(g_user_input_i->engine_key_to_virtual_key(key)))
+	{
+		return;
+	}
+
 	CMemoryFnDetourMgr::the().Key_Event().call(key, down);
 }
 

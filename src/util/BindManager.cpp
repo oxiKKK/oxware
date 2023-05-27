@@ -200,6 +200,8 @@ public:
 	void set_ui_running(bool is_running) { m_is_ui_running = is_running; }
 	bool is_ui_running() { return m_is_ui_running; }
 
+	bool is_key_bound(int vk);
+
 private:
 	void register_keypress_event_on_push(UserKey_t& key, int virtual_key, bind_t& new_bind);
 	void register_keypress_event_toggle(UserKey_t& key, int virtual_key, bind_t& new_bind);
@@ -660,6 +662,16 @@ std::string CBindManager::create_string_out_of_flags(EBindFlags flags)
 	}
 
 	return flags_str;
+}
+
+bool CBindManager::is_key_bound(int vk)
+{
+	for (auto& [_vk, bind] : m_registerd_binds)
+	{
+		if (_vk == vk)
+			return true;
+	}
+	return false;
 }
 
 void CBindManager::register_keypress_event_on_push(UserKey_t& key, int virtual_key, bind_t& new_bind)

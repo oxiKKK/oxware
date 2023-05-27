@@ -133,6 +133,7 @@ namespace hl
 #include <hlsdk/common/filesystemdefs.h>
 
 // engine
+#include <hlsdk/engine/keydefs.h>
 #include <hlsdk/engine/engine_math.h>
 #include <hlsdk/engine/wrect.h>
 #include <hlsdk/engine/const.h>

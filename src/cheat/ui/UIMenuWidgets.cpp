@@ -78,11 +78,11 @@ bool CUIMenuWidgets::add_color_edit(const std::string& label, VarColor* colors_v
 #pragma warning(push)
 #pragma warning(disable : 4244) // warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
 
-template bool CUIMenuWidgets::add_slider_t<VarFloat>(const std::string&, const char*, VarFloat*, const char*, const char*, const char*);
-template bool CUIMenuWidgets::add_slider_t<VarInteger>(const std::string&, const char*, VarInteger*, const char*, const char*, const char*);
+template bool CUIMenuWidgets::add_slider_t<VarFloat>(const std::string&, const char*, VarFloat*, bool, const char*, const char*, const char*);
+template bool CUIMenuWidgets::add_slider_t<VarInteger>(const std::string&, const char*, VarInteger*, bool, const char*, const char*, const char*);
 
 template<typename T>
-bool CUIMenuWidgets::add_slider_t(const std::string& label, const char* format, T* var, const char* min_value_label, const char* max_value_label, const char* additional_desc)
+bool CUIMenuWidgets::add_slider_t(const std::string& label, const char* format, T* var, bool no_label, const char* min_value_label, const char* max_value_label, const char* additional_desc)
 {
 	assert(var->has_bounds() && "Variable used in slider must have bounds.");
 
@@ -99,7 +99,7 @@ bool CUIMenuWidgets::add_slider_t(const std::string& label, const char* format, 
 		format = max_value_label;
 	}
 
-	bool ret = g_gui_widgets_i->add_slider(label, &value, &min, &max, format);
+	bool ret = g_gui_widgets_i->add_slider(label, &value, &min, &max, format, no_label);
 
 	// we have to distinguish in order to call appropriate function
 	var->set_value(value);
@@ -113,12 +113,22 @@ bool CUIMenuWidgets::add_slider_t(const std::string& label, const char* format, 
 
 bool CUIMenuWidgets::add_slider(const std::string& label, const char* format, VarFloat* var, const char* min_value_label, const char* max_value_label, const char* additional_desc)
 {
-	return add_slider_t<VarFloat>(label, format, var, min_value_label, max_value_label, additional_desc);
+	return add_slider_t<VarFloat>(label, format, var, false, min_value_label, max_value_label, additional_desc);
 }
 
 bool CUIMenuWidgets::add_slider(const std::string& label, const char* format, VarInteger* var, const char* min_value_label, const char* max_value_label, const char* additional_desc)
 {
-	return add_slider_t<VarInteger>(label, format, var, min_value_label, max_value_label, additional_desc);
+	return add_slider_t<VarInteger>(label, format, var, false, min_value_label, max_value_label, additional_desc);
+}
+
+bool CUIMenuWidgets::add_slider_nolabel(const std::string& label, const char* format, VarFloat* var, const char* min_value_label, const char* max_value_label, const char* additional_desc)
+{
+	return add_slider_t<VarFloat>(label, format, var, true, min_value_label, max_value_label, additional_desc);
+}
+
+bool CUIMenuWidgets::add_slider_nolabel(const std::string& label, const char* format, VarInteger* var, const char* min_value_label, const char* max_value_label, const char* additional_desc)
+{
+	return add_slider_t<VarInteger>(label, format, var, true, min_value_label, max_value_label, additional_desc);
 }
 
 #pragma warning(pop)

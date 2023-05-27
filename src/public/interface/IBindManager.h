@@ -132,6 +132,8 @@ public:
 
 	virtual void set_ui_running(bool is_running) = 0;
 	virtual bool is_ui_running() = 0;
+
+	virtual bool is_key_bound(int vk) = 0;
 };
 
 extern IBindManager* g_bindmgr_i;

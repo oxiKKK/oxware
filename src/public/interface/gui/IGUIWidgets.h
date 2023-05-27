@@ -155,8 +155,8 @@ public:
 
 	virtual bool add_color_edit(const std::string& label, float rgba[4], ImGuiColorEditFlags flags = ImGuiColorEditFlags_None) = 0;
 
-	virtual bool add_slider(const std::string& label, float* value, float* min, float* max, const char* format) = 0;
-	virtual bool add_slider(const std::string& label, int* value, int* min, int* max, const char* format) = 0;
+	virtual bool add_slider(const std::string& label, float* value, float* min, float* max, const char* format, bool no_label = false) = 0;
+	virtual bool add_slider(const std::string& label, int* value, int* min, int* max, const char* format, bool no_label = false) = 0;
 
 	virtual bool add_text_input(const std::string& label, char* buffer, size_t buffer_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, bool no_title = false, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr) = 0;
 	virtual bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr) = 0;

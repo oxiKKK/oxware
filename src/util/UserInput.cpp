@@ -91,6 +91,7 @@ public:
 
 	std::string virtual_key_to_string(int virtual_key);
 	int string_to_virtual_key(const std::string& key_name);
+	int engine_key_to_virtual_key(int engine_key);
 
 	bool add_key_press_callback(const std::string& id, int virtual_key, const UserKeyPressCallbackFn& callback);
 	bool add_key_unpress_callback(const std::string& id, int virtual_key, const UserKeyPressCallbackFn& callback);
@@ -117,6 +118,7 @@ private:
 
 	std::unordered_map<std::string, int, caseinsens_string_hash, caseinsens_string_compare> m_translation_table_string_to_vk;
 	std::unordered_map<int, std::string> m_translation_table_vk_to_string;
+	std::unordered_map<int, int> m_translation_table_engine_key_to_vk;
 	void initialize_key_translation_tables();
 
 	int m_any_key_pressed = NULL;
@@ -233,6 +235,19 @@ int CUserInput::string_to_virtual_key(const std::string& key_name)
 	catch (const std::exception&)
 	{
 		CConsole::the().error("Unrecognized key name! '{}'", key_name);
+		return NULL;
+	}
+}
+
+int CUserInput::engine_key_to_virtual_key(int engine_key)
+{
+	try
+	{
+		return m_translation_table_engine_key_to_vk.at(engine_key);
+	}
+	catch (const std::exception&)
+	{
+		CConsole::the().error("Non-existent engine key! '{}'", engine_key);
 		return NULL;
 	}
 }
@@ -407,22 +422,40 @@ void CUserInput::initialize_key_translation_tables()
 	// reserve, for speedup
 	m_translation_table_string_to_vk.reserve(k_key_range);
 	m_translation_table_vk_to_string.reserve(k_key_range);
+	m_translation_table_engine_key_to_vk.reserve(k_key_range);
 
+	//
 	// string -> vk
-	for (auto& [name, vk] : g_virtual_key_translation)
+	//
+	for (auto& [name, vk, ek] : g_virtual_key_translation)
 	{
-		if (name && vk)
+		if (!name.empty() && vk)
 		{
 			m_translation_table_string_to_vk[name] = vk;
 		}
 	}
 
+	//
 	// vk -> string
-	for (auto& [name, vk] : g_virtual_key_translation)
+	//
+	for (auto& [name, vk, ek] : g_virtual_key_translation)
 	{
-		if (name && vk)
+		if (!name.empty() && vk)
 		{
 			m_translation_table_vk_to_string[vk] = name;
+		}
+	}
+
+	//
+	// ek -> vk
+	//
+	for (int i = 0; i < k_key_range; i++)
+		m_translation_table_engine_key_to_vk[i] = i; // init first full list
+	for (auto& [name, vk, ek] : g_virtual_key_translation)
+	{
+		if (vk && ek)
+		{
+			m_translation_table_engine_key_to_vk[ek] = vk;
 		}
 	}
 }

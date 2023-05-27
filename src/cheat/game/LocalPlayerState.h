@@ -60,6 +60,7 @@ public:
 
 	inline Vector get_origin() const { return m_pmove->origin; }
 	inline float get_fall_velocity() const { return m_pmove->flFallVelocity; }
+	inline float get_fall_velocity_abs() const { return abs(m_pmove->flFallVelocity); }
 	inline float get_maxspeed() const { return m_pmove->maxspeed; }
 	inline float get_ground_angle() const { return m_ground_angle; }
 	inline float get_ground_dist() const { return m_ground_dist; }

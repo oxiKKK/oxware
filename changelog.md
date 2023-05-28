@@ -96,7 +96,9 @@
 
 - Added new "others" tab in the menu.
 - Added air stuck.
-- Added MOTD removal
+- Added MOTD removal.
+- Added legit/rage bhop hack.
+- Added menu section for binds.
 
 ## Bugfixes
 

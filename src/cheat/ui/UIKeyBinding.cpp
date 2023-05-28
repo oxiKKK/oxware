@@ -110,42 +110,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 									return;
 								}
 
-								static int previoud_vk = 0;
-								add_keyscan_button(
-									std::format("vk_{}", vk),
-									Vector2D(-1.0f, 25.0f),
-									[&]()
-									{
-										if (previoud_vk != vk)
-										{
-											previoud_vk = vk;
-										}
-									},
-									[&](int vk)
-									{
-										// rebind same command to different key
-										if (previoud_vk != vk)
-										{
-											auto bind = g_bindmgr_i->get_bind(previoud_vk);
-											if (bind)
-											{
-												// bind to a new key
-												if (bind->type == BIND_Toggle)
-												{
-													g_bindmgr_i->add_bind_toggle(vk, bind->cmd_sequence_0, bind->cmd_sequence_1);
-												}
-												else
-												{
-													g_bindmgr_i->add_bind(vk, bind->cmd_sequence_0);
-												}
-
-												g_bindmgr_i->remove_bind(previoud_vk); // remove old bind
-												insert_new_key_scan_button_info(vk);
-											}
-										}
-
-										previoud_vk = 0;
-									});
+								add_keyscan_button(std::format("vk_{}", vk), vk, Vector2D(-1.0f, 25.0f));
 
 								g_gui_widgets_i->goto_next_column();
 
@@ -176,7 +141,16 @@ void CUIKeyBinding::render_interactible_bind_list()
 													{
 														if (n_buffer == 0)
 														{
-															bind->cmd_sequence_0 = data->Buf;
+															// incommand
+															if (data->Buf[0] == '+')
+															{
+																bind->cmd_sequence_0 = data->Buf;
+																bind->cmd_sequence_1 = '-' + bind->cmd_sequence_0;
+															}
+															else
+															{
+																bind->cmd_sequence_0 = data->Buf;
+															}
 														}
 														else // 1st buffer
 														{
@@ -308,27 +282,38 @@ void CUIKeyBinding::render_interactible_bind_list()
 							"new_bind_popup", { 120, 60 }, ImGuiWindowFlags_NoMove,
 							[&]()
 							{
+								static bool close_current_popup = false;
+								if (close_current_popup)
+								{
+									g_gui_widgets_i->close_current_popup();
+									close_current_popup = false;
+								}
+
 								if (g_gui_widgets_i->add_button("On Push", { -1.0f, 0.0f }, false))
 								{
-									add_keybind_dialog(
-										[&](int vk)
+									switch_to_key_binding_mode(&m_key_scan_button_info["new_key"], [&](key_scan_button_info_t* info, int vk)
 										{
 											// create new fresh bind
-											g_bindmgr_i->add_bind(vk, "");
-
-											insert_new_key_scan_button_info(vk);
+											if (!g_bindmgr_i->is_key_bound(vk))
+											{
+												g_bindmgr_i->add_bind(vk, "");
+												update_keyscan_button_title(vk);
+											}
+											close_current_popup = true;
 										});
 								}
 								
-								if (g_gui_widgets_i->add_button("Toggle", { -1.0f, 0.0f }, false))
+								if (g_gui_widgets_i->add_button("On Push and Release", { -1.0f, 0.0f }, false))
 								{
-									add_keybind_dialog(
-										[&](int vk)
+									switch_to_key_binding_mode(&m_key_scan_button_info["new_key"], [&](key_scan_button_info_t* info, int vk)
 										{
 											// create new fresh bind
-											g_bindmgr_i->add_bind_toggle(vk, "", "");
-
-											insert_new_key_scan_button_info(vk);
+											if (!g_bindmgr_i->is_key_bound(vk))
+											{
+												g_bindmgr_i->add_bind_on_push_and_release(vk, "", "");
+												update_keyscan_button_title(vk);
+											}
+											close_current_popup = true;
 										});
 								}
 							});
@@ -372,7 +357,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 
 				g_gui_widgets_i->add_text("There are currently two types of binds:", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_bullet_text("On push - Activates the command when the key has been pressed, only once.", TEXTPROP_Wrapped);
-				g_gui_widgets_i->add_bullet_text("Toggle - Activates the first command when the key has been pressed and then the second command when the key has been unpressed.", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_bullet_text("On push and release - Activates the first command when the key has been pressed and then the second command when the key has been unpressed.", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_bullet_text("InCommand - Involves binding commands with \"+\" prefix, just like in CS 1.6 (+attack, etc.)", TEXTPROP_Wrapped);
 
 				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
@@ -383,9 +368,9 @@ void CUIKeyBinding::render_interactible_bind_list()
 				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
 				g_gui_widgets_i->add_separtor_with_text("Binding through the console");
 
-				g_gui_widgets_i->add_text("Use the \"bind\" or \"bind_toggle\" command to bind command to a key. Example:", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_text("Use the \"bind\" or \"bind_on_push_and_release\" command to bind command to a key. Example:", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_bullet_text("bind \"f4\" \"ui_toggle_menu\" - This command binds the UI toggle command to f4.", TEXTPROP_Wrapped);
-				g_gui_widgets_i->add_bullet_text("bind_toggle \"f5\" \"print pushed!\" \"print unpushed!\" - As soon as f4 is pressed, \"pushed!\" is printed to the console. As soon as it is unpressed, \"unpushed!\" is printed.", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_bullet_text("bind_on_push_and_release\"f5\" \"print pushed!\" \"print unpushed!\" - As soon as f4 is pressed, \"pushed!\" is printed to the console. As soon as it is unpressed, \"unpushed!\" is printed.", TEXTPROP_Wrapped);
 
 				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
 				g_gui_widgets_i->add_separtor_with_text("Binding through the UI");
@@ -398,35 +383,12 @@ void CUIKeyBinding::render_interactible_bind_list()
 				g_gui_widgets_i->add_text("In order to bind an InCommand, use the \"bind\" command and use commands with \"+\" prefix.", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_text("For example: bind \"V\" \"+movement_bhop\".", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_spacing();
-				g_gui_widgets_i->add_text("You can also use the UI. Just create a new \"Toggle\" bind, and add a command with \"+\" prefix and the same command with \"-\" prefix.", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_text("You can also use the UI. Just create a new \"On Push\" bind, and add a command with \"+\" prefix", TEXTPROP_Wrapped);
 			});
 	}
 }
 
-void CUIKeyBinding::add_keybind_dialog(const std::function<void(int vk)>& on_key_bound_callback)
-{
-	m_on_key_bound_callback = on_key_bound_callback;
-
-	static bool force_binding_mode = true;
-	COxWareUI::the().schedule_popup(
-		"Create new bind", Vector2D(210, 140), 
-		[&]()
-		{
-			add_keyscan_button("new_key", Vector2D(-1.0f, 25.0f), NULL, m_on_key_bound_callback, &force_binding_mode);
-		},
-		[&]()
-		{
-			// reset this so that we don't see the last key bound after we open new dialog
-			m_key_scan_button_info.at("new_key").label = "<press any key>";
-			force_binding_mode = true;
-
-			m_on_key_bound_callback = nullptr;
-		}, ImGuiWindowFlags_NoResize);
-}
-
-void CUIKeyBinding::add_keyscan_button(const std::string& id, const Vector2D& size,
-									   const std::function<void()>& on_binding_start_callback,
-									   const std::function<void(int vk)>& on_key_bound_callback, bool* force_binding_mode)
+void CUIKeyBinding::add_keyscan_button(const std::string& id, int vk, const Vector2D& size, bool* force_binding_mode)
 {
 	// unique insertion
 	key_scan_button_info_t* info;
@@ -436,8 +398,7 @@ void CUIKeyBinding::add_keyscan_button(const std::string& id, const Vector2D& si
 	}
 	catch (...)
 	{
-		auto [iter, did_insert] = m_key_scan_button_info.insert(std::make_pair(id, "<press any key>"));
-		info = &(*iter).second;
+		m_key_scan_button_info.insert(std::make_pair(id, key_scan_button_info_t{}));
 		return;
 	}
 
@@ -445,7 +406,42 @@ void CUIKeyBinding::add_keyscan_button(const std::string& id, const Vector2D& si
 
 	if (b || (force_binding_mode && *force_binding_mode))
 	{
-		switch_to_key_binding_mode(info, on_binding_start_callback, on_key_bound_callback);
+		if (info->prev_vk != vk)
+		{
+			info->prev_vk = vk;
+		}
+
+		switch_to_key_binding_mode(
+			info, 
+			[&](key_scan_button_info_t* info, int vk)
+			{
+				// rebind same command to different key
+				if (info->prev_vk != vk)
+				{
+					auto bind = g_bindmgr_i->get_bind(info->prev_vk);
+					if (bind)
+					{
+						if (!g_bindmgr_i->is_key_bound(vk))
+						{
+							// bind to a new key
+							if (bind->type == BIND_OnPushAndRelease)
+							{
+								g_bindmgr_i->add_bind_on_push_and_release(vk, bind->cmd_sequence_0, bind->cmd_sequence_1);
+							}
+							else
+							{
+								g_bindmgr_i->add_bind(vk, bind->cmd_sequence_0);
+							}
+
+							g_bindmgr_i->remove_bind(info->prev_vk); // remove old bind
+							insert_new_key_scan_button_info(vk);
+						}
+					}
+				}
+
+				info->prev_vk = 0;
+			});
+
 		if (force_binding_mode)
 		{
 			*force_binding_mode = false;
@@ -466,7 +462,7 @@ void CUIKeyBinding::setup_interactible_bind_list()
 			strncpy(m_bound_keys[vk].cmd_0.data(), bind.cmd_sequence_0.c_str(), buffer_len);
 			strncpy(m_bound_keys[vk].cmd_1.data(), bind.cmd_sequence_1.c_str(), buffer_len);
 
-			if (bind.type == BIND_Toggle)
+			if (bind.type == BIND_OnPushAndRelease)
 			{
 				m_bound_keys[vk].has_two_cmds = true;
 			}
@@ -475,18 +471,23 @@ void CUIKeyBinding::setup_interactible_bind_list()
 		});
 }
 
-void CUIKeyBinding::switch_to_key_binding_mode(key_scan_button_info_t* info, 
-											   const std::function<void()>& on_binding_start_callback,
-											   const std::function<void(int vk)>& on_key_bound_callback)
+void CUIKeyBinding::update_keyscan_button_title(int new_vk)
 {
-	assert(!m_current_key_being_bound && "Tried to bind new key while the old one was still in the process of binding!");
-
-	if (on_binding_start_callback)
+	std::string key_name = g_user_input_i->virtual_key_to_string(new_vk);
+	if (key_name.empty())
 	{
-		on_binding_start_callback();
+		key_name = "<invalid key>";
 	}
+	m_key_scan_button_info[std::format("vk_{}", new_vk)].label = key_name;
+}
 
-	m_current_key_being_bound = info;
+void CUIKeyBinding::switch_to_key_binding_mode(key_scan_button_info_t* info,
+											   const fnOnKeyBoundCallback& on_key_bound_callback)
+{
+	assert(!m_current_key_bound && "Tried to bind new key while the old one was still in the process of binding!");
+
+	m_current_key_bound = info;
+
 	if (!m_on_key_bound_callback)
 	{
 		m_on_key_bound_callback = on_key_bound_callback;
@@ -500,18 +501,13 @@ void CUIKeyBinding::end_key_binding_mode(int vk_pressed)
 	{
 		if (m_on_key_bound_callback)
 		{
-			m_on_key_bound_callback(vk_pressed);
-		}
-
-		m_current_key_being_bound->label = g_user_input_i->virtual_key_to_string(vk_pressed);
-		if (m_current_key_being_bound->label.empty())
-		{
-			m_current_key_being_bound->label = "<invalid key>";
+			m_on_key_bound_callback(m_current_key_bound, vk_pressed);
+			m_on_key_bound_callback = nullptr;
 		}
 	}
 
 	// reset all states for the future
-	reset_state();
+	m_current_key_bound = nullptr;
 	g_user_input_i->reset_bound_key();
 }
 
@@ -527,8 +523,15 @@ void CUIKeyBinding::keep_bound_keys_up_to_date()
 				strncpy(m_bound_keys[vk].cmd_0.data(), bind.cmd_sequence_0.c_str(), buffer_len);
 				strncpy(m_bound_keys[vk].cmd_1.data(), bind.cmd_sequence_1.c_str(), buffer_len);
 
+				if (bind.type == BIND_OnPushAndRelease)
+				{
+					m_bound_keys[vk].has_two_cmds = true;
+				}
+
 				m_bound_keys[vk].f_execute_over_ui = (float)(bind.flags & BINDFLAG_ExecuteOverUI);
 				m_bound_keys[vk].f_silent = (float)(bind.flags & BINDFLAG_Silent);
+
+				update_keyscan_button_title(vk);
 			});
 
 		t = GetTickCount();
@@ -552,7 +555,7 @@ bound_key_t* CUIKeyBinding::insert_new_key_bind(int vk, const bind_t& bind)
 {
 	auto [iter, did_insert] = m_bound_keys.insert(std::make_pair(vk, bound_key_t()));
 
-	if (bind.type == BIND_Toggle)
+	if (bind.type == BIND_OnPushAndRelease)
 	{
 		(*iter).second.has_two_cmds = true;
 	}

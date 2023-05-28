@@ -34,16 +34,16 @@
 
 enum EBindType
 {
-	BIND_OnPush,	// executes the command only once, after the key has been pushed
+	BIND_OnPush,			// executes the command only once, after the key has been pushed
 
-	BIND_Toggle,	// executes the first command as soon as the key is pressed, then executes the second
-					// command after the key has been released.
+	BIND_OnPushAndRelease,	// executes the first command as soon as the key is pressed, then executes the second
+							// command after the key has been released.
 };
 
 static const char* bind_type_to_str[] =
 {
-	"on_push",	// BIND_OnPush
-	"toggle",	// BIND_Toggle
+	"on_push",				// BIND_OnPush
+	"on_push_and_release",	// BIND_OnPushAndRelease
 };
 
 template <>
@@ -52,9 +52,9 @@ struct std::formatter<EBindType> : std::formatter<std::string> {
 
 		switch (type)
 		{
-			case BIND_OnPush:		return std::formatter<string>::format(bind_type_to_str[type], ctx);
-			case BIND_Toggle:		return std::formatter<string>::format(bind_type_to_str[type], ctx);
-			default:				return std::formatter<string>::format("unknown", ctx);
+			case BIND_OnPush:			return std::formatter<string>::format(bind_type_to_str[type], ctx);
+			case BIND_OnPushAndRelease:	return std::formatter<string>::format(bind_type_to_str[type], ctx);
+			default:					return std::formatter<string>::format("unknown", ctx);
 		}
 	}
 };
@@ -112,8 +112,8 @@ public:
 	virtual void add_bind(int virtual_key, const std::string& command_sequence, EBindFlags flags = BINDFLAG_None, bool silent = false) = 0;
 	virtual void add_bind(const std::string& key_name, const std::string& command_sequence, EBindFlags flags = BINDFLAG_None, bool silent = false) = 0;
 
-	virtual void add_bind_toggle(int virtual_key, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags = BINDFLAG_None, bool silent = false) = 0;
-	virtual void add_bind_toggle(const std::string& key_name, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags = BINDFLAG_None, bool silent = false) = 0;
+	virtual void add_bind_on_push_and_release(int virtual_key, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags = BINDFLAG_None, bool silent = false) = 0;
+	virtual void add_bind_on_push_and_release(const std::string& key_name, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags = BINDFLAG_None, bool silent = false) = 0;
 
 	virtual void remove_bind(int virtual_key, bool silent = false) = 0;
 	virtual void remove_bind(const std::string& key_name, bool silent = false) = 0;

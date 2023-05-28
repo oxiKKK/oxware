@@ -971,12 +971,18 @@ void CUIMenu::tab_movement()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child(
-			"Bunny hop", CMenuStyle::calc_child_size(335), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Bunny hop", CMenuStyle::calc_child_size(395), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Enable", &movement_bhop_enable);
 
 				CUIMenuWidgets::the().add_listbox("Mode", &movement_bhop_mode, { "Legit", "Rage" });
+
+				g_gui_widgets_i->add_spacing();
+				
+				CUIMenuWidgets::the().add_checkbox("Jump if on ladder", &movement_bhop_jump_on_ladder);
+				CUIMenuWidgets::the().add_checkbox("Jump if in water", &movement_bhop_jump_in_water);
+				CUIMenuWidgets::the().add_slider("Jump interval", "%0.0f", &movement_bhop_jump_in_water_interval, "each frame");
 
 				g_gui_widgets_i->add_spacing();
 				g_gui_widgets_i->add_separator();
@@ -990,19 +996,9 @@ void CUIMenu::tab_movement()
 					CUIMenuWidgets::the().add_slider_nolabel("Minimal ground distance", "%0.0f units", &movement_bhop_legit_ground_dist_min);
 					CUIMenuWidgets::the().add_slider_nolabel("Maximal ground distance", "%0.0f units", &movement_bhop_legit_ground_dist_max);
 
-					if (movement_bhop_legit_method.get_value() == 0)
-					{
-						g_gui_widgets_i->push_disbled();
-					}
-
 					CUIMenuWidgets::the().add_checkbox("No slow-down", &movement_bhop_legit_noslowdown, 
 													   "Tries to perform the jump at the exact time you hit the ground. "
 													   "This is not perfect, but helps you to not lose speed that much.");
-
-					if (movement_bhop_legit_method.get_value() == 0)
-					{
-						g_gui_widgets_i->pop_disabled();
-					}
 				}
 				else if (movement_bhop_mode.get_value() == 1) // rage
 				{

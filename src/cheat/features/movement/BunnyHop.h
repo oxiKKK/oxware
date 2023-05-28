@@ -32,6 +32,9 @@
 
 extern VarBoolean movement_bhop_enable;
 extern VarInteger movement_bhop_mode;
+extern VarBoolean movement_bhop_jump_on_ladder;
+extern VarBoolean movement_bhop_jump_in_water;
+extern VarInteger movement_bhop_jump_in_water_interval;
 extern VarInteger movement_bhop_legit_method;
 extern VarInteger movement_bhop_legit_ground_dist_min;
 extern VarInteger movement_bhop_legit_ground_dist_max;
@@ -63,7 +66,12 @@ private:
 	float m_simul_start_gnddist;
 	void determine_random_gnddist_for_jump_simul(bool on_ground);
 
-	bool noslowdown_hop(hl::usercmd_t* cmd, bool will_be_on_ground_next_frame);
+	bool noslowdown_hop(float frametime, hl::usercmd_t* cmd);
+
+	bool perfect_condition_for_jump();
+
+	void ladder_jump(ESimulJumpMethod method, hl::usercmd_t *cmd);
+	void jump_in_water(ESimulJumpMethod method, hl::usercmd_t *cmd);
 };
 
 #endif // BUNNYHOP_H

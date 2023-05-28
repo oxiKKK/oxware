@@ -66,6 +66,10 @@ public:
 	inline float get_ground_dist() const { return m_ground_dist; }
 
 	inline bool is_surfing() const { return m_is_surfing; }
+	inline bool is_on_ladder() const { return m_pmove->movetype == MOVETYPE_FLY; }
+
+	inline int get_movetype() const { return m_pmove->movetype; }
+	inline int get_waterlevel() const { return m_pmove->waterlevel; }
 
 private:
 	hl::frame_t* m_current_frame = nullptr;

@@ -49,9 +49,7 @@ public:
 	void render_interactible_bind_list();
 	void update();
 
-	void add_keybind_dialog(const std::function<void(int vk)>& on_key_bound_callback);
-	void add_keyscan_button(const std::string& label, const Vector2D& size, const std::function<void()>& on_binding_start_callback, 
-							const std::function<void(int vk)>& on_key_bound_callback, bool* force_binding_mode = nullptr);
+	void add_keyscan_button(const std::string& label, int vk, const Vector2D& size, bool* force_binding_mode = nullptr);
 
 private:
 	void setup_interactible_bind_list();
@@ -64,24 +62,22 @@ private:
 
 	struct key_scan_button_info_t
 	{
-		std::string label;
+		std::string label = "<new key>";
+		int prev_vk = 0;
 	};
-	std::unordered_map<std::string, key_scan_button_info_t> m_key_scan_button_info;
-	key_scan_button_info_t* m_current_key_being_bound = nullptr;
+	key_scan_button_info_t* m_current_key_bound = nullptr;
 
-	void switch_to_key_binding_mode(key_scan_button_info_t* info, const std::function<void()>& on_binding_start_callback, const std::function<void(int vk)>& on_key_bound_callback);
+	using fnOnKeyBoundCallback = std::function<void(key_scan_button_info_t* info, int vk)>;
+	std::unordered_map<std::string, key_scan_button_info_t> m_key_scan_button_info;
+	void update_keyscan_button_title(int new_vk);
+
+	void switch_to_key_binding_mode(key_scan_button_info_t* info,
+									const fnOnKeyBoundCallback& on_key_bound_callback);
 	void end_key_binding_mode(int vk_pressed);
 
 	void insert_new_key_scan_button_info(int vk);
 
-	std::function<void(int vk)> m_on_key_bound_callback;
-
-	void reset_state()
-	{
-		// reset everything and prepare for fresh new key binding
-
-		m_current_key_being_bound = nullptr;
-	}
+	fnOnKeyBoundCallback m_on_key_bound_callback;
 };
 
 #endif // UIKEYBINDING_H

@@ -50,7 +50,7 @@ BaseCommand _bind(
 			auto bind = g_bindmgr_i->get_bind(vk);
 			if (bind)
 			{
-				if (bind->type == BIND_Toggle)
+				if (bind->type == BIND_OnPushAndRelease)
 				{
 					CConsole::the().info("'{}' is bound to '{}' and '{}'", args.get(1), bind->cmd_sequence_0, bind->cmd_sequence_1);
 				}
@@ -62,8 +62,6 @@ BaseCommand _bind(
 		}
 		else
 		{
-			std::string cmd = args.get(2);
-
 			EBindFlags f = BINDFLAG_None;
 
 			if (args.count() > 4)
@@ -71,24 +69,13 @@ BaseCommand _bind(
 				f = g_bindmgr_i->parse_flags_out_of_string(args.get(4));
 			}
 
-			bool is_action_cmd = cmd[0] == '+';
-
-			if (!is_action_cmd)
-			{
-				g_bindmgr_i->add_bind(args.get(1), cmd, f);
-			}
-			else
-			{
-				std::string cmd1 = '-' + cmd.substr(1);
-
-				g_bindmgr_i->add_bind_toggle(args.get(1), cmd, cmd1, f);
-			}
+			g_bindmgr_i->add_bind(args.get(1), args.get(2), f);
 		}
 	}
 );
 
-BaseCommand bind_toggle(
-	"bind_toggle", "<key> <key down command> <key release command> <flags>", "Binds two commands to a key, each executing at push down and push up of the key.",
+BaseCommand bind_on_push_and_release(
+	"bind_on_push_and_release", "<key> <key down command> <key release command> <flags>", "Binds two commands to a key, each executing at push down and push up of the key.",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		if (args.count() == 1 || args.count() > 5)
@@ -107,7 +94,7 @@ BaseCommand bind_toggle(
 			auto bind = g_bindmgr_i->get_bind(vk);
 			if (bind)
 			{
-				if (bind->type == BIND_Toggle)
+				if (bind->type == BIND_OnPushAndRelease)
 				{
 					CConsole::the().info("'{}' is bound to '{}' and '{}'", args.get(1), bind->cmd_sequence_0, bind->cmd_sequence_1);
 				}
@@ -126,7 +113,7 @@ BaseCommand bind_toggle(
 				f = g_bindmgr_i->parse_flags_out_of_string(args.get(4));
 			}
 
-			g_bindmgr_i->add_bind_toggle(args.get(1), args.get(2), args.get(3), f);
+			g_bindmgr_i->add_bind_on_push_and_release(args.get(1), args.get(2), args.get(3), f);
 		}
 	}
 );
@@ -177,10 +164,10 @@ public:
 	void export_binds_to_json(nlohmann::json& json);
 
 	void add_bind(int virtual_key, const std::string& command_sequence, EBindFlags flags, bool silent);
-	void add_bind_toggle(int virtual_key, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent);
-
 	void add_bind(const std::string& key_name, const std::string& command_sequence, EBindFlags flags, bool silent);
-	void add_bind_toggle(const std::string& key_name, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent);
+
+	void add_bind_on_push_and_release(int virtual_key, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent);
+	void add_bind_on_push_and_release(const std::string& key_name, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent);
 
 	void remove_bind(const std::string& key_name, bool silen);
 	void remove_bind(int virtual_key, bool silen);
@@ -204,7 +191,7 @@ public:
 
 private:
 	void register_keypress_event_on_push(UserKey_t& key, int virtual_key, bind_t& new_bind);
-	void register_keypress_event_toggle(UserKey_t& key, int virtual_key, bind_t& new_bind);
+	void register_keypress_event_on_push_and_release(UserKey_t& key, int virtual_key, bind_t& new_bind);
 
 	void register_bind_internal(int virtual_key, UserKey_t& key, const std::string& command_seq, 
 								const std::string& command_seq1, EBindType type, EBindFlags flags, bool silent);
@@ -263,7 +250,7 @@ void CBindManager::create_binds_from_json(const nlohmann::json& json)
 		"binds": {
 			"f4": {
 				"command":	"ui_toggle_menu",
-				"type":		"toggle",
+				"type":		"on_push_and_release",
 				"flags":	"execute_over_ui, ..."
 			}
 		}
@@ -315,13 +302,13 @@ void CBindManager::create_binds_from_json(const nlohmann::json& json)
 		{
 			type = BIND_OnPush;
 		}
-		else if (type_str == bind_type_to_str[BIND_Toggle])
+		else if (type_str == bind_type_to_str[BIND_OnPushAndRelease])
 		{
-			type = BIND_Toggle;
+			type = BIND_OnPushAndRelease;
 
 			if (!try_to_parse("command1", cmd1_str))
 			{
-				CConsole::the().error("You have to provide second command, too, when binding repeateable command");
+				CConsole::the().error("You have to provide second command, too, when binding on_push_and_release-type bind");
 				continue;
 			}
 		}
@@ -348,9 +335,9 @@ void CBindManager::create_binds_from_json(const nlohmann::json& json)
 				add_bind(key, cmd_str, flags, false);
 				break;
 			}
-			case BIND_Toggle:
+			case BIND_OnPushAndRelease:
 			{
-				add_bind_toggle(key, cmd_str, cmd1_str, flags, false);
+				add_bind_on_push_and_release(key, cmd_str, cmd1_str, flags, false);
 				break;
 			}
 		}
@@ -371,7 +358,7 @@ void CBindManager::export_binds_to_json(nlohmann::json& json)
 			"binds": {
 				"f4": {
 					"command":	"ui_toggle_menu",
-					"type":		"toggle",
+					"type":		"on_push_and_release",
 					"flags":	"execute_over_ui, ..."
 				}
 			}
@@ -397,7 +384,7 @@ void CBindManager::export_binds_to_json(nlohmann::json& json)
 
 			write_json_bind("type", type_str);
 
-			if (bind.type == BIND_Toggle)
+			if (bind.type == BIND_OnPushAndRelease)
 			{
 				write_json_bind("command1", bind.cmd_sequence_1);
 			}
@@ -436,10 +423,19 @@ void CBindManager::add_bind(int virtual_key, const std::string& command_sequence
 		return;
 	}
 
-	register_bind_internal(virtual_key, key, command_sequence, "", BIND_OnPush, flags, silent);
+	bool is_action_cmd = command_sequence[0] == '+';
+	if (!is_action_cmd)
+	{
+		register_bind_internal(virtual_key, key, command_sequence, "", BIND_OnPush, flags, silent);
+	}
+	else
+	{
+		register_bind_internal(virtual_key, key, command_sequence, '-' + command_sequence.substr(1), 
+							   BIND_OnPushAndRelease, flags, silent);
+	}
 }
 
-void CBindManager::add_bind_toggle(int virtual_key, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent)
+void CBindManager::add_bind_on_push_and_release(int virtual_key, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent)
 {
 	if (!g_user_input_i->is_valid_key(virtual_key))
 	{
@@ -462,7 +458,7 @@ void CBindManager::add_bind_toggle(int virtual_key, const std::string& key_down_
 		return;
 	}
 
-	register_bind_internal(virtual_key, key, key_down_command_sequence, key_up_command_sequence, BIND_Toggle, flags, silent);
+	register_bind_internal(virtual_key, key, key_down_command_sequence, key_up_command_sequence, BIND_OnPushAndRelease, flags, silent);
 }
 
 void CBindManager::remove_bind(int virtual_key, bool silent)
@@ -491,7 +487,7 @@ void CBindManager::remove_bind(int virtual_key, bool silent)
 			key.remove_on_pressed_callback(std::format("vk_{}", virtual_key));
 			break;
 		}
-		case BIND_Toggle:
+		case BIND_OnPushAndRelease:
 		{
 			key.remove_on_pressed_callback(std::format("vk_{}", virtual_key));
 			key.remove_on_unpressed_callback(std::format("vk_{}", virtual_key));
@@ -531,7 +527,7 @@ void CBindManager::add_bind(const std::string& key_name, const std::string& comm
 	add_bind(vk, command_sequence, flags, silent);
 }
 
-void CBindManager::add_bind_toggle(const std::string& key_name, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent)
+void CBindManager::add_bind_on_push_and_release(const std::string& key_name, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent)
 {
 	int vk = g_user_input_i->string_to_virtual_key(key_name);
 	if (vk == NULL)
@@ -539,7 +535,7 @@ void CBindManager::add_bind_toggle(const std::string& key_name, const std::strin
 		return;
 	}
 
-	add_bind_toggle(vk, key_down_command_sequence, key_up_command_sequence, flags, silent);
+	add_bind_on_push_and_release(vk, key_down_command_sequence, key_up_command_sequence, flags, silent);
 }
 
 void CBindManager::remove_bind(const std::string& key_name, bool silent)
@@ -696,7 +692,7 @@ void CBindManager::register_keypress_event_on_push(UserKey_t& key, int virtual_k
 		});
 }
 
-void CBindManager::register_keypress_event_toggle(UserKey_t& key, int virtual_key, bind_t& new_bind)
+void CBindManager::register_keypress_event_on_push_and_release(UserKey_t& key, int virtual_key, bind_t& new_bind)
 {
 	// on pressed, once
 	key.add_on_pressed_callback(
@@ -755,9 +751,9 @@ void CBindManager::register_bind_internal(int virtual_key, UserKey_t& key, const
 				register_keypress_event_on_push(key, virtual_key, bind);
 				break;
 			}
-			case BIND_Toggle:
+			case BIND_OnPushAndRelease:
 			{
-				register_keypress_event_toggle(key, virtual_key, bind);
+				register_keypress_event_on_push_and_release(key, virtual_key, bind);
 				break;
 			}
 		}
@@ -770,6 +766,6 @@ void CBindManager::register_bind_internal(int virtual_key, UserKey_t& key, const
 
 	if (!silent)
 	{
-		CConsole::the().info("Bound '{}' to key '{}'.", command_seq, key_name);
+		CConsole::the().info("Bound '{}' to '{}'.", key_name, command_seq);
 	}
 }

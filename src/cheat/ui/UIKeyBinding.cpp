@@ -527,6 +527,11 @@ void CUIKeyBinding::keep_bound_keys_up_to_date()
 				strncpy(m_bound_keys[vk].cmd_0.data(), bind.cmd_sequence_0.c_str(), buffer_len);
 				strncpy(m_bound_keys[vk].cmd_1.data(), bind.cmd_sequence_1.c_str(), buffer_len);
 
+				if (bind.type == BIND_Toggle)
+				{
+					m_bound_keys[vk].has_two_cmds = true;
+				}
+
 				m_bound_keys[vk].f_execute_over_ui = (float)(bind.flags & BINDFLAG_ExecuteOverUI);
 				m_bound_keys[vk].f_silent = (float)(bind.flags & BINDFLAG_Silent);
 			});

@@ -130,6 +130,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - Default viewmodel enforcement
 - Movement
 	- air stuck
+	- legit/rage bhop hack 🐇
 - fancy custom cl_showfps rendering
 - rechecker bypass
 - instantaneous cheat unload (either via loader or cheat menu)

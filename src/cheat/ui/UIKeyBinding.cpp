@@ -145,7 +145,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 															if (data->Buf[0] == '+')
 															{
 																bind->cmd_sequence_0 = data->Buf;
-																bind->cmd_sequence_1 = '-' + bind->cmd_sequence_0;
+																bind->cmd_sequence_1 = '-' + bind->cmd_sequence_0.substr(1);
 															}
 															else
 															{

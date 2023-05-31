@@ -41,7 +41,7 @@ void CMovementBunnyHop::update(float frametime, hl::usercmd_t* cmd)
 {
 	int bhop_mode = movement_bhop_mode.get_value();
 
-	bool is_in_water = CLocalPlayerState::the().get_waterlevel() >= 1;
+	bool is_in_water = CLocalPlayerState::the().get_waterlevel() >= 2;
 	if (is_in_water && movement_bhop_jump_in_water.get_value())
 	{
 		auto method = (ESimulJumpMethod)movement_bhop_legit_method.get_value();

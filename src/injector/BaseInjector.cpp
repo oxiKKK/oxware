@@ -250,6 +250,7 @@ void CBaseInjector::update()
 					// unload the module itself
 					it->second->unload(false);
 
+					last_code = code;
 					goto erase_current_entry;
 				}
 				//
@@ -261,6 +262,7 @@ void CBaseInjector::update()
 
 					it->second->unload(false);
 
+					last_code = code;
 					goto erase_current_entry;
 				}
 				case C2I_Restarting:
@@ -272,6 +274,7 @@ void CBaseInjector::update()
 
 					it->second->unload(false);
 
+					last_code = code;
 					goto erase_current_entry;
 				}
 				default:

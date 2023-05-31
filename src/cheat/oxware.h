@@ -42,10 +42,11 @@ public:
 	bool initialize_phase2(); // called after the engine is fully initialized. (host_initialized set to 1)
 
 	// if called, we exit in main loop next frame.
-	void end_cheat_execution(bool dont_write_unloading_code = false)
+	void end_cheat_execution(bool dont_write_unloading_code = false, bool game_exiting_or_restarting = false)
 	{
 		m_requested_to_exit_cheat = true; 
 		m_dont_write_unloading_code = dont_write_unloading_code;
+		m_game_exiting_or_restarting = game_exiting_or_restarting;
 	}
 
 	inline session_id_t get_current_session_id() const { assert(m_ifp); return m_ifp->m_current_session_id; }
@@ -53,6 +54,9 @@ public:
 	inline bool is_exit_requested() const { return m_requested_to_exit_cheat; };
 	inline bool is_cheat_exiting() { return is_exit_requested() || m_unloading_cheat; }
 	inline bool is_shutted_down() { return m_shutted_down; }
+
+	// this is set when the cheat is shutting down and if the game is exiting/restarting.
+	inline bool is_game_exiting_or_restarting() const { return m_game_exiting_or_restarting; }
 
 	int get_build_number() const { return m_gs_build_number; }
 
@@ -98,6 +102,8 @@ private:
 	int m_gs_build_number = 0;
 
 	bool m_at_least_once_focused = false;
+
+	bool m_game_exiting_or_restarting = false;
 };
 
 #endif // OXWARE_H

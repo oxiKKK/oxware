@@ -86,8 +86,14 @@ void COxWareUI::destroy()
 
 	CConsole::the().info("Destroying cheat UI...");
 
-	CEngineInput::the().toggle_ingame_clientdll_mouse(true); // call this before the restoration, so that we eliminate bugs when not in relative mode.
-	CEngineInput::the().toggle_ingame_input(true);
+	// if we're exiting/restarting from the game, we don't have to worry about this at all.
+	// NOTE: This is in order to fix a occasional crash that would happen where the gameUI 
+	//		 interface would become dangling... (non-nullptr, but invalid memory) so this fixes that.
+	if (!CoXWARE::the().is_game_exiting_or_restarting())
+	{
+		CEngineInput::the().toggle_ingame_clientdll_mouse(true); // call this before the restoration, so that we eliminate bugs when not in relative mode.
+		CEngineInput::the().toggle_ingame_input(true);
+	}
 
 	destroy_rendering_contexts();
 

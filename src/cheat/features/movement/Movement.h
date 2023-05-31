@@ -30,6 +30,9 @@
 #define MOVEMENT_H
 #pragma once
 
+extern VarBoolean movement_bhop_enable;
+extern VarBoolean movement_air_stuck_enable;
+
 class CMovement
 {
 public:
@@ -40,8 +43,8 @@ public:
 	void update_msg_writeusercmd(hl::usercmd_t* to);
 
 private:
-	static InCommandSimple bunnyhop;
-	static InCommandSimple airstuck;
+	static InCommand bunnyhop;
+	static InCommand airstuck;
 };
 
 #endif // MOVEMENT_H

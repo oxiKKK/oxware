@@ -44,8 +44,8 @@ enum EImGUIPlatform
 class ImGUIBaseLayer
 {
 public:
-	ImGUIBaseLayer(EImGUIPlatform plat, void* hwnd, const std::function<void()>& render_callback) :
-		m_plat(plat), m_window_handle(hwnd), m_render_callback(render_callback)
+	ImGUIBaseLayer(EImGUIPlatform plat, void* hwnd, const std::function<void()>& render_callback, ImGuiConfigFlags flags) :
+		m_plat(plat), m_window_handle(hwnd), m_render_callback(render_callback), m_flags(flags)
 	{
 	}
 
@@ -60,6 +60,7 @@ protected:
 	void* m_window_handle;
 	EImGUIPlatform m_plat;
 	std::function<void()> m_render_callback;
+	ImGuiConfigFlags m_flags;
 };
 
 enum EGUICursor
@@ -74,7 +75,7 @@ enum EGUICursor
 class IImGUIPlatformLayer : public IBaseInterface
 {
 public:
-	virtual bool create_new_layer(EImGUIPlatform plat, void* hwnd, const std::function<void()>& render_callback) = 0;
+	virtual bool create_new_layer(EImGUIPlatform plat, void* hwnd, const std::function<void()>& render_callback, ImGuiConfigFlags flags = ImGuiConfigFlags_None) = 0;
 	virtual void destroy_layer() = 0;
 
 	virtual void render() = 0;

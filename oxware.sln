@@ -36,6 +36,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "interface", "interface", "{
 		src\public\interface\IDeveloperConsole.h = src\public\interface\IDeveloperConsole.h
 		src\public\interface\IFileSystem.h = src\public\interface\IFileSystem.h
 		src\public\interface\IImportBank.h = src\public\interface\IImportBank.h
+		src\public\interface\IInCommands.h = src\public\interface\IInCommands.h
 		src\public\interface\ILibraryLoader.h = src\public\interface\ILibraryLoader.h
 		src\public\interface\IRegistry.h = src\public\interface\IRegistry.h
 		src\public\interface\IUserInput.h = src\public\interface\IUserInput.h

@@ -50,13 +50,16 @@ BaseCommand _bind(
 			auto bind = g_bindmgr_i->get_bind(vk);
 			if (bind)
 			{
+				bool has_flags = bind->flags != BINDFLAG_None;
+				std::string flags = has_flags ? std::format(" with flags '{}'", bind->flags) : "";
+
 				if (bind->type == BIND_OnPushAndRelease)
 				{
-					CConsole::the().info("'{}' is bound to '{}' and '{}'", args.get(1), bind->cmd_sequence_0, bind->cmd_sequence_1);
+					CConsole::the().info("'{}' is bound to '{}' and '{}'{}", args.get(1), bind->cmd_sequence_0, bind->cmd_sequence_1, flags);
 				}
 				else
 				{
-					CConsole::the().info("'{}' is bound to '{}'", args.get(1), bind->cmd_sequence_0);
+					CConsole::the().info("'{}' is bound to '{}'{}", args.get(1), bind->cmd_sequence_0, flags);
 				}
 			}
 		}
@@ -64,9 +67,9 @@ BaseCommand _bind(
 		{
 			EBindFlags f = BINDFLAG_None;
 
-			if (args.count() > 4)
+			if (args.count() > 3)
 			{
-				f = g_bindmgr_i->parse_flags_out_of_string(args.get(4));
+				f = g_bindmgr_i->parse_flags_out_of_string(args.get(3));
 			}
 
 			g_bindmgr_i->add_bind(args.get(1), args.get(2), f);
@@ -94,13 +97,16 @@ BaseCommand bind_on_push_and_release(
 			auto bind = g_bindmgr_i->get_bind(vk);
 			if (bind)
 			{
+				bool has_flags = bind->flags != BINDFLAG_None;
+				std::string flags = has_flags ? std::format(" with flags '{}'", bind->flags) : "";
+				
 				if (bind->type == BIND_OnPushAndRelease)
 				{
-					CConsole::the().info("'{}' is bound to '{}' and '{}'", args.get(1), bind->cmd_sequence_0, bind->cmd_sequence_1);
+					CConsole::the().info("'{}' is bound to '{}' and '{}'{}", args.get(1), bind->cmd_sequence_0, bind->cmd_sequence_1, flags);
 				}
 				else
 				{
-					CConsole::the().info("'{}' is bound to '{}'", args.get(1), bind->cmd_sequence_0);
+					CConsole::the().info("'{}' is bound to '{}'{}", args.get(1), bind->cmd_sequence_0, flags);
 				}
 			}
 		}
@@ -158,7 +164,6 @@ public:
 	~CBindManager();
 
 	void initialize();
-	void shutdown();
 
 	void create_binds_from_json(const nlohmann::json& json);
 	void export_binds_to_json(nlohmann::json& json);
@@ -187,6 +192,11 @@ public:
 	void set_ui_running(bool is_running) { m_is_ui_running = is_running; }
 	bool is_ui_running() { return m_is_ui_running; }
 
+	void set_game_ui_running(bool is_running) { m_is_game_ui_running = is_running; }
+	bool is_game_ui_running() { return m_is_game_ui_running; }
+
+	bool should_execute_bind(EBindFlags flags);
+
 	bool is_key_bound(int vk);
 
 private:
@@ -196,11 +206,14 @@ private:
 	void register_bind_internal(int virtual_key, UserKey_t& key, const std::string& command_seq, 
 								const std::string& command_seq1, EBindType type, EBindFlags flags, bool silent);
 
+	void provide_cfg_load_export_callbacks();
+
 private:
 	// virtual key as key :) and command sequence as value
 	std::map<int, bind_t> m_registerd_binds;
 
 	bool m_is_ui_running = false;
+	bool m_is_game_ui_running = false;
 };
 
 CBindManager g_bindmgr;
@@ -224,12 +237,9 @@ CBindManager::~CBindManager()
 
 void CBindManager::initialize()
 {
+	provide_cfg_load_export_callbacks();
+
 	CConsole::the().info("Bind Manager initialized.");
-}
-
-void CBindManager::shutdown()
-{
-
 }
 
 void CBindManager::create_binds_from_json(const nlohmann::json& json)
@@ -423,16 +433,7 @@ void CBindManager::add_bind(int virtual_key, const std::string& command_sequence
 		return;
 	}
 
-	bool is_action_cmd = command_sequence[0] == '+';
-	if (!is_action_cmd)
-	{
-		register_bind_internal(virtual_key, key, command_sequence, "", BIND_OnPush, flags, silent);
-	}
-	else
-	{
-		register_bind_internal(virtual_key, key, command_sequence, '-' + command_sequence.substr(1), 
-							   BIND_OnPushAndRelease, flags, silent);
-	}
+	register_bind_internal(virtual_key, key, command_sequence, "", BIND_OnPush, flags, silent);
 }
 
 void CBindManager::add_bind_on_push_and_release(int virtual_key, const std::string& key_down_command_sequence, const std::string& key_up_command_sequence, EBindFlags flags, bool silent)
@@ -625,6 +626,10 @@ EBindFlags CBindManager::parse_flags_out_of_string(const std::string & flags_str
 			{
 				flags |= BINDFLAG_ExecuteOverUI;
 			}
+			if (current_token == bind_flags_to_str[BINDFLAG_ExecuteOverGameUI])
+			{
+				flags |= BINDFLAG_ExecuteOverGameUI;
+			}
 			if (current_token == bind_flags_to_str[BINDFLAG_Silent])
 			{
 				flags |= BINDFLAG_Silent;
@@ -643,21 +648,22 @@ EBindFlags CBindManager::parse_flags_out_of_string(const std::string & flags_str
 
 std::string CBindManager::create_string_out_of_flags(EBindFlags flags)
 {
-	bool more_than_one_flag = false;
-	std::string flags_str;
-	if (flags & BINDFLAG_ExecuteOverUI)
+	return std::format("{}", flags);
+}
+
+bool CBindManager::should_execute_bind(EBindFlags flags)
+{
+	if (is_ui_running() && !(flags & BINDFLAG_ExecuteOverUI))
 	{
-		flags_str += bind_flags_to_str[BINDFLAG_ExecuteOverUI];
-		more_than_one_flag = true;
-	}
-	if (flags & BINDFLAG_Silent)
-	{
-		if (more_than_one_flag) flags_str += ", ";
-		flags_str += bind_flags_to_str[BINDFLAG_Silent];
-		more_than_one_flag = true;
+		return false;
 	}
 
-	return flags_str;
+	if (is_game_ui_running() && !(flags & BINDFLAG_ExecuteOverGameUI))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool CBindManager::is_key_bound(int vk)
@@ -682,12 +688,11 @@ void CBindManager::register_keypress_event_on_push(UserKey_t& key, int virtual_k
 
 			if (bind)
 			{
-				if (g_bindmgr_i->is_ui_running() && !(bind->flags & BINDFLAG_ExecuteOverUI))
+				if (g_bindmgr_i->should_execute_bind(bind->flags))
 				{
-					return;
+					bool exec_silent = bind->flags & BINDFLAG_Silent;
+					g_variablemgr_i->execute_command(bind->cmd_sequence_0, exec_silent);
 				}
-
-				g_variablemgr_i->execute_command(bind->cmd_sequence_0, bind->flags & BINDFLAG_Silent);
 			}
 		});
 }
@@ -704,12 +709,11 @@ void CBindManager::register_keypress_event_on_push_and_release(UserKey_t& key, i
 
 			if (bind)
 			{
-				if (g_bindmgr_i->is_ui_running() && !(bind->flags & BINDFLAG_ExecuteOverUI))
+				if (g_bindmgr_i->should_execute_bind(bind->flags))
 				{
-					return;
+					bool exec_silent = bind->flags & BINDFLAG_Silent;
+					g_variablemgr_i->execute_command(bind->cmd_sequence_0, exec_silent);
 				}
-
-				g_variablemgr_i->execute_command(bind->cmd_sequence_0, bind->flags & BINDFLAG_Silent);
 			}
 		});
 
@@ -768,4 +772,31 @@ void CBindManager::register_bind_internal(int virtual_key, UserKey_t& key, const
 	{
 		CConsole::the().info("Bound '{}' to '{}'.", key_name, command_seq);
 	}
+}
+
+void CBindManager::provide_cfg_load_export_callbacks()
+{
+	auto cheat_settings = g_config_mgr_i->query_config_file_type("cheat_settings");
+
+	//
+	// provide config load function.
+	//
+
+	auto load_fn = [](nlohmann::json& json)
+	{
+		g_bindmgr_i->create_binds_from_json(json);
+	};
+
+	cheat_settings->provide_load_fn(load_fn);
+
+	//
+	// provide config export function.
+	//
+
+	auto export_fn = [](nlohmann::json& json)
+	{
+		g_bindmgr_i->export_binds_to_json(json);
+	};
+
+	cheat_settings->provide_export_fn(export_fn);
 }

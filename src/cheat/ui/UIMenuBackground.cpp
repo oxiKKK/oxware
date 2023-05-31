@@ -92,6 +92,10 @@ void CUIMenuBackground::update_density()
 void CUIMenuBackground::render_rain()
 {
 	auto screen = g_imgui_platform_layer_i->get_screen_size();
+	if (screen.IsZero())
+	{
+		return;
+	}
 
 	if (m_rain.size() > 1000)
 		m_rain.pop_front();

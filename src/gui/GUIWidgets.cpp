@@ -144,6 +144,7 @@ public:
 
 	bool begin_listbox(const std::string& label, const std::string& preview_label, ImGuiComboFlags flags = 0);
 	void end_listbox();
+	bool add_simple_listbox(const std::string& label, int* value, const std::vector<std::string>& items, const std::function<void(int i)>& on_entry_click = nullptr);
 
 	bool add_selectable(const std::string& label, bool selected = false, ImGuiSelectableFlags flags = 0, const Vector2D& size = Vector2D(0, 0));
 
@@ -1006,6 +1007,55 @@ void CGUIWidgets::end_listbox()
 	EndPopup();
 }
 
+bool CGUIWidgets::add_simple_listbox(const std::string & label, int* value, const std::vector<std::string>& items, 
+									 const std::function<void(int i)>& on_entry_click)
+{
+	if (label.find("##") == std::string::npos)
+	{
+		add_text(label);
+	}
+
+	bool edited = false;
+	if (begin_listbox(label, items[*value]))
+	{
+		push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
+		push_stylevar(ImGuiStyleVar_ItemSpacing, { 0.0f, 1.0f });
+
+		for (size_t i = 0; i < items.size(); i++)
+		{
+			bool selected = (i == *value);
+			if (add_toggle_button(items[i], Vector2D(-1.0f, 0.0f), selected))
+			{
+				*value = i;
+				if (on_entry_click)
+				{
+					on_entry_click(i);
+				}
+				close_current_popup();
+				edited = true;
+				break;
+			}
+
+			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+			if (selected)
+				set_item_default_focus();
+		}
+
+		pop_stylevar();
+		pop_font();
+
+		end_listbox();
+	}
+
+	//if (edited)
+	{
+		// to close the list box after we select an item.
+		close_current_popup();
+	}
+
+	return edited;
+}
+
 bool CGUIWidgets::add_selectable(const std::string& label, bool selected, ImGuiSelectableFlags flags, const Vector2D& size)
 {
 	return Selectable(label.c_str(), selected, flags, size);
@@ -1014,26 +1064,26 @@ bool CGUIWidgets::add_selectable(const std::string& label, bool selected, ImGuiS
 bool CGUIWidgets::add_floating_button(const std::string& label, const Vector2D& last_cursor_pos, const Vector2D& button_pos, const Vector2D& button_size,
 									  bool disabled, EButtonFlags flags)
 {
-	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
+	push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 
-	g_gui_widgets_i->set_cursor_pos(button_pos);
+	set_cursor_pos(button_pos);
 
 	bool ret = false;
 
-	g_gui_widgets_i->add_child(
+	add_child(
 		std::format("fbutton_{}", label),
 		button_size,
 		false, ImGuiWindowFlags_NoDecoration,
 		[&]()
 		{
-			if (g_gui_widgets_i->add_button(label, button_size, false, BUTTONFLAG_CenterLabel))
+			if (add_button(label, button_size, false, BUTTONFLAG_CenterLabel))
 			{
 				ret = true;
 			}
 		});
 
-	g_gui_widgets_i->pop_stylevar(1); // WindowPadding
-	g_gui_widgets_i->set_cursor_pos(last_cursor_pos);
+	pop_stylevar(1); // WindowPadding
+	set_cursor_pos(last_cursor_pos);
 	return ret;
 }
 

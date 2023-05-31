@@ -1,28 +1,28 @@
 /*
 *	OXWARE developed by oxiKKK
 *	Copyright (c) 2023
-* 
-*	This program is licensed under the MIT license. By downloading, copying, 
+*
+*	This program is licensed under the MIT license. By downloading, copying,
 *	installing or using this software you agree to this license.
 *
 *	License Agreement
 *
-*	Permission is hereby granted, free of charge, to any person obtaining a 
-*	copy of this software and associated documentation files (the "Software"), 
-*	to deal in the Software without restriction, including without limitation 
-*	the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-*	and/or sell copies of the Software, and to permit persons to whom the 
+*	Permission is hereby granted, free of charge, to any person obtaining a
+*	copy of this software and associated documentation files (the "Software"),
+*	to deal in the Software without restriction, including without limitation
+*	the rights to use, copy, modify, merge, publish, distribute, sublicense,
+*	and/or sell copies of the Software, and to permit persons to whom the
 *	Software is furnished to do so, subject to the following conditions:
 *
-*	The above copyright notice and this permission notice shall be included 
-*	in all copies or substantial portions of the Software. 
+*	The above copyright notice and this permission notice shall be included
+*	in all copies or substantial portions of the Software.
 *
-*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 *	IN THE SOFTWARE.
 */
 
@@ -30,12 +30,50 @@
 
 void CLoaderUI::render_contents()
 {
+	static bool inited = false;
+	if (!inited)
+	{
+		initialize();
+		inited = true;
+	}
+
 	g_gui_widgets_i->begin_tab("loader", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
 	g_gui_widgets_i->add_tab_item("main", true, { 0, 0 }, [this]() { render_tab_main(); });
 	g_gui_widgets_i->add_tab_item("console", true, { 0, 0 }, [this]() { render_tab_console(); }, { 8.0f, 2.0f });
 
 	g_gui_widgets_i->end_tab();
+}
+
+void CLoaderUI::initialize()
+{
+	auto on_injector_event_fn = [this](EInjectorEvent ev, IInjectableModuleObject* obj)
+	{
+		if (obj->get_dll_filepath().string() != MODULE_CHEAT)
+		{
+			// filter only the cheater module
+			return;
+		}
+
+		switch (ev)
+		{
+			case INE_ModuleCommunicationHalt:
+			case INE_ModuleFailedInitialization:
+			case INE_ModuleUnloading:
+			{
+				m_allow_to_load_again = true;
+				break;
+			}
+			case INE_ModuleRestarting:
+			case INE_ModuleSuccessfulInitialization:
+			{
+				m_allow_to_load_again = false;
+				break;
+			}
+		}
+	};
+
+	CMainLoader::the().get_injector()->provide_on_injector_event_callback(on_injector_event_fn);
 }
 
 void CLoaderUI::render_tab_main()
@@ -48,27 +86,23 @@ void CLoaderUI::render_tab_main()
 		g_gui_widgets_i->push_font(button_font);
 
 		auto injected_object = CMainLoader::the().get_injector()->get_injected_dll(MODULE_CHEAT);
-		bool allow_to_unload = injected_object && injected_object->is_successfully_initialized();
 
 		auto window_size = g_gui_widgets_i->get_current_window_size();
 
-		static bool allow_to_load_again = true;
-		if (g_gui_widgets_i->add_button("Start cheat", { -1, window_size.y / 2 - 20 }, !allow_to_load_again, BUTTONFLAG_CenterLabel))
+		if (g_gui_widgets_i->add_button("Start cheat", { -1, window_size.y / 2 - 20 }, !m_allow_to_load_again, BUTTONFLAG_CenterLabel))
 		{
 			CMainLoader::the().get_injector()->inject_to_target_process("hl.exe", MODULE_CHEAT);
-			allow_to_load_again = false;
 		}
 
 		injected_object = CMainLoader::the().get_injector()->get_injected_dll(MODULE_CHEAT);
 		if (!injected_object)
 		{
-			allow_to_load_again = true;
+			m_allow_to_load_again = true;
 		}
 
-		if (g_gui_widgets_i->add_button("Unload cheat", { -1, window_size.y / 2 - 20 }, allow_to_load_again, BUTTONFLAG_CenterLabel))
+		if (g_gui_widgets_i->add_button("Unload cheat", { -1, window_size.y / 2 - 20 }, m_allow_to_load_again, BUTTONFLAG_CenterLabel))
 		{
 			injected_object->unload(true);
-			allow_to_load_again = true;
 		}
 
 		g_gui_widgets_i->pop_font();

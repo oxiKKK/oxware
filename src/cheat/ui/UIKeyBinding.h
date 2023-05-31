@@ -36,7 +36,7 @@ struct bound_key_t
 {
 	std::array<char, buffer_len> cmd_0, cmd_1;
 	int state;
-	float f_execute_over_ui, f_silent;
+	float f_execute_over_ui, f_execute_over_game_ui, f_silent;
 	bool has_two_cmds;
 };
 
@@ -49,9 +49,9 @@ public:
 	void render_interactible_bind_list();
 	void update();
 
+private:
 	void add_keyscan_button(const std::string& label, int vk, const Vector2D& size, bool* force_binding_mode = nullptr);
 
-private:
 	void setup_interactible_bind_list();
 
 	void keep_bound_keys_up_to_date();

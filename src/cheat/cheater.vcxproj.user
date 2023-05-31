@@ -15,19 +15,4 @@
     <LocalDebuggerAttach>true</LocalDebuggerAttach>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommand>hl.exe</LocalDebuggerCommand>
-    <LocalDebuggerAttach>true</LocalDebuggerAttach>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommand>hl.exe</LocalDebuggerCommand>
-    <LocalDebuggerAttach>true</LocalDebuggerAttach>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
-    <LocalDebuggerCommand>hl.exe</LocalDebuggerCommand>
-    <LocalDebuggerAttach>true</LocalDebuggerAttach>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
 </Project>

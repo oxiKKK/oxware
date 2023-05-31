@@ -141,16 +141,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 													{
 														if (n_buffer == 0)
 														{
-															// incommand
-															if (data->Buf[0] == '+')
-															{
-																bind->cmd_sequence_0 = data->Buf;
-																bind->cmd_sequence_1 = '-' + bind->cmd_sequence_0.substr(1);
-															}
-															else
-															{
-																bind->cmd_sequence_0 = data->Buf;
-															}
+															bind->cmd_sequence_0 = data->Buf;
 														}
 														else // 1st buffer
 														{
@@ -198,7 +189,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 						g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
 						static bool was_popup_opened = false;
 						bool popup_opened = g_gui_widgets_i->execute_simple_popup_popup(
-							"bind_popup", { 140, 125 }, ImGuiWindowFlags_NoMove,
+							"bind_popup", { 180, 155 }, ImGuiWindowFlags_NoMove,
 							[&]()
 							{
 								if (g_gui_widgets_i->add_button("Remove", { -1.0f, 0.0f }, false))
@@ -222,7 +213,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 								g_gui_widgets_i->add_separator();
 								g_gui_widgets_i->add_spacing();
 
-								if (g_gui_widgets_i->add_checkbox("Execute over UI", &bound_key->f_execute_over_ui))
+								if (g_gui_widgets_i->add_checkbox("Execute over Cheat UI", &bound_key->f_execute_over_ui))
 								{
 									auto bind = g_bindmgr_i->get_bind(popup_st.vk);
 									if (bind)
@@ -234,6 +225,22 @@ void CUIKeyBinding::render_interactible_bind_list()
 										else
 										{
 											bind->flags &= ~BINDFLAG_ExecuteOverUI;
+										}
+									}
+								}
+
+								if (g_gui_widgets_i->add_checkbox("Execute over Game UI", &bound_key->f_execute_over_game_ui))
+								{
+									auto bind = g_bindmgr_i->get_bind(popup_st.vk);
+									if (bind)
+									{
+										if (bound_key->f_execute_over_game_ui)
+										{
+											bind->flags |= BINDFLAG_ExecuteOverGameUI;
+										}
+										else
+										{
+											bind->flags &= ~BINDFLAG_ExecuteOverGameUI;
 										}
 									}
 								}
@@ -322,6 +329,8 @@ void CUIKeyBinding::render_interactible_bind_list()
 
 						g_gui_widgets_i->end_columns();
 					}
+
+					g_gui_widgets_i->add_text("* The bind subsystem is still in beta!", TEXTPROP_Disabled, g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
 				});
 
 			g_gui_widgets_i->pop_stylevar();
@@ -358,7 +367,15 @@ void CUIKeyBinding::render_interactible_bind_list()
 				g_gui_widgets_i->add_text("There are currently two types of binds:", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_bullet_text("On push - Activates the command when the key has been pressed, only once.", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_bullet_text("On push and release - Activates the first command when the key has been pressed and then the second command when the key has been unpressed.", TEXTPROP_Wrapped);
-				g_gui_widgets_i->add_bullet_text("InCommand - Involves binding commands with \"+\" prefix, just like in CS 1.6 (+attack, etc.)", TEXTPROP_Wrapped);
+
+				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
+				g_gui_widgets_i->add_separtor_with_text("Binding flags");
+
+				g_gui_widgets_i->add_text("Binding flags can be applied to commands to change their behaviour. There are several types:", TEXTPROP_Wrapped);
+
+				g_gui_widgets_i->add_bullet_text("ExecuteOverUI - Executes the command even if the Cheat UI is up.", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_bullet_text("ExecuteOverGameUI - Executes the command even if the Game UI is up.", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_bullet_text("Silent - Doesn't log anything to the console when the command is being executed.", TEXTPROP_Wrapped);
 
 				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
 				g_gui_widgets_i->add_separtor_with_text("Ways of binding a key");
@@ -375,16 +392,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
 				g_gui_widgets_i->add_separtor_with_text("Binding through the UI");
 
-				g_gui_widgets_i->add_text("Use the UI to bind any command sequence to a key. Inside the \"bind\" tab, there are all of the current binds listed.", TEXTPROP_Wrapped);
-
-				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
-				g_gui_widgets_i->add_separtor_with_text("Binding InCommands");
-
-				g_gui_widgets_i->add_text("In order to bind an InCommand, use the \"bind\" command and use commands with \"+\" prefix.", TEXTPROP_Wrapped);
-				g_gui_widgets_i->add_text("For example: bind \"V\" \"+movement_bhop\".", TEXTPROP_Wrapped);
-				g_gui_widgets_i->add_spacing();
-				g_gui_widgets_i->add_text("You can also use the UI. Just create a new \"On Push\" bind, and add a command with \"+\" prefix", TEXTPROP_Wrapped);
-			});
+				g_gui_widgets_i->add_text("Use the UI to bind any command sequence to a key. Inside the \"bind\" tab, there are all of the current binds listed.", TEXTPROP_Wrapped);			});
 	}
 }
 
@@ -426,11 +434,11 @@ void CUIKeyBinding::add_keyscan_button(const std::string& id, int vk, const Vect
 							// bind to a new key
 							if (bind->type == BIND_OnPushAndRelease)
 							{
-								g_bindmgr_i->add_bind_on_push_and_release(vk, bind->cmd_sequence_0, bind->cmd_sequence_1);
+								g_bindmgr_i->add_bind_on_push_and_release(vk, bind->cmd_sequence_0, bind->cmd_sequence_1, bind->flags);
 							}
 							else
 							{
-								g_bindmgr_i->add_bind(vk, bind->cmd_sequence_0);
+								g_bindmgr_i->add_bind(vk, bind->cmd_sequence_0, bind->flags);
 							}
 
 							g_bindmgr_i->remove_bind(info->prev_vk); // remove old bind
@@ -529,6 +537,7 @@ void CUIKeyBinding::keep_bound_keys_up_to_date()
 				}
 
 				m_bound_keys[vk].f_execute_over_ui = (float)(bind.flags & BINDFLAG_ExecuteOverUI);
+				m_bound_keys[vk].f_execute_over_game_ui = (float)(bind.flags & BINDFLAG_ExecuteOverGameUI);
 				m_bound_keys[vk].f_silent = (float)(bind.flags & BINDFLAG_Silent);
 
 				update_keyscan_button_title(vk);
@@ -561,6 +570,7 @@ bound_key_t* CUIKeyBinding::insert_new_key_bind(int vk, const bind_t& bind)
 	}
 
 	(*iter).second.f_execute_over_ui = (float)(bind.flags & BINDFLAG_ExecuteOverUI);
+	(*iter).second.f_execute_over_game_ui = (float)(bind.flags & BINDFLAG_ExecuteOverGameUI);
 	(*iter).second.f_silent = (float)(bind.flags & BINDFLAG_Silent);
 
 	strncpy((*iter).second.cmd_0.data(), bind.cmd_sequence_0.c_str(), buffer_len);

@@ -63,8 +63,9 @@ enum EBindFlags
 {
 	BINDFLAG_None = 0,
 
-	BINDFLAG_ExecuteOverUI = BIT(0),
-	BINDFLAG_Silent = BIT(1),
+	BINDFLAG_ExecuteOverUI = BIT(0),		// execute the bind still if the Cheat UI is up.
+	BINDFLAG_ExecuteOverGameUI = BIT(1),	// execute the bind still if the Game UI is up.
+	BINDFLAG_Silent = BIT(2),				// don't log anything to console when executing the bind.
 };
 DEFINE_ENUM_BITWISE_OPERATORS(EBindFlags);
 
@@ -73,6 +74,7 @@ static std::unordered_map<EBindFlags, std::string> bind_flags_to_str
 	{
 		{ BINDFLAG_None, "none" },
 		{ BINDFLAG_ExecuteOverUI, "execute_over_ui" },
+		{ BINDFLAG_ExecuteOverGameUI, "execute_over_game_ui" },
 		{ BINDFLAG_Silent, "silent" },
 	}
 };
@@ -82,9 +84,21 @@ struct std::formatter<EBindFlags> : std::formatter<std::string> {
 	auto format(EBindFlags flags, std::format_context& ctx) {
 
 		std::string flags_str;
+		bool add_colon = false;
 		if (flags & BINDFLAG_ExecuteOverUI)
 		{
 			flags_str = bind_flags_to_str[BINDFLAG_ExecuteOverUI];
+			add_colon = true;
+		}
+		if (flags & BINDFLAG_ExecuteOverGameUI)
+		{
+			flags_str += (add_colon ? ", " : "") + bind_flags_to_str[BINDFLAG_ExecuteOverGameUI];
+			add_colon = true;
+		}
+		if (flags & BINDFLAG_Silent)
+		{
+			flags_str += (add_colon ? ", " : "") + bind_flags_to_str[BINDFLAG_Silent];
+			add_colon = true;
 		}
 
 		// NOTE: Don't forget to add separator ', ' after the first command
@@ -104,7 +118,6 @@ class IBindManager
 {
 public:
 	virtual void initialize() = 0;
-	virtual void shutdown() = 0;
 
 	virtual void create_binds_from_json(const nlohmann::json& json) = 0;
 	virtual void export_binds_to_json(nlohmann::json& json) = 0;
@@ -132,6 +145,11 @@ public:
 
 	virtual void set_ui_running(bool is_running) = 0;
 	virtual bool is_ui_running() = 0;
+
+	virtual void set_game_ui_running(bool is_running) = 0;
+	virtual bool is_game_ui_running() = 0;
+
+	virtual bool should_execute_bind(EBindFlags flags) = 0;
 
 	virtual bool is_key_bound(int vk) = 0;
 };

@@ -187,11 +187,13 @@ void CEngineInput::toggle_ingame_input(bool enable)
 			ipanel->SetMouseInputEnabled(client_panel, true);
 			iclientvgui->ActivateClientUI();
 			toggle_relative_mouse_mode(true);
+			toggle_windows_mouse_cursor(false);
 		}
 		else
 		{
 			surface_enable_cursor();
 			toggle_relative_mouse_mode(false);
+			toggle_windows_mouse_cursor(true);
 		}
 	}
 	else
@@ -207,6 +209,7 @@ void CEngineInput::toggle_ingame_input(bool enable)
 		surface_disable_cursor();
 
 		toggle_relative_mouse_mode(false);
+		toggle_windows_mouse_cursor(false);
 	}
 }
 
@@ -242,4 +245,41 @@ bool CEngineInput::is_gameui_rendering()
 		return false;
 	}
 	return igameui->IsGameUIActive();
+}
+
+void CEngineInput::toggle_windows_mouse_cursor(bool show)
+{
+	return;
+	// assuming we have set ImGuiConfigFlags_NoMouseCursorChange in imgui platform layer, we handle
+	// cursor showing/hiding for ourselfs.
+
+	if (show)
+	{
+		assert(m_last_cursor_handle != nullptr && "called " __FUNCTION__ " with already shown cursor!");
+
+		SetCursor(m_last_cursor_handle);
+		m_last_cursor_handle = NULL;
+	}
+	else
+	{
+		assert(m_last_cursor_handle == nullptr && "called " __FUNCTION__ " with already hiddne cursor!");
+
+		// set before hidden
+		m_last_cursor_handle = get_current_cursor_handle();
+		SetCursor(NULL);
+	}
+}
+
+HCURSOR CEngineInput::get_current_cursor_handle()
+{
+	CURSORINFO ci;
+	ci.cbSize = sizeof(CURSORINFO);
+	BOOL success = GetCursorInfo(&ci);
+	if (!success)
+	{
+		CConsole::the().error("Failed to get cursor info. (last error: {})", CGenericUtil::the().get_last_win_error());
+		return NULL;
+	}
+
+	return ci.hCursor;
 }

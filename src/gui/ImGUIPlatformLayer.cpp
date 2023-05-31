@@ -36,7 +36,7 @@ public:
 	CImGUIPlatformLayer();
 	~CImGUIPlatformLayer();
 
-	bool create_new_layer(EImGUIPlatform plat, void* hwnd, const std::function<void()>& render_callback);
+	bool create_new_layer(EImGUIPlatform plat, void* hwnd, const std::function<void()>& render_callback, ImGuiConfigFlags flags);
 	void destroy_layer();
 
 	void render();
@@ -91,7 +91,7 @@ CImGUIPlatformLayer::~CImGUIPlatformLayer()
 	g_imgui_platform_layer_i = nullptr;
 }
 
-bool CImGUIPlatformLayer::create_new_layer(EImGUIPlatform plat, void* hwnd, const std::function<void()>& render_callback)
+bool CImGUIPlatformLayer::create_new_layer(EImGUIPlatform plat, void* hwnd, const std::function<void()>& render_callback, ImGuiConfigFlags flags)
 {
 	static bool once = true;
 	assert(once);
@@ -101,12 +101,12 @@ bool CImGUIPlatformLayer::create_new_layer(EImGUIPlatform plat, void* hwnd, cons
 	{
 		case IMPLATFORM_glfw:
 		{
-			m_platform_layer = new CImGUILayerGLFW(plat, hwnd, render_callback);
+			m_platform_layer = new CImGUILayerGLFW(plat, hwnd, render_callback, flags);
 			break;
 		}
 		case IMPLATFORM_win32:
 		{
-			m_platform_layer = new CImGUILayerWin32(plat, hwnd, render_callback);
+			m_platform_layer = new CImGUILayerWin32(plat, hwnd, render_callback, flags);
 			break;
 		}
 		default:

@@ -130,7 +130,7 @@ void COxWareUI::initialize(HWND wnd)
 	// window proc message handler
 	g_window_msg_handler_i->initialize(wnd);
 
-	if (!g_imgui_platform_layer_i->create_new_layer(IMPLATFORM_win32, wnd, [this]() { render_imgui(); }))
+	if (!g_imgui_platform_layer_i->create_new_layer(IMPLATFORM_win32, wnd, [this]() { render_imgui(); }, ImGuiConfigFlags_NoMouseCursorChange))
 	{
 		CoXWARE::the().end_cheat_execution();
 		return;
@@ -142,6 +142,32 @@ void COxWareUI::initialize(HWND wnd)
 		{
 			if (m_is_any_interactible_rendering_context_active)
 			{
+				if (msg == WM_SETCURSOR)
+				{
+					// this message is fired when the mouse is moved across the window (unless another window 
+					// has captured the mouse). In order to properly set the mouse cursor when the UI is up, we 
+					// need to set it each time the mouse is moved (i.e. when this event is invoked), because 
+					// otherwise the mouse would be reseted.
+					//
+					// for more information, refer to following:
+					// https://learn.microsoft.com/en-us/windows/win32/learnwin32/setting-the-cursor-image
+
+					// HTCLIENT informs that the cursor is over client area of the window.
+					if (LOWORD(lParam) == HTCLIENT)
+					{
+						// if we don't return true here, the event will be passed further along to the default window procedure.
+						::SetCursor(nullptr);
+						*lpReturnVal = TRUE;
+					}
+					else
+					{
+						// the cursor is outisde of the window area, let windows handle it.
+						*lpReturnVal = FALSE;
+					}
+
+					return WNDPROCRET_Custom; // return *lpReturnVal
+				}
+
 				if (g_imgui_platform_layer_i->imgui_wndproc_handler(hWnd, msg, wParam, lParam))
 				{
 					*lpReturnVal = TRUE;
@@ -225,7 +251,10 @@ void COxWareUI::run_ui()
 		once = true;
 	}
 
-	g_bindmgr_i->set_ui_running(m_is_any_interactible_rendering_context_active || CEngineInput::the().is_gameui_rendering());
+	// TODO: Create some kind of unique interface for this...
+	g_bindmgr_i->set_ui_running(m_is_any_interactible_rendering_context_active);
+	g_bindmgr_i->set_game_ui_running(CEngineInput::the().is_gameui_rendering());
+	g_in_commands_i->set_ui_running(m_is_any_interactible_rendering_context_active || CEngineInput::the().is_gameui_rendering());
 
 	if (!m_contexts_to_be_rendered.empty() || (m_popup_callback != nullptr))
 	{
@@ -284,6 +313,8 @@ void COxWareUI::create_welcome_popup()
 		{
 			g_gui_widgets_i->add_separtor_with_text("Introduction");
 			g_gui_widgets_i->add_text("Welcome to oxWARE " OXVER_STRING "! A public open-source cheat for CS 1.6.", TEXTPROP_Wrapped);
+			g_gui_widgets_i->add_spacing();
+			g_gui_widgets_i->add_text("Please, note that this cheat is still in development! It's nowhere near finished!", TEXTPROP_Wrapped);
 
 			g_gui_widgets_i->add_spacing();
 

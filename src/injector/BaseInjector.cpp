@@ -180,6 +180,8 @@ void CBaseInjector::update()
 
 	for (auto it = m_injected_dlls.begin(); it != m_injected_dlls.end(); it++)
 	{
+		EInjectorEvent ev = INE_None;
+		
 		if (it->second->is_unloaded())
 		{
 			goto erase_current_entry;
@@ -194,6 +196,8 @@ void CBaseInjector::update()
 		EClient2Injector code;
 		if (!it->second->communicate_with_injected_dll(code))
 		{
+			ev = INE_ModuleCommunicationHalt;
+			
 			// couldn't communicate with the injected dll, hard unload.
 			CMessageBox::display_error("Couldn't reach module {} while trying to communicate with it. The module probably crashed."
 										"\n\nYou may want to check the console log file for further information.\n{}",
@@ -203,70 +207,88 @@ void CBaseInjector::update()
 			goto erase_current_entry;
 		}
 
-		switch (code)
+		static EClient2Injector last_code = C2I_None;
+		if (last_code != code)
 		{
-			case C2I_None:
+			switch (code)
 			{
-				break;
-			}
-			//
-			// initialization status codes
-			//
-			case C2I_Init_OK:
-			{
-				it->second->on_successfull_initialize();
-				break;
-			}
-			case C2I_Init_Failed:
-			{
-				CConsole::the().error("Module failed to initialize while being injected.");
-
-				const char* error_message = it->second->get_errorneous_message();
-				if (error_message[0])
+				case C2I_None:
 				{
-					CMessageBox::display_error("Error from injected dll: {}", error_message);
+					break;
 				}
-				else
+				//
+				// initialization status codes
+				//
+				case C2I_Init_OK:
 				{
-					CMessageBox::display_error("The cheat failed to initialize while injecting. "
-											   "\n\nYou may want to check the console log file for further information.\n{}", 
-											   g_devconsole_i->get_logfile_path().parent_path() / "cheater_*");
+					ev = INE_ModuleSuccessfulInitialization;
 
+					it->second->on_successfull_initialize();
+
+					execute_on_event_callbacks(ev, it->second);
+					break;
 				}
+				case C2I_Init_Failed:
+				{
+					ev = INE_ModuleFailedInitialization;
 
-				// unload the module itself
-				it->second->unload(false);
+					CConsole::the().error("Module failed to initialize while being injected.");
 
-				goto erase_current_entry;
+					const char* error_message = it->second->get_errorneous_message();
+					if (error_message[0])
+					{
+						CMessageBox::display_error("Error from injected dll: {}", error_message);
+					}
+					else
+					{
+						CMessageBox::display_error("The cheat failed to initialize while injecting. "
+												   "\n\nYou may want to check the console log file for further information.\n{}",
+												   g_devconsole_i->get_logfile_path().parent_path() / "cheater_*");
+
+					}
+
+					// unload the module itself
+					it->second->unload(false);
+
+					goto erase_current_entry;
+				}
+				//
+				// runtime status codes
+				//
+				case C2I_Unloading:
+				{
+					ev = INE_ModuleUnloading;
+
+					it->second->unload(false);
+
+					goto erase_current_entry;
+				}
+				case C2I_Restarting:
+				{
+					ev = INE_ModuleRestarting;
+					execute_on_event_callbacks(ev, it->second); // execute now so that the external code can catch it before we reinject
+
+					prepare_for_reinjection(it->second->get_dll_exe_name().c_str(), it->second->get_dll_filepath());
+
+					it->second->unload(false);
+
+					goto erase_current_entry;
+				}
+				default:
+				{
+					assert(0);
+					break;
+					// shouldn't happen
+				}
 			}
-			//
-			// runtime status codes
-			//
-			case C2I_Unloading:
-			{
-				it->second->unload(false);
 
-				goto erase_current_entry;
-			}
-			case C2I_Restarting:
-			{
-				prepare_for_reinjection(it->second->get_dll_exe_name().c_str(), it->second->get_dll_filepath());
-
-				it->second->unload(false);
-
-				goto erase_current_entry;
-			}
-			default:
-			{
-				assert(0);
-				break;
-				// shouldn't happen
-			}
+			last_code = code;
 		}
 
 		continue;
 
 	erase_current_entry: // ik this is ugly as hell but whatever :----)
+		execute_on_event_callbacks(ev, it->second);
 
 		m_injected_dlls.erase(it);
 		if (m_injected_dlls.empty())

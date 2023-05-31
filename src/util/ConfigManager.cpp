@@ -40,7 +40,7 @@ BaseCommand export_config(
 			return;
 		}
 
-		if (g_config_mgr_i->write_configuration(CFG_Variables, args.get(1)))
+		if (g_config_mgr_i->write_configuration(CFG_CheatSettings, args.get(1)))
 		{
 			CConsole::the().info("Exported config '{}'.", args.get(1));
 		}
@@ -57,7 +57,7 @@ BaseCommand load_config(
 			return;
 		}
 
-		if (g_config_mgr_i->load_configuration(CFG_Variables, args.get(1)))
+		if (g_config_mgr_i->load_configuration(CFG_CheatSettings, args.get(1)))
 		{
 			CConsole::the().info("Loaded config '{}'.", args.get(1));
 		}
@@ -89,8 +89,34 @@ public:
 
 	void for_each_cfg(const std::function<void(const FilePath_t& cfg_path)>& callback);
 
+	GenericConfigFile* query_config_file_type(const std::string& id)
+	{
+		try
+		{
+			return m_registered_config_types.at(id);
+		}
+		catch (...)
+		{
+			assert(0 && "Failed config type query. Did you add your config type to the init_config_types() function?");
+			CConsole::the().error("Invalid config file type query: '{}'", id);
+			return nullptr;
+		}
+	}
+
 private:
 	std::chrono::high_resolution_clock::time_point m_last_saved;
+
+	CfgFile_CheatSettings m_cheat_settings_cfg;
+
+	// just to access it through query from external code.
+	std::unordered_map<std::string, GenericConfigFile*> m_registered_config_types;
+
+	void init_config_types()
+	{
+		m_registered_config_types["cheat_settings"] = &m_cheat_settings_cfg;
+
+		// DON'T FORGET TO ADD NEW ONES AS YOU ADD THEM AS CLASS MEMBERS.
+	}
 };
 
 CConfigManager g_config_mgr;
@@ -105,6 +131,8 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CConfigManager, IConfigManager, ICONFIGMANAGER
 CConfigManager::CConfigManager()
 {
 	g_config_mgr_i = this;
+
+	init_config_types();
 }
 
 CConfigManager::~CConfigManager()
@@ -116,8 +144,8 @@ bool CConfigManager::initialize()
 {
 	// default config is the one that gets filled with default values each time we start our cheat
 	// saved config is the one that holds current configuration.
-	write_configuration(CFG_Variables, "default.json");
-	load_configuration(CFG_Variables, "saved.json");
+	write_configuration(CFG_CheatSettings, "default.json");
+	load_configuration(CFG_CheatSettings, "saved.json");
 
 	m_last_saved = std::chrono::high_resolution_clock::now();
 
@@ -128,14 +156,14 @@ bool CConfigManager::initialize()
 void CConfigManager::shutdown()
 {
 	// write changed settings
-	write_configuration(CFG_Variables, "saved.json");
+	write_configuration(CFG_CheatSettings, "saved.json");
 }
 
 void CConfigManager::update()
 {
 	if (get_duration_last_saved_sec() > save_cfg_interval_sec.get_value())
 	{
-		write_configuration(CFG_Variables, "saved.json", true);
+		write_configuration(CFG_CheatSettings, "saved.json", true);
 		m_last_saved = std::chrono::high_resolution_clock::now();
 	}
 }
@@ -153,11 +181,10 @@ bool CConfigManager::load_configuration(ECfgType type, const std::string& filena
 
 	switch (type)
 	{
-		case CFG_Variables:
+		case CFG_CheatSettings:
 		{
-			CfgFileVariables cfg(full_path);
-			cfg.be_silent(silent);
-			success = cfg.load();
+			m_cheat_settings_cfg.be_silent(silent);
+			success = m_cheat_settings_cfg.load(full_path);
 			break;
 		}
 		default:
@@ -183,11 +210,10 @@ bool CConfigManager::write_configuration(ECfgType type, const std::string& filen
 
 	switch (type)
 	{
-		case CFG_Variables:
+		case CFG_CheatSettings:
 		{
-			CfgFileVariables cfg(full_path);
-			cfg.be_silent(silent);
-			success = cfg.write();
+			m_cheat_settings_cfg.be_silent(silent);
+			success = m_cheat_settings_cfg.write(full_path);
 			break;
 		}
 		default:

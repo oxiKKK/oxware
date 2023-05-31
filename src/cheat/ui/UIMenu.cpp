@@ -68,6 +68,7 @@ std::array<TabCallbackFn, UIMENU_Max> CUIMenu::s_active_tab_callback_translation
 		&CUIMenu::tab_miscellaneous3,		// UIMENU_Miscellaneous3
 		&CUIMenu::tab_config,				// UIMENU_Config
 		&CUIMenu::tab_binds,				// UIMENU_Binds
+		&CUIMenu::tab_incommands,			// UIMENU_InCommands
 		&CUIMenu::tab_cmdlist,				// UIMENU_CommandList
 		&CUIMenu::tab_varlist,				// UIMENU_VariableList
 		&CUIMenu::tab_others,				// UIMENU_Others
@@ -153,27 +154,28 @@ void CUIMenu::on_initialize()
 	//m_tab_sections.push_back(&m_tabsec_AIHelpers);
 
 	m_tabsec_Visuals.set_label("Visuals");
-	m_tabsec_Visuals.add_tab({ UIMENU_World, &CUIMenu::tab_world, "World", "TODO item description" });
-	m_tabsec_Visuals.add_tab({ UIMENU_Render, &CUIMenu::tab_render, "Render", "TODO item description" });
-	m_tabsec_Visuals.add_tab({ UIMENU_Screen, &CUIMenu::tab_screen, "Screen", "TODO item description" });
+	m_tabsec_Visuals.add_tab({ UIMENU_World, &CUIMenu::tab_world, "World", "World-related cheats" });
+	m_tabsec_Visuals.add_tab({ UIMENU_Render, &CUIMenu::tab_render, "Render", "Rendering-related cheats" });
+	m_tabsec_Visuals.add_tab({ UIMENU_Screen, &CUIMenu::tab_screen, "Screen", "Screen-related cheats" });
 	m_tab_sections.push_back(&m_tabsec_Visuals);
 
 	m_tabsec_Miscellaneous.set_label("Miscellaneous");
-	m_tabsec_Miscellaneous.add_tab({ UIMENU_Exploits, &CUIMenu::tab_exploits, "Exploits", "TODO item description" });
-	m_tabsec_Miscellaneous.add_tab({ UIMENU_Movement, &CUIMenu::tab_movement, "Movement", "TODO item description" });
+	m_tabsec_Miscellaneous.add_tab({ UIMENU_Exploits, &CUIMenu::tab_exploits, "Exploits", "Various game exploitations" });
+	m_tabsec_Miscellaneous.add_tab({ UIMENU_Movement, &CUIMenu::tab_movement, "Movement", "Kreedz/Movement cheats" });
 	//m_tabsec_Miscellaneous.add_tab({ UIMENU_Miscellaneous2, &CUIMenu::tab_miscellaneous2, "Miscellaneous2", "TODO item description" });
 	//m_tabsec_Miscellaneous.add_tab({ UIMENU_Miscellaneous3, &CUIMenu::tab_miscellaneous3, "Miscellaneous3", "TODO item description" });
 	m_tab_sections.push_back(&m_tabsec_Miscellaneous);
 
 	m_tabsec_Configuration.set_label("Configuration");
-	m_tabsec_Configuration.add_tab({ UIMENU_Config, &CUIMenu::tab_config, "Config", "TODO item description" });
-	m_tabsec_Configuration.add_tab({ UIMENU_Binds, &CUIMenu::tab_binds, "Binds", "TODO item description" });
+	m_tabsec_Configuration.add_tab({ UIMENU_Config, &CUIMenu::tab_config, "Config", "Cheat configuration and configs" });
+	m_tabsec_Configuration.add_tab({ UIMENU_Binds, &CUIMenu::tab_binds, "Binds", "Cheat bind manager" });
+	m_tabsec_Configuration.add_tab({ UIMENU_InCommands, &CUIMenu::tab_incommands, "InCommands", "InCommands manager" });
 	m_tab_sections.push_back(&m_tabsec_Configuration);
 
 	m_tabsec_Other.set_label("Other");
-	m_tabsec_Other.add_tab({ UIMENU_CommandList, &CUIMenu::tab_cmdlist, "Command list", "TODO item description" });
-	m_tabsec_Other.add_tab({ UIMENU_VariableList, &CUIMenu::tab_varlist, "Variable list", "TODO item description" });
-	m_tabsec_Other.add_tab({ UIMENU_Others, &CUIMenu::tab_others, "Others", "TODO item description" });
+	m_tabsec_Other.add_tab({ UIMENU_CommandList, &CUIMenu::tab_cmdlist, "Command list", "Cheat command list" });
+	m_tabsec_Other.add_tab({ UIMENU_VariableList, &CUIMenu::tab_varlist, "Variable list", "Cheat variable list" });
+	m_tabsec_Other.add_tab({ UIMENU_Others, &CUIMenu::tab_others, "Others", "Other miscelanoues items" });
 	m_tab_sections.push_back(&m_tabsec_Other);
 }
 
@@ -1121,7 +1123,7 @@ void CUIMenu::tab_config()
 						{
 							if (g_gui_widgets_i->add_button("load", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 							{
-								if (g_config_mgr_i->load_configuration(CFG_Variables, selected_cfg.string()))
+								if (g_config_mgr_i->load_configuration(CFG_CheatSettings, selected_cfg.string()))
 								{
 									status_msg(std::format("Loaded from {}.", selected_cfg.string()), false);
 								}
@@ -1192,9 +1194,7 @@ void CUIMenu::tab_config()
 										path.replace_extension("json");
 									}
 
-									CfgFileVariables cfg(path);
-
-									if (cfg.write())
+									if (g_config_mgr_i->write_configuration(CFG_CheatSettings, path.filename().string()))
 									{
 										status_msg(std::format("Saved '{}'.", path.filename().string()), false);
 									}
@@ -1217,7 +1217,7 @@ void CUIMenu::tab_config()
 
 						if (g_gui_widgets_i->add_button("save current", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 						{
-							if (g_config_mgr_i->write_configuration(CFG_Variables, "saved.json"))
+							if (g_config_mgr_i->write_configuration(CFG_CheatSettings, "saved.json"))
 							{
 								status_msg("Saved to saved.json.", false);
 							}
@@ -1230,19 +1230,19 @@ void CUIMenu::tab_config()
 						if (g_gui_widgets_i->add_button("restore defaults", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 						{
 							// this if-else tree is kinda dumb, but whatever xd
-							if (g_config_mgr_i->load_configuration(CFG_Variables, "default.json"))
+							if (g_config_mgr_i->load_configuration(CFG_CheatSettings, "default.json"))
 							{
 								status_msg("Restored default configuration.", false);
 							}
 							else
 							{
-								if (!g_config_mgr_i->write_configuration(CFG_Variables, "default.json"))
+								if (!g_config_mgr_i->write_configuration(CFG_CheatSettings, "default.json"))
 								{
 									status_msg("Failed to restore defaults!", true);
 								}
 								else
 								{
-									if (g_config_mgr_i->load_configuration(CFG_Variables, "default.json"))
+									if (g_config_mgr_i->load_configuration(CFG_CheatSettings, "default.json"))
 									{
 										status_msg("Restored default configuration.", false);
 									}
@@ -1285,6 +1285,11 @@ void CUIMenu::tab_config()
 void CUIMenu::tab_binds()
 {
 	CUIKeyBinding::the().render_interactible_bind_list();
+}
+
+void CUIMenu::tab_incommands()
+{
+	g_in_commands_i->render_interactible_incommand_list();
 }
 
 void CUIMenu::tab_cmdlist()

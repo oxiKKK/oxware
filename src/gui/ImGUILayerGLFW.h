@@ -33,7 +33,8 @@
 class CImGUILayerGLFW : public ImGUIBaseLayer
 {
 public:
-	CImGUILayerGLFW(EImGUIPlatform plat, void* hwnd, const std::function<void()>& render_callback) : ImGUIBaseLayer(plat, hwnd, render_callback)
+	CImGUILayerGLFW(EImGUIPlatform plat, void* hwnd, const std::function<void()>& render_callback, ImGuiConfigFlags flags)
+		: ImGUIBaseLayer(plat, hwnd, render_callback, flags)
 	{
 	}
 

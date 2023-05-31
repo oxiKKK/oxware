@@ -236,6 +236,9 @@
     <ClCompile Include="features\movement\AirStuck.cpp">
       <Filter>src\features\movement</Filter>
     </ClCompile>
+    <ClCompile Include="..\public\BaseInCommand.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -413,9 +416,6 @@
     <ClInclude Include="ui\UIKeyBinding.h">
       <Filter>src\UI</Filter>
     </ClInclude>
-    <ClInclude Include="InCommands.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="features\movement\BunnyHop.h">
       <Filter>src\features\movement</Filter>
     </ClInclude>
@@ -424,6 +424,9 @@
     </ClInclude>
     <ClInclude Include="features\movement\AirStuck.h">
       <Filter>src\features\movement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\BaseInCommand.h">
+      <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

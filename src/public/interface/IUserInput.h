@@ -68,10 +68,26 @@ public:
 		}
 	}
 
+	//-----------------------------------------------
+
 	// time in seconds
 	inline uint32_t time_down() const { return (GetTickCount() - m_pressed_timestamp_ms) * 1000; }
-
 	inline bool is_down() const { return m_is_down; }
+	inline const std::string& get_name() const { return m_name; }
+
+	//-----------------------------------------------
+
+	bool on_pressed_callback_exists(const std::string& id)
+	{
+		return m_on_pressed_callbacks.contains(id);
+	}
+
+	bool on_unpressed_callback_exists(const std::string& id)
+	{
+		return m_on_unpressed_callbacks.contains(id);
+	}
+
+	//-----------------------------------------------
 
 	void add_on_pressed_callback(const std::string& id, const UserKeyPressCallbackFn& c)
 	{
@@ -83,6 +99,8 @@ public:
 		m_on_unpressed_callbacks.insert({ id, c });
 	}
 
+	//-----------------------------------------------
+	
 	void remove_on_pressed_callback(const std::string& id)
 	{
 		try
@@ -107,7 +125,7 @@ public:
 		}
 	}
 
-	inline const std::string& get_name() const { return m_name; }
+	//-----------------------------------------------
 
 private:
 	void execute_on_pressed_callbacks()

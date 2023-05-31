@@ -194,47 +194,11 @@ void CUIMenuWidgets::add_pair_textinput(const std::string& label, VarKeyValue* v
 
 void CUIMenuWidgets::add_listbox(const std::string& label, VarInteger* var, const std::vector<std::string>& items)
 {
-	if (label.find("##") == std::string::npos)
-	{
-		g_gui_widgets_i->add_text(label);
-	}
-
 	assert((items.size() - 1) == var->get_max() &&
 		   "The amount of items provided inside a list box must match the amount of options in the variable!");
 
-	bool edited = false;
-	if (g_gui_widgets_i->begin_listbox(label, items[var->get_value()]))
-	{
-		g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
-		g_gui_widgets_i->push_stylevar(ImGuiStyleVar_ItemSpacing, { 0.0f, 1.0f});
-
-		for (size_t i = 0; i < items.size(); i++)
-		{
-			bool selected = (i == var->get_value());
-			if (g_gui_widgets_i->add_toggle_button(items[i], Vector2D(-1.0f, 0.0f), selected))
-			{
-				var->set_value(i);
-				g_gui_widgets_i->close_current_popup();
-				edited = true;
-				break;
-			}
-
-			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-			if (selected)
-				g_gui_widgets_i->set_item_default_focus();
-		}
-
-		g_gui_widgets_i->pop_stylevar();
-		g_gui_widgets_i->pop_font();
-
-		g_gui_widgets_i->end_listbox();
-	}
-
-	//if (edited)
-	{
-		// to close the list box after we select an item.
-		g_gui_widgets_i->close_current_popup();
-	}
+	int value = var->get_value();
+	g_gui_widgets_i->add_simple_listbox(label, &value, items, [&var](int i) { var->set_value(i); });
 }
 
 void CUIMenuWidgets::add_description_text(const char* additional_desc, const char* readmore_string, bool no_padding)

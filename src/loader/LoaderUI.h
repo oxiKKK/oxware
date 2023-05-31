@@ -43,9 +43,13 @@ public:
 	void render_contents();
 
 private:
+	void initialize();
+
 	// tabs
 	void render_tab_main();
 	void render_tab_console();
+
+	bool m_allow_to_load_again = true;
 };
 
 #endif // LOADERUI_H

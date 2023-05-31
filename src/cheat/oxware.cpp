@@ -95,12 +95,8 @@ bool CoXWARE::initialize_phase2()
 		return false;
 	}
 
-	CInCommands::the().initialize();
-
 	g_variablemgr_i->provide_hl_execute_cmd_pfn((m_hl_execute_cmd_pfn_t)CMemoryHookMgr::the().cl_enginefuncs().get()->pfnClientCmd);
 	
-	g_bindmgr_i->initialize();
-
 	CFeatureManager::the().initialize();
 
 	CModelChams::the().initialize();
@@ -146,11 +142,12 @@ bool CoXWARE::initialize()
 	// keyboard/mouse I/O
 	g_user_input_i->initialize();
 
-	if (!g_config_mgr_i->initialize())
-	{
-		CInjectedDllIPCLayerClient::the().report_error("Couldn't initialize config manager.");
-		return false;
-	}
+	g_bindmgr_i->initialize();
+	g_in_commands_i->initialize();
+
+	// call all interface initialization routines that provide load&export callbacks before config manager initializes, 
+	// because otherwise those callbacks wouldn't be provided and the cfgmgr would load configs without these callbacks.
+	g_config_mgr_i->initialize();
 
 	check_for_clientside_protectors();
 

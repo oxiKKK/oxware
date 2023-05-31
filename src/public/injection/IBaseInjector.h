@@ -43,6 +43,19 @@
 
 class IInjectableModuleObject;
 
+enum EInjectorEvent
+{
+	INE_None = 0,
+
+	INE_ModuleCommunicationHalt,			// failed to communicate with injected module
+	INE_ModuleSuccessfulInitialization,		// module successfully initialized after injection.
+	INE_ModuleFailedInitialization,			// module failed to initialze after injected 
+	INE_ModuleUnloading,					// module is unloading
+	INE_ModuleRestarting,					// module is restarting
+};
+
+using fnOnInjectorEvent = std::function<void(EInjectorEvent ev, IInjectableModuleObject* obj)>;
+
 class IBaseInjector
 {
 public:
@@ -61,8 +74,23 @@ public:
 
 	inline auto get_injection_technique() const { return m_technique; };
 
+	void provide_on_injector_event_callback(const fnOnInjectorEvent& callback)
+	{
+		m_on_event_callbacks.push_back(callback);
+	}
+
 protected:
 	EInjectionTechnique m_technique = INJECT_UNINITIALIZED;
+
+	std::vector<fnOnInjectorEvent> m_on_event_callbacks;
+
+	void execute_on_event_callbacks(EInjectorEvent ev, IInjectableModuleObject* obj)
+	{
+		for (auto& c : m_on_event_callbacks)
+		{
+			c(ev, obj);
+		}
+	}
 };
 
 typedef FARPROC(WINAPI*pfnGetProcAddress_t)(HMODULE hModule, LPCSTR lpProcName);

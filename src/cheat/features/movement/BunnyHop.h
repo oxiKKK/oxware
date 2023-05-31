@@ -30,7 +30,6 @@
 #define BUNNYHOP_H
 #pragma once
 
-extern VarBoolean movement_bhop_enable;
 extern VarInteger movement_bhop_mode;
 extern VarBoolean movement_bhop_jump_on_ladder;
 extern VarBoolean movement_bhop_jump_in_water;

@@ -28,8 +28,11 @@
 
 #include "precompiled.h"
 
-InCommandSimple CMovement::bunnyhop = InCommandSimple("movement_bhop");
-InCommandSimple CMovement::airstuck = InCommandSimple("movement_air_stuck");
+VarBoolean movement_bhop_enable("movement_bhop_enable", "Enables bunnyhop", false);
+VarBoolean movement_air_stuck_enable("movement_air_stuck_enable", "Allows to get stuck in the mid air, when on", false);
+
+InCommand CMovement::bunnyhop = InCommand("movement_bhop", VK_SPACE, &movement_bhop_enable);
+InCommand CMovement::airstuck = InCommand("movement_air_stuck", VK_XBUTTON1, &movement_air_stuck_enable); // mouse4
 
 #if 0 // test
 InCommandCustom incmd_test = InCommandCustom(

@@ -246,7 +246,7 @@ void CDeveloperConsole::render()
 	auto label = std::format("{} lines", m_contents.size());
 	auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, label.c_str());
 	g_gui_window_rendering_i->render_text(
-		g_gui_window_rendering_i->get_foreground_drawlist(),
+		g_gui_window_rendering_i->get_current_drawlist(),
 		font,
 		{ window_pos.x + window_size.x - offset_from_the_right - label_size.x, window_pos.y + y_offset },
 		g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextBlack>(),
@@ -256,7 +256,7 @@ void CDeveloperConsole::render()
 	auto label1 = std::format("logging to \"{}\"", get_logfile_path_fancy());
 	auto label1_size = g_gui_fontmgr_i->calc_font_text_size(font, label1.c_str());
 	g_gui_window_rendering_i->render_text(
-		g_gui_window_rendering_i->get_foreground_drawlist(),
+		g_gui_window_rendering_i->get_current_drawlist(),
 		font,
 		{ window_pos.x + window_size.x - offset_from_the_right - label_size.x - spacing - label1_size.x, window_pos.y + y_offset },
 		g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextBlack>(),

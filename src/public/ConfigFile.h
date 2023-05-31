@@ -38,31 +38,34 @@
 
 enum ECfgType
 {
-	CFG_Variables, // under variables there're also binds
+	CFG_CheatSettings, // under variables there're also binds
 	// ...
 };
 
 static const char* cfg_type_to_string[] =
 {
-	/*CFG_Variables*/	"Variables",
+	/*CFG_CheatSettings*/	"Cheat settings",
 };
 
-class BaseCfgFile
+using fnLoadExportCallback = void(*)(nlohmann::json& json);
+
+class GenericConfigFile
 {
 public:
-	BaseCfgFile(ECfgType type, const FilePath_t& full_path) :
-		m_cfg_type(type),
-		m_full_path(full_path)
+	GenericConfigFile() = default;
+	GenericConfigFile(ECfgType type) : m_cfg_type(type)
 	{
 	}
 
-	bool write()
+	bool write(const FilePath_t& full_path)
 	{
-		std::ofstream ofs(m_full_path);
+		std::ofstream ofs(full_path);
 
 		if (!m_silent)
 		{
-			CConsole::the().info("Writing config '{}' of type {}...", get_relative_to_appdata().string(), cfg_type_to_string[m_cfg_type]);
+			CConsole::the().info("Writing config '{}' of type {}...", 
+								 g_filesystem_i->get_relative_to_appdata(full_path),
+								 cfg_type_to_string[m_cfg_type]);
 		}
 
 		if (!ofs.good())
@@ -71,12 +74,17 @@ public:
 			return false;
 		}
 
-		if (!m_silent && g_filesystem_i->do_exist(m_full_path))
+		if (!m_silent && g_filesystem_i->do_exist(full_path))
 		{
 			CConsole::the().warning("File already exist. An overwrite will be performed.");
 		}
+
+		m_json.clear(); // erase first
 		
-		write_configuration();
+		for (auto& fn : m_export_fns)
+		{
+			fn(m_json);
+		}
 
 		ofs << std::setw(4) << m_json << std::endl;
 
@@ -90,13 +98,15 @@ public:
 		return true;
 	}
 
-	bool load()
+	bool load(const FilePath_t& full_path)
 	{
-		std::ifstream ifs(m_full_path);
+		std::ifstream ifs(full_path);
 
 		if (!m_silent)
 		{
-			CConsole::the().info("Reading config '{}' of type {}...", get_relative_to_appdata().string(), cfg_type_to_string[m_cfg_type]);
+			CConsole::the().info("Reading config '{}' of type {}...", 
+								 g_filesystem_i->get_relative_to_appdata(full_path),
+								 cfg_type_to_string[m_cfg_type]);
 		}
 
 		if (!ifs.good())
@@ -116,7 +126,10 @@ public:
 
 		ifs.close();
 
-		load_configuration();
+		for (auto& fn : m_load_fns)
+		{
+			fn(m_json);
+		}
 
 		if (!m_silent)
 		{
@@ -126,32 +139,48 @@ public:
 		return true;
 	}
 
-	FilePath_t get_full_path() const
-	{
-		return m_full_path;
-	}
-
-	FilePath_t get_relative_to_appdata() const
-	{
-		return g_filesystem_i->get_relative_to_appdata(m_full_path);
-	}
-
 	void be_silent(bool be) { m_silent = be; }
+	inline ECfgType get_type() const { return m_cfg_type; }
 
-protected:
-	// these MUST be overriden by the class that derives from this.
-	virtual void load_configuration() { assert(0 && "You need to override this function! (" __FUNCTION__ ")"); };
-	virtual void write_configuration() { assert(0 && "You need to override this function! (" __FUNCTION__ ")"); };
+	void provide_load_fn(fnLoadExportCallback load_fn)
+	{
+		m_load_fns.push_back(load_fn);
+	}
+
+	void provide_export_fn(fnLoadExportCallback export_fn)
+	{
+		m_export_fns.push_back(export_fn);
+	}
 
 protected:
 	nlohmann::json m_json;
 
 	ECfgType m_cfg_type;
 
-	FilePath_t m_full_path;
-
 	// don't emit any console logs
 	bool m_silent = false;
+
+	std::vector<fnLoadExportCallback> m_load_fns, m_export_fns;
 };
+
+//----------------------------------------------------------------
+//
+//
+// Following classes are just syntax sugar in order to distinguish
+// between configuration types.
+//
+//
+//----------------------------------------------------------------
+
+// cheat settings -- stores variables, binds, incommands
+class CfgFile_CheatSettings : public GenericConfigFile
+{
+public:
+	CfgFile_CheatSettings()
+		: GenericConfigFile(CFG_CheatSettings)
+	{
+	}
+};
+
 
 #endif // CONFIGFILE_H

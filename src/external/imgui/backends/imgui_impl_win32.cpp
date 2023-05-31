@@ -630,6 +630,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARA
             io.AddInputCharacter(wch);
         }
         return 0;
+    // oxware - Note that we handle this inside of our cheat.
     case WM_SETCURSOR:
         // This is required to restore cursor when transitioning from e.g resize borders to client area.
         if (LOWORD(lParam) == HTCLIENT && ImGui_ImplWin32_UpdateMouseCursor())

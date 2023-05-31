@@ -28,15 +28,9 @@
 
 #include "precompiled.h"
 
-VarBoolean movement_air_stuck_enable("movement_air_stuck_enable", "Allows to get stuck in the mid air, when on", false);
 VarInteger movement_air_stuck_intensity("movement_air_stuck_intensity", "Determines how \"froze\" you will be", 0, 0, 5);
 
 void CMovementAirStuck::update(hl::usercmd_t* to)
 {
-	if (!movement_air_stuck_enable.get_value())
-	{
-		return;
-	}
-
 	to->msec = movement_air_stuck_intensity.get_value();
 }

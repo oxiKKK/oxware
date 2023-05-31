@@ -90,6 +90,7 @@ enum EMenuTabId
 	// Config
 	UIMENU_Config,
 	UIMENU_Binds,
+	UIMENU_InCommands,
 
 	// Other
 	UIMENU_CommandList,
@@ -190,6 +191,7 @@ private:
 	void tab_miscellaneous3();
 	void tab_config();
 	void tab_binds();
+	void tab_incommands();
 	void tab_cmdlist();
 	void tab_varlist();
 	void tab_others();

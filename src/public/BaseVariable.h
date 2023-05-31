@@ -558,65 +558,6 @@ inline void BaseVariable::add_to_global_list()
 }
 
 //--------------------------------------------------------------------------------------------------------------------
-
-#include "ConfigFile.h"
-
-class CfgFileVariables : public BaseCfgFile
-{
-public:
-	CfgFileVariables(const FilePath_t& full_path)
-		: BaseCfgFile(CFG_Variables, full_path)
-	{
-	}
-
-private:
-	void load_configuration() override
-	{
-		// load variables
-		g_variablemgr_i->for_each_variable(
-			[&](BaseVariable* var)
-			{
-				try
-				{
-					var->set_from_string(m_json[var->get_current_module_name()][var->get_name()].get<std::string>());
-				}
-				catch (const nlohmann::json::exception& e)
-				{
-					CConsole::the().error("JSON error: {}", e.what());
-				}
-			});
-
-		// load binds
-		g_bindmgr_i->create_binds_from_json(m_json);
-	}
-
-	void write_configuration() override
-	{
-		// export variables
-		g_variablemgr_i->for_each_variable(
-			[&](BaseVariable* var)
-			{
-				try
-				{
-					m_json[var->get_current_module_name()][var->get_name()] = var->get_value_string();
-				}
-				catch (const nlohmann::json::exception& e)
-				{
-					CConsole::the().error("JSON error: {}", e.what());
-				}
-
-				if (!m_silent)
-				{
-					CConsole::the().info("m_json[{}][{}] = {};", var->get_current_module_name(), var->get_name(), var->get_value_string());
-				}
-			});
-
-		// export binds
-		g_bindmgr_i->export_binds_to_json(m_json);
-	}
-};
-
-//--------------------------------------------------------------------------------------------------------------------
 // COMMANDS
 //
 

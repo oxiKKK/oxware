@@ -75,8 +75,14 @@ public:
 	bool is_in_relative_mode(); // gameui is not rendering and we're ingame
 	bool is_gameui_rendering();
 
+	void toggle_windows_mouse_cursor(bool show);
+
 private:
 	bool m_clientdll_mouse_enabled = false;
+
+	HCURSOR m_last_cursor_handle = NULL;
+
+	HCURSOR get_current_cursor_handle();
 };
 
 #endif // ENGINEINPUTMANAGER_H

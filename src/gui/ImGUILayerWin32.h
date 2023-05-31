@@ -33,7 +33,8 @@
 class CImGUILayerWin32 : public ImGUIBaseLayer
 {
 public:
-	CImGUILayerWin32(EImGUIPlatform plat, void* hwnd, const std::function<void()>& render_callback) : ImGUIBaseLayer(plat, hwnd, render_callback)
+	CImGUILayerWin32(EImGUIPlatform plat, void* hwnd, const std::function<void()>& render_callback, ImGuiConfigFlags flags)
+		: ImGUIBaseLayer(plat, hwnd, render_callback , flags)
 	{
 	}
 

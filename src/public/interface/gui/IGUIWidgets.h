@@ -176,6 +176,7 @@ public:
 
 	virtual bool begin_listbox(const std::string& label, const std::string& preview_label, ImGuiComboFlags flags = 0) = 0;
 	virtual void end_listbox() = 0;
+	virtual bool add_simple_listbox(const std::string& label, int* value, const std::vector<std::string>& items, const std::function<void(int i)>& on_entry_click = nullptr) = 0;
 
 	virtual bool add_selectable(const std::string& label, bool selected = false, ImGuiSelectableFlags flags = 0, const Vector2D& size = Vector2D(0, 0)) = 0;
 

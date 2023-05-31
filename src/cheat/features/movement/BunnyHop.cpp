@@ -28,7 +28,6 @@
 
 #include "precompiled.h"
 
-VarBoolean movement_bhop_enable("movement_bhop_enable", "Enables bunnyhop", false);
 VarInteger movement_bhop_mode("movement_bhop_mode", "Bunnyhop mode - legit or rage", 0, 0, 1);
 VarBoolean movement_bhop_jump_on_ladder("movement_bhop_jump_on_ladder", "Jump if also on a ladder", true);
 VarBoolean movement_bhop_jump_in_water("movement_bhop_jump_in_water", "Jump if in water", true);
@@ -40,11 +39,6 @@ VarBoolean movement_bhop_legit_noslowdown("movement_bhop_legit_noslowdown", "Mak
 
 void CMovementBunnyHop::update(float frametime, hl::usercmd_t* cmd)
 {
-	if (!movement_bhop_enable.get_value())
-	{
-		return;
-	}
-
 	int bhop_mode = movement_bhop_mode.get_value();
 
 	bool is_in_water = CLocalPlayerState::the().get_waterlevel() >= 1;

@@ -55,6 +55,8 @@ public:
 	virtual FilePath_t get_config_directory(const FilePath_t& relative = "") = 0;
 
 	virtual void for_each_cfg(const std::function<void(const FilePath_t& cfg_path)>& callback) = 0;
+
+	virtual GenericConfigFile* query_config_file_type(const std::string& id) = 0;
 };
 
 extern IConfigManager* g_config_mgr_i;

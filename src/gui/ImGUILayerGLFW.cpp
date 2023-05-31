@@ -47,6 +47,7 @@ bool CImGUILayerGLFW::initialize()
 
 	// Disable generating imgui.ini
 	io.IniFilename = io.LogFilename = nullptr;
+	io.ConfigFlags |= m_flags;
 
 	g_gui_fontmgr_i->initialize();
 

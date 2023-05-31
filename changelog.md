@@ -78,6 +78,8 @@
 
 # v1.0.3
 
+Sorry for the wait, I've been busy with IRL stuff. 🙄😪
+
 ## Additions and improvements
 
 - Added rechecker bypass.

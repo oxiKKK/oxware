@@ -3,7 +3,9 @@
 <img src="https://i.imgur.com/rMxVH3j.png" width="27%" height="27%"></img>
 
 
-Welcome to **oxWARE**, a free Counter-Strike 1.6 cheat. This cheat is still in <b>alpha stage</b> of development!<br>
+Welcome to **oxWARE**! A free Counter-Strike 1.6 cheat built with love and passion, featuring over **46,000 lines of C++ code in more than 233 source files!**
+
+This cheat is still in <b>alpha stage</b> of development!<br>
 I will be contributing to it in the near future as much as possible, adding new features et cetera.<br>
 So stay tuned! 😉<br><br>
 
@@ -19,6 +21,7 @@ Please, before proceeding, **read this README**!
 - [Usage](#usage)
 - [Multi-platform support](#multi-platform-support)
 - [Support on non-steam and older versions of the game](#support-on-non-steam-and-older-versions-of-the-game)
+- [Uninstalling](#uninstalling)
 - [Anti-cheats](#anti-cheats)
 	- [VAC](#vac)
 - [Building](#building)
@@ -39,7 +42,7 @@ Please, before proceeding, **read this README**!
 
 ## Usage
 
-The cheat is composed out of two parts: **the loader (oxware.exe)** and **the cheat module (cheater.dll)**. By using the loader you can inject the cheat module to the game. After injecting the cheat, you can use **INSERT** key to open up the menu. 
+The cheat is composed out of two parts: **the loader (oxware.exe)** and **the cheat module (cheater.dll)**. By using the loader you can inject the cheat module to the game. After injecting the cheat, you can use `INSERT key to open up the menu`. 
 
 Both the cheat and loader have developer consoles built inside of them that you can access at any time. (inside the cheat it is the '~' key, below the escape key)
 
@@ -55,6 +58,8 @@ Both the cheat and loader have developer consoles built inside of them that you 
 
 This cheat is currently only available on `Windows 10 and newer`.
 
+While making this cheat cross-platform (e.g. porting to Linux or OSX) isn't completely impossible, it would take a lot of effort, because from the beginning I designed this cheat mainly for Windows. But that being said, it isn't impossible to port.
+
 # Support on non-steam and older versions of the game
 
 This cheat currently supports following builds:
@@ -62,6 +67,22 @@ This cheat currently supports following builds:
 - `8684 steam version`
 - `4554 non-steam version`
 - xguard, gsclient or other custom implementations **aren't supported**.
+
+## Uninstalling
+
+At this very moment, the cheat stores data into appdata. In the future release I will provide some kind of uninstallation tool, that will get rid of all things left behind by the cheat.
+
+### Wargods
+
+With that being said, there have been reports with WG already detecting this cheat. I assume it does it through appdata, so **if you still get detected even after "removing" the cheat, please take following steps:**
+
+- Delete the program (oxware.exe with other DLLs)
+- Go to your appdata folder and then into folder "**Roaming**" (if you don't know how to get there, search the internet on how to get there). Then find folder called **oxware** and delete it.
+- If WG still detects you after deleing the cheat from appdata, you may also try to delete the registry data that the cheat left behind:
+	- Go to registry editor (again, if you don't know how, google it)
+	- And go to "**HKEY_CURRENT_USER -> SOFTWARE -> oxware**" and delete the entry.
+
+Sorry for the issues. As I said, I will try to provide uninstallation tool to get rid of all cheat remains stored on your computer in the following releases.
 
 ## Anti-cheats
 

@@ -77,6 +77,8 @@
 
 # v1.0.3
 
+Sorry for the wait, I've been busy with IRL stuff. 🙄😪
+
 ## Additions and improvements
 
 - Added rechecker bypass, see [this video](https://youtu.be/Razs0s7sgno).

@@ -75,14 +75,14 @@
 - Fixed a bunch of input issues.
 - Fixed a bug where the head hitbox wouldn't sometimes be rendered when stood close to a player.
 
-
 # v1.0.3
 
 ## Additions and improvements
 
-- Added rechecker bypass.
+- Added rechecker bypass, see [this video](https://youtu.be/Razs0s7sgno).
 - Implemented default viewmodel enforcement.
 - Implemented key binding system (beta).
+- Implemented InCommands system (beta).
 - Changed the cheat menu key from F1 to `INSERT`!
 - Added hand cursor when hovered / held over scrollbar.
 - Increased scrollbar width from 9 px to 10 px and added rounding to it.
@@ -95,7 +95,7 @@
 </details><br>
 
 - Added new "others" tab in the menu.
-- Added air stuck.
+- Added air stuck, see [this video](https://youtu.be/9snddT03M34).
 - Added MOTD removal.
 - Added legit/rage bhop hack.
 - Added menu section for binds.
@@ -105,4 +105,4 @@
 - Fixed a bug where on the initial launch, when the game was focused before fully injected, the about dialog would not pop up and the window focus would be glitched until the focus was refreshed.
 - Fixed a bug where popup windows would retain window size from previously opened popups.
 - Fixed crashes when restarting/quitting the game.
-
+- Fixed crash where the cheat would terminate, if injected into game in fullscreen mode while having the UI opened in-game and alt-tabbing from the game.

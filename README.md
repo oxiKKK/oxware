@@ -96,48 +96,48 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 	- MOTD
 - HUD removals
 	- weapon, crosshair, money, etc...
-- viewmodel offset
-- smoke visuals, see [this video](https://youtu.be/PL2f-weiF84). 🚬
-- flashbang fade modifier
-- built-in console with custom commands 🖥
-- fov changer
-- server liar (sending false cvar values to the server)
-- skeletal chams 💀
-- playermodel head hitbox rendering, see [this image](https://i.imgur.com/bYzp8KD.png). 🟩
-- server command filter (svc_stufftext filter)
-- ability to view "real" hit-able playermodel and its head hitbox. See [this image](https://i.imgur.com/weWGM5C.png) and [this youtube video](https://youtu.be/xMd9m3McNvo).
-- esp
-	- player
-	- entities
-	- sound
-	- custom box types
-- model chams
-	- viewmodel
-	- players (T and CT)
-	- rainbow colors
-	- flat/shaded
-	- disabled playermodel animations
-- bypassing game constrains
-	- re-enabling noclip (normally disabled in CS 1.6)
-	- custom render distance
-	- re-enabling some renderer cvars (normally unable to set in SP & MP)
-	- allow SP-only cvars also in MP
+- Viewmodel offset
+- Smoke visuals, see [this video](https://youtu.be/PL2f-weiF84). 🚬
+- Flashbang fade modifier
+- Built-in console with custom commands 🖥
+- FOV changer
+- Server liar (sending false cvar values to the server)
+- Skeletal chams 💀
+- Playermodel head hitbox rendering, see [this image](https://i.imgur.com/bYzp8KD.png). 🟩
+- Server command filter (svc_stufftext filter)
+- Ability to view "real" hit-able playermodel and its head hitbox. See [this image](https://i.imgur.com/weWGM5C.png) and [this youtube video](https://youtu.be/xMd9m3McNvo).
+- ESP
+	- Player
+	- Entities
+	- Sound
+	- Custom box types
+- Model chams
+	- Viewmodel
+	- Players (T and CT)
+	- Rainbow colors
+	- Flat/shaded
+	- Disabled playermodel animations
+- Bypassing game constrains
+	- Re-enabling noclip (normally disabled in CS 1.6)
+	- Custom render distance
+	- Re-enabling some renderer cvars (normally unable to set in SP & MP)
+	- Allow SP-only cvars also in MP
 - Frame skipping/simulated framerate
 - Vanilla-like crosshair changer ➕
 - Custom HUD rendering 🌈 such as:
-	- displaying currently held weapon 🔫
-	- displaying current velocity 
+	- Displaying currently held weapon 🔫
+	- Displaying current velocity 
 - Default viewmodel enforcement
 - Movement
-	- air stuck
-	- legit/rage bhop hack 🐇
-- fancy custom cl_showfps rendering
-- rechecker bypass
-- instantaneous cheat unload (either via loader or cheat menu)
-- injection using manual mapping 🗺
-- custom UI (modified version of imgui)
-- key binding
-- configuration files ⚙
+	- Air stuck, see [this video](https://youtu.be/9snddT03M34).
+	- Legit/Rage bhop hack 🐇
+- Fancy custom cl_showfps rendering
+- Rechecker bypass, see [this video](https://youtu.be/Razs0s7sgno).
+- Instantaneous cheat unload (either via loader or cheat menu)
+- Injection using manual mapping 🗺
+- Custom UI (modified version of imgui)
+- Key binding
+- Configuration files ⚙
 
 ## To be done
 

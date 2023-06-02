@@ -96,7 +96,8 @@ void CESP::render_players()
 		auto cl_ent = plr.cl_entity();
 		auto plr_info = plr.get_playerinfo();
 
-		if (model.is_valid() && plr_info && 0)
+#if 0
+		if (model.is_valid() && plr_info)
 		{
 			auto hl_model = model.hl_model();
 
@@ -107,6 +108,7 @@ void CESP::render_players()
 									plr.is_ducking());
 			g_gui_widgets_i->add_text(text, TEXTPROP_ColorWhite);
 		}
+#endif
 
 		if (!plr.is_alive() || plr.is_out_of_update_for(1.0f) || plr.is_local_player() || !model.is_valid())
 		{
@@ -135,20 +137,6 @@ void CESP::render_players()
 			auto team_color = plr.get_color_based_on_team();
 
 			render_box_for_four_points(box_topleft, box_topright, box_botright, box_botleft, team_color, box_tall_half);
-
-			//
-			// render box background
-			//
-
-			if (esp_background.get_value())
-			{
-				auto color = team_color;
-				color.a *= 0.2;
-				g_gui_window_rendering_i->render_quad(
-					g_gui_window_rendering_i->get_current_drawlist(), 
-					box_topleft, box_topright, box_botright, box_botleft,
-					color);
-			}
 
 			//
 			// render text
@@ -455,6 +443,20 @@ void CESP::render_box_for_four_points(const Vector2D& top_left, const Vector2D& 
 
 			break;
 		}
+	}
+
+	//
+	// render box background
+	//
+
+	if (esp_background.get_value())
+	{
+		auto bg_color = color;
+		bg_color.a *= 0.2;
+		g_gui_window_rendering_i->render_quad(
+			g_gui_window_rendering_i->get_current_drawlist(),
+			top_left, top_right, bottom_right, bottom_left,
+			bg_color);
 	}
 }
 

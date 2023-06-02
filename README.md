@@ -70,19 +70,15 @@ This cheat currently supports following builds:
 
 ## Uninstalling
 
-At this very moment, the cheat stores data into appdata. In the future release I will provide some kind of uninstallation tool, that will get rid of all things left behind by the cheat.
+Inside the cheat folder you can find a script called `uninstall.bat` that will uninstall all of the things that the cheat currently store on your computer. This **ins't a virus!** So feel free using it. After you run the script, you can delete the cheat folder.
 
-### Wargods
-
-With that being said, there have been reports with WG already detecting this cheat. I assume it does it through appdata, so **if you still get detected even after "removing" the cheat, please take following steps:**
+However, if you still don't believe me that I have put a virus to a cheat with public source code 😁, you can still uninstall all of the things manually 🤔 (actually, as of now - June 2023, there are only **two** things that the cheat stores on your machine).
 
 - Delete the program (oxware.exe with other DLLs)
 - Go to your appdata folder and then into folder "**Roaming**" (if you don't know how to get there, search the internet on how to get there). Then find folder called **oxware** and delete it.
-- If WG still detects you after deleing the cheat from appdata, you may also try to delete the registry data that the cheat left behind:
+- Then delete the registry data that the cheat left behind:
 	- Go to registry editor (again, if you don't know how, google it)
 	- And go to "**HKEY_CURRENT_USER -> SOFTWARE -> oxware**" and delete the entry.
-
-Sorry for the issues. As I said, I will try to provide uninstallation tool to get rid of all cheat remains stored on your computer in the following releases.
 
 ## Anti-cheats
 
@@ -91,6 +87,10 @@ The cheat wasn't tested on any anticheats so far. It may or may not be detected.
 ### VAC
 
 As far as I know, the CS 1.6 VAC is not so smart, so **YOU SHOULD NOT GET VAC BANNED BY USING THIS**, but having said that, **USE STILL AT YOUR OWN RISK!**
+
+### Wargods
+
+There have been reports with WG already detecting this cheat. In order to not get detected by WG scan even when you "removed" the cheat, you need to run the uninstall script. More on that in here: [uninstalling](#uninstalling).
 
 ## Building
 

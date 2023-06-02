@@ -108,3 +108,18 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Fixed a bug where popup windows would retain window size from previously opened popups.
 - Fixed crashes when restarting/quitting the game.
 - Fixed crash where the cheat would terminate, if injected into game in fullscreen mode while having the UI opened in-game and alt-tabbing from the game.
+
+
+# v1.0.4
+
+## Additions and improvements
+
+- 
+- 
+- 
+
+## Bugfixes
+
+- Fixed a bug where sound and entity esp background box wasn't rendering when toggled on.
+- Fixed duplicated menu entires inside tabs 💩
+- Fixed a bug where mouse cursor wouldn't change to "hand" when hovered over tab items.

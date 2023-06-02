@@ -1171,6 +1171,11 @@ void CGUIWidgets::add_tab_item(const std::string& label, bool border, const Vect
 
 		EndTabItem();
 	}
+
+	if (IsItemHovered())
+	{
+		g_imgui_platform_layer_i->override_cursor(GUICURSOR_Hand);
+	}
 }
 
 void CGUIWidgets::end_tab()

@@ -493,43 +493,6 @@ void CUIMenu::tab_render()
 			});
 
 		CUIMenuWidgets::the().add_menu_child(
-			"Flashbang fade", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-			[]()
-			{
-				CUIMenuWidgets::the().add_checkbox_with_color("Enable", &flashfademod_enable, &flashfademod_color);
-
-				CUIMenuWidgets::the().add_slider("Fade factor", "%0.1f", &flashfademod_fade_factor);
-			});
-
-		CUIMenuWidgets::the().add_menu_child(
-			"ESP", CMenuStyle::calc_child_size(415), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-			[]()
-			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &esp_enable);
-
-				g_gui_widgets_i->add_spacing();
-
-				CUIMenuWidgets::the().add_checkbox("Box background", &esp_background);
-				CUIMenuWidgets::the().add_listbox("Box type", &esp_box_type, { "Normal", "Corners" });
-
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-				g_gui_widgets_i->add_separtor_with_text("Player");
-				CUIMenuWidgets::the().add_checkbox("Enable ##player", &esp_player_enable);
-				CUIMenuWidgets::the().add_checkbox("Show name", &esp_player_name);
-
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-				g_gui_widgets_i->add_separtor_with_text("Entity");
-				CUIMenuWidgets::the().add_checkbox("Enable ##ents", &esp_entity_enable);
-
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-				g_gui_widgets_i->add_separtor_with_text("Sound");
-				CUIMenuWidgets::the().add_checkbox("Enable ##sound", &esp_sound_enable);
-				CUIMenuWidgets::the().add_slider("Display life", "%0.1f seconds", &esp_sound_interval);
-				CUIMenuWidgets::the().add_checkbox("Filter local", &esp_sound_filter_local);
-				CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
-			});
-
-		CUIMenuWidgets::the().add_menu_child(
 			"Studio renderer", CMenuStyle::calc_child_size(375), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -565,7 +528,7 @@ void CUIMenu::tab_render()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child(
-			"Model chams", CMenuStyle::calc_child_size(350), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Model chams", CMenuStyle::calc_child_size(330), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Enable", &mdlchams_enable);
@@ -636,24 +599,6 @@ void CUIMenu::tab_render()
 				CUIMenuWidgets::the().add_checkbox_with_color("HUD Color", &hud_color_enable, &hud_color);
 			});
 
-		CUIMenuWidgets::the().add_menu_child(
-			"Custom vanilla crosshair", CMenuStyle::calc_child_size(280), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-			[]()
-			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &crosshair_enable);
-				CUIMenuWidgets::the().add_checkbox("Dynamic", &crosshair_dynamic);
-				CUIMenuWidgets::the().add_checkbox("Translucent", &crosshair_translucent);
-				CUIMenuWidgets::the().add_checkbox("Static", &crosshair_static);
-
-				CUIMenuWidgets::the().add_slider("Size", "%0.0f", &crosshair_size, "vanilla");
-				CUIMenuWidgets::the().add_slider("Gap", "%0.0f", &crosshair_gap, "vanilla");
-				CUIMenuWidgets::the().add_slider("Thickness", "%0.0f pixels", &crosshair_thickness);
-
-				CUIMenuWidgets::the().add_listbox("Type ##hidden", &crosshair_type, { "Classic", "T-Shaped", "Circular" });
-
-				CUIMenuWidgets::the().add_color_edit("Color", &crosshair_color);
-			});
-
 		g_gui_widgets_i->end_columns();
 	}
 }
@@ -674,7 +619,7 @@ void CUIMenu::tab_screen()
 			});
 
 		CUIMenuWidgets::the().add_menu_child(
-			"ESP", CMenuStyle::calc_child_size(415), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"ESP", CMenuStyle::calc_child_size(215), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Enable", &esp_enable);
@@ -684,41 +629,42 @@ void CUIMenu::tab_screen()
 				CUIMenuWidgets::the().add_checkbox("Box background", &esp_background);
 				CUIMenuWidgets::the().add_listbox("Box type", &esp_box_type, { "Normal", "Corners" });
 
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-				g_gui_widgets_i->add_separtor_with_text("Player");
-				CUIMenuWidgets::the().add_checkbox("Enable ##player", &esp_player_enable);
-				CUIMenuWidgets::the().add_checkbox("Show name", &esp_player_name);
+				g_gui_widgets_i->begin_tab("esp_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-				g_gui_widgets_i->add_separtor_with_text("Entity");
-				CUIMenuWidgets::the().add_checkbox("Enable ##ents", &esp_entity_enable);
+				float tab_height = -1.0f;
 
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-				g_gui_widgets_i->add_separtor_with_text("Sound");
-				CUIMenuWidgets::the().add_checkbox("Enable ##sound", &esp_sound_enable);
-				CUIMenuWidgets::the().add_slider("Display life", "%0.1f seconds", &esp_sound_interval);
-				CUIMenuWidgets::the().add_checkbox("Filter local", &esp_sound_filter_local);
-				CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
+				g_gui_widgets_i->add_tab_item(
+					"Players", false,
+					{ -1.0f, tab_height },
+					[]()
+					{
+						CUIMenuWidgets::the().add_checkbox("Enable ##player", &esp_player_enable);
+						CUIMenuWidgets::the().add_checkbox("Show name", &esp_player_name);
+					});
+
+				g_gui_widgets_i->add_tab_item(
+					"Entities", false,
+					{ -1.0f, tab_height },
+					[]()
+					{
+						CUIMenuWidgets::the().add_checkbox("Enable ##ents", &esp_entity_enable);
+					});
+
+				g_gui_widgets_i->add_tab_item(
+					"Sound", false,
+					{ -1.0f, tab_height },
+					[]()
+					{
+						CUIMenuWidgets::the().add_checkbox("Enable ##sound", &esp_sound_enable);
+						CUIMenuWidgets::the().add_slider("Display life", "%0.1f seconds", &esp_sound_interval);
+						CUIMenuWidgets::the().add_checkbox("Filter local", &esp_sound_filter_local);
+						CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
+					});
+
+				g_gui_widgets_i->end_tab();
 			});
 
 		g_gui_widgets_i->goto_next_column();
-
-		CUIMenuWidgets::the().add_menu_child(
-			"HUD rendering", CMenuStyle::calc_child_size(215), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-			[]()
-			{
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-				g_gui_widgets_i->add_separtor_with_text("Custom rendering");
-
-				CUIMenuWidgets::the().add_checkbox("Enable", &hud_render);
-				CUIMenuWidgets::the().add_checkbox("Current weapon", &hud_render_current_weapon);
-				CUIMenuWidgets::the().add_checkbox("Velocity", &hud_render_velocity);
-
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-				g_gui_widgets_i->add_separtor_with_text("Colors");
-
-				CUIMenuWidgets::the().add_checkbox_with_color("HUD Color", &hud_color_enable, &hud_color);
-			});
 
 		CUIMenuWidgets::the().add_menu_child(
 			"Custom vanilla crosshair", CMenuStyle::calc_child_size(280), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
@@ -737,6 +683,7 @@ void CUIMenu::tab_screen()
 
 				CUIMenuWidgets::the().add_color_edit("Color", &crosshair_color);
 			});
+
 
 		CUIMenuWidgets::the().add_menu_child(
 			"Other", CMenuStyle::calc_child_size(150), false, ImGuiWindowFlags_AlwaysUseWindowPadding,

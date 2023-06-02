@@ -30,6 +30,7 @@
 
 #include <interface/IUserInput.h>
 #include <interface/IInCommands.h>
+#include <interface/ICheatInfo.h>
 
 #include "BaseInCommand.h"
 #include "Console.h"
@@ -67,7 +68,7 @@ void BaseInCommand::rebind_key_to(int new_vk)
 		in_id,
 		[](const std::string& id, UserKey_t* key)
 		{
-			if (g_in_commands_i->is_ui_running())
+			if (g_cheat_info_i->is_cheat_ui_running() || g_cheat_info_i->is_game_ui_running())
 			{
 				return;
 			}

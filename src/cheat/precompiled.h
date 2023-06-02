@@ -49,6 +49,7 @@
 #include <interface/ICodePerformaceProfiler.h>
 #include <interface/IBytePatternBank.h>
 #include <interface/IInCommands.h>
+#include <interface/ICheatInfo.h>
 
 #include <interface/gui/IGLFWApp.h>
 #include <interface/gui/IGUIWidgets.h>

@@ -53,6 +53,7 @@
 #include <interface/ICodePerformaceProfiler.h>
 #include <interface/IBytePatternBank.h>
 #include <interface/IBindManager.h>
+#include <interface/ICheatInfo.h>
 
 #include <tier/GenericUtil.h>
 #include <tier/StringTools.h>

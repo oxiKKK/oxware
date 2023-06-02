@@ -257,11 +257,6 @@ void COxWareUI::run_ui()
 		once = true;
 	}
 
-	// TODO: Create some kind of unique interface for this...
-	g_bindmgr_i->set_ui_running(m_is_any_interactible_rendering_context_active);
-	g_bindmgr_i->set_game_ui_running(CEngineInput::the().is_gameui_rendering());
-	g_in_commands_i->set_ui_running(m_is_any_interactible_rendering_context_active || CEngineInput::the().is_gameui_rendering());
-
 	if (!m_contexts_to_be_rendered.empty() || (m_popup_callback != nullptr))
 	{
 		// push new

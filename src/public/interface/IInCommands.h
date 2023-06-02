@@ -54,9 +54,6 @@ public:
 
 	virtual BaseInCommand* get_incommand(const std::string& id) = 0;
 
-	virtual void set_ui_running(bool is_running) = 0;
-	virtual bool is_ui_running() = 0;
-
 	virtual bool is_key_bound_and_active(int vk) = 0;
 };
 

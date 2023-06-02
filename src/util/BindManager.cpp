@@ -189,12 +189,6 @@ public:
 	EBindFlags parse_flags_out_of_string(const std::string& flags_str);
 	std::string create_string_out_of_flags(EBindFlags flags);
 
-	void set_ui_running(bool is_running) { m_is_ui_running = is_running; }
-	bool is_ui_running() { return m_is_ui_running; }
-
-	void set_game_ui_running(bool is_running) { m_is_game_ui_running = is_running; }
-	bool is_game_ui_running() { return m_is_game_ui_running; }
-
 	bool should_execute_bind(EBindFlags flags);
 
 	bool is_key_bound(int vk);
@@ -211,9 +205,6 @@ private:
 private:
 	// virtual key as key :) and command sequence as value
 	std::map<int, bind_t> m_registerd_binds;
-
-	bool m_is_ui_running = false;
-	bool m_is_game_ui_running = false;
 };
 
 CBindManager g_bindmgr;
@@ -653,12 +644,12 @@ std::string CBindManager::create_string_out_of_flags(EBindFlags flags)
 
 bool CBindManager::should_execute_bind(EBindFlags flags)
 {
-	if (is_ui_running() && !(flags & BINDFLAG_ExecuteOverUI))
+	if (g_cheat_info_i->is_cheat_ui_running() && !(flags & BINDFLAG_ExecuteOverUI))
 	{
 		return false;
 	}
 
-	if (is_game_ui_running() && !(flags & BINDFLAG_ExecuteOverGameUI))
+	if (g_cheat_info_i->is_game_ui_running() && !(flags & BINDFLAG_ExecuteOverGameUI))
 	{
 		return false;
 	}

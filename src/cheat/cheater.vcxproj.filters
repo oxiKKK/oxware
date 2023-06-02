@@ -239,6 +239,9 @@
     <ClCompile Include="..\public\BaseInCommand.cpp">
       <Filter>public</Filter>
     </ClCompile>
+    <ClCompile Include="CheatInfo.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />

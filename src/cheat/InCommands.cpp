@@ -51,9 +51,6 @@ public:
 
 	BaseInCommand* get_incommand(const std::string& id);
 
-	void set_ui_running(bool is_running) { m_is_any_ui_running = is_running; }
-	bool is_ui_running() { return m_is_any_ui_running; }
-
 	bool is_key_bound_and_active(int vk);
 
 private:
@@ -67,8 +64,6 @@ private:
 
 private:
 	std::unordered_map<std::string, BaseInCommand*> m_in_commands;
-
-	bool m_is_any_ui_running = false;
 };
 
 CInCommands g_in_commands;

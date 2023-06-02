@@ -35,6 +35,9 @@
 // This
 IBaseModule* g_thismodule_i = nullptr;
 
+// Cheat
+ICheatInfo* g_cheat_info_i = nullptr;
+
 // Dependency loader
 ILibraryLoader* g_libloader_i = nullptr;
 IDeveloperConsole* g_devconsole_i = nullptr;
@@ -71,6 +74,8 @@ bool CUtilityModule::initialize(ModuleInitializationContext* context)
 
 	CConsole::the().initialize(EOutputModule::UTIL, g_devconsole_i);
 
+	g_cheat_info_i = LocateExportedInterface<ICheatInfo>(WMODULE_CHEAT, ICHEATINFO_INTERFACEID);
+
 	if (!g_importbank_i->initialize())
 	{
 		return false;
@@ -88,6 +93,9 @@ void CUtilityModule::destroy()
 	// Dependency loader
 	g_libloader_i = nullptr;
 	g_devconsole_i = nullptr;
+
+	// Cheat
+	g_cheat_info_i = nullptr;
 
 	// Local
 	g_registry_i = nullptr;
@@ -109,32 +117,6 @@ extern "C" DLLEXPORT bool ExposeModule(IBaseModule** module_interface, ModuleIni
 	}
 
 	CConsole::the().info("Module loaded and initialized.");
-
-#if 0 // benchmark
-	float total_seconds = 0.0f;
-	const int amount_to_find = 100000;
-	for (int i = 0; i < amount_to_find; i++)
-	{
-		auto t1 = std::chrono::high_resolution_clock::now();
-		auto var = g_variablemgr_i->get("random_var5s");
-		auto t2 = std::chrono::high_resolution_clock::now();
-		total_seconds += std::chrono::duration<float, std::ratio<1, 1>>(t2 - t1).count();
-	}
-
-	CConsole::the().info("Took {} seconds to find {} variables", total_seconds, amount_to_find);
-
-	auto var = g_variablemgr_i->get("random_var5s");
-	CConsole::the().info("{}: {} ({}) {} {}-{}", 
-						 var->get_name(), var->get_description(), var->get_float(), 
-						 var->has_bounds() ? "yes" : "no", 
-						 var->get_min(), var->get_max());
-
-	var->set_value(1000.0f);
-	CConsole::the().info("{}: {} ({}) {} {}-{}", 
-						 var->get_name(), var->get_description(), var->get_float(), 
-						 var->has_bounds() ? "yes" : "no", 
-						 var->get_min(), var->get_max());
-#endif
 
 	return true;
 }

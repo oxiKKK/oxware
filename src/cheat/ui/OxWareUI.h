@@ -44,7 +44,10 @@ public:
 	void destroy();
 
 	// if some interactive window is up, disable ingame input.
-	bool should_disable_ingame_input() const { return m_is_any_interactible_rendering_context_active; }
+	bool should_disable_ingame_input() const { return is_any_ui_rendering(); }
+
+	// applies only for interactible UI rendering contexts
+	bool is_any_ui_rendering() const { return m_is_any_interactible_rendering_context_active; }
 
 	IRenderingContext* find_context(const std::string& id) const;
 

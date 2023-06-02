@@ -143,12 +143,6 @@ public:
 	virtual EBindFlags parse_flags_out_of_string(const std::string& flags_str) = 0;
 	virtual std::string create_string_out_of_flags(EBindFlags flags) = 0;
 
-	virtual void set_ui_running(bool is_running) = 0;
-	virtual bool is_ui_running() = 0;
-
-	virtual void set_game_ui_running(bool is_running) = 0;
-	virtual bool is_game_ui_running() = 0;
-
 	virtual bool should_execute_bind(EBindFlags flags) = 0;
 
 	virtual bool is_key_bound(int vk) = 0;

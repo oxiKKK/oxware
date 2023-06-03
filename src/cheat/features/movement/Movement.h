@@ -33,6 +33,9 @@
 extern VarBoolean movement_bhop_enable;
 extern VarBoolean movement_air_stuck_enable;
 
+extern VarBoolean debug_render_info_movement;
+extern VarBoolean debug_render_info_movement_bhop;
+
 class CMovement
 {
 public:
@@ -45,6 +48,10 @@ public:
 private:
 	static InCommand bunnyhop;
 	static InCommand airstuck;
+
+	void render_debug();
+
+	void feed_plot(float frametime, hl::usercmd_t *cmd);
 };
 
 #endif // MOVEMENT_H

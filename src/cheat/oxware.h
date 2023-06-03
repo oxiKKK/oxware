@@ -30,6 +30,8 @@
 #define OXWARE_H
 #pragma once
 
+extern VarBoolean debug;
+
 class CoXWARE
 {
 public:

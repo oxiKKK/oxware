@@ -91,9 +91,11 @@ void CIngameScreenRendering::better_cl_showfps()
 	int w = screen_info.iWidth;
 	int h = screen_info.iHeight;
 
+	auto& console_font = CEngineFontRendering::the().console_font();
+
 	// label width/height based on the font
-	int lw = CEngineRendering::the().calculate_width_for_console_text(label);
-	int lh = CEngineRendering::the().get_console_text_height();
+	int lw = console_font.calc_text_width(label);
+	int lh = console_font.get_text_height();
 
 	Vector2D pos = {};
 	switch (ingamescreen_better_cl_showfps_position.get_value())
@@ -104,8 +106,8 @@ void CIngameScreenRendering::better_cl_showfps()
 		case 3: pos = Vector2D(0, h - lh); break;		// bottom left
 	}
 
-	CEngineRendering::the().render_engine_text(pos, ingamescreen_better_cl_showfps_background.get_value(),
-											   CColor(255, 255, 255), label, lw);
+	console_font.render_text_colored(pos, ingamescreen_better_cl_showfps_background.get_value(),
+									 CColor(255, 255, 255), label);
 }
 
 void CIngameScreenRendering::better_cl_showfps_on_unload()

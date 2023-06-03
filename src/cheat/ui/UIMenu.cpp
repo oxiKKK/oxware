@@ -917,6 +917,16 @@ void CUIMenu::tab_movement()
 				CUIMenuWidgets::the().add_slider("Intensity", "%0.0f", &movement_air_stuck_intensity, "froze");
 			});
 
+		CUIMenuWidgets::the().add_menu_child(
+			"Visualization", CMenuStyle::calc_child_size(120), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable plot", &movement_plot);
+
+				CUIMenuWidgets::the().add_slider("Scale", "%0.0fx", &movement_plot_scale);
+				CUIMenuWidgets::the().add_slider("Row height", "%0.0fpx", &movement_plot_row_height);
+			});
+
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child(
@@ -1387,6 +1397,47 @@ void CUIMenu::tab_others()
 				CUIMenuWidgets::the().add_checkbox("Enable rain", &ui_background_rain);
 				CUIMenuWidgets::the().add_checkbox("Enable background fade", &ui_background_fade);
 				CUIMenuWidgets::the().add_checkbox("Render feature list", &ui_render_feature_list);
+			});
+
+		CUIMenuWidgets::the().add_menu_child(
+			"Debug", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &debug);
+
+				CUIMenuWidgets::the().add_description_text("This feature is used for developement only. You have been warned.");
+
+				if (!debug.get_value())
+				{
+					g_gui_widgets_i->push_disbled();
+				}
+
+				g_gui_widgets_i->begin_tab("debug_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
+
+				float tab_height = -1.0f;
+
+				g_gui_widgets_i->add_tab_item(
+					"Rendering", false,
+					{ -1.0f, tab_height },
+					[]()
+					{
+						CUIMenuWidgets::the().add_checkbox("Enable", &debug_render_info);
+
+						g_gui_widgets_i->add_spacing();
+						g_gui_widgets_i->add_separtor_with_text("Movement");
+						CUIMenuWidgets::the().add_checkbox("Enable##movement", &debug_render_info_movement);
+
+						g_gui_widgets_i->add_spacing();
+						CUIMenuWidgets::the().add_checkbox("Bhop", &debug_render_info_movement_bhop);
+
+					});
+
+				g_gui_widgets_i->end_tab();
+
+				if (!debug.get_value())
+				{
+					g_gui_widgets_i->pop_disabled();
+				}
 			});
 
 		g_gui_widgets_i->goto_next_column();

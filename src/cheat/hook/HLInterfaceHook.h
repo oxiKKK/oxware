@@ -40,6 +40,7 @@ public:
 
 	inline auto ISurface() const { return m_ISurface; }
 	inline auto IPanel() const { return m_IPanel; }
+	inline auto ISchemeManager() const { return m_ISchemeManager; }
 	inline auto IEngineVGui() const { return m_IEngineVGui; }
 	inline auto IGameUI() const { return m_IGameUI; }
 	inline auto IBaseUI() const { return m_IBaseUI; }
@@ -53,6 +54,7 @@ private:
 private:
 	hl::vgui2::ISurface* m_ISurface;
 	hl::vgui2::IPanel* m_IPanel;
+	hl::vgui2::ISchemeManager* m_ISchemeManager;
 	hl::IEngineVGui* m_IEngineVGui;
 	hl::IGameUI* m_IGameUI;
 	hl::IBaseUI* m_IBaseUI;

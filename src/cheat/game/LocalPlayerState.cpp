@@ -86,6 +86,11 @@ bool CLocalPlayerState::is_on_ground()
 	return m_player_flags & FL_ONGROUND;
 }
 
+bool CLocalPlayerState::is_on_ground_safe()
+{
+	return is_on_ground() || m_ground_dist < 0.1f;
+}
+
 float CLocalPlayerState::get_local_velocity_2d()
 {
 	return m_moving_velocity.Length2D();

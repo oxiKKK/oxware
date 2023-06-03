@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-VarInteger movement_bhop_mode("movement_bhop_mode", "Bunnyhop mode - legit or rage", 0, 0, 1);
+VarInteger movement_bhop_mode("movement_bhop_mode", "Bunnyhop mode - legit or rage", BHOPMODE_Legit, BHOPMODE_Legit, BHOPMODE_Rage);
 VarBoolean movement_bhop_jump_on_ladder("movement_bhop_jump_on_ladder", "Jump if also on a ladder", true);
 VarBoolean movement_bhop_jump_in_water("movement_bhop_jump_in_water", "Jump if in water", true);
 VarInteger movement_bhop_jump_in_water_interval("movement_bhop_jump_in_water_interval", "Jump every Nth frame if in water", 7, 1, 20);
@@ -37,62 +37,58 @@ VarInteger movement_bhop_legit_ground_dist_min("movement_bhop_legit_ground_dist_
 VarInteger movement_bhop_legit_ground_dist_max("movement_bhop_legit_ground_dist_max", "Maximal ground distance where to start jumping", 25, 5, 50);
 VarBoolean movement_bhop_legit_noslowdown("movement_bhop_legit_noslowdown", "Makes it so that you wont lose velocity that often", false);
 
-void CMovementBunnyHop::update(float frametime, hl::usercmd_t* cmd)
+void CMovementBunnyHop::update(float frametime)
 {
+	CConsole::the().info("--- start ---");
+
 	int bhop_mode = movement_bhop_mode.get_value();
+	auto legit_bhop_method = (ESimulJumpMethod)movement_bhop_legit_method.get_value();
 
 	bool is_in_water = CLocalPlayerState::the().get_waterlevel() >= 2;
-	if (is_in_water && movement_bhop_jump_in_water.get_value())
+	if (movement_bhop_jump_in_water.get_value() && is_in_water)
 	{
-		auto method = (ESimulJumpMethod)movement_bhop_legit_method.get_value();
-		jump_in_water(bhop_mode == 1 ? SIMULJMP_Command : method, cmd);
+		jump_in_water(bhop_mode == BHOPMODE_Rage, legit_bhop_method);
 		return;
 	}
 	
-	bool is_onladder = CLocalPlayerState::the().is_on_ladder();
-
-	if (is_onladder && movement_bhop_jump_on_ladder.get_value())
+	if (movement_bhop_jump_on_ladder.get_value() && CLocalPlayerState::the().is_on_ladder())
 	{
-		auto method = (ESimulJumpMethod)movement_bhop_legit_method.get_value();
-		ladder_jump(bhop_mode == 1 ? SIMULJMP_Command : method, cmd);
+		ladder_jump(bhop_mode == BHOPMODE_Rage, legit_bhop_method);
 		return;
 	}
 
-	if (bhop_mode == 0)
+	if (bhop_mode == BHOPMODE_Legit)
 	{
 		// unlike rage, legit bhop provides a lot of funcionality and settings that you can tweak.
-		legit_bhop(frametime, cmd);
+		legit_bhop(frametime);
 	}
-	else if (bhop_mode == 1)
+	else if (bhop_mode == BHOPMODE_Rage)
 	{ 
 		// rage bhop is far more obvious but on the other hand, perfect.
-		rage_bhop(frametime, cmd);
+		rage_bhop(frametime);
 	}
 }
 
-void CMovementBunnyHop::rage_bhop(float frametime, hl::usercmd_t* cmd)
+void CMovementBunnyHop::rage_bhop(float frametime)
 {
 	// activates only the frame when on ground. This is extremely obvious when someone analyzes
 	// your demo, but on the otherhand this creates almost no-slow-down effect.
-	force_jump_cmd_buttons(cmd, perfect_condition_for_jump());
+	CClientMovementPacket::the().jump(perfect_condition_for_jump());
 }
 
-void CMovementBunnyHop::legit_bhop(float frametime, hl::usercmd_t* cmd)
+void CMovementBunnyHop::legit_bhop(float frametime)
 {
-	//CConsole::the().info("--- start");
 	float gnd_dist = CLocalPlayerState::the().get_ground_dist();
-
-	auto method = (ESimulJumpMethod)movement_bhop_legit_method.get_value();
-
 	bool is_surfing = CLocalPlayerState::the().is_surfing();
-
 	bool is_onground = perfect_condition_for_jump();
-//	CConsole::the().info("is_onground: {}", is_onground);
+	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs().get();
+
+	auto legit_bhop_method = (ESimulJumpMethod)movement_bhop_legit_method.get_value();
+
 	determine_random_gnddist_for_jump_simul(is_onground);
 
-	if (noslowdown_hop(frametime, cmd))
+	if (noslowdown_hop(frametime))
 	{
-//		CConsole::the().info("Predicted that will be on ground next frame.");
 		return;
 	}
 
@@ -103,7 +99,6 @@ void CMovementBunnyHop::legit_bhop(float frametime, hl::usercmd_t* cmd)
 	// pattern for jumps.
 	bool block_jump = false;
 	static unsigned cnt = 0;
-	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs().get();
 	if (++cnt % cl_enginefuncs->pfnRandomLong(1, 4) == 0 && !is_onground)
 	{
 		block_jump = true;
@@ -111,21 +106,21 @@ void CMovementBunnyHop::legit_bhop(float frametime, hl::usercmd_t* cmd)
 
 	if (perform_jump && !block_jump)
 	{
-		simulate_jump(frametime, cmd, method);
+		simulate_jump(frametime, legit_bhop_method);
 	}
 	else
 	{
-		// release the jump, so we don't sustain in +jump... 'd be really obvious
-		if (m_retained_in_jump)
+		if (m_remained_in_jump)
 		{
-			//CConsole::the().info("blocked jump");
-			force_jump_cmd_buttons(cmd, false);
+			if (!CClientMovementPacket::the().jump_atomic())
+			{
+				m_remained_in_jump = false;
+			}
 		}
 	}
-	//CConsole::the().info("--- end");
 }
 
-void CMovementBunnyHop::simulate_jump(float frametime, hl::usercmd_t* cmd, ESimulJumpMethod method)
+void CMovementBunnyHop::simulate_jump(float frametime, ESimulJumpMethod method)
 {
 	switch (method)
 	{
@@ -144,63 +139,11 @@ void CMovementBunnyHop::simulate_jump(float frametime, hl::usercmd_t* cmd, ESimu
 		}
 		case SIMULJMP_Command:
 		{
-			bool is_onground = perfect_condition_for_jump();
-			static bool flip_flop = true;
-			if (flip_flop || (is_onground && !m_retained_in_jump))
-			{
-				//CConsole::the().info("perform jump");
-				force_jump_cmd_buttons(cmd, true);
-				flip_flop = false;
-			}
-			else
-			{
-				//CConsole::the().info("disabled jump");
-				force_jump_cmd_buttons(cmd, false);
-				flip_flop = true;
-			}
-
-			//CConsole::the().info("{}", flip_flop);
+			m_remained_in_jump = CClientMovementPacket::the().jump_atomic();
 
 			break;
 		}
 	}
-}
-
-void CMovementBunnyHop::force_jump_cmd_buttons(hl::usercmd_t* cmd, bool do_the_jump)
-{
-	static int in_jump_frame = 0;
-
-	if (do_the_jump && in_jump_frame <= 1)
-	{
-		cmd->buttons |= IN_JUMP;
-		//CConsole::the().info("IN_JUMP");
-		CGameUtil::the().record_hud_command("+jump");
-		in_jump_frame++;
-	}
-	else
-	{
-		cmd->buttons &= ~IN_JUMP;
-		//CConsole::the().info("~IN_JUMP");
-		CGameUtil::the().record_hud_command("-jump");
-		in_jump_frame = 0;
-	}
-
-	m_retained_in_jump = do_the_jump;
-	
-	//
-	// While setting/clearing bits inside cmd->buttons (IN_JUMP) may seem like a good idea, it is really not.
-	// When recording a demo, anyone that inspects it afterwards with some kind of tool that can pick up
-	// usercmd_t buttons and commands executed on the client can see, whenever you're cheating or not. That is,
-	// because when you just clear/set bits inside cmd->buttons, there isn't any +/-jump command! And this is it!
-	// So, what's the solution? Well, we can send both! Set the IN_JUMP bit and then the +/-jump command.
-	// 
-	// Additional notes:
-	//  When executing the +jump cmd, the command will be processed next frame, because the prediction code that
-	//  runs playermove code doesn't know about this command yet, because CBuf_Execute will be called in the next
-	//  frame! However, if we set the buttons directly - the pm code will register it this frame, and the command 
-	//  will be scheduled, too. (It will be executed the next frame, but whatever - I doubt that people could make 
-	//  something out of this)
-	//
 }
 
 void CMovementBunnyHop::determine_random_gnddist_for_jump_simul(bool on_ground)
@@ -226,30 +169,30 @@ void CMovementBunnyHop::determine_random_gnddist_for_jump_simul(bool on_ground)
 	}
 }
 
-bool CMovementBunnyHop::noslowdown_hop(float frametime, hl::usercmd_t* cmd)
+bool CMovementBunnyHop::noslowdown_hop(float frametime)
 {
 	if (!movement_bhop_legit_noslowdown.get_value())
 	{
 		return false;
 	}
-
+	
 	float gnd_dist = CLocalPlayerState::the().get_ground_dist();
 	float fall_vel_abs = CLocalPlayerState::the().get_fall_velocity_abs();
-
+	
 	// predict if we will be on ground next frame.
 	// we can predict it by using current frametime, and seeing if we will land to the ground
 	// sooner than the frame time. That means that we should be on ground next frame already.
 	float time_till_ground = gnd_dist / fall_vel_abs;
 	bool will_be_on_ground_next_frame = fall_vel_abs > 0.0f && (time_till_ground < frametime * 2.0f); // some reserve here...
-
+	
 	if (will_be_on_ground_next_frame)
 	{
 		// releasae the cmd button just in case it wasn't - therefore we can do the +jump at the exact frame
 		// where we land on ground.
-		force_jump_cmd_buttons(cmd, false);
+		CClientMovementPacket::the().jump(false);
 		return true;
 	}
-
+	
 	return false;
 }
 
@@ -263,11 +206,11 @@ bool CMovementBunnyHop::perfect_condition_for_jump()
 	return is_onground || gnd_dist <= 0.01f;
 }
 
-void CMovementBunnyHop::ladder_jump(ESimulJumpMethod method, hl::usercmd_t* cmd)
+void CMovementBunnyHop::ladder_jump(bool rage, ESimulJumpMethod method)
 {
-	if (method == SIMULJMP_Command)
+	if (method == SIMULJMP_Command || rage)
 	{
-		force_jump_cmd_buttons(cmd, true);
+		CClientMovementPacket::the().jump_atomic();
 	}
 	else if (method == SIMULJMP_Scroll)
 	{
@@ -276,7 +219,7 @@ void CMovementBunnyHop::ladder_jump(ESimulJumpMethod method, hl::usercmd_t* cmd)
 }
 
 
-void CMovementBunnyHop::jump_in_water(ESimulJumpMethod method, hl::usercmd_t* cmd)
+void CMovementBunnyHop::jump_in_water(bool rage, ESimulJumpMethod method)
 {
 	static int cnt = 0;
 
@@ -287,25 +230,20 @@ void CMovementBunnyHop::jump_in_water(ESimulJumpMethod method, hl::usercmd_t* cm
 
 	// jump every 10 frames
 
-	if (method == SIMULJMP_Command)
+	if (method == SIMULJMP_Command || rage)
 	{
-		static bool flip_flop = true;
-		if (flip_flop)
-		{
-			//CConsole::the().info("perform jump");
-			force_jump_cmd_buttons(cmd, true);
-			flip_flop = false;
-		}
-		else
-		{
-			//CConsole::the().info("disabled jump");
-			force_jump_cmd_buttons(cmd, false);
-			flip_flop = true;
-		}
+		CClientMovementPacket::the().jump_atomic();
 	}
 	else if (method == SIMULJMP_Scroll)
 	{
 		mouse_event(MOUSEEVENTF_WHEEL, 0, 0, WHEEL_DELTA, 0);
 	}
+}
+
+void CMovementBunnyHop::render_debug()
+{
+	CEngineFontRendering::the().render_debug("--- Bhop ---");
+
+	CEngineFontRendering::the().render_debug("Perfect condition for jump: {}", perfect_condition_for_jump());
 }
 

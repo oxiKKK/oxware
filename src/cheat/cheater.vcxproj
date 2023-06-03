@@ -220,6 +220,7 @@
     <ClCompile Include="features\ViewmodelOffset.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="features\FeatureManager.cpp" />
+    <ClCompile Include="game\ClientMovementPacket.cpp" />
     <ClCompile Include="game\EntityManager.cpp" />
     <ClCompile Include="game\GenericEnt.cpp" />
     <ClCompile Include="game\GenericMdl.cpp" />
@@ -300,6 +301,7 @@
     <ClInclude Include="features\VanillaCrosshair.h" />
     <ClInclude Include="features\ViewmodelOffset.h" />
     <ClInclude Include="features\FeatureManager.h" />
+    <ClInclude Include="game\ClientMovementPacket.h" />
     <ClInclude Include="game\EntityManager.h" />
     <ClInclude Include="game\GenericEnt.h" />
     <ClInclude Include="game\GenericMdl.h" />

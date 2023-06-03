@@ -133,6 +133,7 @@ namespace hl
 #include <hlsdk/common/protocol.h>
 #include <hlsdk/common/VGuiVertex.h>
 #include <hlsdk/common/filesystemdefs.h>
+#include <hlsdk/common/Color.h>
 
 // engine
 #include <hlsdk/engine/keydefs.h>
@@ -196,6 +197,7 @@ namespace hl
 // interfaces
 #include <hlsdk/interface/vgui2/IHTML.h>
 #include <hlsdk/interface/vgui2/IPanel.h>
+#include <hlsdk/interface/vgui2/IScheme.h>
 #include <hlsdk/interface/appframework/IAppSystem.h>
 #include <hlsdk/interface/ISurface.h>
 #include <hlsdk/interface/GameUI/IGameUI.h>
@@ -254,6 +256,7 @@ namespace hl
 #include "game/EntityManager.h"
 #include "game/SpriteManager.h"
 #include "game/LocalPlayerState.h"
+#include "game/ClientMovementPacket.h"
 
 // features
 #include "features/FeatureManager.h"

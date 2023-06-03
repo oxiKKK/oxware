@@ -56,6 +56,8 @@ BaseCommand unload_cheat(
 	}
 );
 
+VarBoolean debug("debug", "Enables debug mode", false);
+
 bool CoXWARE::run(injector_information_package_t* ifp)
 {
 	m_ifp = ifp;

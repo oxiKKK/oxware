@@ -242,6 +242,9 @@
     <ClCompile Include="CheatInfo.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="game\ClientMovementPacket.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -430,6 +433,9 @@
     </ClInclude>
     <ClInclude Include="..\public\BaseInCommand.h">
       <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="game\ClientMovementPacket.h">
+      <Filter>src\game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

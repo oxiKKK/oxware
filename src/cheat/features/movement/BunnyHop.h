@@ -39,6 +39,12 @@ extern VarInteger movement_bhop_legit_ground_dist_min;
 extern VarInteger movement_bhop_legit_ground_dist_max;
 extern VarBoolean movement_bhop_legit_noslowdown;
 
+enum EBhopMode
+{
+	BHOPMODE_Legit,
+	BHOPMODE_Rage,
+};
+
 enum ESimulJumpMethod
 {
 	SIMULJMP_Scroll,
@@ -51,26 +57,27 @@ public:
 	DECL_BASIC_CLASS(CMovementBunnyHop);
 
 public:
-	void update(float frametime, hl::usercmd_t *cmd);
+	void update(float frametime);
+
+	void render_debug();
 
 private:
-	void legit_bhop(float frametime, hl::usercmd_t* cmd);
-	void rage_bhop(float frametime, hl::usercmd_t* cmd);
+	void legit_bhop(float frametime);
+	void rage_bhop(float frametime);
 
-	void simulate_jump(float frametime, hl::usercmd_t* cmd, ESimulJumpMethod method);
-	void force_jump_cmd_buttons(hl::usercmd_t* cmd, bool do_the_jump);
-
-	bool m_retained_in_jump;
+	void simulate_jump(float frametime, ESimulJumpMethod method);
 
 	float m_simul_start_gnddist;
 	void determine_random_gnddist_for_jump_simul(bool on_ground);
 
-	bool noslowdown_hop(float frametime, hl::usercmd_t* cmd);
+	bool noslowdown_hop(float frametime);
 
 	bool perfect_condition_for_jump();
 
-	void ladder_jump(ESimulJumpMethod method, hl::usercmd_t *cmd);
-	void jump_in_water(ESimulJumpMethod method, hl::usercmd_t *cmd);
+	void ladder_jump(bool rage, ESimulJumpMethod method);
+	void jump_in_water(bool rage, ESimulJumpMethod method);
+
+	bool m_remained_in_jump;
 };
 
 #endif // BUNNYHOP_H

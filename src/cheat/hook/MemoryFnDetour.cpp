@@ -253,7 +253,7 @@ void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::
 
 	CClientMovementPacket::the().set_current_cmd_for_manipulation(cmd);
 
-	CLocalPlayerState::the().update_clientmove(frametime, cmd);
+	CLocalState::the().update_clientmove(frametime, cmd);
 
 	if (COxWareUI::the().should_disable_ingame_input())
 	{

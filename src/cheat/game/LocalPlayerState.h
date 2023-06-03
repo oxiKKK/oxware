@@ -30,11 +30,10 @@
 #define LOCALPLAYERSTATE_H
 #pragma once
 
-
-class CLocalPlayerState
+class CLocalState
 {
 public:
-	DECL_BASIC_CLASS(CLocalPlayerState);
+	DECL_BASIC_CLASS(CLocalState);
 
 public:
 	void update_clientmove(float frametime, hl::usercmd_t *cmd);

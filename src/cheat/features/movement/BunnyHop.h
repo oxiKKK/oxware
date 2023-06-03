@@ -33,11 +33,18 @@
 extern VarInteger movement_bhop_mode;
 extern VarBoolean movement_bhop_jump_on_ladder;
 extern VarBoolean movement_bhop_jump_in_water;
-extern VarInteger movement_bhop_jump_in_water_interval;
 extern VarInteger movement_bhop_legit_method;
 extern VarInteger movement_bhop_legit_ground_dist_min;
 extern VarInteger movement_bhop_legit_ground_dist_max;
-extern VarBoolean movement_bhop_legit_noslowdown;
+extern VarInteger movement_bhop_legit_efficiency;
+extern VarInteger movement_bhop_legit_pattern_density;
+
+enum EBhopEfficiency
+{
+	BHOPEFF_Noslowdown,
+	BHOPEFF_Normal,
+	BHOPEFF_RandomFOGBased,
+};
 
 enum EBhopMode
 {
@@ -77,7 +84,13 @@ private:
 	void ladder_jump(bool rage, ESimulJumpMethod method);
 	void jump_in_water(bool rage, ESimulJumpMethod method);
 
+	bool randomize_jump_pattern(bool is_onground);
+
 	bool m_remained_in_jump;
+
+	bool predicted_nextframe_on_ground(float frametime);
+
+	int m_fog_counter = 0;
 };
 
 #endif // BUNNYHOP_H

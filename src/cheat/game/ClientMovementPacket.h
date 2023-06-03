@@ -82,6 +82,7 @@ struct MPVisualDataContainer
 extern VarBoolean movement_plot;
 extern VarInteger movement_plot_row_height;
 extern VarInteger movement_plot_scale;
+extern VarBoolean movement_plot_stop;
 
 class CClientMovementPacketPlot
 {

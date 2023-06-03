@@ -266,7 +266,7 @@ float CGameUtil::compute_ground_angle_for_origin(const Vector& origin, float tra
 	Vector trace_end = Vector(origin.x, origin.y, -trace_distance); // trace as back as this
 
 	hl::pmtrace_t* tr = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnPM_TraceLine(
-		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalPlayerState::the().is_ducking() ? 1 : 0, -1);
+		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().is_ducking() ? 1 : 0, -1);
 	
 	// plane normal returns the [0, 1] scale of rotation of the plane [0°, 90°].
 	//
@@ -285,7 +285,7 @@ float CGameUtil::compute_distance_to_ground(const Vector& origin, float trace_di
 
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs().get();
 
-	int player_hull = CLocalPlayerState::the().is_ducking() ? 1 : 0;
+	int player_hull = CLocalState::the().is_ducking() ? 1 : 0;
 	
 	hl::pmtrace_t* tr = cl_enginefuncs->pfnPM_TraceLine(
 		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, player_hull, -1);
@@ -303,7 +303,7 @@ hl::CBasePlayerWeapon* CGameUtil::get_current_weapon()
 
 	auto weapons = *client_wpns_hook.get();
 
-	auto cldata = CLocalPlayerState::the().get_current_frame_clientdata();
+	auto cldata = CLocalState::the().get_current_frame_clientdata();
 	if (!cldata)
 	{
 		return NULL;

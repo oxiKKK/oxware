@@ -71,6 +71,7 @@ void CClientMovementPacket::jump(bool do_the_jump)
 VarBoolean movement_plot("movement_plot", "Enables visualization plot for movement", true);
 VarInteger movement_plot_row_height("movement_plot_row_height", "Height of each row", 30, 10, 100);
 VarInteger movement_plot_scale("movement_plot_scale", "Overall scale of visualized data", 1, 1, 5);
+VarBoolean movement_plot_stop("movement_plot_stop", "Stops collection of data when on", false);
 
 void CClientMovementPacketPlot::initialize_gui()
 {
@@ -95,7 +96,7 @@ void CClientMovementPacketPlot::on_render()
 		m_plot_base = { 0, screen_size.y - 100 };
 	}
 
-	float y_offset = 0.0f;
+	static float y_offset = 0.0f;
 	float data_entry_height_total = movement_plot_row_height.get_value();
 	float data_entry_width_total = 100.0f;
 
@@ -106,6 +107,15 @@ void CClientMovementPacketPlot::on_render()
 	auto white = CColor(230, 230, 230, 230);
 	auto white_dim = CColor(230, 230, 230, 100);
 
+	// render background
+	g_gui_window_rendering_i->render_box(
+		g_gui_window_rendering_i->get_current_drawlist(),
+		m_plot_base - Vector2D(0, y_offset), Vector2D(screen_size.x, m_plot_base.y),
+		CColor(0, 0, 0, 70));
+
+	// reset for new frame
+	y_offset = 0.0f;
+
 	// render each data
 	int n = 1;
 	for (auto& [name, data_container] : m_data)
@@ -114,7 +124,7 @@ void CClientMovementPacketPlot::on_render()
 
 		auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Bold);
 
-		Vector2D current_header_base = m_plot_base + Vector2D(0, -y_offset);
+		Vector2D current_header_base = m_plot_base + Vector2D(1, -y_offset);
 		Vector2D current_data_base = current_header_base + Vector2D(data_entry_width_total, 0);
 
 		// render header
@@ -186,16 +196,15 @@ void CClientMovementPacketPlot::on_render()
 		g_gui_window_rendering_i->get_current_drawlist(),
 		m_plot_base + Vector2D(data_entry_width_total, 0), m_plot_base + Vector2D(data_entry_width_total, -y_offset),
 		white_dim);
-
-	// render background
-	g_gui_window_rendering_i->render_box(
-		g_gui_window_rendering_i->get_current_drawlist(),
-		m_plot_base - Vector2D(0, y_offset), Vector2D(screen_size.x, m_plot_base.y),
-		CColor(0, 0, 0, 40));
 }
 
 void CClientMovementPacketPlot::feed_by_name(const std::string& name, const CColor& color, const MPVisualDataEntry& data)
 {
+	if (movement_plot_stop.get_value())
+	{
+		return;
+	}
+
 	auto& entry = m_data[name];
 
 	if (!entry.color.is_nonzero())
@@ -203,7 +212,8 @@ void CClientMovementPacketPlot::feed_by_name(const std::string& name, const CCol
 		entry.color = color;
 	}
 
-	while (entry.entries.size() >= m_max_x_data)
+	while (!entry.entries.empty() && 
+		   entry.entries.size() >= m_max_x_data)
 	{
 		entry.entries.pop_front();
 	}

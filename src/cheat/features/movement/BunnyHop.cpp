@@ -31,27 +31,25 @@
 VarInteger movement_bhop_mode("movement_bhop_mode", "Bunnyhop mode - legit or rage", BHOPMODE_Legit, BHOPMODE_Legit, BHOPMODE_Rage);
 VarBoolean movement_bhop_jump_on_ladder("movement_bhop_jump_on_ladder", "Jump if also on a ladder", true);
 VarBoolean movement_bhop_jump_in_water("movement_bhop_jump_in_water", "Jump if in water", true);
-VarInteger movement_bhop_jump_in_water_interval("movement_bhop_jump_in_water_interval", "Jump every Nth frame if in water", 7, 1, 20);
 VarInteger movement_bhop_legit_method("movement_bhop_method", "Bunnyhop method", SIMULJMP_Scroll, SIMULJMP_Scroll, SIMULJMP_Command);
 VarInteger movement_bhop_legit_ground_dist_min("movement_bhop_legit_ground_dist_min", "Minimal ground distance where to start jumping", 10, 5, 50);
 VarInteger movement_bhop_legit_ground_dist_max("movement_bhop_legit_ground_dist_max", "Maximal ground distance where to start jumping", 25, 5, 50);
-VarBoolean movement_bhop_legit_noslowdown("movement_bhop_legit_noslowdown", "Makes it so that you wont lose velocity that often", false);
+VarInteger movement_bhop_legit_efficiency("movement_bhop_legit_efficiency", "Efficiency settings of the bunnyhop", 1, 0, 2);
+VarInteger movement_bhop_legit_pattern_density("movement_bhop_legit_pattern_density", "How random the scroll patern occurs", 2, 1, 5);
 
 void CMovementBunnyHop::update(float frametime)
 {
-	CConsole::the().info("--- start ---");
-
 	int bhop_mode = movement_bhop_mode.get_value();
 	auto legit_bhop_method = (ESimulJumpMethod)movement_bhop_legit_method.get_value();
 
-	bool is_in_water = CLocalPlayerState::the().get_waterlevel() >= 2;
+	bool is_in_water = CLocalState::the().get_waterlevel() >= 2;
 	if (movement_bhop_jump_in_water.get_value() && is_in_water)
 	{
 		jump_in_water(bhop_mode == BHOPMODE_Rage, legit_bhop_method);
 		return;
 	}
 	
-	if (movement_bhop_jump_on_ladder.get_value() && CLocalPlayerState::the().is_on_ladder())
+	if (movement_bhop_jump_on_ladder.get_value() && CLocalState::the().is_on_ladder())
 	{
 		ladder_jump(bhop_mode == BHOPMODE_Rage, legit_bhop_method);
 		return;
@@ -78,8 +76,8 @@ void CMovementBunnyHop::rage_bhop(float frametime)
 
 void CMovementBunnyHop::legit_bhop(float frametime)
 {
-	float gnd_dist = CLocalPlayerState::the().get_ground_dist();
-	bool is_surfing = CLocalPlayerState::the().is_surfing();
+	float gnd_dist = CLocalState::the().get_ground_dist();
+	bool is_surfing = CLocalState::the().is_surfing();
 	bool is_onground = perfect_condition_for_jump();
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs().get();
 
@@ -87,7 +85,9 @@ void CMovementBunnyHop::legit_bhop(float frametime)
 
 	determine_random_gnddist_for_jump_simul(is_onground);
 
-	if (noslowdown_hop(frametime))
+	auto bhop_eff = (EBhopEfficiency)movement_bhop_legit_efficiency.get_value();
+
+	if (bhop_eff == BHOPEFF_Noslowdown && noslowdown_hop(frametime))
 	{
 		return;
 	}
@@ -98,18 +98,29 @@ void CMovementBunnyHop::legit_bhop(float frametime)
 	// block the jump randomly unless we're really near the ground. this creates sort of a randomization
 	// pattern for jumps.
 	bool block_jump = false;
-	static unsigned cnt = 0;
-	if (++cnt % cl_enginefuncs->pfnRandomLong(1, 4) == 0 && !is_onground)
+	if (randomize_jump_pattern(is_onground))
 	{
 		block_jump = true;
 	}
 
 	if (perform_jump && !block_jump)
 	{
+		if (bhop_eff == BHOPEFF_RandomFOGBased)
+		{
+			// randomize this as well
+			static int cnt = 0;
+			if (++cnt % cl_enginefuncs->pfnRandomLong(1, 10) == 0)
+			{
+				return;
+			}
+		}
+
 		simulate_jump(frametime, legit_bhop_method);
+		m_fog_counter++;
 	}
 	else
 	{
+		m_fog_counter = false;
 		if (m_remained_in_jump)
 		{
 			if (!CClientMovementPacket::the().jump_atomic())
@@ -171,21 +182,8 @@ void CMovementBunnyHop::determine_random_gnddist_for_jump_simul(bool on_ground)
 
 bool CMovementBunnyHop::noslowdown_hop(float frametime)
 {
-	if (!movement_bhop_legit_noslowdown.get_value())
-	{
-		return false;
-	}
-	
-	float gnd_dist = CLocalPlayerState::the().get_ground_dist();
-	float fall_vel_abs = CLocalPlayerState::the().get_fall_velocity_abs();
-	
-	// predict if we will be on ground next frame.
-	// we can predict it by using current frametime, and seeing if we will land to the ground
-	// sooner than the frame time. That means that we should be on ground next frame already.
-	float time_till_ground = gnd_dist / fall_vel_abs;
-	bool will_be_on_ground_next_frame = fall_vel_abs > 0.0f && (time_till_ground < frametime * 2.0f); // some reserve here...
-	
-	if (will_be_on_ground_next_frame)
+	// try to predict if we'll be on ground next frame. this is a hard one.
+	if (predicted_nextframe_on_ground(frametime))
 	{
 		// releasae the cmd button just in case it wasn't - therefore we can do the +jump at the exact frame
 		// where we land on ground.
@@ -198,12 +196,7 @@ bool CMovementBunnyHop::noslowdown_hop(float frametime)
 
 bool CMovementBunnyHop::perfect_condition_for_jump()
 {
-	bool is_onground = CLocalPlayerState::the().is_on_ground();
-
-	float gnd_dist = CLocalPlayerState::the().get_ground_dist();
-
-	// HACKHACK
-	return is_onground || gnd_dist <= 0.01f;
+	return CLocalState::the().is_on_ground_safe();
 }
 
 void CMovementBunnyHop::ladder_jump(bool rage, ESimulJumpMethod method)
@@ -218,18 +211,8 @@ void CMovementBunnyHop::ladder_jump(bool rage, ESimulJumpMethod method)
 	}
 }
 
-
 void CMovementBunnyHop::jump_in_water(bool rage, ESimulJumpMethod method)
 {
-	static int cnt = 0;
-
-	if (++cnt % movement_bhop_jump_in_water_interval.get_value() != 0)
-	{
-		return;
-	}
-
-	// jump every 10 frames
-
 	if (method == SIMULJMP_Command || rage)
 	{
 		CClientMovementPacket::the().jump_atomic();
@@ -240,10 +223,51 @@ void CMovementBunnyHop::jump_in_water(bool rage, ESimulJumpMethod method)
 	}
 }
 
+bool CMovementBunnyHop::randomize_jump_pattern(bool is_onground)
+{
+	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs().get();
+	static unsigned cnt = 0;
+	int dens = movement_bhop_legit_pattern_density.get_value();
+	if (dens == 5)
+	{
+		return false;
+	}
+
+	if (++cnt % cl_enginefuncs->pfnRandomLong(1, 5 - dens) != 0 && !is_onground)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool CMovementBunnyHop::predicted_nextframe_on_ground(float frametime)
+{
+	float gnd_dist = CLocalState::the().get_ground_dist();
+	float fall_vel = CLocalState::the().get_fall_velocity();
+	bool is_onground = perfect_condition_for_jump();
+
+	if (is_onground)
+	{
+		// already on ground
+		return false;
+	}
+
+	if (gnd_dist == 0.0f || fall_vel == 0.0f)
+	{
+		return false;
+	}
+
+	// See if our fall distance is bigger than the distance to ground. Then we're
+	// guaranteed to be next frame on the ground.
+	return fall_vel > 0.0f && ((fall_vel * frametime) * 2.0f > gnd_dist);
+}
+
 void CMovementBunnyHop::render_debug()
 {
 	CEngineFontRendering::the().render_debug("--- Bhop ---");
 
 	CEngineFontRendering::the().render_debug("Perfect condition for jump: {}", perfect_condition_for_jump());
+	CEngineFontRendering::the().render_debug("m_simul_start_gnddist: {}", m_simul_start_gnddist);
 }
 

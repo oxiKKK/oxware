@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-void CLocalPlayerState::update_clientmove(float frametime, hl::usercmd_t* cmd)
+void CLocalState::update_clientmove(float frametime, hl::usercmd_t* cmd)
 {
 	// cache everything related to our client.
 
@@ -46,57 +46,58 @@ void CLocalPlayerState::update_clientmove(float frametime, hl::usercmd_t* cmd)
 	m_is_surfing = m_ground_angle > 45.0f && m_ground_dist < 30.0f;
 }
 
-hl::clientdata_t* CLocalPlayerState::get_current_frame_clientdata()
+hl::clientdata_t* CLocalState::get_current_frame_clientdata()
 {
 	return &m_current_frame->clientdata;
 }
 
-int CLocalPlayerState::get_player_flags()
+int CLocalState::get_player_flags()
 {
 	return m_player_flags;
 }
 
-bool CLocalPlayerState::player_can_shoot()
+bool CLocalState::player_can_shoot()
 {
 	return m_current_frame->clientdata.iuser3 & PLAYER_CAN_SHOOT;
 }
 
-bool CLocalPlayerState::player_freeze_time_over()
+bool CLocalState::player_freeze_time_over()
 {
 	return m_current_frame->clientdata.iuser3 & PLAYER_FREEZE_TIME_OVER;
 }
 
-bool CLocalPlayerState::player_in_bomb_zone()
+bool CLocalState::player_in_bomb_zone()
 {
 	return m_current_frame->clientdata.iuser3 & PLAYER_IN_BOMB_ZONE;
 }
 
-bool CLocalPlayerState::player_holding_shield()
+bool CLocalState::player_holding_shield()
 {
 	return m_current_frame->clientdata.iuser3 & PLAYER_HOLDING_SHIELD;
 }
 
-bool CLocalPlayerState::is_ducking()
+bool CLocalState::is_ducking()
 {
 	return m_player_flags & FL_DUCKING;
 }
 
-bool CLocalPlayerState::is_on_ground()
+bool CLocalState::is_on_ground()
 {
 	return m_player_flags & FL_ONGROUND;
 }
 
-bool CLocalPlayerState::is_on_ground_safe()
+bool CLocalState::is_on_ground_safe()
 {
+	// HACKHACK
 	return is_on_ground() || m_ground_dist < 0.1f;
 }
 
-float CLocalPlayerState::get_local_velocity_2d()
+float CLocalState::get_local_velocity_2d()
 {
 	return m_moving_velocity.Length2D();
 }
 
-float CLocalPlayerState::get_local_velocity_3d()
+float CLocalState::get_local_velocity_3d()
 {
 	return m_moving_velocity.Length();
 }

@@ -918,13 +918,16 @@ void CUIMenu::tab_movement()
 			});
 
 		CUIMenuWidgets::the().add_menu_child(
-			"Visualization", CMenuStyle::calc_child_size(120), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Visualization", CMenuStyle::calc_child_size(150), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Enable plot", &movement_plot);
 
 				CUIMenuWidgets::the().add_slider("Scale", "%0.0fx", &movement_plot_scale);
 				CUIMenuWidgets::the().add_slider("Row height", "%0.0fpx", &movement_plot_row_height);
+
+				g_gui_widgets_i->add_spacing();
+				CUIMenuWidgets::the().add_checkbox("Stop collection", &movement_plot_stop);
 			});
 
 		g_gui_widgets_i->goto_next_column();
@@ -941,7 +944,6 @@ void CUIMenu::tab_movement()
 				
 				CUIMenuWidgets::the().add_checkbox("Jump if on ladder", &movement_bhop_jump_on_ladder);
 				CUIMenuWidgets::the().add_checkbox("Jump if in water", &movement_bhop_jump_in_water);
-				CUIMenuWidgets::the().add_slider("Jump interval", "%0.0f", &movement_bhop_jump_in_water_interval, "each frame");
 
 				g_gui_widgets_i->add_spacing();
 				g_gui_widgets_i->add_separator();
@@ -955,9 +957,22 @@ void CUIMenu::tab_movement()
 					CUIMenuWidgets::the().add_slider_nolabel("Minimal ground distance", "%0.0f units", &movement_bhop_legit_ground_dist_min);
 					CUIMenuWidgets::the().add_slider_nolabel("Maximal ground distance", "%0.0f units", &movement_bhop_legit_ground_dist_max);
 
-					CUIMenuWidgets::the().add_checkbox("No slow-down", &movement_bhop_legit_noslowdown, 
-													   "Tries to perform the jump at the exact time you hit the ground. "
-													   "This is not perfect, but helps you to not lose speed that much.");
+					int min = movement_bhop_legit_ground_dist_min.get_value();
+					int max = movement_bhop_legit_ground_dist_max.get_value();
+
+					// auto-correct nonsense values
+					if (min > max)
+					{
+						movement_bhop_legit_ground_dist_min.set_value(max);
+					}
+					if (max < min)
+					{
+						movement_bhop_legit_ground_dist_max.set_value(min);
+					}
+
+					CUIMenuWidgets::the().add_slider("Pattern density", "%0.0f", &movement_bhop_legit_pattern_density, NULL, "unlimited");
+
+					CUIMenuWidgets::the().add_listbox("Efficiency", &movement_bhop_legit_efficiency, { "No slowdown", "Normal", "Random FOG based"});
 				}
 				else if (movement_bhop_mode.get_value() == 1) // rage
 				{

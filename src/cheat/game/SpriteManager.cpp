@@ -385,7 +385,7 @@ void CSpriteMgr::render_velocity() const
 	if (!local || !local->is_valid() || !local->is_alive())
 		return;
 
-	float velocity = CLocalPlayerState::the().get_local_velocity_2d();
+	float velocity = CLocalState::the().get_local_velocity_2d();
 
 	static float rolling_velocity = 0.0f;
 

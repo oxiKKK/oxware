@@ -171,7 +171,7 @@ void CVanillaCrosshair::draw()
 	// dynamic crosshair, based on movement, playermove flags, weapon velocity, etc.
 	if (accuracy_flags != ACCURACY_NONE && crosshair_dynamic.get_value() != 0)
 	{
-		int player_flags = CLocalPlayerState::the().get_player_flags();
+		int player_flags = CLocalState::the().get_player_flags();
 
 		if ((player_flags & FL_ONGROUND) || !(accuracy_flags & ACCURACY_AIR))
 		{
@@ -179,7 +179,7 @@ void CVanillaCrosshair::draw()
 			{
 				gap = (int)((float)gap * 0.5f);
 			}
-			else if (CLocalPlayerState::the().get_local_velocity_2d() > get_weapon_max_speed_for_crosshair(current_weapon->m_iId) && (accuracy_flags & ACCURACY_SPEED))
+			else if (CLocalState::the().get_local_velocity_2d() > get_weapon_max_speed_for_crosshair(current_weapon->m_iId) && (accuracy_flags & ACCURACY_SPEED))
 			{
 				gap = (int)((float)gap * 1.5f);
 			}

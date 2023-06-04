@@ -152,6 +152,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - Movement
 	- Air stuck, see [this video](https://youtu.be/9snddT03M34).
 	- Legit/Rage bhop hack 🐇
+	- GS hack.
 - Fancy custom cl_showfps rendering
 - Rechecker bypass, see [this video](https://youtu.be/Razs0s7sgno).
 - Instantaneous cheat unload (either via loader or cheat menu)

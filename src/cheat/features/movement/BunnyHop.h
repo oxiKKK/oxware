@@ -33,15 +33,18 @@
 extern VarInteger movement_bhop_mode;
 extern VarBoolean movement_bhop_jump_on_ladder;
 extern VarBoolean movement_bhop_jump_in_water;
-extern VarInteger movement_bhop_legit_method;
+extern VarInteger movement_bhop_repeat_ms;
+extern VarBoolean movement_bhop_mode_noslowdown;
+extern VarInteger movement_bhop_mode_noslowdown_method;
+extern VarInteger movement_bhop_mode_noslowdown_factor;
 extern VarInteger movement_bhop_legit_ground_dist_min;
 extern VarInteger movement_bhop_legit_ground_dist_max;
 extern VarInteger movement_bhop_legit_efficiency;
-extern VarInteger movement_bhop_legit_pattern_density;
+extern VarInteger movement_bhop_legit_scroll_density;
 
 enum EBhopEfficiency
 {
-	BHOPEFF_Noslowdown,
+	BHOPEFF_Helper,
 	BHOPEFF_Normal,
 	BHOPEFF_RandomFOGBased,
 };
@@ -52,10 +55,10 @@ enum EBhopMode
 	BHOPMODE_Rage,
 };
 
-enum ESimulJumpMethod
+enum EBhopNoSlowDownMethod
 {
-	SIMULJMP_Scroll,
-	SIMULJMP_Command,
+	BHOPNSDN_ServerSpeed,
+	BHOPNSDN_EngineSpeed,
 };
 
 class CMovementBunnyHop
@@ -72,17 +75,14 @@ private:
 	void legit_bhop(float frametime);
 	void rage_bhop(float frametime);
 
-	void simulate_jump(float frametime, ESimulJumpMethod method);
+	void simulate_jump(float frametime);
 
 	float m_simul_start_gnddist;
 	void determine_random_gnddist_for_jump_simul(bool on_ground);
 
-	bool noslowdown_hop(float frametime);
+	bool hop_helper(float frametime);
 
 	bool perfect_condition_for_jump();
-
-	void ladder_jump(bool rage, ESimulJumpMethod method);
-	void jump_in_water(bool rage, ESimulJumpMethod method);
 
 	bool randomize_jump_pattern(bool is_onground);
 
@@ -91,6 +91,10 @@ private:
 	bool predicted_nextframe_on_ground(float frametime);
 
 	int m_fog_counter = 0;
+
+	void nsdn_speedhack();
+
+	int m_jump_timer_ms = 0;
 };
 
 #endif // BUNNYHOP_H

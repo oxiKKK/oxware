@@ -86,6 +86,9 @@ public:
 	// replica of CL_RecordHUDCommand
 	void record_hud_command(const char* cmdname);
 
+	// see the function definition for more information :-)
+	void classic_cs16_cheating_scene_speedhack(double new_speed);
+
 private:
 	void locate_engine_compile_timestamp();
 

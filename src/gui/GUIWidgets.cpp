@@ -782,6 +782,11 @@ bool CGUIWidgets::add_color_edit(const std::string& label, float rgba[4], ImGuiC
 
 	PopStyleVar(2);
 
+	if (IsItemHovered())
+	{
+		g_imgui_platform_layer_i->override_cursor(GUICURSOR_Hand);
+	}
+
 	return ret;
 }
 
@@ -970,7 +975,7 @@ void CGUIWidgets::add_progress_bar(const std::string& id, const Vector2D& size, 
 	ImVec2 label_size = CalcTextSize(std::format("{} %", percentage).c_str(), NULL, true);
 
 	ImVec2 pos = window->DC.CursorPos;
-	ImVec2 item_size = CalcItemSize(size, label_size.x + style.FramePadding.x, (label_size.y + style.FramePadding.y) * 0.2);
+	ImVec2 item_size = CalcItemSize(size, label_size.x + style.FramePadding.x, (label_size.y + style.FramePadding.y) * 0.2f);
 
 	ImRect bb(pos, pos + ImVec2(item_size.x * (current / max), item_size.y));
 	ImRect bb1(pos, pos + item_size);
@@ -984,7 +989,7 @@ void CGUIWidgets::add_progress_bar(const std::string& id, const Vector2D& size, 
 	auto clr1 = get_color<GUICLR_ProgressBar>();
 
 	//clr.a = (current / max);
-	clr1.a = 0.1;
+	clr1.a = 0.1f;
 
 	RenderFrame(bb.Min, bb.Max, clr.as_u32(), true, 4.0f);
 	RenderFrame(bb1.Min, bb1.Max, clr1.as_u32(), true, 4.0f);
@@ -1507,7 +1512,7 @@ bool CGUIWidgets::begin_combo_internal(const char* label, const char* preview_la
 	const ImGuiID id = window->GetID(label);
 	IM_ASSERT((flags & (ImGuiComboFlags_NoArrowButton | ImGuiComboFlags_NoPreview)) != (ImGuiComboFlags_NoArrowButton | ImGuiComboFlags_NoPreview)); // Can't use both flags together
 
-	const float height_factor = 0.3;
+	const float height_factor = 0.3f;
 	const ImVec2 arrow_size = { (flags & ImGuiComboFlags_NoArrowButton) ? 0.0f : GetFrameHeight(), GetFrameHeight() * height_factor };
 	const ImVec2 label_size = CalcTextSize(label, NULL, true);
 	const float full_w = window->Size.x - style.FramePadding.x * 1.5f;

@@ -39,7 +39,7 @@ public:
 	DECL_BASIC_CLASS(CMovementAirStuck);
 
 public:
-	void update(hl::usercmd_t* to);
+	void update();
 };
 
 #endif // AIRSTUCK_H

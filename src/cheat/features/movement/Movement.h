@@ -32,6 +32,7 @@
 
 extern VarBoolean movement_bhop_enable;
 extern VarBoolean movement_air_stuck_enable;
+extern VarBoolean movement_gs_enable;
 
 extern VarBoolean debug_render_info_movement;
 extern VarBoolean debug_render_info_movement_bhop;
@@ -43,11 +44,11 @@ public:
 
 public:
 	void update_clientmove(float frametime, hl::usercmd_t *cmd);
-	void update_msg_writeusercmd(hl::usercmd_t* to);
 
 private:
 	static InCommand bunnyhop;
 	static InCommand airstuck;
+	static InCommand gs;
 
 	void render_debug();
 

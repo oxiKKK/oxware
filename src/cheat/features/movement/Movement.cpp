@@ -28,11 +28,13 @@
 
 #include "precompiled.h"
 
-VarBoolean movement_bhop_enable("movement_bhop_enable", "Enables bunnyhop", false);
+VarBoolean movement_bhop_enable("movement_bhop_enable", "Enables BunnyHop hacks", false);
 VarBoolean movement_air_stuck_enable("movement_air_stuck_enable", "Allows to get stuck in the mid air, when on", false);
+VarBoolean movement_gs_enable("movement_gs_enable", "Enables GroundStrafe hacks", false);
 
 InCommand CMovement::bunnyhop = InCommand("movement_bhop", VK_SPACE, &movement_bhop_enable);
 InCommand CMovement::airstuck = InCommand("movement_air_stuck", VK_XBUTTON1, &movement_air_stuck_enable); // mouse4
+InCommand CMovement::gs = InCommand("movement_gs", VK_XBUTTON2, &movement_gs_enable); // mouse5
 
 VarBoolean debug_render_info_movement("debug_render_info_movement", "Movement information", false);
 VarBoolean debug_render_info_movement_bhop("debug_render_info_bhop", "Bunnyhop information", false);
@@ -53,9 +55,23 @@ InCommandCustom incmd_test = InCommandCustom(
 
 void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 {
-	if (bunnyhop.is_active())
+	auto local = CEntityMgr::the().get_local_player();
+	if (local && local->is_alive())
 	{
-		CMovementBunnyHop::the().update(frametime);
+		if (bunnyhop.is_active())
+		{
+			CMovementBunnyHop::the().update(frametime);
+		}
+
+		if (gs.is_active())
+		{
+			CMovementGroundStrafe::the().update(frametime);
+		}
+
+		if (airstuck.is_active())
+		{
+			CMovementAirStuck::the().update();
+		}
 	}
 
 	if (debug.get_value())
@@ -74,14 +90,6 @@ void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 	feed_plot(frametime, cmd);
 }
 
-void CMovement::update_msg_writeusercmd(hl::usercmd_t* to)
-{
-	if (airstuck.is_active())
-	{
-		CMovementAirStuck::the().update(to);
-	}
-}
-
 void CMovement::render_debug()
 {
 	CEngineFontRendering::the().render_debug("--- Movement ---");
@@ -92,11 +100,16 @@ void CMovement::render_debug()
 	float fall_vel = CLocalState::the().get_fall_velocity();
 	float vel_2d = CLocalState::the().get_local_velocity_2d();
 
+	auto pmove = *CMemoryHookMgr::the().pmove().get();
+
 	CEngineFontRendering::the().render_debug("Ground distance: {:0.3f} units", gnd_dist);
 	CEngineFontRendering::the().render_debug("Ground angle: {:0.1f} °", gnd_angle);
 	CEngineFontRendering::the().render_debug("Fall velocity: {:0.3f} u/s", fall_vel);
 	CEngineFontRendering::the().render_debug("Velocity 2D: {:0.3f} u/s", vel_2d);
 	CEngineFontRendering::the().render_debug("Is surfing: {}", is_surfing);
+	CEngineFontRendering::the().render_debug("Water level: {}", pmove->waterlevel);
+	CEngineFontRendering::the().render_debug("Water type: {}", pmove->watertype);
+	CEngineFontRendering::the().render_debug("Water jump time: {}", pmove->waterjumptime);
 }
 
 void CMovement::feed_plot(float frametime, hl::usercmd_t * cmd)

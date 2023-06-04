@@ -245,6 +245,9 @@
     <ClCompile Include="game\ClientMovementPacket.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
+    <ClCompile Include="features\movement\GroundStrafe.cpp">
+      <Filter>src\features\movement</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -436,6 +439,9 @@
     </ClInclude>
     <ClInclude Include="game\ClientMovementPacket.h">
       <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="features\movement\GroundStrafe.h">
+      <Filter>src\features\movement</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

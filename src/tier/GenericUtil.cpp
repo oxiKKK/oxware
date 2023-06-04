@@ -238,3 +238,39 @@ std::string CGenericUtil::fix_directory_separators(const std::string& directory)
 	std::filesystem::path p = directory;
 	return p.make_preferred().string();
 }
+
+void CGenericUtil::push_page_protection(uintptr_t address, size_t size, uint32_t page_protection_flags)
+{
+	assert(m_page_protection_patch_address == NULL && m_page_protection_patch_size == NULL && "Didn't pop previously pushed page protection!");
+
+	BOOL success = VirtualProtect((LPVOID)address, size, page_protection_flags, (PDWORD)&m_old_page_protection_flags) != FALSE;
+	if (success)
+	{
+		m_page_protection_patch_address = address;
+		m_page_protection_patch_size = size;
+	}
+	else
+	{
+		CConsole::the().error("Failed to push '{}' page protection flags to memory region: 0x{:08X} of size 0x{:08X}", page_protection_flags, address, size);
+	}
+}
+
+void CGenericUtil::pop_page_protection()
+{
+	assert(m_page_protection_patch_address != NULL && m_page_protection_patch_size != NULL && "Tried to pop non-pushed page protection!");
+
+	DWORD dummy; // the function fails if we don't provde it this.
+	BOOL success = VirtualProtect((LPVOID)m_page_protection_patch_address, m_page_protection_patch_size, m_old_page_protection_flags, &dummy) != FALSE;
+	if (success)
+	{
+		// call this because we modified the memory
+		FlushInstructionCache(get_current_process_handle(), (LPCVOID)m_page_protection_patch_address, m_page_protection_patch_size);
+	}
+	else
+	{
+		CConsole::the().error("Failed to restore '{}' page protection flags to memory region: 0x{:08X} of size 0x{:08X}", 
+							  m_old_page_protection_flags, m_page_protection_patch_address, m_page_protection_patch_size);
+	}
+
+	reset_page_protection_data();
+}

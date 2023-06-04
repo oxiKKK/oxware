@@ -426,27 +426,30 @@ void CUIMenu::tab_world()
 				g_gui_widgets_i->add_spacing();
 				CUIMenuWidgets::the().add_description_text("In order to disable in-game fog, use \"gl_fog\" command.");
 
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
 				g_gui_widgets_i->add_separtor_with_text("Remove HUD");
 
-				CUIMenuWidgets::the().add_checkbox("Enable", &remove_hud_enable);
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-
-				if (g_gui_widgets_i->begin_columns("removals_hud", 2))
+				CUIMenuWidgets::the().feature_enabled_section(
+				&remove_hud_enable,
+				[]()
 				{
-					g_gui_widgets_i->goto_next_column();
-					CUIMenuWidgets::the().add_checkbox("Weapons", &remove_hud_weapons);
-					CUIMenuWidgets::the().add_checkbox("Crosshair", &remove_hud_crosshair);
-					CUIMenuWidgets::the().add_checkbox("Flashlight", &remove_hud_flashlight);
+					g_gui_widgets_i->add_padding({ 0, 5.0f });
 
-					g_gui_widgets_i->goto_next_column();
+					if (g_gui_widgets_i->begin_columns("removals_hud", 2))
+					{
+						g_gui_widgets_i->goto_next_column();
+						CUIMenuWidgets::the().add_checkbox("Weapons", &remove_hud_weapons);
+						CUIMenuWidgets::the().add_checkbox("Crosshair", &remove_hud_crosshair);
+						CUIMenuWidgets::the().add_checkbox("Flashlight", &remove_hud_flashlight);
 
-					CUIMenuWidgets::the().add_checkbox("Health", &remove_hud_health);
-					CUIMenuWidgets::the().add_checkbox("Timer", &remove_hud_timer);
-					CUIMenuWidgets::the().add_checkbox("Money", &remove_hud_money);
+						g_gui_widgets_i->goto_next_column();
 
-					g_gui_widgets_i->end_columns();
-				}
+						CUIMenuWidgets::the().add_checkbox("Health", &remove_hud_health);
+						CUIMenuWidgets::the().add_checkbox("Timer", &remove_hud_timer);
+						CUIMenuWidgets::the().add_checkbox("Money", &remove_hud_money);
+
+						g_gui_widgets_i->end_columns();
+					}
+				});
 			});
 
 		g_gui_widgets_i->goto_next_column();
@@ -455,23 +458,29 @@ void CUIMenu::tab_world()
 			"Viewmodel offset", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &viewmodel_offset_enable);
-
-				CUIMenuWidgets::the().add_slider("Amount", "%0.1f", &viewmodel_offset_value);
+				CUIMenuWidgets::the().feature_enabled_section(
+				&viewmodel_offset_enable,
+				[]()
+				{
+					CUIMenuWidgets::the().add_slider("Amount", "%0.1f", &viewmodel_offset_value);
+				});
 			});
 
 		CUIMenuWidgets::the().add_menu_child(
 			"Smoke visuals", CMenuStyle::calc_child_size(180), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &smoke_visuals);
+				CUIMenuWidgets::the().feature_enabled_section(
+				&smoke_visuals,
+				[]()
+				{
+					CUIMenuWidgets::the().add_color_edit("Color", &smoke_color);
+					CUIMenuWidgets::the().add_checkbox("Rainbow smoke", &smoke_rainbow);
 
-				CUIMenuWidgets::the().add_color_edit("Color", &smoke_color);
-				CUIMenuWidgets::the().add_checkbox("Rainbow smoke", &smoke_rainbow);
+					CUIMenuWidgets::the().add_slider("Opacity", "%0.0f %%", &smoke_opacity);
 
-				CUIMenuWidgets::the().add_slider("Opacity", "%0.0f %%", &smoke_opacity);
-
-				CUIMenuWidgets::the().add_description_text("Everything changed here will take effect only on new smoke creation.");
+					CUIMenuWidgets::the().add_description_text("Everything changed here will take effect only on new smoke creation.");
+				});
 			});
 
 		g_gui_widgets_i->end_columns();
@@ -488,8 +497,12 @@ void CUIMenu::tab_render()
 			"Field of view", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &custom_fov);
-				CUIMenuWidgets::the().add_slider("FOV scale", "%0.01fx", &custom_fov_value);
+				CUIMenuWidgets::the().feature_enabled_section(
+				&custom_fov,
+				[]()
+				{
+					CUIMenuWidgets::the().add_slider("FOV scale", "%0.01fx", &custom_fov_value);
+				});
 			});
 
 		CUIMenuWidgets::the().add_menu_child(
@@ -531,55 +544,58 @@ void CUIMenu::tab_render()
 			"Model chams", CMenuStyle::calc_child_size(330), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &mdlchams_enable);
+				CUIMenuWidgets::the().feature_enabled_section(
+				&mdlchams_enable,
+				[]()
+				{
+					g_gui_widgets_i->begin_tab("model_chams_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-				g_gui_widgets_i->begin_tab("model_chams_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
+					float tab_height = 80.0f;
 
-				float tab_height = 80.0f;
+					g_gui_widgets_i->add_tab_item(
+						"VM", false,
+						{ -1.0f, tab_height },
+						[]()
+						{
+							g_gui_widgets_i->add_padding({ 0, 5.0f });
+							g_gui_widgets_i->add_separtor_with_text("Viewmodel");
+							CUIMenuWidgets::the().add_checkbox_with_color("Enable ##VM", &mdlchams_viewmodel_enable, &mdlchams_viewmodel_color);
+							CUIMenuWidgets::the().add_listbox("Type ##VM", &mdlchams_viewmodel_type, { "Flat", "Shaded" });
+						});
 
-				g_gui_widgets_i->add_tab_item(
-					"VM", false,
-					{ -1.0f, tab_height },
-					[]()
-					{
-						g_gui_widgets_i->add_padding({ 0, 5.0f });
-						g_gui_widgets_i->add_separtor_with_text("Viewmodel");
-						CUIMenuWidgets::the().add_checkbox_with_color("Enable ##VM", &mdlchams_viewmodel_enable, &mdlchams_viewmodel_color);
-						CUIMenuWidgets::the().add_listbox("Type ##VM", &mdlchams_viewmodel_type, { "Flat", "Shaded" });
-					});
+					g_gui_widgets_i->add_tab_item(
+						"T", false,
+						{ -1.0f, tab_height },
+						[]()
+						{
+							g_gui_widgets_i->add_padding({ 0, 5.0f });
+							g_gui_widgets_i->add_separtor_with_text("Terrorists");
+							CUIMenuWidgets::the().add_checkbox_with_color("Enable ##T", &mdlchams_players_t_enable, &mdlchams_players_t_color);
+							CUIMenuWidgets::the().add_listbox("Type ##T", &mdlchams_players_t_type, { "Flat", "Shaded" });
+						});
 
-				g_gui_widgets_i->add_tab_item(
-					"T", false,
-					{ -1.0f, tab_height },
-					[]()
-					{
-						g_gui_widgets_i->add_padding({ 0, 5.0f });
-						g_gui_widgets_i->add_separtor_with_text("Terrorists");
-						CUIMenuWidgets::the().add_checkbox_with_color("Enable ##T", &mdlchams_players_t_enable, &mdlchams_players_t_color);
-						CUIMenuWidgets::the().add_listbox("Type ##T", &mdlchams_players_t_type, { "Flat", "Shaded" });
-					});
+					g_gui_widgets_i->add_tab_item(
+						"CT", false,
+						{ -1.0f, tab_height },
+						[]()
+						{
+							g_gui_widgets_i->add_padding({ 0, 5.0f });
+							g_gui_widgets_i->add_separtor_with_text("Counter-Terrorists");
+							CUIMenuWidgets::the().add_checkbox_with_color("Enable ##CT", &mdlchams_players_ct_enable, &mdlchams_players_ct_color);
+							CUIMenuWidgets::the().add_listbox("Type ##CT", &mdlchams_players_ct_type, { "Flat", "Shaded" });
+						});
 
-				g_gui_widgets_i->add_tab_item(
-					"CT", false,
-					{ -1.0f, tab_height },
- 					[]()
-					{
-						g_gui_widgets_i->add_padding({ 0, 5.0f });
-						g_gui_widgets_i->add_separtor_with_text("Counter-Terrorists");
-						CUIMenuWidgets::the().add_checkbox_with_color("Enable ##CT", &mdlchams_players_ct_enable, &mdlchams_players_ct_color);
-						CUIMenuWidgets::the().add_listbox("Type ##CT", &mdlchams_players_ct_type, { "Flat", "Shaded" });
-					});
+					g_gui_widgets_i->end_tab();
 
-				g_gui_widgets_i->end_tab();
+					g_gui_widgets_i->add_padding({ 0, 5.0f });
+					g_gui_widgets_i->add_separtor_with_text("Properties");
+					CUIMenuWidgets::the().add_checkbox("Flat-shaded", &mdlchams_flatshaded);
+					CUIMenuWidgets::the().add_checkbox("Blend", &mdlchams_blend);
 
-				g_gui_widgets_i->add_padding({ 0, 5.0f });
-				g_gui_widgets_i->add_separtor_with_text("Properties");
-				CUIMenuWidgets::the().add_checkbox("Flat-shaded", &mdlchams_flatshaded);
-				CUIMenuWidgets::the().add_checkbox("Blend", &mdlchams_blend);
-
-				g_gui_widgets_i->add_spacing();
-				CUIMenuWidgets::the().add_checkbox("Rainbow colors", &mdlchams_rainbow);
-				CUIMenuWidgets::the().add_slider("Speed", "%0.0fx", &mdlchams_rainbow_speed);
+					g_gui_widgets_i->add_spacing();
+					CUIMenuWidgets::the().add_checkbox("Rainbow colors", &mdlchams_rainbow);
+					CUIMenuWidgets::the().add_slider("Speed", "%0.0fx", &mdlchams_rainbow_speed);
+				});
 			});
 
 		CUIMenuWidgets::the().add_menu_child(
@@ -589,9 +605,13 @@ void CUIMenu::tab_render()
 				g_gui_widgets_i->add_padding({ 0, 5.0f });
 				g_gui_widgets_i->add_separtor_with_text("Custom rendering");
 
-				CUIMenuWidgets::the().add_checkbox("Enable", &hud_render);
-				CUIMenuWidgets::the().add_checkbox("Current weapon", &hud_render_current_weapon);
-				CUIMenuWidgets::the().add_checkbox("Velocity", &hud_render_velocity);
+				CUIMenuWidgets::the().feature_enabled_section(
+				&hud_render,
+				[]()
+				{
+					CUIMenuWidgets::the().add_checkbox("Current weapon", &hud_render_current_weapon);
+					CUIMenuWidgets::the().add_checkbox("Velocity", &hud_render_velocity);
+				});
 
 				g_gui_widgets_i->add_padding({ 0, 5.0f });
 				g_gui_widgets_i->add_separtor_with_text("Colors");
@@ -613,55 +633,62 @@ void CUIMenu::tab_screen()
 			"Flashbang fade", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox_with_color("Enable", &flashfademod_enable, &flashfademod_color);
-
-				CUIMenuWidgets::the().add_slider("Fade factor", "%0.1f", &flashfademod_fade_factor);
+				CUIMenuWidgets::the().feature_enabled_section(
+				&flashfademod_enable,
+				&flashfademod_color,
+				[]()
+				{
+					CUIMenuWidgets::the().add_slider("Fade factor", "%0.1f", &flashfademod_fade_factor);
+				});
 			});
 
 		CUIMenuWidgets::the().add_menu_child(
 			"ESP", CMenuStyle::calc_child_size(215), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &esp_enable);
+				CUIMenuWidgets::the().feature_enabled_section(
+				&esp_enable,
+				[]()
+				{
+					g_gui_widgets_i->add_spacing();
 
-				g_gui_widgets_i->add_spacing();
+					CUIMenuWidgets::the().add_checkbox("Box background", &esp_background);
+					CUIMenuWidgets::the().add_listbox("Box type", &esp_box_type, { "Normal", "Corners" });
 
-				CUIMenuWidgets::the().add_checkbox("Box background", &esp_background);
-				CUIMenuWidgets::the().add_listbox("Box type", &esp_box_type, { "Normal", "Corners" });
+					g_gui_widgets_i->begin_tab("esp_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-				g_gui_widgets_i->begin_tab("esp_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
+					float tab_height = -1.0f;
 
-				float tab_height = -1.0f;
+					g_gui_widgets_i->add_tab_item(
+						"Players", false,
+						{ -1.0f, tab_height },
+						[]()
+						{
+							CUIMenuWidgets::the().add_checkbox("Enable ##player", &esp_player_enable);
+							CUIMenuWidgets::the().add_checkbox("Show name", &esp_player_name);
+						});
 
-				g_gui_widgets_i->add_tab_item(
-					"Players", false,
-					{ -1.0f, tab_height },
-					[]()
-					{
-						CUIMenuWidgets::the().add_checkbox("Enable ##player", &esp_player_enable);
-						CUIMenuWidgets::the().add_checkbox("Show name", &esp_player_name);
-					});
+					g_gui_widgets_i->add_tab_item(
+						"Entities", false,
+						{ -1.0f, tab_height },
+						[]()
+						{
+							CUIMenuWidgets::the().add_checkbox("Enable ##ents", &esp_entity_enable);
+						});
 
-				g_gui_widgets_i->add_tab_item(
-					"Entities", false,
-					{ -1.0f, tab_height },
-					[]()
-					{
-						CUIMenuWidgets::the().add_checkbox("Enable ##ents", &esp_entity_enable);
-					});
+					g_gui_widgets_i->add_tab_item(
+						"Sound", false,
+						{ -1.0f, tab_height },
+						[]()
+						{
+							CUIMenuWidgets::the().add_checkbox("Enable ##sound", &esp_sound_enable);
+							CUIMenuWidgets::the().add_slider("Display life", "%0.1f seconds", &esp_sound_interval);
+							CUIMenuWidgets::the().add_checkbox("Filter local", &esp_sound_filter_local);
+							CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
+						});
 
-				g_gui_widgets_i->add_tab_item(
-					"Sound", false,
-					{ -1.0f, tab_height },
-					[]()
-					{
-						CUIMenuWidgets::the().add_checkbox("Enable ##sound", &esp_sound_enable);
-						CUIMenuWidgets::the().add_slider("Display life", "%0.1f seconds", &esp_sound_interval);
-						CUIMenuWidgets::the().add_checkbox("Filter local", &esp_sound_filter_local);
-						CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
-					});
-
-				g_gui_widgets_i->end_tab();
+					g_gui_widgets_i->end_tab();
+				});
 			});
 
 		g_gui_widgets_i->goto_next_column();
@@ -670,18 +697,22 @@ void CUIMenu::tab_screen()
 			"Custom vanilla crosshair", CMenuStyle::calc_child_size(280), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &crosshair_enable);
-				CUIMenuWidgets::the().add_checkbox("Dynamic", &crosshair_dynamic);
-				CUIMenuWidgets::the().add_checkbox("Translucent", &crosshair_translucent);
-				CUIMenuWidgets::the().add_checkbox("Static", &crosshair_static);
+				CUIMenuWidgets::the().feature_enabled_section(
+				&crosshair_enable,
+				[]()
+				{
+					CUIMenuWidgets::the().add_checkbox("Dynamic", &crosshair_dynamic);
+					CUIMenuWidgets::the().add_checkbox("Translucent", &crosshair_translucent);
+					CUIMenuWidgets::the().add_checkbox("Static", &crosshair_static);
 
-				CUIMenuWidgets::the().add_slider("Size", "%0.0f", &crosshair_size, "vanilla");
-				CUIMenuWidgets::the().add_slider("Gap", "%0.0f", &crosshair_gap, "vanilla");
-				CUIMenuWidgets::the().add_slider("Thickness", "%0.0f pixels", &crosshair_thickness);
+					CUIMenuWidgets::the().add_slider("Size", "%0.0f", &crosshair_size, "vanilla");
+					CUIMenuWidgets::the().add_slider("Gap", "%0.0f", &crosshair_gap, "vanilla");
+					CUIMenuWidgets::the().add_slider("Thickness", "%0.0f pixels", &crosshair_thickness);
 
-				CUIMenuWidgets::the().add_listbox("Type ##hidden", &crosshair_type, { "Classic", "T-Shaped", "Circular" });
+					CUIMenuWidgets::the().add_listbox("Type ##hidden", &crosshair_type, { "Classic", "T-Shaped", "Circular" });
 
-				CUIMenuWidgets::the().add_color_edit("Color", &crosshair_color);
+					CUIMenuWidgets::the().add_color_edit("Color", &crosshair_color);
+				});
 			});
 
 
@@ -828,36 +859,42 @@ void CUIMenu::tab_exploits()
 			"Frame skip", CMenuStyle::calc_child_size(175), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &frame_skip_enable);
+				CUIMenuWidgets::the().feature_enabled_section(
+				&frame_skip_enable,
+				[]()
+				{
+					CUIMenuWidgets::the().add_slider("Amount", "%0.0f frames", &frame_skip_amount);
 
-				CUIMenuWidgets::the().add_slider("Amount", "%0.0f frames", &frame_skip_amount);
+					CUIMenuWidgets::the().add_description_text(
+						"Frame skip or \"Frame simulation\" enables \"fake\" fps, that are not visual, but physical.",
 
-				CUIMenuWidgets::the().add_description_text(
-					"Frame skip or \"Frame simulation\" enables \"fake\" fps, that are not visual, but physical.",
+						"What it does is that it allows execution of the main rendering code only every Nth frame (based on the settings).\n"
+						"This allows for massive fps boosts, since basically everything is being rendered each Nth frame only.\n"
+						"If you set this up to maximum value, you will get maximum fps boost, but bigger visual lags. On the contrary, you will get less fps boost, but without visual lags.\n\n"
+						"Note that above 1000fps the engine isn't really functioning as it should.");
 
-					"What it does is that it allows execution of the main rendering code only every Nth frame (based on the settings).\n"
-					"This allows for massive fps boosts, since basically everything is being rendered each Nth frame only.\n"
-					"If you set this up to maximum value, you will get maximum fps boost, but bigger visual lags. On the contrary, you will get less fps boost, but without visual lags.\n\n"
-					"Note that above 1000fps the engine isn't really functioning as it should.");
-
-				CUIMenuWidgets::the().add_slider("FPS limit", "~%0.0f frames/sec", &frame_skip_maxfps);
+					CUIMenuWidgets::the().add_slider("FPS limit", "~%0.0f frames/sec", &frame_skip_maxfps);
+				});
 			});
 
 		CUIMenuWidgets::the().add_menu_child(
 			"Consistency bypass", CMenuStyle::calc_child_size(175), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &consistencybypass_enable);
+				CUIMenuWidgets::the().feature_enabled_section(
+				&consistencybypass_enable,
+				[]()
+				{
+					CUIMenuWidgets::the().add_checkbox("Logging", &consistencybypass_log);
 
-				CUIMenuWidgets::the().add_checkbox("Logging", &consistencybypass_log);
+					CUIMenuWidgets::the().add_description_text(
+						"This enables to send false consistency information to the server, when it gets requested.",
 
-				CUIMenuWidgets::the().add_description_text(
-					"This enables to send false consistency information to the server, when it gets requested.",
-
-					"Consistency in the GoldSrc games is a technique that enables servers to check whenever clients have the same files"
-					" as the server has. The server can also check for malicious DLL files anywhere inside your Half-Life folder (cheat dlls)."
-					" Plugins use this to detect cheats when you're econnecting to a server and can ban you if they find some.\n\n"
-					"Using this technique allows you to bypass not only the checks for invalid dlls, but also for other things such as models, sprites, sounds, etc.");
+						"Consistency in the GoldSrc games is a technique that enables servers to check whenever clients have the same files"
+						" as the server has. The server can also check for malicious DLL files anywhere inside your Half-Life folder (cheat dlls)."
+						" Plugins use this to detect cheats when you're econnecting to a server and can ban you if they find some.\n\n"
+						"Using this technique allows you to bypass not only the checks for invalid dlls, but also for other things such as models, sprites, sounds, etc.");
+				});
 			});
 
 		g_gui_widgets_i->end_columns();
@@ -912,50 +949,137 @@ void CUIMenu::tab_movement()
 			"Air stuck", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &movement_air_stuck_enable);
-
-				CUIMenuWidgets::the().add_slider("Intensity", "%0.0f", &movement_air_stuck_intensity, "froze");
+				CUIMenuWidgets::the().feature_enabled_section(
+				&movement_air_stuck_enable,
+				[]()
+				{
+					CUIMenuWidgets::the().add_slider("Intensity", "%0.0f", &movement_air_stuck_intensity, "froze");
+				});
 			});
 
 		CUIMenuWidgets::the().add_menu_child(
-			"Visualization", CMenuStyle::calc_child_size(150), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Visualization", CMenuStyle::calc_child_size(170), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Enable plot", &movement_plot);
+				g_gui_widgets_i->add_separtor_with_text("Graph plotter");
 
-				CUIMenuWidgets::the().add_slider("Scale", "%0.0fx", &movement_plot_scale);
-				CUIMenuWidgets::the().add_slider("Row height", "%0.0fpx", &movement_plot_row_height);
+				CUIMenuWidgets::the().feature_enabled_section(
+				&movement_plot,
+				[]()
+				{
+					CUIMenuWidgets::the().add_slider("Scale", "%0.0fx", &movement_plot_scale);
+					CUIMenuWidgets::the().add_slider("Row height", "%0.0fpx", &movement_plot_row_height);
 
-				g_gui_widgets_i->add_spacing();
-				CUIMenuWidgets::the().add_checkbox("Stop collection", &movement_plot_stop);
+					g_gui_widgets_i->add_spacing();
+					CUIMenuWidgets::the().add_checkbox("Stop collection", &movement_plot_stop);
+				});
+			});
+
+		CUIMenuWidgets::the().add_menu_child(
+			"Ground strafe", CMenuStyle::calc_child_size(500), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().feature_enabled_section(
+				&movement_gs_enable,
+				[]()
+				{
+					g_gui_widgets_i->add_separtor_with_text("No slowdown");
+
+					CUIMenuWidgets::the().add_checkbox("Enable", &movement_gs_mode_noslowdown);
+
+					CUIMenuWidgets::the().add_listbox("Method##nsdn", &movement_gs_mode_noslowdown_method, { "Server speedhack", "Engine speedhack" });
+
+					g_gui_widgets_i->add_spacing();
+
+					CUIMenuWidgets::the().add_slider("Speed factor", "%0.0fx", &movement_gs_mode_noslowdown_factor, NULL, "full speed");
+
+					g_gui_widgets_i->add_separtor_with_text("Method");
+					CUIMenuWidgets::the().add_listbox("Mode", &movement_gs_mode, { "Legit", "Rage" });
+
+					g_gui_widgets_i->add_spacing();
+					g_gui_widgets_i->add_separator();
+
+					if (movement_gs_mode.get_value() == 0) // legit
+					{
+						g_gui_widgets_i->add_separtor_with_text("Scroll emulation");
+						g_gui_widgets_i->add_text("Ground distance to start scrolling");
+						CUIMenuWidgets::the().add_description_text("Represents min&max distance from the ground where the randomized scrolling will begin. Same as in bunnyhop.");
+						g_gui_widgets_i->add_spacing();
+						CUIMenuWidgets::the().add_slider_nolabel("min", "%0.0f units", &movement_gs_legit_ground_dist_min);
+						CUIMenuWidgets::the().add_slider_nolabel("max", "%0.0f units", &movement_gs_legit_ground_dist_max);
+
+						int min = movement_gs_legit_ground_dist_min.get_value();
+						int max = movement_gs_legit_ground_dist_max.get_value();
+
+						// auto-correct nonsense values
+						if (min > max)
+						{
+							movement_gs_legit_ground_dist_min.set_value(max);
+						}
+						if (max < min)
+						{
+							movement_gs_legit_ground_dist_max.set_value(min);
+						}
+
+						CUIMenuWidgets::the().add_slider("Scroll density", "%0.0f", &movement_gs_legit_scroll_density, NULL, "full");
+
+						CUIMenuWidgets::the().add_listbox("Efficiency", &movement_gs_legit_efficiency, { "Helper", "Normal", "Random FOG based" });
+
+						CUIMenuWidgets::the().add_description_text("Same settings as in bunnyhop. I don't want to repeat myself here ;)");
+					}
+					else if (movement_gs_mode.get_value() == 1) // rage
+					{
+						CUIMenuWidgets::the().add_description_text(
+							"Rage bhop is highly obviously to someone, who analyzes your demo - be careful where you use it. "
+							"\n\nHowever, it suits well for HVH scenarious or simply for servers where no one cares about bhop hacks. "
+							"It also has no-slow-down capabilities.");
+					}
+				});
 			});
 
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child(
-			"Bunny hop", CMenuStyle::calc_child_size(395), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Bunny hop", CMenuStyle::calc_child_size(660), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			CUIMenuWidgets::the().feature_enabled_section(
+			&movement_bhop_enable, 
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &movement_bhop_enable);
+				g_gui_widgets_i->add_separtor_with_text("No slowdown");
+				CUIMenuWidgets::the().add_checkbox("Enable##nsdn", &movement_bhop_mode_noslowdown);
 
-				CUIMenuWidgets::the().add_listbox("Mode", &movement_bhop_mode, { "Legit", "Rage" });
+				CUIMenuWidgets::the().add_listbox("Method", &movement_bhop_mode_noslowdown_method, { "Server speedhack", "Engine speedhack" });
 
 				g_gui_widgets_i->add_spacing();
-				
+
+				g_gui_widgets_i->add_spacing();
+				CUIMenuWidgets::the().add_slider("Speed factor", "%0.0fx", &movement_bhop_mode_noslowdown_factor, NULL, "full speed");
+
+				CUIMenuWidgets::the().add_description_text("Note that this uses speedhack, which most of the anti-cheats can detect.");
+
+				g_gui_widgets_i->add_separtor_with_text("Others");
+				g_gui_widgets_i->add_spacing();
+				CUIMenuWidgets::the().add_slider("Jump repeat", "%0.0f ms", &movement_bhop_repeat_ms, "no limit");
+
 				CUIMenuWidgets::the().add_checkbox("Jump if on ladder", &movement_bhop_jump_on_ladder);
 				CUIMenuWidgets::the().add_checkbox("Jump if in water", &movement_bhop_jump_in_water);
+
+				g_gui_widgets_i->add_separtor_with_text("Method");
+				CUIMenuWidgets::the().add_listbox("Mode##nolabel", &movement_bhop_mode, { "Legit", "Rage" });
 
 				g_gui_widgets_i->add_spacing();
 				g_gui_widgets_i->add_separator();
 
 				if (movement_bhop_mode.get_value() == 0) // legit
 				{
-					CUIMenuWidgets::the().add_listbox("Method", &movement_bhop_legit_method, { "Emulate scrolling", "+/-jump commands" });
-
-					g_gui_widgets_i->add_text("Min&Max ground distance");
+					g_gui_widgets_i->add_separtor_with_text("Scroll emulation");
+					g_gui_widgets_i->add_text("Ground distance to start scrolling");
+					CUIMenuWidgets::the().add_description_text("Represents min&max distance from the ground where the randomized scrolling will begin.");
 					g_gui_widgets_i->add_spacing();
-					CUIMenuWidgets::the().add_slider_nolabel("Minimal ground distance", "%0.0f units", &movement_bhop_legit_ground_dist_min);
-					CUIMenuWidgets::the().add_slider_nolabel("Maximal ground distance", "%0.0f units", &movement_bhop_legit_ground_dist_max);
+					CUIMenuWidgets::the().add_slider_nolabel("min", "%0.0f units", &movement_bhop_legit_ground_dist_min);
+					CUIMenuWidgets::the().add_slider_nolabel("max", "%0.0f units", &movement_bhop_legit_ground_dist_max);
 
 					int min = movement_bhop_legit_ground_dist_min.get_value();
 					int max = movement_bhop_legit_ground_dist_max.get_value();
@@ -970,9 +1094,11 @@ void CUIMenu::tab_movement()
 						movement_bhop_legit_ground_dist_max.set_value(min);
 					}
 
-					CUIMenuWidgets::the().add_slider("Pattern density", "%0.0f", &movement_bhop_legit_pattern_density, NULL, "unlimited");
+					CUIMenuWidgets::the().add_slider("Scroll density", "%0.0f", &movement_bhop_legit_scroll_density, NULL, "full");
 
-					CUIMenuWidgets::the().add_listbox("Efficiency", &movement_bhop_legit_efficiency, { "No slowdown", "Normal", "Random FOG based"});
+					CUIMenuWidgets::the().add_listbox("Efficiency", &movement_bhop_legit_efficiency, { "Helper", "Normal", "Random FOG based" });
+
+					CUIMenuWidgets::the().add_description_text("Helper tries to predict whenever you'll be on ground next frame - therefore can execute a perfect jump on that next frame.");
 				}
 				else if (movement_bhop_mode.get_value() == 1) // rage
 				{
@@ -982,6 +1108,7 @@ void CUIMenu::tab_movement()
 						"It also has no-slow-down capabilities.");
 				}
 			});
+		});
 
 		g_gui_widgets_i->end_columns();
 	}
@@ -1418,41 +1545,43 @@ void CUIMenu::tab_others()
 			"Debug", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Enable", &debug);
-
-				CUIMenuWidgets::the().add_description_text("This feature is used for developement only. You have been warned.");
-
-				if (!debug.get_value())
+				CUIMenuWidgets::the().feature_enabled_section(
+				&debug,
+				[]()
 				{
-					g_gui_widgets_i->push_disbled();
-				}
+					CUIMenuWidgets::the().add_description_text("This feature is used for developement only. You have been warned.");
 
-				g_gui_widgets_i->begin_tab("debug_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
-
-				float tab_height = -1.0f;
-
-				g_gui_widgets_i->add_tab_item(
-					"Rendering", false,
-					{ -1.0f, tab_height },
-					[]()
+					if (!debug.get_value())
 					{
-						CUIMenuWidgets::the().add_checkbox("Enable", &debug_render_info);
+						g_gui_widgets_i->push_disbled();
+					}
 
-						g_gui_widgets_i->add_spacing();
-						g_gui_widgets_i->add_separtor_with_text("Movement");
-						CUIMenuWidgets::the().add_checkbox("Enable##movement", &debug_render_info_movement);
+					g_gui_widgets_i->begin_tab("debug_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-						g_gui_widgets_i->add_spacing();
-						CUIMenuWidgets::the().add_checkbox("Bhop", &debug_render_info_movement_bhop);
+					float tab_height = -1.0f;
 
-					});
+					g_gui_widgets_i->add_tab_item(
+						"Rendering", false,
+						{ -1.0f, tab_height },
+						[]()
+						{
+							CUIMenuWidgets::the().add_checkbox("Enable", &debug_render_info);
 
-				g_gui_widgets_i->end_tab();
+							g_gui_widgets_i->add_spacing();
+							g_gui_widgets_i->add_separtor_with_text("Movement");
+							CUIMenuWidgets::the().add_checkbox("Enable##movement", &debug_render_info_movement);
 
-				if (!debug.get_value())
-				{
-					g_gui_widgets_i->pop_disabled();
-				}
+							g_gui_widgets_i->add_spacing();
+							CUIMenuWidgets::the().add_checkbox("Bhop", &debug_render_info_movement_bhop);
+						});
+
+					g_gui_widgets_i->end_tab();
+
+					if (!debug.get_value())
+					{
+						g_gui_widgets_i->pop_disabled();
+					}
+				});
 			});
 
 		g_gui_widgets_i->goto_next_column();

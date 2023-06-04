@@ -30,7 +30,8 @@
 
 VarInteger movement_air_stuck_intensity("movement_air_stuck_intensity", "Determines how \"froze\" you will be", 0, 0, 5);
 
-void CMovementAirStuck::update(hl::usercmd_t* to)
+void CMovementAirStuck::update()
 {
-	to->msec = movement_air_stuck_intensity.get_value();
+	// override previous value.
+	CClientMovementPacket::the().svside_movement_speed_factor(movement_air_stuck_intensity.get_value(), true);
 }

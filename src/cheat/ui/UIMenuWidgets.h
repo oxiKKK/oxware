@@ -55,6 +55,9 @@ public:
 
 	void add_menu_child(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents);
 
+	void feature_enabled_section(VarBoolean* var_boolean, const std::function<void()>& callback);
+	void feature_enabled_section(VarBoolean* var_boolean, VarColor* colors_var, const std::function<void()>& callback, bool alpha = false);
+
 private:
 	void handle_widget_hover(BaseVariable* var);
 

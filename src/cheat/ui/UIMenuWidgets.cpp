@@ -251,6 +251,44 @@ void CUIMenuWidgets::add_menu_child(const std::string& label, const Vector2D& si
 	g_gui_widgets_i->pop_stylevar(1);
 }
 
+void CUIMenuWidgets::feature_enabled_section(VarBoolean* var_boolean, const std::function<void()>& callback)
+{
+	add_checkbox(std::format("Enable##{}", var_boolean->get_name()), var_boolean);
+	
+	bool enabled = var_boolean->get_value();
+
+	if (!enabled)
+	{
+		g_gui_widgets_i->push_disbled();
+	}
+
+	callback();
+
+	if (!enabled)
+	{
+		g_gui_widgets_i->pop_disabled();
+	}
+}
+
+void CUIMenuWidgets::feature_enabled_section(VarBoolean* var_boolean, VarColor* colors_var, const std::function<void()>& callback, bool alpha)
+{
+	add_checkbox_with_color(std::format("Enable##{}", var_boolean->get_name()), var_boolean, colors_var, alpha);
+
+	bool enabled = var_boolean->get_value();
+
+	if (!enabled)
+	{
+		g_gui_widgets_i->push_disbled();
+	}
+
+	callback();
+
+	if (!enabled)
+	{
+		g_gui_widgets_i->pop_disabled();
+	}
+}
+
 void CUIMenuWidgets::handle_widget_hover(BaseVariable* var)
 {
 	if (g_gui_widgets_i->is_last_widget_hovered())

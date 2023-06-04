@@ -458,6 +458,71 @@ void CGameUtil::record_hud_command(const char* cmdname)
 	prev_frame = *host_framecount;
 }
 
+void CGameUtil::classic_cs16_cheating_scene_speedhack(double new_speed)
+{
+	// Well oh well. Here we come, with the CS 1.6 classic.. the "Texture load: %6.1fms\n" speedhack...
+	//
+	// You may seem this speedhack in several old cheat sources.. But what it acutally hooks may fucking shock
+	// you to your fucking core.. So, it hooks a compiler-generated constant, a 1000.0 ... You don't believe me?
+	// Well, take a look at this.
+	// 
+	//													   This is it
+	//													   v
+	// .text:01D40960 DC 0D E0 D2 E1 01         fmul    >ds:random_1k_speedhack_modifier_constant<
+	// .text:01D40966 DD 1C 24                  fstp    [esp+553D4h+var_553D4] ; char
+	// .text:01D40969 68 64 1B E4 01            push    offset aTextureLoad61f ; "Texture load: %6.1fms\n"
+	//
+	// But man, this is just a normal global variable declared by Valve, what are you talking about?! Weeell... let's see then...
+	// Let's take a look at the code (and btw, this is Mod_LoadTextures function, but this global variable can be found elsewhere.)
+	// 
+	// --------------------------------------------------------------------
+	// }
+	// LABEL_82:
+	//   v39 = Sys_FloatTime();
+	//   Con_DPrintf("Texture load: %6.1fms\n", (v39 - v43) * 1000.0);
+	// }
+	// --------------------------------------------------------------------
+	// 
+	// So where is the global variable? :thinking: .... Well, it's the fucking "1000.0"! Yes, that's fucking right!
+	// And now.. what does that mean? Well, it means that this variable is used within the code in several functions inside
+	// mathematical formulas, why? because it's a fucking 1000.0... for example used inside:
+	// 
+	//	CL_Move, CL_AdjustClock, CL_RunUsercmd <<< btw, all of these client-side functions related to movement.
+	//	and more...
+	// 
+	// Inside all of these functions, it is used in mathematical formulas, as said earlier, in particular, inside time-related
+	// formulas, such as this one inside CL_RunUsercmd:
+	// 
+	// --------------------------------------------------------------------
+	// pmove->time = *pfElapsed * 1000.0; <<< the variable on the right
+	// --------------------------------------------------------------------
+	//
+	// and in other places similar to this one, too...
+	//
+	// Well, so if we hook this variable, and modify it let's say by 0.001, we modify the time base of the playermove code? Hell yeah!
+	// But what is the most disturbing about this is that the occurence of this global variable is totally "random", and anyone who hooked
+	// it first, didn't have a fucking clue (I assume) what it will actually do. I assume it went like this: "Oh, let me just fucking hook
+	// random memory location that is used in a bunch of client-side functions, and see what it will do if a multiply it by a number... Wow
+	// I just created a speedhack!"... well, pretty hilarious.. isn't it?
+	// 
+	// How impressive or dumb or hilarious or idiotic it may seem, it really works well... Jeez... :D
+	//
+
+	static double prev_random_thing_xd = 1.0;
+	if (prev_random_thing_xd != new_speed)
+	{
+		double* totally_random_stuff_ptr = CMemoryHookMgr::the().random_1k_speedhack_modifier_constant().get();
+
+		CGenericUtil::the().push_page_protection((uintptr_t)totally_random_stuff_ptr, sizeof(double), PAGE_EXECUTE_READWRITE);
+		*totally_random_stuff_ptr = new_speed * 1000.0;
+		CGenericUtil::the().pop_page_protection();
+
+		CConsole::the().info("spd: {}", *totally_random_stuff_ptr);
+
+		prev_random_thing_xd = new_speed;
+	}
+}
+
 void CGameUtil::locate_engine_compile_timestamp()
 {
 	if (!m_engine_compile_date.empty())

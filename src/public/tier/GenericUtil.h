@@ -87,6 +87,18 @@ public:
 	bool does_cmdline_parameter_exist(const std::string& substring);
 
 	std::string fix_directory_separators(const std::string& directory);
+
+	void push_page_protection(uintptr_t address, size_t size, uint32_t page_protection_flags);
+	void pop_page_protection();
+
+private:
+	uint32_t m_old_page_protection_flags;
+	uint32_t m_page_protection_patch_address;
+	size_t m_page_protection_patch_size;
+	void reset_page_protection_data()
+	{
+		m_old_page_protection_flags = m_page_protection_patch_address = m_page_protection_patch_size = 0;
+	}
 };
 
 #endif // GENERICUTIL_H

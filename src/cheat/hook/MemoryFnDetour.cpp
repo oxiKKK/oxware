@@ -249,6 +249,13 @@ bool ClientDLL_CreateMove_FnDetour_t::install()
 
 void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::usercmd_t *cmd, int active)
 {
+	// reset this crap back to it's original state.
+	// TODO: Find a better way of doing this kind of speedhack, i think that modifying the multiplier 
+	//       in CL_Move and CL_RunUsercmd would create the same effect...
+	CGameUtil::the().classic_cs16_cheating_scene_speedhack(1.0);
+
+	CClientMovementPacket::the().update_clientmove();
+
 	CMemoryFnDetourMgr::the().ClientDLL_CreateMove().call(frametime, cmd, active);
 
 	CClientMovementPacket::the().set_current_cmd_for_manipulation(cmd);
@@ -888,7 +895,7 @@ bool MSG_WriteUsercmd_FnDetour_t::install()
 
 void MSG_WriteUsercmd_FnDetour_t::MSG_WriteUsercmd(hl::sizebuf_t* buf, hl::usercmd_t* to, hl::usercmd_t* from)
 {
-	CMovement::the().update_msg_writeusercmd(to);
+	CClientMovementPacket::the().update_msg_writeusercmd(to);
 
 	CMemoryFnDetourMgr::the().MSG_WriteUsercmd().call(buf, to, from);
 }

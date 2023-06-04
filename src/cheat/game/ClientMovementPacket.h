@@ -36,21 +36,37 @@ public:
 	DECL_BASIC_CLASS(CClientMovementPacket);
 
 public:
+	void update_msg_writeusercmd(hl::usercmd_t* to);
+	void update_clientmove();
+
 	void set_current_cmd_for_manipulation(hl::usercmd_t* cmd) { m_current_cmd = cmd; }
 
 	bool jump_atomic();
-
 	void jump(bool do_the_jump);
+
+	bool duck_atomic();
+	void duck(bool do_the_duck);
 
 	bool was_in(unsigned short in_action)
 	{
 		return m_previous_buttons_state & in_action;
 	}
 
+	void svside_movement_speed_factor(uint8_t msec, bool override_previous = false);
+
+	// frametime of current movement command
+	uint8_t cmd_ft() const { return m_current_cmd->msec; }
+
 private:
 	hl::usercmd_t* m_current_cmd = nullptr;
 
 	unsigned short m_previous_buttons_state = 0;
+
+	// true if modified command frametime.
+	bool m_ft_modified = false;
+	int m_new_ft = -1; // -1 denotes unset
+
+	void reset_ft_state();
 };
 
 struct MPVisualDataEntry

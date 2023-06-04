@@ -32,6 +32,20 @@
 
 #include "precompiled.h"
 
+void CClientMovementPacket::update_msg_writeusercmd(hl::usercmd_t* to)
+{
+	// FrameTime scheduled to be modified from somewhere else
+	if (m_ft_modified && m_new_ft != -1)
+	{
+		to->msec = m_new_ft;
+	}
+}
+
+void CClientMovementPacket::update_clientmove()
+{
+	reset_ft_state();
+}
+
 bool CClientMovementPacket::jump_atomic()
 {
 	bool jumped = false;
@@ -64,6 +78,59 @@ void CClientMovementPacket::jump(bool do_the_jump)
 	}
 
 	m_previous_buttons_state = m_current_cmd->buttons;
+}
+
+bool CClientMovementPacket::duck_atomic()
+{
+	bool ducked = false;
+
+	if (!was_in(IN_DUCK))
+	{
+		duck(true);
+		ducked = true;
+	}
+	else
+	{
+		// previously was in jump but didn't release it.
+		duck(false);
+	}
+
+	return ducked;
+}
+
+void CClientMovementPacket::duck(bool do_the_duck)
+{
+	if (do_the_duck)
+	{
+		m_current_cmd->buttons |= IN_DUCK;
+		CGameUtil::the().record_hud_command("+duck");
+	}
+	else
+	{
+		m_current_cmd->buttons &= ~IN_DUCK;
+		CGameUtil::the().record_hud_command("-duck");
+	}
+
+	m_previous_buttons_state = m_current_cmd->buttons;
+}
+
+void CClientMovementPacket::svside_movement_speed_factor(uint8_t msec, bool override_previous)
+{
+	if (m_ft_modified && !override_previous)
+	{
+		// already set before, don't override unless told to do so.
+		return;
+	}
+
+	// we need to modify the msec afterwards (it only takes effect if we do that from MSG_WriteUserCmd)
+	m_new_ft = msec;
+	m_ft_modified = true;
+}
+
+void CClientMovementPacket::reset_ft_state()
+{
+	m_new_ft = -1;
+	m_ft_modified = false;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -111,7 +178,7 @@ void CClientMovementPacketPlot::on_render()
 	g_gui_window_rendering_i->render_box(
 		g_gui_window_rendering_i->get_current_drawlist(),
 		m_plot_base - Vector2D(0, y_offset), Vector2D(screen_size.x, m_plot_base.y),
-		CColor(0, 0, 0, 70));
+		CColor(0, 0, 0, 120));
 
 	// reset for new frame
 	y_offset = 0.0f;

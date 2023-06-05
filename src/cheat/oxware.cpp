@@ -128,6 +128,13 @@ bool CoXWARE::initialize()
 
 	CInjectedDllIPCLayerClient::the().establish_communication(m_ifp->m_ipc_block_ptr);
 
+	if (get_injection_technique() == INJECT_MANUALMAP)
+	{
+		// if we're manually mapped module, we need to provide the libraryloader interface our
+		// exported functions / interfaces, so that other modules can load them.
+		g_libloader_i->register_manualmapped_module(WMODULE_CHEAT, get_cheat_dll_base_address());
+	}
+
 	// load modules
 	if (!load_and_initialize_dependencies())
 	{
@@ -240,8 +247,8 @@ void CoXWARE::shutdown()
 
 bool CoXWARE::load_and_initialize_dependencies()
 {
-	assert(m_ifp->m_ipc_block_ptr->m_technique != INJECT_UNINITIALIZED); // just sanity checks
-	ELoadType type = (m_ifp->m_ipc_block_ptr->m_technique == INJECT_MANUALMAP) ? LOADTYPE_MANUALMAP : LOADTYPE_NATIVE;
+	assert(get_injection_technique() != INJECT_UNINITIALIZED); // just sanity checks
+	ELoadType type = (get_injection_technique() == INJECT_MANUALMAP) ? LOADTYPE_MANUALMAP : LOADTYPE_NATIVE;
 
 	auto loader_path = FilePath_t(m_ifp->m_loader_path);
 

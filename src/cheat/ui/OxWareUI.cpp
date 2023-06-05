@@ -262,12 +262,12 @@ void COxWareUI::run_ui()
 	{
 		// push new
 		wglMakeCurrent(m_hdc, m_cheat_context);
-
+		
 		if (g_imgui_platform_layer_i)
 		{
 			g_imgui_platform_layer_i->render();
 		}
-
+		
 		// restore old
 		wglMakeCurrent(m_hdc, m_original_context);
 	}

@@ -51,10 +51,15 @@ extern "C" DLLEXPORT bool CommunicativeDllEntryPoint(injector_information_packag
 
 #include "tier/MessageBox.h"
 
+uintptr_t g_cheat_dll_base;
+
 BOOL APIENTRY DllMain(HMODULE hModule,
 					  DWORD  ul_reason_for_call,
 					  LPVOID lpReserved)
 {
+	// so that we don't have to add new members to the information package that is provided to the cheat...
+	g_cheat_dll_base = (uintptr_t)hModule;
+
 #if 0
 	try
 	{

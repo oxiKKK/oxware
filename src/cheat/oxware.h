@@ -32,6 +32,8 @@
 
 extern VarBoolean debug;
 
+extern uintptr_t g_cheat_dll_base;
+
 class CoXWARE
 {
 public:
@@ -50,6 +52,10 @@ public:
 		m_dont_write_unloading_code = dont_write_unloading_code;
 		m_game_exiting_or_restarting = game_exiting_or_restarting;
 	}
+
+	inline uintptr_t get_cheat_dll_base_address() const { return g_cheat_dll_base; }
+
+	auto get_injection_technique() const { return m_ifp->m_ipc_block_ptr->m_technique; }
 
 	inline session_id_t get_current_session_id() const { assert(m_ifp); return m_ifp->m_current_session_id; }
 

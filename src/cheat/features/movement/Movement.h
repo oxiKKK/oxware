@@ -33,6 +33,7 @@
 extern VarBoolean movement_bhop_enable;
 extern VarBoolean movement_air_stuck_enable;
 extern VarBoolean movement_gs_enable;
+extern VarBoolean movement_eb_enable;
 
 extern VarBoolean debug_render_info_movement;
 extern VarBoolean debug_render_info_movement_bhop;
@@ -49,6 +50,7 @@ private:
 	static InCommand bunnyhop;
 	static InCommand airstuck;
 	static InCommand gs;
+	static InCommand eb;
 
 	void render_debug();
 

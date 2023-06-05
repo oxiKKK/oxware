@@ -117,6 +117,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Improved bunnyhop code.
 - Implemented visualization tool to help debug movement code.
 - Added GS hack.
+- Added EB hack
 
 ## Bugfixes
 

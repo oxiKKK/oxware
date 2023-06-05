@@ -1040,7 +1040,7 @@ void CUIMenu::tab_movement()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child(
-		"Bunny hop", CMenuStyle::calc_child_size(660), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Bunny hop", CMenuStyle::calc_child_size(movement_bhop_mode.get_value() == 0 ? 660 : 500), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			CUIMenuWidgets::the().feature_enabled_section(
@@ -1107,6 +1107,28 @@ void CUIMenu::tab_movement()
 						"\n\nHowever, it suits well for HVH scenarious or simply for servers where no one cares about bhop hacks. "
 						"It also has no-slow-down capabilities.");
 				}
+			});
+		});
+
+		CUIMenuWidgets::the().add_menu_child(
+		"Edge bug", CMenuStyle::calc_child_size(270), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			CUIMenuWidgets::the().feature_enabled_section(
+			&movement_eb_enable,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable on ramps", &movement_eb_enable_on_ramps);
+
+				g_gui_widgets_i->add_separtor_with_text("Tweaking");
+
+				CUIMenuWidgets::the().add_description_text("Each of these specified the scenario where the edgebug can happen.");
+
+				g_gui_widgets_i->add_spacing();
+				CUIMenuWidgets::the().add_slider("Intensity", "%0.1fx", &movement_eb_intensity);
+				CUIMenuWidgets::the().add_slider("Fall velocity", "%0.0f units", &movement_eb_min_fall_velocity);
+				CUIMenuWidgets::the().add_slider("Edge dist", "%0.0f units", &movement_eb_edge_dist);
+				CUIMenuWidgets::the().add_slider("Ground dist", "%0.0f units", &movement_eb_ground_dist);
 			});
 		});
 

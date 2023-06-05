@@ -266,7 +266,7 @@ float CGameUtil::compute_ground_angle_for_origin(const Vector& origin, float tra
 	Vector trace_end = Vector(origin.x, origin.y, -trace_distance); // trace as back as this
 
 	hl::pmtrace_t* tr = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnPM_TraceLine(
-		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().is_ducking() ? 1 : 0, -1);
+		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull(), -1);
 	
 	// plane normal returns the [0, 1] scale of rotation of the plane [0°, 90°].
 	//
@@ -284,13 +284,128 @@ float CGameUtil::compute_distance_to_ground(const Vector& origin, float trace_di
 	Vector trace_end = Vector(origin.x, origin.y, -trace_distance); // trace as back as this
 
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs().get();
-
-	int player_hull = CLocalState::the().is_ducking() ? 1 : 0;
 	
 	hl::pmtrace_t* tr = cl_enginefuncs->pfnPM_TraceLine(
-		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, player_hull, -1);
+		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull(), -1);
 	
 	return origin.z - tr->endpos.z;
+}
+
+float CGameUtil::compute_edge_distance(const Vector& origin, float edge_trace_distance)
+{
+#if 0
+	//
+	// this method is slow and doesn't work. Just saying, because some cheats
+	// use it anyways. Lol.
+	//
+
+	float starting_distance = 250.0f;
+
+	// X...X...X
+	// .\  |  /.
+	// . \ | / .
+	// .  \|/  .
+	// X---o---X
+	// .  /|\  .
+	// . / | \ .
+	// ./  |  \.
+	// X...X...X
+	static Vector2D vertices[] =
+	{
+		{ -1,  0 },
+		{  1,  0 },
+		{  0,  1 },
+		{  0, -1 },
+		{ -1, -1 },
+		{  1,  1 },
+		{  1, -1 },
+		{ -1,  1 },
+	};
+
+	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs().get();
+
+	for (int i = 0; i < 8; i++)
+	{
+		//
+		// get a traseresult from tracing to the ground
+		//
+
+		Vector trace_end = Vector(origin.x, origin.y, -4096.0f); // trace as back as this
+
+		hl::pmtrace_t* gnd_tr = cl_enginefuncs->pfnPM_TraceLine(
+			(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull(), -1);
+
+		//
+		// get distance to a nearest edge
+		//
+
+		// fraction is a [0, 1] scale of the distance between two traced points
+		Vector vec_dist = (trace_end - origin) * gnd_tr->fraction;
+		Vector surface_beneath = origin;
+		surface_beneath.z -= vec_dist.z;
+		surface_beneath.z -= 0.1f; // trace a little bit beneath the surface, so we can check for the edge.
+
+		Vector desired_edge = surface_beneath;
+		desired_edge.x += vertices[i][0] * starting_distance;
+		desired_edge.y += vertices[i][1] * starting_distance;
+
+		hl::pmtrace_t* edge_tr = cl_enginefuncs->pfnPM_TraceLine(
+			desired_edge, surface_beneath, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull(), -1);
+
+		// lower the distance on the lowest possible distance, therefore we find the closest edge
+		// we start from the "ending" point and end on "starting" point for a reason. It is to check
+		// if there's air or still a surface.
+		if (edge_tr->startsolid == FALSE)
+		{
+			Vector dt = edge_tr->endpos - surface_beneath;
+			starting_distance = dt.Length2D();
+		}
+	};
+
+	return starting_distance;
+#else
+
+	//
+	// Note: Doesn't work on ramps.
+	//
+
+	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs().get();
+
+//	auto t1 = std::chrono::high_resolution_clock::now();
+
+	float desired_edge_dist = FLT_MAX;
+
+	static auto trace_endpos_helper = [&](const Vector& start, const Vector& end, int N) -> float
+	{
+		hl::pmtrace_t* tr = cl_enginefuncs->pfnPM_TraceLine((Vector)start, (Vector)end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull(), -1);
+		return tr->endpos[N];
+	};
+
+	Vector trace_end = Vector(origin.x, origin.y, -4096.0f); // trace as back as this
+	
+	hl::pmtrace_t* surface_tr = cl_enginefuncs->pfnPM_TraceLine(
+		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE,
+		CLocalState::the().get_current_hull(), -1);
+
+	Vector surface_beneath = surface_tr->endpos;
+	surface_beneath.z -= 0.1f; // trace a little bit beneath the surface, so we can check for the edge.
+
+	//
+	// find the closest edge.
+	//
+
+	// how far to trace from the origin
+	float d = edge_trace_distance;
+
+	desired_edge_dist = std::min(desired_edge_dist,						 trace_endpos_helper(surface_beneath + Vector(d, 0.0f, 0.0f), surface_beneath, 0) - surface_beneath[0]);
+	desired_edge_dist = std::min(desired_edge_dist, surface_beneath[0] - trace_endpos_helper(surface_beneath - Vector(d, 0.0f, 0.0f), surface_beneath, 0));
+	desired_edge_dist = std::min(desired_edge_dist,						 trace_endpos_helper(surface_beneath + Vector(0.0f, d, 0.0f), surface_beneath, 1) - surface_beneath[1]);
+	desired_edge_dist = std::min(desired_edge_dist, surface_beneath[1] - trace_endpos_helper(surface_beneath - Vector(0.0f, d, 0.0f), surface_beneath, 1));
+
+//	CConsole::the().info("{} microseconds", std::chrono::duration<float, std::micro>(std::chrono::high_resolution_clock::now() - t1).count());
+
+	return desired_edge_dist == edge_trace_distance ? 0.0f : desired_edge_dist;
+#endif
 }
 
 hl::CBasePlayerWeapon* CGameUtil::get_current_weapon()

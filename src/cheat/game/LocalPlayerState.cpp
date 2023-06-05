@@ -43,6 +43,7 @@ void CLocalState::update_clientmove(float frametime, hl::usercmd_t* cmd)
 	m_moving_velocity = m_pmove->velocity;
 	m_ground_angle = CGameUtil::the().compute_ground_angle_for_origin(m_pmove->origin);
 	m_ground_dist = CGameUtil::the().compute_distance_to_ground(m_pmove->origin);
+	m_edge_dist = CGameUtil::the().compute_edge_distance(m_pmove->origin);
 	m_is_surfing = m_ground_angle > 45.0f && m_ground_dist < 30.0f;
 }
 

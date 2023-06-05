@@ -31,6 +31,7 @@
 VarBoolean movement_bhop_enable("movement_bhop_enable", "Enables BunnyHop hacks", false);
 VarBoolean movement_air_stuck_enable("movement_air_stuck_enable", "Allows to get stuck in the mid air, when on", false);
 VarBoolean movement_gs_enable("movement_gs_enable", "Enables GroundStrafe hacks", false);
+VarBoolean movement_eb_enable("movement_eb_enable", "Enables EdgeBug hacks", false);
 
 InCommand CMovement::bunnyhop = InCommand("movement_bhop", VK_SPACE, &movement_bhop_enable);
 InCommand CMovement::airstuck = InCommand("movement_air_stuck", VK_XBUTTON1, &movement_air_stuck_enable); // mouse4
@@ -68,6 +69,11 @@ void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 			CMovementGroundStrafe::the().update(frametime);
 		}
 
+		if (movement_eb_enable.get_value())
+		{
+			CMovementEdgeBug::the().update(frametime);
+		}
+
 		if (airstuck.is_active())
 		{
 			CMovementAirStuck::the().update();
@@ -95,6 +101,7 @@ void CMovement::render_debug()
 	CEngineFontRendering::the().render_debug("--- Movement ---");
 
 	float gnd_dist = CLocalState::the().get_ground_dist();
+	float edge_dist = CLocalState::the().get_edge_dist();
 	float gnd_angle = CLocalState::the().get_ground_angle();
 	bool is_surfing = CLocalState::the().is_surfing();
 	float fall_vel = CLocalState::the().get_fall_velocity();
@@ -103,6 +110,7 @@ void CMovement::render_debug()
 	auto pmove = *CMemoryHookMgr::the().pmove().get();
 
 	CEngineFontRendering::the().render_debug("Ground distance: {:0.3f} units", gnd_dist);
+	CEngineFontRendering::the().render_debug("Edge distance: {:0.3f} units", edge_dist);
 	CEngineFontRendering::the().render_debug("Ground angle: {:0.1f} °", gnd_angle);
 	CEngineFontRendering::the().render_debug("Fall velocity: {:0.3f} u/s", fall_vel);
 	CEngineFontRendering::the().render_debug("Velocity 2D: {:0.3f} u/s", vel_2d);

@@ -30,6 +30,13 @@
 #define LOCALPLAYERSTATE_H
 #pragma once
 
+enum EPlayerHull
+{
+	HULL_STANDING,
+	HULL_DUCKING,
+	HULL_POINT,
+};
+
 class CLocalState
 {
 public:
@@ -67,12 +74,15 @@ public:
 	inline float get_maxspeed() const { return m_pmove->maxspeed; }
 	inline float get_ground_angle() const { return m_ground_angle; }
 	inline float get_ground_dist() const { return m_ground_dist; }
+	inline float get_edge_dist() const { return m_edge_dist; }
 
 	inline bool is_surfing() const { return m_is_surfing; }
 	inline bool is_on_ladder() const { return m_pmove->movetype == MOVETYPE_FLY; }
 
 	inline int get_movetype() const { return m_pmove->movetype; }
 	inline int get_waterlevel() const { return m_pmove->waterlevel; }
+
+	inline EPlayerHull get_current_hull() const { return (EPlayerHull)m_pmove->usehull; }
 
 private:
 	hl::frame_t* m_current_frame = nullptr;
@@ -83,6 +93,7 @@ private:
 
 	float m_ground_angle = 0.0f;
 	float m_ground_dist = 0.0f;
+	float m_edge_dist = 0.0f;
 
 	hl::playermove_t* m_pmove = nullptr;
 

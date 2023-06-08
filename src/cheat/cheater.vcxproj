@@ -206,6 +206,7 @@
     <ClCompile Include="features\movement\GroundStrafe.cpp" />
     <ClCompile Include="features\movement\EdgeBug.cpp" />
     <ClCompile Include="features\movement\Movement.cpp" />
+    <ClCompile Include="features\movement\StrafeHack.cpp" />
     <ClCompile Include="features\ResourceConsistencyBypass.cpp" />
     <ClCompile Include="features\BulletTrace.cpp" />
     <ClCompile Include="features\BypassGameConstrains.cpp" />
@@ -290,6 +291,7 @@
     <ClInclude Include="features\movement\GroundStrafe.h" />
     <ClInclude Include="features\movement\EdgeBug.h" />
     <ClInclude Include="features\movement\Movement.h" />
+    <ClInclude Include="features\movement\StrafeHack.h" />
     <ClInclude Include="features\ResourceConsistencyBypass.h" />
     <ClInclude Include="features\BulletTrace.h" />
     <ClInclude Include="features\BypassGameConstrains.h" />

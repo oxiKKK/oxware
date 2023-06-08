@@ -34,9 +34,11 @@ extern VarBoolean movement_bhop_enable;
 extern VarBoolean movement_air_stuck_enable;
 extern VarBoolean movement_gs_enable;
 extern VarBoolean movement_eb_enable;
+extern VarBoolean movement_strafe_hack_enable;
 
 extern VarBoolean debug_render_info_movement;
 extern VarBoolean debug_render_info_movement_bhop;
+extern VarBoolean debug_render_info_movement_strafe;
 
 class CMovement
 {
@@ -51,8 +53,9 @@ private:
 	static InCommand airstuck;
 	static InCommand gs;
 	static InCommand eb;
+	static InCommand strafe;
 
-	void render_debug();
+	void render_debug(hl::usercmd_t* cmd);
 
 	void feed_plot(float frametime, hl::usercmd_t *cmd);
 };

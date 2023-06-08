@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-void CMathUtil::angle_vectors(const Vector & angles, Vector & forward, Vector & right, Vector & up)
+void CMath::angle_vectors(const Vector & angles, Vector & forward, Vector & right, Vector & up)
 {
 	float angle;
 	float sr, sp, sy, cr, cp, cy;
@@ -63,7 +63,7 @@ void CMathUtil::angle_vectors(const Vector & angles, Vector & forward, Vector & 
 	}
 }
 
-void CMathUtil::vector_transform(const Vector& vector, const float(*transformation_matrix)[4], Vector& transformed)
+void CMath::vector_transform(const Vector& vector, const float(*transformation_matrix)[4], Vector& transformed)
 {
 	transformed[0] = DotProduct(vector, transformation_matrix[0]) + transformation_matrix[0][3];
 	transformed[1] = DotProduct(vector, transformation_matrix[1]) + transformation_matrix[1][3];

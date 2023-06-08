@@ -276,7 +276,7 @@ float CGameUtil::compute_ground_angle_for_origin(const Vector& origin, float tra
 	//		|			|  
 	//		0°			|  
 	//
-	return CMathUtil::the().rad2deg(acosf(tr->plane.normal.z));
+	return CMath::the().rad2deg(acosf(tr->plane.normal.z));
 }
 
 float CGameUtil::compute_distance_to_ground(const Vector& origin, float trace_distance)
@@ -631,8 +631,6 @@ void CGameUtil::classic_cs16_cheating_scene_speedhack(double new_speed)
 		CGenericUtil::the().push_page_protection((uintptr_t)totally_random_stuff_ptr, sizeof(double), PAGE_EXECUTE_READWRITE);
 		*totally_random_stuff_ptr = new_speed * 1000.0;
 		CGenericUtil::the().pop_page_protection();
-
-		CConsole::the().info("spd: {}", *totally_random_stuff_ptr);
 
 		prev_random_thing_xd = new_speed;
 	}

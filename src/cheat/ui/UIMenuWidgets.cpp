@@ -251,39 +251,41 @@ void CUIMenuWidgets::add_menu_child(const std::string& label, const Vector2D& si
 	g_gui_widgets_i->pop_stylevar(1);
 }
 
-void CUIMenuWidgets::feature_enabled_section(VarBoolean* var_boolean, const std::function<void()>& callback)
+void CUIMenuWidgets::feature_enabled_section(VarBoolean* var_boolean, const std::function<void()>& callback, 
+											 const std::string& title, bool see_if_enabled)
 {
-	add_checkbox(std::format("Enable##{}", var_boolean->get_name()), var_boolean);
+	add_checkbox(std::format("{}##{}", title, var_boolean->get_name()), var_boolean);
 	
 	bool enabled = var_boolean->get_value();
 
-	if (!enabled)
+	if (!enabled && see_if_enabled || enabled && !see_if_enabled)
 	{
 		g_gui_widgets_i->push_disbled();
 	}
 
 	callback();
 
-	if (!enabled)
+	if (!enabled && see_if_enabled || enabled && !see_if_enabled)
 	{
 		g_gui_widgets_i->pop_disabled();
 	}
 }
 
-void CUIMenuWidgets::feature_enabled_section(VarBoolean* var_boolean, VarColor* colors_var, const std::function<void()>& callback, bool alpha)
+void CUIMenuWidgets::feature_enabled_section(VarBoolean* var_boolean, VarColor* colors_var, 
+											 const std::function<void()>& callback, bool alpha, const std::string& title, bool see_if_enabled)
 {
-	add_checkbox_with_color(std::format("Enable##{}", var_boolean->get_name()), var_boolean, colors_var, alpha);
+	add_checkbox(std::format("{}##{}", title, var_boolean->get_name()), var_boolean);
 
 	bool enabled = var_boolean->get_value();
 
-	if (!enabled)
+	if (!enabled && see_if_enabled || enabled && !see_if_enabled)
 	{
 		g_gui_widgets_i->push_disbled();
 	}
 
 	callback();
 
-	if (!enabled)
+	if (!enabled && see_if_enabled || enabled && !see_if_enabled)
 	{
 		g_gui_widgets_i->pop_disabled();
 	}

@@ -64,7 +64,7 @@ void CMovementGroundStrafe::rage_gs(float frametime)
 	static bool did_duck = false;
 	if (perfect_condition_for_duck() && !did_duck)
 	{
-		CClientMovementPacket::the().duck(true);
+		CClientMovementPacket::the().set_button_bit(IN_DUCK, true);
 		nsdn_speedhack();
 		did_duck = true;
 	}
@@ -72,7 +72,7 @@ void CMovementGroundStrafe::rage_gs(float frametime)
 	{
 		if (did_duck)
 		{
-			CClientMovementPacket::the().duck(false);
+			CClientMovementPacket::the().set_button_bit(IN_DUCK, false);
 			did_duck = false;
 		}
 	}
@@ -127,7 +127,7 @@ void CMovementGroundStrafe::legit_gs(float frametime)
 	{
 		if (m_remained_in_duck)
 		{
-			if (!CClientMovementPacket::the().duck_atomic())
+			if (!CClientMovementPacket::the().set_button_bit_atomic(IN_DUCK))
 			{
 				m_remained_in_duck = false;
 			}
@@ -137,7 +137,7 @@ void CMovementGroundStrafe::legit_gs(float frametime)
 
 void CMovementGroundStrafe::simulate_duck(float frametime)
 {
-	m_remained_in_duck = CClientMovementPacket::the().duck_atomic();
+	m_remained_in_duck = CClientMovementPacket::the().set_button_bit_atomic(IN_DUCK);
 }
 
 void CMovementGroundStrafe::determine_random_gnddist_for_duck_simul(bool on_ground)
@@ -170,7 +170,7 @@ bool CMovementGroundStrafe::duck_helper(float frametime)
 	{
 		// releasae the cmd button just in case it wasn't - therefore we can do the +duck at the exact frame
 		// where we land on ground.
-		CClientMovementPacket::the().duck(false);
+		CClientMovementPacket::the().set_button_bit(IN_DUCK, false);
 		return true;
 	}
 

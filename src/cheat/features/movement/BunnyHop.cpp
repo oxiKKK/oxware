@@ -52,13 +52,13 @@ void CMovementBunnyHop::update(float frametime)
 
 	if (movement_bhop_jump_in_water.get_value() && CLocalState::the().get_waterlevel() >= 2)
 	{
-		CClientMovementPacket::the().jump(true);
+		CClientMovementPacket::the().set_button_bit(IN_JUMP, true);
 		return;
 	}
 	
 	if (movement_bhop_jump_on_ladder.get_value() && CLocalState::the().is_on_ladder())
 	{
-		CClientMovementPacket::the().jump(true);
+		CClientMovementPacket::the().set_button_bit(IN_JUMP, true);
 		return;
 	}
 
@@ -91,7 +91,7 @@ void CMovementBunnyHop::rage_bhop(float frametime)
 		m_jump_timer_ms = GetTickCount();
 	}
 
-	CClientMovementPacket::the().jump(jump);
+	CClientMovementPacket::the().set_button_bit(IN_JUMP, jump);
 }
 
 void CMovementBunnyHop::legit_bhop(float frametime)
@@ -160,7 +160,7 @@ void CMovementBunnyHop::legit_bhop(float frametime)
 		m_fog_counter = false;
 		if (m_remained_in_jump)
 		{
-			if (!CClientMovementPacket::the().jump_atomic())
+			if (!CClientMovementPacket::the().set_button_bit_atomic(IN_JUMP))
 			{
 				m_remained_in_jump = false;
 			}
@@ -170,7 +170,7 @@ void CMovementBunnyHop::legit_bhop(float frametime)
 
 void CMovementBunnyHop::simulate_jump(float frametime)
 {
-	m_remained_in_jump = CClientMovementPacket::the().jump_atomic();
+	m_remained_in_jump = CClientMovementPacket::the().set_button_bit_atomic(IN_JUMP);
 }
 
 void CMovementBunnyHop::determine_random_gnddist_for_jump_simul(bool on_ground)
@@ -203,7 +203,7 @@ bool CMovementBunnyHop::hop_helper(float frametime)
 	{
 		// releasae the cmd button just in case it wasn't - therefore we can do the +jump at the exact frame
 		// where we land on ground.
-		CClientMovementPacket::the().jump(false);
+		CClientMovementPacket::the().set_button_bit(IN_JUMP, false);
 		return true;
 	}
 	

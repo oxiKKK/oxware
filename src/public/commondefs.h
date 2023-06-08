@@ -83,7 +83,7 @@ consteval T BIT(T N) { return (1 << N); }
 
 // decl singleton for a class instance
 #define DECL_BASIC_CLASS(name)			\
-	static name& the()					\
+	static __forceinline name& the()	\
 	{									\
 		static name g_##name;			\
 		return g_##name;				\

@@ -32,6 +32,33 @@
 
 #include "precompiled.h"
 
+struct in_button_t
+{
+	const char* in_cmd, *out_cmd;
+};
+
+static std::map<unsigned short, in_button_t> s_in_commands =
+{
+	{
+	{ IN_ATTACK,	{ "+attack",	"-attack" } },
+	{ IN_JUMP,		{ "+jump",		"-jump" } },
+	{ IN_DUCK,		{ "+duck",		"-duck" } },
+	{ IN_FORWARD,	{ "+forward",	"-forward" } },
+	{ IN_BACK,		{ "+back",		"-back" } },
+	{ IN_USE,		{ "+use",		"-use" } },
+//	{ IN_CANCEL,	{ "",			"" } },
+	{ IN_LEFT,		{ "+left",		"-left" } },
+	{ IN_RIGHT,		{ "+right",		"-right" } },
+	{ IN_MOVELEFT,	{ "+moveleft",	"-moveleft" } },
+	{ IN_MOVERIGHT, { "+moveright",	"-moveright" } },
+	{ IN_ATTACK2,	{ "+attack2",	"+attack2" } },
+//	{ IN_RUN,		{ "",			"" } },
+	{ IN_RELOAD,	{ "+reload",	"-reload" } },
+	{ IN_ALT1,		{ "+alt1",		"-alt1" } },
+	{ IN_SCORE,		{ "+score",		"-score" } },
+	}
+};
+
 void CClientMovementPacket::update_msg_writeusercmd(hl::usercmd_t* to)
 {
 	// FrameTime scheduled to be modified from somewhere else
@@ -46,72 +73,62 @@ void CClientMovementPacket::update_clientmove()
 	reset_ft_state();
 }
 
-bool CClientMovementPacket::jump_atomic()
-{
-	bool jumped = false;
+//-----------------------------------------------------------------
 
-	if (!was_in(IN_JUMP))
+bool CClientMovementPacket::set_button_bit_atomic(unsigned short button)
+{
+	bool set = false;
+
+	if (!was_in(button))
 	{
-		jump(true);
-		jumped = true;
+		set_button_bit(button, true);
+		set = true;
 	}
 	else
 	{
-		// previously was in jump but didn't release it.
-		jump(false);
+		// previously was in action but didn't release it.
+		set_button_bit(button, false);
 	}
 
-	return jumped;
+	return set;
 }
 
-void CClientMovementPacket::jump(bool do_the_jump)
+void CClientMovementPacket::set_button_bit(unsigned short button, bool set)
 {
-	if (do_the_jump)
+	if (set)
 	{
-		m_current_cmd->buttons |= IN_JUMP;
-		CGameUtil::the().record_hud_command("+jump");
+		m_current_cmd->buttons |= button;
+		CGameUtil::the().record_hud_command(s_in_commands[button].in_cmd);
 	}
 	else
 	{
-		m_current_cmd->buttons &= ~IN_JUMP;
-		CGameUtil::the().record_hud_command("-jump");
+		m_current_cmd->buttons &= ~button;
+		CGameUtil::the().record_hud_command(s_in_commands[button].out_cmd);
 	}
 
 	m_previous_buttons_state = m_current_cmd->buttons;
 }
 
-bool CClientMovementPacket::duck_atomic()
+void CClientMovementPacket::move_accel(EMoveDirection direction, float amount)
 {
-	bool ducked = false;
-
-	if (!was_in(IN_DUCK))
+	switch (direction)
 	{
-		duck(true);
-		ducked = true;
+		default:
+		case FWMOVE: m_current_cmd->forwardmove += amount; break;
+		case SDMOVE: m_current_cmd->sidemove += amount; break;
+		case UPMOVE: m_current_cmd->upmove += amount; break;
 	}
-	else
-	{
-		// previously was in jump but didn't release it.
-		duck(false);
-	}
-
-	return ducked;
 }
 
-void CClientMovementPacket::duck(bool do_the_duck)
+void CClientMovementPacket::move_set(EMoveDirection direction, float amount)
 {
-	if (do_the_duck)
+	switch (direction)
 	{
-		m_current_cmd->buttons |= IN_DUCK;
-		CGameUtil::the().record_hud_command("+duck");
+		default:
+		case FWMOVE: m_current_cmd->forwardmove = amount; break;
+		case SDMOVE: m_current_cmd->sidemove = amount; break;
+		case UPMOVE: m_current_cmd->upmove = amount; break;
 	}
-	else
-	{
-		m_current_cmd->buttons &= ~IN_DUCK;
-		CGameUtil::the().record_hud_command("-duck");
-	}
-
-	m_previous_buttons_state = m_current_cmd->buttons;
 }
 
 void CClientMovementPacket::svside_movement_speed_factor(uint8_t msec, bool override_previous)

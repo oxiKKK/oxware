@@ -72,6 +72,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	hudRegisterVariable().install();
 	MSG_WriteUsercmd().install();
 	CHudSniperScope__Draw().install();
+	IN_ScaleMouse().install();
 
 	return true;
 }
@@ -128,6 +129,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	hudRegisterVariable().uninstall();
 	MSG_WriteUsercmd().uninstall();
 	CHudSniperScope__Draw().uninstall();
+	IN_ScaleMouse().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -916,6 +918,34 @@ int __thiscall CHudSniperScope__Draw_FnDetour_t::CHudSniperScope__Draw(void* ecx
 	}
 
 	return CMemoryFnDetourMgr::the().CHudSniperScope__Draw().call(ecx, flTime);
+}
+
+//---------------------------------------------------------------------------------
+
+bool IN_ScaleMouse_FnDetour_t::install()
+{
+	initialize("IN_ScaleMouse", L"client.dll");
+	return detour_using_bytepattern((uintptr_t*)IN_ScaleMouse);
+}
+
+float *mouse_x_ptr, *mouse_y_ptr;
+
+void IN_ScaleMouse_FnDetour_t::IN_ScaleMouse(float* x, float* y)
+{
+	// hooked in order to retreive these two pointers that are passed into this function.
+	// this func is called only with these two passed in.
+
+	if (!mouse_x_ptr)
+	{
+		mouse_x_ptr = x;
+	}
+
+	if (!mouse_y_ptr)
+	{
+		mouse_y_ptr = x;
+	}
+
+	CMemoryFnDetourMgr::the().IN_ScaleMouse().call(x, y);
 }
 
 //---------------------------------------------------------------------------------

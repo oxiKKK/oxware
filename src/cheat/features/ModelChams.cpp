@@ -319,7 +319,7 @@ void CModelChams::render_playerhead_hitbox()
 				bbox_transformator[1] = (j & 2) ? bbox[i].bbmin[1] : bbox[i].bbmax[1];
 				bbox_transformator[2] = (j & 4) ? bbox[i].bbmin[2] : bbox[i].bbmax[2];
 
-				CMathUtil::the().vector_transform(bbox_transformator, (*couple_of_pointers)[bbox[i].bone], p[j]);
+				CMath::the().vector_transform(bbox_transformator, (*couple_of_pointers)[bbox[i].bone], p[j]);
 			}
 
 			glBegin(GL_QUADS);

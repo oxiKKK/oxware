@@ -251,6 +251,9 @@
     <ClCompile Include="features\movement\EdgeBug.cpp">
       <Filter>src\features\movement</Filter>
     </ClCompile>
+    <ClCompile Include="features\movement\StrafeHack.cpp">
+      <Filter>src\features\movement</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -447,6 +450,9 @@
       <Filter>src\features\movement</Filter>
     </ClInclude>
     <ClInclude Include="features\movement\EdgeBug.h">
+      <Filter>src\features\movement</Filter>
+    </ClInclude>
+    <ClInclude Include="features\movement\StrafeHack.h">
       <Filter>src\features\movement</Filter>
     </ClInclude>
   </ItemGroup>

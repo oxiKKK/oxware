@@ -36,24 +36,32 @@
 
 #define DotProduct(x,y)			(x[0]*y[0]+x[1]*y[1]+x[2]*y[2])
 
-class CMathUtil
+class CMath
 {
 public:
-	DECL_BASIC_CLASS(CMathUtil);
+	DECL_BASIC_CLASS(CMath);
 
 public:
 	void angle_vectors(const Vector& angles, Vector& forward, Vector& right, Vector& up);
 
 	void vector_transform(const Vector& vector, const float(*transformation_matrix)[4], Vector& transformed);
 
-	inline float deg2rad(float x)
+	template<typename T>
+	inline constexpr T deg2rad(T x)
 	{
-		return (x * (M_PI / 180.0f));
+		return static_cast<T>(x * (std::numbers::pi_v<T> / 180.0));
 	}
 
-	inline float rad2deg(float x)
+	template<typename T>
+	inline constexpr T rad2deg(T x)
 	{
-		return (x * (180.0f / M_PI));
+		return static_cast<T>(x * (180.0 / std::numbers::pi_v<T>));
+	}
+
+	template<typename T>
+	inline constexpr T pow2(T x)
+	{
+		return x * x;
 	}
 
 };

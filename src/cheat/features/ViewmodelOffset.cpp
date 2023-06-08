@@ -55,7 +55,7 @@ void CViewmodelOffset::update()
 	float offset = viewmodel_offset_value.get_value();
 
 	Vector forward, right, up;
-	CMathUtil::the().angle_vectors(cl->viewangles, forward, right, up);
+	CMath::the().angle_vectors(cl->viewangles, forward, right, up);
 
 	vm->origin += forward * offset;
 }

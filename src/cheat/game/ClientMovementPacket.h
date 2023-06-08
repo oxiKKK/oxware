@@ -30,6 +30,13 @@
 #define CLIENTMOVEMENTPACKET_H
 #pragma once
 
+enum EMoveDirection
+{
+	FWMOVE,
+	SDMOVE,
+	UPMOVE,
+};
+
 class CClientMovementPacket
 {
 public:
@@ -41,21 +48,20 @@ public:
 
 	void set_current_cmd_for_manipulation(hl::usercmd_t* cmd) { m_current_cmd = cmd; }
 
-	bool jump_atomic();
-	void jump(bool do_the_jump);
+	bool set_button_bit_atomic(unsigned short button);
+	void set_button_bit(unsigned short button, bool set);
 
-	bool duck_atomic();
-	void duck(bool do_the_duck);
+	void move_accel(EMoveDirection direction, float amount);
+	void move_set(EMoveDirection direction, float amount);
 
-	bool was_in(unsigned short in_action)
-	{
-		return m_previous_buttons_state & in_action;
-	}
+	Vector& get_viewangles() { return m_current_cmd->viewangles; }
+
+	bool was_in(unsigned short in_action) { return m_previous_buttons_state & in_action; }
+	bool is_in(unsigned short in_action) { return m_current_cmd->buttons & in_action; }
 
 	void svside_movement_speed_factor(uint8_t msec, bool override_previous = false);
 
-	// frametime of current movement command
-	uint8_t cmd_ft() const { return m_current_cmd->msec; }
+	hl::usercmd_t* get_cmd() { return m_current_cmd; }
 
 private:
 	hl::usercmd_t* m_current_cmd = nullptr;

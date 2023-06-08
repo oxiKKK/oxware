@@ -279,6 +279,7 @@ namespace hl
 #include "features/movement/AirStuck.h"
 #include "features/movement/GroundStrafe.h"
 #include "features/movement/EdgeBug.h"
+#include "features/movement/StrafeHack.h"
 #include "features/movement/Movement.h"
 
 // ui

@@ -976,7 +976,7 @@ void CUIMenu::tab_movement()
 			});
 
 		CUIMenuWidgets::the().add_menu_child(
-			"Ground strafe", CMenuStyle::calc_child_size(500), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Ground strafe", CMenuStyle::calc_child_size(movement_gs_mode.get_value() == 0 ? 500 : 360), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(
@@ -1036,6 +1036,31 @@ void CUIMenu::tab_movement()
 					}
 				});
 			});
+
+		CUIMenuWidgets::the().add_menu_child(
+		"Strafe hack", CMenuStyle::calc_child_size(270), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			CUIMenuWidgets::the().feature_enabled_section(
+			&movement_strafe_hack_enable,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Allow on surf", &movement_strafe_hack_allow_on_surf);
+				CUIMenuWidgets::the().add_checkbox("Reset to forward", &movement_strafe_hack_dir_reset);
+
+				CUIMenuWidgets::the().feature_enabled_section(
+				&movement_strafe_hack_dir_auto,
+				[]()
+				{
+					CUIMenuWidgets::the().add_listbox("Direction", &movement_strafe_hack_dir, { "Forward", "Right", "Back", "Left" });
+				}, 
+				"Automatic Direction", 
+				false);
+
+				g_gui_widgets_i->add_spacing();
+				CUIMenuWidgets::the().add_slider("Boost", "%0.1f", &movement_strafe_hack_boost);
+			});
+		});
 
 		g_gui_widgets_i->goto_next_column();
 
@@ -1111,7 +1136,7 @@ void CUIMenu::tab_movement()
 		});
 
 		CUIMenuWidgets::the().add_menu_child(
-		"Edge bug", CMenuStyle::calc_child_size(270), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Edge bug", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			CUIMenuWidgets::the().feature_enabled_section(
@@ -1119,6 +1144,7 @@ void CUIMenu::tab_movement()
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Enable on ramps", &movement_eb_enable_on_ramps);
+				CUIMenuWidgets::the().add_checkbox("Auto", &movement_eb_auto);
 
 				g_gui_widgets_i->add_separtor_with_text("Tweaking");
 
@@ -1573,11 +1599,6 @@ void CUIMenu::tab_others()
 				{
 					CUIMenuWidgets::the().add_description_text("This feature is used for developement only. You have been warned.");
 
-					if (!debug.get_value())
-					{
-						g_gui_widgets_i->push_disbled();
-					}
-
 					g_gui_widgets_i->begin_tab("debug_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
 					float tab_height = -1.0f;
@@ -1595,14 +1616,10 @@ void CUIMenu::tab_others()
 
 							g_gui_widgets_i->add_spacing();
 							CUIMenuWidgets::the().add_checkbox("Bhop", &debug_render_info_movement_bhop);
+							CUIMenuWidgets::the().add_checkbox("Strafe", &debug_render_info_movement_strafe);
 						});
 
 					g_gui_widgets_i->end_tab();
-
-					if (!debug.get_value())
-					{
-						g_gui_widgets_i->pop_disabled();
-					}
 				});
 			});
 

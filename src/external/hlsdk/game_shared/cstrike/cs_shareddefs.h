@@ -5,6 +5,10 @@
 // $NoKeywords: $
 //=============================================================================
 
+//
+// cs_shareddefs.h -- shareddefs.h version for cstrike.
+//
+
 #ifndef CS_SHAREDDEFS_H
 #define CS_SHAREDDEFS_H
 #ifdef _WIN32
@@ -91,10 +95,10 @@ typedef enum
 {
 	CMD_SAY,
 	CMD_SAYTEAM,
-	CMD_FULLUPDATE ,
+	CMD_FULLUPDATE,
 	CMD_VOTE,
 	CMD_VOTEMAP,
-	CMD_LISTMAPS ,
+	CMD_LISTMAPS,
 	CMD_LISTPLAYERS,
 	CMD_NIGHTVISION,
 	COMMANDS_TO_TRACK,
@@ -157,7 +161,6 @@ enum
 #define VEC_HUMAN_HULL_MAX			Vector( 16, 16, 72 )
 #define VEC_HUMAN_HULL_DUCK			Vector( 16, 16, 36 )
 
-#define VEC_VIEW					Vector( 0, 0, 28 )
 #define VEC_DUCK_HULL_MIN			Vector(-16, -16, -18 )
 #define VEC_DUCK_HULL_MAX			Vector( 16,  16,  18)
 #define VEC_DUCK_VIEW				Vector( 0, 0, 12 )
@@ -283,6 +286,57 @@ enum
 #define AUTOAIM_5DEGREES			0.08715574274766	// sin(5)
 #define AUTOAIM_8DEGREES			0.1391731009601		// sin(8)
 #define AUTOAIM_10DEGREES			0.1736481776669		// sin(10)
+
+//------------------------------------------------------------------------------------
+// Playermove
+//
+
+// texture types
+#define CHAR_TEX_SNOW				'N'
+#define CHAR_TEX_GRASS				'X'
+
+// texture limits
+#define CTEXTURESMAX				1024		// max number of textures loaded
+#define CBTEXTURENAMEMAX			17			// only load first n chars of name
+
+//
+// Playermove constants
+//
+#define TIME_TO_DUCK				0.4
+
+#define PM_DEAD_VIEWHEIGHT			-8
+
+#define MAX_CLIMB_SPEED				200
+
+#define STUCK_MOVEUP				1
+#define STUCK_MOVEDOWN				-1
+
+// vectors
+#define DUCK_HULL_MIN				-18
+#define DUCK_HULL_MAX				18
+#define DUCK_VIEW					12
+#define STANDING_HULL_MIN			-36
+#define STANDING_HULL_MAX			36
+#define VIEWHEIGHT					28
+
+// epsilon for pm code
+#define	STOP_EPSILON				0.1
+
+// stepsounds added in cstrike
+#define STEP_SNOW					9  // walking on snowy surface
+
+#define PLAYER_FATAL_FALL_SPEED		1024// approx 60 feet
+#define PLAYER_MAX_SAFE_FALL_SPEED	580// approx 20 feet
+#define DAMAGE_FOR_FALL_SPEED		(float) 100 / ( PLAYER_FATAL_FALL_SPEED - PLAYER_MAX_SAFE_FALL_SPEED )// damage per unit per second.
+#define PLAYER_MIN_BOUNCE_SPEED		200
+#define PLAYER_FALL_PUNCH_THRESHHOLD (float)350 // won't punch player's screen/make scrape noise unless player falling at least this fast.
+
+#define PLAYER_LONGJUMP_SPEED		350 // how fast we longjump
+
+#define PLAYER_DUCKING_MULTIPLIER	0.333
+
+// Only allow bunny jumping up to 1.2x server / player maxspeed setting
+#define BUNNYJUMP_MAX_SPEED_FACTOR	1.2f
 
 enum HitBoxGroup
 {

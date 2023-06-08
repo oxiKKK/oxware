@@ -67,6 +67,7 @@ public:
 	// get local player velocity calculated by playermove code
 	float get_local_velocity_2d();
 	float get_local_velocity_3d();
+	inline Vector get_local_velocity_vec() const { return m_pmove->velocity; }
 
 	inline Vector get_origin() const { return m_pmove->origin; }
 	inline float get_fall_velocity() const { return m_pmove->flFallVelocity; }

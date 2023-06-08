@@ -8547,6 +8547,11 @@ void ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
     }
     RenderTextEllipsis(draw_list, text_ellipsis_clip_bb.Min, text_ellipsis_clip_bb.Max, text_pixel_clip_bb.Max.x, ellipsis_max_x, label, NULL, &label_size);
 
+    if (IsMouseHoveringRect(text_ellipsis_clip_bb.Min, text_ellipsis_clip_bb.Max))
+    {
+        SetMouseCursor(ImGuiMouseCursor_Hand);
+    }
+
 #if 0
     if (!is_contents_visible)
         g.Style.Alpha = backup_alpha;

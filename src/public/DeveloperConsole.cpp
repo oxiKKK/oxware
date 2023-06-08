@@ -249,7 +249,7 @@ void CDeveloperConsole::render()
 		g_gui_window_rendering_i->get_current_drawlist(),
 		font,
 		{ window_pos.x + window_size.x - offset_from_the_right - label_size.x, window_pos.y + y_offset },
-		g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextBlack>(),
+		g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextBlack),
 		label);
 
 	// logging path
@@ -259,7 +259,7 @@ void CDeveloperConsole::render()
 		g_gui_window_rendering_i->get_current_drawlist(),
 		font,
 		{ window_pos.x + window_size.x - offset_from_the_right - label_size.x - spacing - label1_size.x, window_pos.y + y_offset },
-		g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextBlack>(),
+		g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextBlack),
 		label1);
 
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 4.0f, 4.0f });

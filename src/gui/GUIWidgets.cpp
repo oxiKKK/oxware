@@ -71,7 +71,7 @@ public:
 	// Properties
 	//
 
-	void push_disbled();
+	void push_disabled();
 	void pop_disabled();
 
 	void push_stylevar(ImGuiStyleVar idx, float val);
@@ -222,10 +222,8 @@ private:
 	bool add_slider_internal(const char* label, T* value, T* min, T* max, const char* format, ImGuiDataType data_type, bool no_label, ImGuiSliderFlags flags = ImGuiSliderFlags_None);
 
 	// helpers
-	template<EGUIColor clr> requires(clr > GUICLR_NONE && clr < GUICLR_MAX)
-	const CColor& get_color() const { return g_gui_thememgr_i->get_current_theme()->get_color<clr>(); }
-	template<EGUIColor clr> requires(clr > GUICLR_NONE && clr < GUICLR_MAX)
-	const uint32_t get_color_u32() const { return g_gui_thememgr_i->get_current_theme()->get_color_u32<clr>(); }
+	const CColor& get_color(EGUIColor clr) const { return g_gui_thememgr_i->get_current_theme()->get_color(clr); }
+	const uint32_t get_color_u32(EGUIColor clr) const { return g_gui_thememgr_i->get_current_theme()->get_color_u32(clr); }
 
 	bool m_block_input_on_all = false;
 
@@ -275,7 +273,7 @@ void CGUIWidgets::set_next_window_rounding(float rounding, ImDrawFlags flags)
 
 void CGUIWidgets::create_new_window(const std::string& name, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents)
 {
-	PushStyleColor(ImGuiCol_WindowBg, g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_WindowBackground>());
+	PushStyleColor(ImGuiCol_WindowBg, g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_WindowBackground));
 
 	bool should_disable_all_interaction = m_block_input_on_all && (name != "popup_window") && !m_executing_popup_code;
 	
@@ -288,7 +286,7 @@ void CGUIWidgets::create_new_window(const std::string& name, ImGuiWindowFlags fl
 
 	if (should_disable_all_interaction)
 	{
-		push_disbled();
+		push_disabled();
 	}
 
 	if (pfn_contents)
@@ -319,7 +317,7 @@ void CGUIWidgets::block_input_on_all_except_popup(bool block)
 
 void CGUIWidgets::add_child(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents)
 {
-	PushStyleColor(ImGuiCol_ChildBg, g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_ChildBackground>());
+	PushStyleColor(ImGuiCol_ChildBg, g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_ChildBackground));
 
 	bool should_disable_all_interaction = m_block_input_on_all && (GetCurrentWindow()->Name != "popup_window") && !m_executing_popup_code;
 
@@ -368,7 +366,7 @@ void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D
 				g_gui_window_rendering_i->get_current_drawlist(),
 				font, 
 				{ child_pos.x + child_size.x / 2 - label_size.x / 2, child_pos.y + CGUIWidgetsStyle::k_childhdr_text_padding_y },
-				g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextRegular>(),
+				g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextRegular),
 				text);
 
 			// separator beneath
@@ -376,7 +374,7 @@ void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D
 				g_gui_window_rendering_i->get_current_drawlist(),
 				{ child_pos.x + CGUIWidgetsStyle::k_childhdr_line_padding.x, child_pos.y + label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y }, 
 				{ child_pos.x + child_size.x - CGUIWidgetsStyle::k_childhdr_line_padding.x, child_pos.y + label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y }, 
-				g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_Separator>());
+				g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_Separator));
 
 			Dummy({ 0.0f,  label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y + CGUIWidgetsStyle::k_childhdr_contents_padding_y });
 
@@ -421,14 +419,16 @@ bool CGUIWidgets::execute_simple_popup_popup(const std::string& name, const Vect
 	return false;
 }
 
-void CGUIWidgets::push_disbled()
+void CGUIWidgets::push_disabled()
 {
 	BeginDisabled();
+	g_gui_thememgr_i->push_disabled();
 }
 
 void CGUIWidgets::pop_disabled()
 {
 	EndDisabled();
+	g_gui_thememgr_i->pop_disabled();
 }
 
 void CGUIWidgets::push_stylevar(ImGuiStyleVar idx, float val)
@@ -553,19 +553,19 @@ void CGUIWidgets::add_text(const std::string& text, ETextProperties properties, 
 
 	if (properties & TEXTPROP_ColorWhite)
 	{
-		PushStyleColor(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextWhite>());
+		PushStyleColor(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextWhite));
 	}
 	else if (properties & TEXTPROP_ColorRegular)
 	{
-		PushStyleColor(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextRegular>());
+		PushStyleColor(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextRegular));
 	}
 	else if (properties & TEXTPROP_ColorDark)
 	{
-		PushStyleColor(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextDark>());
+		PushStyleColor(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark));
 	}
 	else if (properties & TEXTPROP_ColorBlack)
 	{
-		PushStyleColor(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextBlack>());
+		PushStyleColor(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextBlack));
 	}
 
 	//
@@ -642,7 +642,7 @@ void CGUIWidgets::add_window_centered_text_disabled(const std::string& text, Fon
 bool CGUIWidgets::add_button(const std::string& label, const Vector2D& size, bool disabled, EButtonFlags flags)
 {
 	if (disabled)
-		push_disbled();
+		push_disabled();
 
 	bool ret = add_button_internal(label.c_str(), size, false, flags);
 
@@ -660,10 +660,10 @@ bool CGUIWidgets::add_button(const std::string& label, const Vector2D& size, boo
 bool CGUIWidgets::add_toggle_button(const std::string& label, const Vector2D& size, bool selected, bool disabled, EButtonFlags flags)
 {
 	if (disabled)
-		push_disbled();
+		push_disabled();
 
 	// use the default button color as hover color and disable the default one.
-	auto prev_default_color = g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_Button>();
+	auto prev_default_color = g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_Button);
 	g_gui_thememgr_i->push_color(GUICLR_Button, CColor(0, 0, 0, 0));
 	g_gui_thememgr_i->push_color(GUICLR_ButtonHovered, prev_default_color);
 
@@ -710,15 +710,15 @@ bool CGUIWidgets::add_hypertext_link(const std::string& label)
 	CColor color_4f;
 	if (held && hovered)
 	{
-		color_4f = get_color<GUICLR_HyperTextLinkActive>();
+		color_4f = get_color(GUICLR_HyperTextLinkActive);
 	}
 	else if (hovered)
 	{
-		color_4f = get_color<GUICLR_HyperTextLinkHovered>();
+		color_4f = get_color(GUICLR_HyperTextLinkHovered);
 	}
 	else
 	{
-		color_4f = get_color<GUICLR_HyperTextLink>();
+		color_4f = get_color(GUICLR_HyperTextLink);
 	}
 
 	push_color(ImGuiCol_Text, color_4f);
@@ -837,7 +837,7 @@ bool CGUIWidgets::add_text_input(const std::string& label, char* buffer, size_t 
 bool CGUIWidgets::add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, 
 									ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void * user_data)
 {
-	PushStyleColor(ImGuiCol_FrameBg, get_color<GUICLR_InputTextBg>());
+	PushStyleColor(ImGuiCol_FrameBg, get_color(GUICLR_InputTextBg));
 
 	PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 
@@ -985,8 +985,8 @@ void CGUIWidgets::add_progress_bar(const std::string& id, const Vector2D& size, 
 		return;
 	}
 
-	auto clr = get_color<GUICLR_ProgressBar>();
-	auto clr1 = get_color<GUICLR_ProgressBar>();
+	auto clr = get_color(GUICLR_ProgressBar);
+	auto clr1 = get_color(GUICLR_ProgressBar);
 
 	//clr.a = (current / max);
 	clr1.a = 0.1f;
@@ -1245,15 +1245,15 @@ bool CGUIWidgets::add_button_internal(const char* label, const Vector2D& size, b
 	CColor color_4f;
 	if (held && hovered)
 	{
-		color_4f = get_color<GUICLR_ButtonActive>();
+		color_4f = get_color(GUICLR_ButtonActive);
 	}
 	else if (hovered)
 	{
-		color_4f = get_color<GUICLR_ButtonHovered>();
+		color_4f = get_color(GUICLR_ButtonHovered);
 	}
 	else
 	{
-		color_4f = get_color<GUICLR_Button>();
+		color_4f = get_color(GUICLR_Button);
 	}
 	
 	if (selected)
@@ -1308,15 +1308,15 @@ bool CGUIWidgets::add_checkbox_internal(const char* label, float* value)
 	CColor color_4f;
 	if (*value)
 	{
-		color_4f = get_color<GUICLR_CheckBoxSelected>();
+		color_4f = get_color(GUICLR_CheckBoxSelected);
 	}
 	else if (held)
 	{
-		color_4f = get_color<GUICLR_CheckBoxSelected>();
+		color_4f = get_color(GUICLR_CheckBoxSelected);
 	}
 	else
 	{
-		color_4f = get_color<GUICLR_CheckBoxBackground>();
+		color_4f = get_color(GUICLR_CheckBoxBackground);
 	}
 
 	ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
@@ -1328,7 +1328,7 @@ bool CGUIWidgets::add_checkbox_internal(const char* label, float* value)
 	{
 		if (hovered)
 		{
-			PushStyleColor(ImGuiCol_Border, get_color_u32<GUICLR_CheckBoxSelected>());
+			PushStyleColor(ImGuiCol_Border, get_color_u32(GUICLR_CheckBoxSelected));
 			PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f);
 		}
 
@@ -1341,7 +1341,7 @@ bool CGUIWidgets::add_checkbox_internal(const char* label, float* value)
 		}
 	}
 
-	ImU32 check_col = get_color_u32<GUICLR_CheckBoxCheckmark>();
+	ImU32 check_col = get_color_u32(GUICLR_CheckBoxCheckmark);
 	bool mixed_value = (g.LastItemData.InFlags & ImGuiItemFlags_MixedValue) != 0;
 	if (mixed_value)
 	{
@@ -1459,7 +1459,7 @@ bool CGUIWidgets::color_button_internal(const char* desc_id, const ImVec4& col, 
 		if (g.Style.FrameBorderSize > 0.0f)
 		{
 			if (hovered)
-				PushStyleColor(ImGuiCol_Border, get_color<GUICLR_ColorButtonBorderHovered>());
+				PushStyleColor(ImGuiCol_Border, get_color(GUICLR_ColorButtonBorderHovered));
 
 			RenderFrameBorder(bb.Min, bb.Max, rounding);
 
@@ -1530,14 +1530,14 @@ bool CGUIWidgets::begin_combo_internal(const char* label, const char* preview_la
 	}
 
 	// Render shape
-	const ImU32 frame_col = get_color<GUICLR_ListBoxBackground>().as_u32();
+	const ImU32 frame_col = get_color_u32(GUICLR_ListBoxBackground);
 	const float value_x2 = ImMax(bb.Min.x, bb.Max.x - arrow_size.x);
 	RenderNavHighlight(bb, id);
 	if (!(flags & ImGuiComboFlags_NoPreview))
 		window->DrawList->AddRectFilled(bb.Min, ImVec2(value_x2, bb.Max.y), frame_col, style.FrameRounding, (flags & ImGuiComboFlags_NoArrowButton) ? ImDrawFlags_RoundCornersAll : ImDrawFlags_RoundCornersLeft);
 	if (!(flags & ImGuiComboFlags_NoArrowButton))
 	{
-		ImU32 bg_col = get_color<GUICLR_ListBoxArrowBoxBackground>().as_u32();
+		ImU32 bg_col = get_color_u32(GUICLR_ListBoxArrowBoxBackground);
 		ImU32 text_col = GetColorU32(ImGuiCol_Text);
 		window->DrawList->AddRectFilled(ImVec2(value_x2, bb.Min.y), bb.Max, bg_col, style.FrameRounding, (w <= arrow_size.x) ? ImDrawFlags_RoundCornersAll : ImDrawFlags_RoundCornersRight);
 		if (value_x2 + arrow_size.x - style.FramePadding.x <= bb.Max.x)
@@ -1548,12 +1548,12 @@ bool CGUIWidgets::begin_combo_internal(const char* label, const char* preview_la
 
 	if (hovered)
 	{
-		PushStyleColor(ImGuiCol_Border, get_color_u32<GUICLR_ListBoxBorderHovered>());
+		PushStyleColor(ImGuiCol_Border, get_color_u32(GUICLR_ListBoxBorderHovered));
 		border_size = 2.0f;
 	}
 	else
 	{
-		PushStyleColor(ImGuiCol_Border, get_color_u32<GUICLR_ListBoxBorder>());
+		PushStyleColor(ImGuiCol_Border, get_color_u32(GUICLR_ListBoxBorder));
 		border_size = 0.0f;
 	}
 
@@ -2259,11 +2259,11 @@ bool CGUIWidgets::add_slider_internal(const char* label, T* value, T* min, T* ma
 
 	if (hovered || g.ActiveId == id)
 	{
-		frame_col = get_color<GUICLR_SliderHovered>();
+		frame_col = get_color(GUICLR_SliderHovered);
 	}
 	else
 	{
-		frame_col = get_color<GUICLR_SliderFrameBg>();
+		frame_col = get_color(GUICLR_SliderFrameBg);
 	}
 
 	const float width = 5.0f;
@@ -2275,12 +2275,12 @@ bool CGUIWidgets::add_slider_internal(const char* label, T* value, T* min, T* ma
 	// Render grab
 	if (grab_bb.Max.x > grab_bb.Min.x)
 		window->DrawList->AddCircleFilled(grab_bb.Min + grab_bb_size, grab_bb_size.x + grab_bb_oversize_add,
-										  get_color_u32<GUICLR_SliderGrab>(), 12);
+										  get_color_u32(GUICLR_SliderGrab), 12);
 
 	// Render blue active field behind grab
 	RenderFrame(frame_bb_thin_min,
-				{ grab_bb.Min.x + grab_bb_size.x, frame_bb_thin_max.y },
-				get_color_u32<GUICLR_SliderActive>(), false, 1.f);
+				{ grab_bb.Min.x + grab_bb_size.x - 6, frame_bb_thin_max.y },
+				get_color_u32(GUICLR_SliderActive), false, 1.f);
 
 	// Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
 	char value_buf[64];

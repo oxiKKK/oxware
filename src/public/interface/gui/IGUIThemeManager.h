@@ -94,8 +94,6 @@ enum EGUIColor
 	GUICLR_MAX
 };
 
-#define OXUI_DISABLED_ALPHA 0.60f
-
 class GUIThemeObject_t
 {
 public:
@@ -115,9 +113,15 @@ public:
 	// try to avoid using this, use IGUIThemeManager::push_color instead.
 	void set_using_color(EGUIColor id, const CColor& clr) { m_Colors[id] = clr; }
 
-	// run-time color getters
-	CColor get_color(EGUIColor clr) const;
-	const uint32_t get_color_u32(EGUIColor clr) const;
+	// compile-time
+	template<EGUIColor clr> requires(clr > GUICLR_NONE && clr < GUICLR_MAX)
+	const CColor& get_color() const { return m_Colors[clr]; }
+	template<EGUIColor clr> requires(clr > GUICLR_NONE && clr < GUICLR_MAX)
+	const uint32_t get_color_u32() const { return m_Colors[clr].as_u32(); }
+
+	// run-time
+	const CColor& get_color(EGUIColor clr) const { return m_Colors[clr]; }
+	const uint32_t get_color_u32(EGUIColor clr) const { return m_Colors[clr].as_u32(); }
 
 private:
 	std::array<CColor, GUICLR_MAX> m_Colors;
@@ -134,37 +138,10 @@ public:
 
 	virtual void push_color(EGUIColor id, const CColor& color) = 0;
 	virtual void pop_color(size_t amount = 1) = 0;
-
-	virtual void push_disabled() = 0;
-	virtual void pop_disabled() = 0;
-
-	virtual bool is_disabled() = 0;
 };
 
 extern IGUIThemeManager* g_gui_thememgr_i;
 
 #define IGUITHEMEMANAGER_INTERFACEID "IGUIThemeManager"
-
-//---------------------------------------------------------------
-
-inline CColor GUIThemeObject_t::get_color(EGUIColor clr) const
-{
-	CColor c = m_Colors[clr];
-	if (g_gui_thememgr_i->is_disabled())
-	{
-		c.a *= OXUI_DISABLED_ALPHA;
-	}
-	return c;
-}
-inline const uint32_t GUIThemeObject_t::get_color_u32(EGUIColor clr) const
-{
-	CColor c = m_Colors[clr];
-	if (g_gui_thememgr_i->is_disabled())
-	{
-		c.a *= OXUI_DISABLED_ALPHA;
-	}
-	return c.as_u32();
-}
-
 
 #endif // IGUITHEMEMANAGER_H

@@ -33,11 +33,6 @@ public:
 	void push_color(EGUIColor id, float alpha);
 	void pop_color(size_t amount = 1);
 
-	void push_disabled();
-	void pop_disabled();
-
-	bool is_disabled();
-
 private:
 	void sync_with_imgui();
 
@@ -49,8 +44,6 @@ private:
 	std::unordered_map<std::string, GUIThemeObject_t> m_themes;
 
 	std::vector<PushedColor> m_pushed_colors;
-
-	bool m_disabled;
 };
 
 CGUIThemeManager g_gui_thememgr;
@@ -128,45 +121,28 @@ void CGUIThemeManager::pop_color(size_t amount)
 	}
 }
 
-void CGUIThemeManager::push_disabled()
-{
-	assert(!m_disabled && "called " __FUNCTION__ " without popping disabled state!");
-	m_disabled = true;
-}
-
-void CGUIThemeManager::pop_disabled()
-{
-	assert(m_disabled && "called " __FUNCTION__ " without pushing disabled state!");
-	m_disabled = false;
-}
-
-bool CGUIThemeManager::is_disabled()
-{
-	return m_disabled;
-}
-
 void CGUIThemeManager::sync_with_imgui()
 {
 	auto& style = ImGui::GetStyle();
 
-	style.Colors[ImGuiCol_WindowBg] = get_current_theme()->get_color(GUICLR_WindowBackground);
-	style.Colors[ImGuiCol_ChildBg] = get_current_theme()->get_color(GUICLR_ChildBackground);
-	style.Colors[ImGuiCol_PopupBg] = get_current_theme()->get_color(GUICLR_PopupBackground);
+	style.Colors[ImGuiCol_WindowBg] = get_current_theme()->get_color<GUICLR_WindowBackground>();
+	style.Colors[ImGuiCol_ChildBg] = get_current_theme()->get_color<GUICLR_ChildBackground>();
+	style.Colors[ImGuiCol_PopupBg] = get_current_theme()->get_color<GUICLR_PopupBackground>();
 
-	style.Colors[ImGuiCol_Text] = get_current_theme()->get_color(GUICLR_TextDark);
+	style.Colors[ImGuiCol_Text] = get_current_theme()->get_color<GUICLR_TextDark>();
 
-	style.Colors[ImGuiCol_ScrollbarBg] = get_current_theme()->get_color(GUICLR_ScrollbarBackground);
-	style.Colors[ImGuiCol_ScrollbarGrab] = get_current_theme()->get_color(GUICLR_ScrollbarGrab);
+	style.Colors[ImGuiCol_ScrollbarBg] = get_current_theme()->get_color<GUICLR_ScrollbarBackground>();
+	style.Colors[ImGuiCol_ScrollbarGrab] = get_current_theme()->get_color<GUICLR_ScrollbarGrab>();
 
-	style.Colors[ImGuiCol_Tab] = get_current_theme()->get_color(GUICLR_Tab);
-	style.Colors[ImGuiCol_TabHovered] = get_current_theme()->get_color(GUICLR_TabHovered);
-	style.Colors[ImGuiCol_TabActive] = get_current_theme()->get_color(GUICLR_TabActive);
+	style.Colors[ImGuiCol_Tab] = get_current_theme()->get_color<GUICLR_Tab>();
+	style.Colors[ImGuiCol_TabHovered] = get_current_theme()->get_color<GUICLR_TabHovered>();
+	style.Colors[ImGuiCol_TabActive] = get_current_theme()->get_color<GUICLR_TabActive>();
 
-	style.Colors[ImGuiCol_ResizeGrip] = get_current_theme()->get_color(GUICLR_ResizeGrip);
-	style.Colors[ImGuiCol_ResizeGripHovered] = get_current_theme()->get_color(GUICLR_ResizeGripHovered);
-	style.Colors[ImGuiCol_ResizeGripActive] = get_current_theme()->get_color(GUICLR_ResizeGripActive);
+	style.Colors[ImGuiCol_ResizeGrip] = get_current_theme()->get_color<GUICLR_ResizeGrip>();
+	style.Colors[ImGuiCol_ResizeGripHovered] = get_current_theme()->get_color<GUICLR_ResizeGripHovered>();
+	style.Colors[ImGuiCol_ResizeGripActive] = get_current_theme()->get_color<GUICLR_ResizeGripActive>();
 
-	style.Colors[ImGuiCol_TableHeaderBg] = get_current_theme()->get_color(GUICLR_TableHeaderBg);
+	style.Colors[ImGuiCol_TableHeaderBg] = get_current_theme()->get_color<GUICLR_TableHeaderBg>();
 
 	style.ScrollbarSize = 10.f;
 	style.ScrollbarRounding = 8.f;

@@ -260,7 +260,7 @@ void CUIMenuWidgets::feature_enabled_section(VarBoolean* var_boolean, const std:
 
 	if (!enabled && see_if_enabled || enabled && !see_if_enabled)
 	{
-		g_gui_widgets_i->push_disabled();
+		g_gui_widgets_i->push_disbled();
 	}
 
 	callback();
@@ -280,7 +280,7 @@ void CUIMenuWidgets::feature_enabled_section(VarBoolean* var_boolean, VarColor* 
 
 	if (!enabled && see_if_enabled || enabled && !see_if_enabled)
 	{
-		g_gui_widgets_i->push_disabled();
+		g_gui_widgets_i->push_disbled();
 	}
 
 	callback();

@@ -103,7 +103,7 @@ public:
 	// Properties
 	//
 
-	virtual void push_disabled() = 0;
+	virtual void push_disbled() = 0;
 	virtual void pop_disabled() = 0;
 
 	virtual void push_stylevar(ImGuiStyleVar idx, float val) = 0;

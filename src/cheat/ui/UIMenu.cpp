@@ -416,10 +416,11 @@ void CUIMenu::tab_world()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Removals", CMenuStyle::calc_child_size(320), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Removals", CMenuStyle::calc_child_size(330), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Remove screenshake", &remove_screenshake);
+				CUIMenuWidgets::the().add_checkbox("Remove viewmodel", &remove_viewmodel);
 				CUIMenuWidgets::the().add_checkbox("Remove MOTD", &remove_motd);
 				CUIMenuWidgets::the().add_checkbox("Remove sniper scopes", &remove_sniper_scope);
 

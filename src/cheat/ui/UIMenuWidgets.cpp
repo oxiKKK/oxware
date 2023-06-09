@@ -246,7 +246,7 @@ void CUIMenuWidgets::add_menu_child(const std::string& label, const Vector2D& si
 
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, CMenuStyle::k_child_contents_padding);
 
-	g_gui_widgets_i->add_child_with_header(label, size, border, flags | ImGuiWindowFlags_NoScrollbar, pfn_contents);
+	g_gui_widgets_i->add_child_with_header(label, size, border, flags | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse, pfn_contents);
 
 	g_gui_widgets_i->pop_stylevar(1);
 }
@@ -257,7 +257,7 @@ void CUIMenuWidgets::add_menu_child_collapsible(const std::string& label, const 
 
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, CMenuStyle::k_child_contents_padding);
 
-	g_gui_widgets_i->add_child_with_header_collapsible(label, size, border, flags | ImGuiWindowFlags_NoScrollbar, pfn_contents);
+	g_gui_widgets_i->add_child_with_header_collapsible(label, size, border, flags | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse, pfn_contents);
 
 	g_gui_widgets_i->pop_stylevar(1);
 }

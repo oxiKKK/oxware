@@ -60,6 +60,7 @@ int CUserMSGDetourMgr::MOTD_f(const char* pszName, int iSize, void* pbuf)
 {
 	if (CRemovals::the().remove_motd())
 	{
+		// TODO: Some servers detect this somehow, fix!
 		return 0;
 	}
 

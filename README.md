@@ -115,6 +115,8 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - Removals
 	- screen shake
 	- MOTD
+	- Viewmodel
+	- Sniper scopes
 - HUD removals
 	- weapon, crosshair, money, etc...
 - Viewmodel offset

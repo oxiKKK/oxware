@@ -120,6 +120,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Added customizable EB hack.
 - Added customizable Strafe hack.
 - Added customizable strafe helper.
+- Added viewmodel removal
 
 ## Bugfixes
 

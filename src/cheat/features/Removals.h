@@ -31,6 +31,7 @@
 #pragma once
 
 extern VarBoolean remove_screenshake;
+extern VarBoolean remove_viewmodel;
 
 extern VarBoolean remove_hud_enable;
 extern VarBoolean remove_hud_crosshair;
@@ -51,6 +52,7 @@ public:
 
 public:
 	bool remove_screenshake();
+	bool remove_viewmodel();
 
 	void remove_hud_modifier();
 

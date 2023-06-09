@@ -29,10 +29,16 @@
 #include "precompiled.h"
 
 VarBoolean remove_screenshake("remove_screenshake", "Removes all screenshake.", false);
+VarBoolean remove_viewmodel("remove_viewmodel", "Removes viewmodel.", false);
 
 bool CRemovals::remove_screenshake()
 {
 	return ::remove_screenshake.get_value();
+}
+
+bool CRemovals::remove_viewmodel()
+{
+	return ::remove_viewmodel.get_value();
 }
 
 VarBoolean remove_hud_enable("remove_hud_enable", "Enabled HUD removal.", false);

@@ -550,6 +550,11 @@ bool R_DrawViewModel_FnDetour_t::install()
 
 void R_DrawViewModel_FnDetour_t::R_DrawViewModel()
 {
+	if (CRemovals::the().remove_viewmodel())
+	{
+		return;
+	}
+
 	CViewmodelOffset::the().update();
 
 	CModelChams::the().force_default_models();

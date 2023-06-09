@@ -266,7 +266,7 @@ float CGameUtil::compute_ground_angle_for_origin(const Vector& origin, float tra
 	Vector trace_end = Vector(origin.x, origin.y, -trace_distance); // trace as back as this
 
 	hl::pmtrace_t* tr = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnPM_TraceLine(
-		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull(), -1);
+		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull_tracing(), -1);
 	
 	// plane normal returns the [0, 1] scale of rotation of the plane [0°, 90°].
 	//
@@ -286,7 +286,7 @@ float CGameUtil::compute_distance_to_ground(const Vector& origin, float trace_di
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs().get();
 	
 	hl::pmtrace_t* tr = cl_enginefuncs->pfnPM_TraceLine(
-		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull(), -1);
+		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull_tracing(), -1);
 	
 	return origin.z - tr->endpos.z;
 }
@@ -333,7 +333,7 @@ float CGameUtil::compute_edge_distance(const Vector& origin, float edge_trace_di
 		Vector trace_end = Vector(origin.x, origin.y, -4096.0f); // trace as back as this
 
 		hl::pmtrace_t* gnd_tr = cl_enginefuncs->pfnPM_TraceLine(
-			(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull(), -1);
+			(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull_tracing(), -1);
 
 		//
 		// get distance to a nearest edge
@@ -350,7 +350,7 @@ float CGameUtil::compute_edge_distance(const Vector& origin, float edge_trace_di
 		desired_edge.y += vertices[i][1] * starting_distance;
 
 		hl::pmtrace_t* edge_tr = cl_enginefuncs->pfnPM_TraceLine(
-			desired_edge, surface_beneath, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull(), -1);
+			desired_edge, surface_beneath, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull_tracing(), -1);
 
 		// lower the distance on the lowest possible distance, therefore we find the closest edge
 		// we start from the "ending" point and end on "starting" point for a reason. It is to check
@@ -377,7 +377,8 @@ float CGameUtil::compute_edge_distance(const Vector& origin, float edge_trace_di
 
 	static auto trace_endpos_helper = [&](const Vector& start, const Vector& end, int N) -> float
 	{
-		hl::pmtrace_t* tr = cl_enginefuncs->pfnPM_TraceLine((Vector)start, (Vector)end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull(), -1);
+		hl::pmtrace_t* tr = cl_enginefuncs->pfnPM_TraceLine(
+			(Vector)start, (Vector)end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull_tracing(), -1);
 		return tr->endpos[N];
 	};
 
@@ -385,7 +386,7 @@ float CGameUtil::compute_edge_distance(const Vector& origin, float edge_trace_di
 	
 	hl::pmtrace_t* surface_tr = cl_enginefuncs->pfnPM_TraceLine(
 		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE,
-		CLocalState::the().get_current_hull(), -1);
+		CLocalState::the().get_current_hull_tracing(), -1);
 
 	Vector surface_beneath = surface_tr->endpos;
 	surface_beneath.z -= 0.1f; // trace a little bit beneath the surface, so we can check for the edge.

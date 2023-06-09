@@ -109,28 +109,6 @@ void CClientMovementPacket::set_button_bit(unsigned short button, bool set)
 	m_previous_buttons_state = m_current_cmd->buttons;
 }
 
-void CClientMovementPacket::move_accel(EMoveDirection direction, float amount)
-{
-	switch (direction)
-	{
-		default:
-		case FWMOVE: m_current_cmd->forwardmove += amount; break;
-		case SDMOVE: m_current_cmd->sidemove += amount; break;
-		case UPMOVE: m_current_cmd->upmove += amount; break;
-	}
-}
-
-void CClientMovementPacket::move_set(EMoveDirection direction, float amount)
-{
-	switch (direction)
-	{
-		default:
-		case FWMOVE: m_current_cmd->forwardmove = amount; break;
-		case SDMOVE: m_current_cmd->sidemove = amount; break;
-		case UPMOVE: m_current_cmd->upmove = amount; break;
-	}
-}
-
 void CClientMovementPacket::svside_movement_speed_factor(uint8_t msec, bool override_previous)
 {
 	if (m_ft_modified && !override_previous)

@@ -1038,7 +1038,7 @@ void CUIMenu::tab_movement()
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-		"Strafe hack", CMenuStyle::calc_child_size(270), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Strafe hack", CMenuStyle::calc_child_size(225), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			CUIMenuWidgets::the().feature_enabled_section(
@@ -1059,6 +1059,22 @@ void CUIMenu::tab_movement()
 
 				g_gui_widgets_i->add_spacing();
 				CUIMenuWidgets::the().add_slider("Boost", "%0.1f", &movement_strafe_hack_boost);
+			});
+		});
+
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+		"Strafe helper", CMenuStyle::calc_child_size(180), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			CUIMenuWidgets::the().feature_enabled_section(
+			&movement_strafe_helper_enable,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Always enabled", &movement_strafe_helper_always_enabled);
+
+				CUIMenuWidgets::the().add_checkbox("Strafe with mouse", &movement_strafe_helper_strafe_with_mouse);
+				CUIMenuWidgets::the().add_slider("Accumulation", "%0.01f", &movement_strafe_helper_accumulation);//
+				CUIMenuWidgets::the().add_checkbox("Accumulation on ground", &movement_strafe_helper_accumulation_on_ground);
 			});
 		});
 
@@ -1616,7 +1632,8 @@ void CUIMenu::tab_others()
 
 							g_gui_widgets_i->add_spacing();
 							CUIMenuWidgets::the().add_checkbox("Bhop", &debug_render_info_movement_bhop);
-							CUIMenuWidgets::the().add_checkbox("Strafe", &debug_render_info_movement_strafe);
+							CUIMenuWidgets::the().add_checkbox("Strafe hack", &debug_render_info_movement_strafe);
+							CUIMenuWidgets::the().add_checkbox("Strafe helper", &debug_render_info_movement_strafe_helper);
 						});
 
 					g_gui_widgets_i->end_tab();

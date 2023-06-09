@@ -118,6 +118,11 @@ void CMovementBunnyHop::legit_bhop(float frametime)
 	if (randomize_jump_pattern(is_onground))
 	{
 		block_jump = true;
+		CConsole::the().info("blocked");
+	}
+	else
+	{
+		CConsole::the().info("performed");
 	}
 
 	if (perform_jump && !block_jump)

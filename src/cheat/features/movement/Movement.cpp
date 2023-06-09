@@ -33,16 +33,19 @@ VarBoolean movement_air_stuck_enable("movement_air_stuck_enable", "Allows to get
 VarBoolean movement_gs_enable("movement_gs_enable", "Enables GroundStrafe hacks", false);
 VarBoolean movement_eb_enable("movement_eb_enable", "Enables EdgeBug hacks", false);
 VarBoolean movement_strafe_hack_enable("movement_strafe_hack_enable", "Enables strafe hacks", false);
+VarBoolean movement_strafe_helper_enable("movement_strafe_helper_enable", "Enables strafe helper", false);
 
 InCommand CMovement::bunnyhop = InCommand("movement_bhop", VK_SPACE, &movement_bhop_enable);
 InCommand CMovement::airstuck = InCommand("movement_air_stuck", VK_XBUTTON1, &movement_air_stuck_enable); // mouse4
 InCommand CMovement::gs = InCommand("movement_gs", VK_XBUTTON2, &movement_gs_enable); // mouse5
 InCommand CMovement::eb = InCommand("movement_eb", 'C', &movement_eb_enable);
 InCommand CMovement::strafe = InCommand("movement_strafe_hack", VK_MBUTTON, &movement_strafe_hack_enable); // mouse3
+InCommand CMovement::strafe_helper = InCommand("movement_strafe_helper", VK_MENU, &movement_strafe_helper_enable); // alt
 
 VarBoolean debug_render_info_movement("debug_render_info_movement", "Movement information", false);
 VarBoolean debug_render_info_movement_bhop("debug_render_info_bhop", "Bunnyhop information", false);
 VarBoolean debug_render_info_movement_strafe("debug_render_info_movement_strafe", "Strafehack information", false);
+VarBoolean debug_render_info_movement_strafe_helper("debug_render_info_movement_strafe_helper", "Strafe helper information", false);
 
 #if 0 // test
 InCommandCustom incmd_test = InCommandCustom(
@@ -73,7 +76,7 @@ void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 			CMovementGroundStrafe::the().update(frametime);
 		}
 
-		if (eb.is_active() || movement_eb_auto.get_value())
+		if (eb.is_active() || (movement_eb_auto.get_value() && movement_eb_enable.get_value()))
 		{
 			CMovementEdgeBug::the().update(frametime);
 		}
@@ -82,6 +85,17 @@ void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 		{
 			CMovementAirStuck::the().update();
 		}
+
+		if (strafe_helper.is_active() || (movement_strafe_helper_always_enabled.get_value() && movement_strafe_helper_enable.get_value()))
+		{
+			CMovementStrafeHelper::the().update();
+		}
+
+		if (strafe.is_active())
+		{
+			CMovementStrafeHack::the().update();
+		}
+
 	}
 
 	if (debug.get_value())
@@ -99,6 +113,11 @@ void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 		if (debug_render_info_movement_strafe.get_value())
 		{
 			CMovementStrafeHack::the().render_debug();
+		}
+
+		if (debug_render_info_movement_strafe_helper.get_value())
+		{
+			CMovementStrafeHelper::the().render_debug();
 		}
 	}
 
@@ -140,12 +159,16 @@ void CMovement::render_debug(hl::usercmd_t* cmd)
 	CEngineFontRendering::the().render_debug("Water level: {}", pmove->waterlevel);
 	CEngineFontRendering::the().render_debug("Water type: {}", pmove->watertype);
 	CEngineFontRendering::the().render_debug("Water jump time: {}", pmove->waterjumptime);
-	CEngineFontRendering::the().render_debug("forwardmove: {}", cmd->forwardmove);
-	CEngineFontRendering::the().render_debug("sidemove: {}", cmd->sidemove);
-	CEngineFontRendering::the().render_debug("maxspeed: {}", pmove->maxspeed);
-	CEngineFontRendering::the().render_debug("movespeed: {}", movespeed);
-	CEngineFontRendering::the().render_debug("viewangles: {}", cmd->viewangles);
-	CEngineFontRendering::the().render_debug("yaw: {} a", cmd->viewangles[YAW]);
+	CEngineFontRendering::the().render_debug("Forwardmove: {}", cmd->forwardmove);
+	CEngineFontRendering::the().render_debug("Sidemove: {}", cmd->sidemove);
+	CEngineFontRendering::the().render_debug("Maxspeed: {}", pmove->maxspeed);
+	CEngineFontRendering::the().render_debug("Movespeed: {}", movespeed);
+	CEngineFontRendering::the().render_debug("Viewangles: {}", cmd->viewangles);
+	CEngineFontRendering::the().render_debug("Yaw: {} a", cmd->viewangles[YAW]);
+	CEngineFontRendering::the().render_debug("usehull: {}", pmove->usehull);
+
+	if (mouse_x_ptr)
+		CEngineFontRendering::the().render_debug("Mouse delta: {}", Vector2D(*mouse_x_ptr, *mouse_y_ptr));
 }
 
 void CMovement::feed_plot(float frametime, hl::usercmd_t * cmd)

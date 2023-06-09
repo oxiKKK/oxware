@@ -84,6 +84,9 @@ public:
 	inline int get_waterlevel() const { return m_pmove->waterlevel; }
 
 	inline EPlayerHull get_current_hull() const { return (EPlayerHull)m_pmove->usehull; }
+	// on some servers the hull is being set to 2 and remains constant, idk why.
+	// resolve the hull for ourselfs, otherwise tracing code will fail
+	inline EPlayerHull get_current_hull_tracing() const { return m_tracing_hull; }
 
 private:
 	hl::frame_t* m_current_frame = nullptr;
@@ -97,6 +100,8 @@ private:
 	float m_edge_dist = 0.0f;
 
 	hl::playermove_t* m_pmove = nullptr;
+
+	EPlayerHull m_tracing_hull = HULL_STANDING;
 
 	bool m_is_surfing = false;
 };

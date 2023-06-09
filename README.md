@@ -154,6 +154,8 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 	- Legit/Rage bhop hack 🐇
 	- GS hack.
 	- EB hack.
+	- Strafe hack.
+	- Strafe helper.
 - Fancy custom cl_showfps rendering
 - Rechecker bypass, see [this video](https://youtu.be/Razs0s7sgno).
 - Instantaneous cheat unload (either via loader or cheat menu)

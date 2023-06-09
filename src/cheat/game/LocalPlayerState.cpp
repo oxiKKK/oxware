@@ -40,6 +40,9 @@ void CLocalState::update_clientmove(float frametime, hl::usercmd_t* cmd)
 	// playermove flags
 	m_player_flags = m_current_frame->clientdata.flags;
 
+	// set this first! because the tracing code needs it!
+	m_tracing_hull = is_ducking() ? HULL_DUCKING : HULL_STANDING;
+
 	m_moving_velocity = m_pmove->velocity;
 	m_ground_angle = CGameUtil::the().compute_ground_angle_for_origin(m_pmove->origin);
 	m_ground_dist = CGameUtil::the().compute_distance_to_ground(m_pmove->origin);

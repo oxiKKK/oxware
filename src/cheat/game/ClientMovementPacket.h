@@ -30,13 +30,6 @@
 #define CLIENTMOVEMENTPACKET_H
 #pragma once
 
-enum EMoveDirection
-{
-	FWMOVE,
-	SDMOVE,
-	UPMOVE,
-};
-
 class CClientMovementPacket
 {
 public:
@@ -50,11 +43,6 @@ public:
 
 	bool set_button_bit_atomic(unsigned short button);
 	void set_button_bit(unsigned short button, bool set);
-
-	void move_accel(EMoveDirection direction, float amount);
-	void move_set(EMoveDirection direction, float amount);
-
-	Vector& get_viewangles() { return m_current_cmd->viewangles; }
 
 	bool was_in(unsigned short in_action) { return m_previous_buttons_state & in_action; }
 	bool is_in(unsigned short in_action) { return m_current_cmd->buttons & in_action; }
@@ -74,6 +62,8 @@ private:
 
 	void reset_ft_state();
 };
+
+//---------------------------------------------------------------------------------------------------
 
 struct MPVisualDataEntry
 {

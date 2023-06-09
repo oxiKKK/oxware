@@ -165,11 +165,11 @@ void CMovementStrafeHack::update()
 	ncos = cos(angle);
 
 	cmd->forwardmove = cmd->sidemove * (osin * ncos - ocos * nsin);
-	cmd->sidemove *= osin * nsin + ocos * ncos;
+	cmd->sidemove *= (osin * nsin + ocos * ncos);
 
 	// add a little bit of forward velocity when not doing on a steep turn
 	float fs = 0;
-	if (atanf(30.0f / vel_2d) >= abs(adif))
+	if (atanf(9999 / vel_2d) >= abs(adif))
 	{
 		Vector view_dir = current_dir->view_direction ? pmove->forward : pmove->right;
 
@@ -216,9 +216,6 @@ void CMovementStrafeHack::update()
 void CMovementStrafeHack::render_debug()
 {
 	CEngineFontRendering::the().render_debug("--- Strafe ---");
-
-	if (mouse_x_ptr)
-		CEngineFontRendering::the().render_debug("mouse pos: {}", Vector2D(*mouse_x_ptr, *mouse_y_ptr));
 
 	auto cl = CMemoryHookMgr::the().cl().get();
 	auto pmove = *CMemoryHookMgr::the().pmove().get();

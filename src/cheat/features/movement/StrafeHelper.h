@@ -26,41 +26,31 @@
 *	IN THE SOFTWARE.
 */
 
-#ifndef MOVEMENT_H
-#define MOVEMENT_H
+#ifndef STRAFEHELPER_H
+#define STRAFEHELPER_H
 #pragma once
 
-extern VarBoolean movement_bhop_enable;
-extern VarBoolean movement_air_stuck_enable;
-extern VarBoolean movement_gs_enable;
-extern VarBoolean movement_eb_enable;
-extern VarBoolean movement_strafe_hack_enable;
-extern VarBoolean movement_strafe_helper_enable;
+extern VarBoolean movement_strafe_helper_always_enabled;
+extern VarBoolean movement_strafe_helper_strafe_with_mouse;
+extern VarFloat movement_strafe_helper_accumulation;
+extern VarBoolean movement_strafe_helper_accumulation_on_ground;
 
-extern VarBoolean debug_render_info_movement;
-extern VarBoolean debug_render_info_movement_bhop;
-extern VarBoolean debug_render_info_movement_strafe;
-extern VarBoolean debug_render_info_movement_strafe_helper;
-
-class CMovement
+class CMovementStrafeHelper
 {
 public:
-	DECL_BASIC_CLASS(CMovement);
+	DECL_BASIC_CLASS(CMovementStrafeHelper);
 
 public:
-	void update_clientmove(float frametime, hl::usercmd_t *cmd);
+	void update();
+
+	void render_debug();
 
 private:
-	static InCommand bunnyhop;			// CMovementBunnyHop
-	static InCommand airstuck;			// CMovementAirStuck
-	static InCommand gs;				// CMovementGroundStrafe
-	static InCommand eb;				// CMovementEdgeBug
-	static InCommand strafe;			// CMovementStrafeHack
-	static InCommand strafe_helper;		// CMovementStrafeHelper
+	void correction();
 
-	void render_debug(hl::usercmd_t* cmd);
-
-	void feed_plot(float frametime, hl::usercmd_t *cmd);
+private:
+	// 0 == left, 1 == right, 2 == forward
+	int m_mouse_direction = 0;
 };
 
-#endif // MOVEMENT_H
+#endif // STRAFEHELPER_H

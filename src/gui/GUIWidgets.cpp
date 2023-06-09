@@ -35,6 +35,15 @@
 // We'll use internal imgui here, so we can create new widgets etc..
 #include <imgui_internal.h>
 
+class CGUIWidgetsStyle
+{
+public:
+	inline static constexpr float k_childhdr_text_padding_x = 5.0f;
+	inline static constexpr float k_childhdr_text_padding_y = 3.0f;
+	inline static constexpr Vector2D k_childhdr_line_padding = { 5.0f, 2.0f };
+	inline static constexpr float k_childhdr_contents_padding_y = 5.0f;
+};
+
 using namespace ImGui;
 
 IGUIWidgets* g_gui_widgets_i = nullptr;
@@ -59,7 +68,8 @@ public:
 	void block_input_on_all_except_popup(bool block);
 
 	void add_child(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents);
-	void add_child_with_header(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents);
+	void add_child_with_header(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents, bool collapsible = false);
+	void add_child_with_header_collapsible(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents);
 
 	Vector2D get_current_window_pos();
 	Vector2D get_current_window_size();
@@ -71,7 +81,7 @@ public:
 	// Properties
 	//
 
-	void push_disbled();
+	void push_disabled();
 	void pop_disabled();
 
 	void push_stylevar(ImGuiStyleVar idx, float val);
@@ -230,6 +240,14 @@ private:
 	bool m_block_input_on_all = false;
 
 	bool m_executing_popup_code = false;
+
+	struct collapsible_child_data_t
+	{
+		bool collapsed;
+		Vector2D initial_size, size;
+		bool hovered;
+	};
+	std::unordered_map<std::string, collapsible_child_data_t> m_collapsible_child_data;
 };
 
 CGUIWidgets g_gui_widgets;
@@ -288,7 +306,7 @@ void CGUIWidgets::create_new_window(const std::string& name, ImGuiWindowFlags fl
 
 	if (should_disable_all_interaction)
 	{
-		push_disbled();
+		push_disabled();
 	}
 
 	if (pfn_contents)
@@ -340,10 +358,25 @@ void CGUIWidgets::add_child(const std::string& label, const Vector2D& size, bool
 	PopStyleColor(1);
 }
 
-void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents)
+void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents, bool collapsible)
 {
+	auto& data = m_collapsible_child_data[label];
+
+	ImGuiWindowFlags collapsible_flags = 0;
+	
+	if (collapsible)
+	{
+		if (data.initial_size.IsZero())
+		{
+			data.initial_size = size;
+			data.size = size;
+		}
+
+		collapsible_flags |= (data.collapsed ? ImGuiWindowFlags_NoScrollbar : 0);
+	}
+	
 	add_child(
-		label, size, border, flags,
+		label, data.size, border, flags | collapsible_flags,
 		[&]()
 		{
 			auto child_pos = GetWindowPos();
@@ -363,28 +396,84 @@ void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D
 
 			auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, text.c_str());
 
+			Vector2D header_text_pos = { child_pos.x + CGUIWidgetsStyle::k_childhdr_text_padding_x, child_pos.y + CGUIWidgetsStyle::k_childhdr_text_padding_y };
+
+			auto header_color = (collapsible && data.hovered) ? get_color<GUICLR_HyperTextLinkHovered>() : g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextRegular>();
+
 			// header text
 			g_gui_window_rendering_i->render_text(
 				g_gui_window_rendering_i->get_current_drawlist(),
-				font, 
-				{ child_pos.x + child_size.x / 2 - label_size.x / 2, child_pos.y + CGUIWidgetsStyle::k_childhdr_text_padding_y },
-				g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextRegular>(),
+				font,
+/*centered ->*///{ child_pos.x + child_size.x / 2 - label_size.x / 2, child_pos.y + CGUIWidgetsStyle::k_childhdr_text_padding_y },
+				header_text_pos,
+				header_color,
 				text);
 
 			// separator beneath
 			g_gui_window_rendering_i->render_line(
 				g_gui_window_rendering_i->get_current_drawlist(),
-				{ child_pos.x + CGUIWidgetsStyle::k_childhdr_line_padding.x, child_pos.y + label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y }, 
-				{ child_pos.x + child_size.x - CGUIWidgetsStyle::k_childhdr_line_padding.x, child_pos.y + label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y }, 
+				{ child_pos.x + CGUIWidgetsStyle::k_childhdr_line_padding.x, child_pos.y + label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y },
+				{ child_pos.x + child_size.x - CGUIWidgetsStyle::k_childhdr_line_padding.x, child_pos.y + label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y },
 				g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_Separator>());
 
-			Dummy({ 0.0f,  label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y + CGUIWidgetsStyle::k_childhdr_contents_padding_y });
+			if (collapsible)
+			{
+				ImGuiWindow* window = GetCurrentWindow();
 
-			if (pfn_contents)
+				ImVec2 arrow_pos = child_pos + ImVec2(child_size.x - 21.0f, 7.0f);
+				const ImVec2 arrow_size = { window->DrawList->_Data->FontSize, window->DrawList->_Data->FontSize };
+
+				ImRect bb(header_text_pos, arrow_pos + arrow_size);
+				ImGuiID id = window->GetID(label.c_str() + 1);
+
+				ItemSize(bb.Max - bb.Min, 0.0f);
+				ItemAdd(bb, id);
+
+				bool hovered, held;
+				bool pressed = ButtonBehavior(bb, id, &hovered, &held);
+
+				data.hovered = hovered;
+
+				if (pressed)
+				{
+					data.collapsed = !data.collapsed;
+
+					if (data.collapsed)
+					{
+						data.size = Vector2D(data.initial_size.x, 35.0f);
+					}
+					else
+					{
+						data.size = data.initial_size;
+					}
+				}
+
+				//			window->DrawList->AddRect(bb.Min, bb.Max, ImColor(0, 230, 0, 230));
+
+				RenderArrow(window->DrawList, arrow_pos, header_color.as_u32(), data.collapsed ? ImGuiDir_Left : ImGuiDir_Down);
+
+				if (IsItemHovered())
+				{
+					g_imgui_platform_layer_i->override_cursor(GUICURSOR_Hand);
+				}
+
+				Dummy({ 0.0f, 5.0f });
+			}
+			else
+			{
+				Dummy({ 0.0f,  label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y + CGUIWidgetsStyle::k_childhdr_contents_padding_y });
+			}
+			
+			if (pfn_contents && !data.collapsed)
 			{
 				pfn_contents();
 			}
 		});
+}
+
+void CGUIWidgets::add_child_with_header_collapsible(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents)
+{
+	add_child_with_header(label, size, border, flags, pfn_contents, true);
 }
 
 Vector2D CGUIWidgets::get_current_window_pos()
@@ -421,7 +510,7 @@ bool CGUIWidgets::execute_simple_popup_popup(const std::string& name, const Vect
 	return false;
 }
 
-void CGUIWidgets::push_disbled()
+void CGUIWidgets::push_disabled()
 {
 	BeginDisabled();
 }
@@ -642,7 +731,7 @@ void CGUIWidgets::add_window_centered_text_disabled(const std::string& text, Fon
 bool CGUIWidgets::add_button(const std::string& label, const Vector2D& size, bool disabled, EButtonFlags flags)
 {
 	if (disabled)
-		push_disbled();
+		push_disabled();
 
 	bool ret = add_button_internal(label.c_str(), size, false, flags);
 
@@ -660,7 +749,7 @@ bool CGUIWidgets::add_button(const std::string& label, const Vector2D& size, boo
 bool CGUIWidgets::add_toggle_button(const std::string& label, const Vector2D& size, bool selected, bool disabled, EButtonFlags flags)
 {
 	if (disabled)
-		push_disbled();
+		push_disabled();
 
 	// use the default button color as hover color and disable the default one.
 	auto prev_default_color = g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_Button>();

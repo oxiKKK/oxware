@@ -39,7 +39,7 @@ const float CMenuStyle::k_bottom_reserved_rect_h = 15.0f;
 const float CMenuStyle::k_bottom_right_timestamp_rightside_padding = 5.0f;
 const float CMenuStyle::k_bottom_right_timestamp_bottomside_padding = 2.0f;
 const Vector2D CMenuStyle::k_bottom_left_desc_padding = { 5.0f, 2.0f };
-const float CMenuStyle::k_child_contents_rounding = 10.0f;
+const float CMenuStyle::k_child_contents_rounding = 5.0f;
 const Vector2D CMenuStyle::k_child_contents_padding = { 10.0f, 5.0f };
 const float CMenuStyle::k_child_width = 210.0f;
 const Vector2D CMenuStyle::k_unload_button_padding = { 15.0f, 15.0f };
@@ -85,7 +85,7 @@ void MenuTabItem::render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId
 	g_gui_widgets_i->push_font(button_font);
 
 	// text color
-	g_gui_widgets_i->push_color(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextDark>());
+	g_gui_widgets_i->push_color(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark));
 
 	bool selected = (active_tab_id == m_tab_id);
 	if (g_gui_widgets_i->add_toggle_button(m_label.c_str(), { CMenuStyle::k_tab_select_size.x - 20.0f, 0.0f }, selected))
@@ -126,7 +126,7 @@ void MenuTabSection::render_current_label(Vector2D& offset, Vector2D& relative_o
 	g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(), 
 										  section_label_font,
 										  { offset.x, offset.y + 5.0f },
-										  g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextLight>(),
+										  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextLight),
 										  m_label);
 
 	relative_offset.y += section_label_font->get_size_px();
@@ -136,7 +136,7 @@ void MenuTabSection::render_current_label(Vector2D& offset, Vector2D& relative_o
 	g_gui_window_rendering_i->render_line(g_gui_window_rendering_i->get_current_drawlist(), 
 										  { offset.x, offset.y + 4.0f },
 										  { offset.x + child_size.x - 10.f * 2.f, offset.y + 5.f },
-										  g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_Separator>());
+										  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_Separator));
 
 	relative_offset.y += 8.f;
 	offset.y += 8.f;
@@ -218,7 +218,7 @@ void CUIMenu::on_render()
 					g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(), 
 														  segoeui_extra,
 														  { child_pos.x + child_size.x / 2 - label_size.x / 2, window_pos.y + 10 },
-														  g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextDark>(),
+														  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark),
 														  "OXWARE");
 
 					m_sectab_relative_active_offset = { 10.0f, 50.0f };
@@ -236,14 +236,14 @@ void CUIMenu::on_render()
 			g_gui_window_rendering_i->render_line(g_gui_window_rendering_i->get_current_drawlist(), 
 												  { window_pos.x + CMenuStyle::k_tab_select_size.x, window_pos.y - 0.5f },
 												  { window_pos.x + CMenuStyle::k_tab_select_size.x, window_pos.y + CMenuStyle::k_tab_select_size.y },
-												  g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_Separator>());
+												  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_Separator));
 
 
 			// top side menu separator
 			g_gui_window_rendering_i->render_line(g_gui_window_rendering_i->get_current_drawlist(), 
 												  { window_pos.x + CMenuStyle::k_tab_select_size.x, window_pos.y + CMenuStyle::k_top_region_size_h },
 												  { window_pos.x + CMenuStyle::k_menu_rect_size.x, window_pos.y + CMenuStyle::k_top_region_size_h },
-												  g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_Separator>());
+												  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_Separator));
 
 			//
 			// render topside contents
@@ -254,21 +254,21 @@ void CUIMenu::on_render()
 			g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(), 
 												  topside_font,
 												  { window_pos.x + CMenuStyle::k_tab_select_size.x + 5.0f, window_pos.y + 0.0f + 3.0f },
-												  g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextDark>(), 
+												  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark),
 												  version_label);
 
 			auto build_label = std::format("Build: {}", OX_BUILD);
-			g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(), 
+			g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(),
 												  topside_font,
 												  { window_pos.x + CMenuStyle::k_tab_select_size.x + 5.0f, window_pos.y + 15.0f + 3.0f },
-												  g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextDark>(), 
+												  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark),
 												  build_label);
 
 			auto compiletm_label = std::format("Compiled at: {}", OX_COMPILE_TIMESTAMP);
 			g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(), 
 												  topside_font,
 												  { window_pos.x + CMenuStyle::k_tab_select_size.x + 5.0f, window_pos.y + 30.0f + 3.0f },
-												  g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextDark>(), 
+												  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark), 
 												  compiletm_label);
 
 			//
@@ -297,13 +297,13 @@ void CUIMenu::on_render()
 			g_gui_window_rendering_i->render_line(g_gui_window_rendering_i->get_current_drawlist(), 
 												  { window_pos.x + CMenuStyle::k_tab_select_size.x + 1.0f, window_pos.y + (window_size.y - CMenuStyle::k_bottom_reserved_rect_h - 1.0f) },
 												  { window_pos.x + window_size.x,  window_pos.y + (window_size.y - CMenuStyle::k_bottom_reserved_rect_h - 1.0f) },
-												  g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_Separator>());
+												  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_Separator));
 
 			// bottom background
 			g_gui_window_rendering_i->render_box(g_gui_window_rendering_i->get_current_drawlist(), 
 												 { window_pos.x + CMenuStyle::k_tab_select_size.x + 1.0f, window_pos.y + (window_size.y - CMenuStyle::k_bottom_reserved_rect_h) },
 												  { window_pos.x + window_size.x, window_pos.y + (window_size.y - 1.0f) },
-												  g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_ChildBackground>());
+												  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_ChildBackground));
 
 			// bottom right timestamp label
 			auto timestamp_label = CStringTools::the().format_date(std::chrono::system_clock::now());
@@ -314,7 +314,7 @@ void CUIMenu::on_render()
 													  window_pos.x + (window_size.x - CMenuStyle::k_bottom_right_timestamp_rightside_padding - timestamp_label_size.x), 
 													  window_pos.y + (window_size.y - CMenuStyle::k_bottom_right_timestamp_bottomside_padding - timestamp_label_size.y)
 												  },
-												  g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextDark>(),
+												  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark),
 												  timestamp_label);
 
 			// bottom-left description
@@ -326,7 +326,7 @@ void CUIMenu::on_render()
 													  window_pos.x + CMenuStyle::k_tab_select_size.x + CMenuStyle::k_bottom_left_desc_padding.x,
 													  window_pos.y + (window_size.y - CMenuStyle::k_bottom_left_desc_padding.y - desc_label_size.y)
 												  },
-												  g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextDark>(),
+												  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark),
 												 desc_label);
 			
 			// Unload button
@@ -415,7 +415,7 @@ void CUIMenu::tab_world()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Removals", CMenuStyle::calc_child_size(320), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -454,7 +454,7 @@ void CUIMenu::tab_world()
 
 		g_gui_widgets_i->goto_next_column();
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Viewmodel offset", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -466,7 +466,7 @@ void CUIMenu::tab_world()
 				});
 			});
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Smoke visuals", CMenuStyle::calc_child_size(180), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -493,7 +493,7 @@ void CUIMenu::tab_render()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Field of view", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -505,7 +505,7 @@ void CUIMenu::tab_render()
 				});
 			});
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Studio renderer", CMenuStyle::calc_child_size(375), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -540,7 +540,7 @@ void CUIMenu::tab_render()
 
 		g_gui_widgets_i->goto_next_column();
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Model chams", CMenuStyle::calc_child_size(330), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -598,7 +598,7 @@ void CUIMenu::tab_render()
 				});
 			});
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"HUD rendering", CMenuStyle::calc_child_size(215), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -629,7 +629,7 @@ void CUIMenu::tab_screen()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Flashbang fade", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -642,7 +642,7 @@ void CUIMenu::tab_screen()
 				});
 			});
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"ESP", CMenuStyle::calc_child_size(215), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -693,7 +693,7 @@ void CUIMenu::tab_screen()
 
 		g_gui_widgets_i->goto_next_column();
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Custom vanilla crosshair", CMenuStyle::calc_child_size(280), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -716,7 +716,7 @@ void CUIMenu::tab_screen()
 			});
 
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Other", CMenuStyle::calc_child_size(150), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -736,7 +736,7 @@ void CUIMenu::tab_visuals4()
 
 void CUIMenu::tab_exploits()
 {
-	CUIMenuWidgets::the().add_menu_child(
+	CUIMenuWidgets::the().add_menu_child_collapsible(
 		"Server command filter", CMenuStyle::child_full_width(210.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
@@ -831,7 +831,7 @@ void CUIMenu::tab_exploits()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Bypass game constrains", CMenuStyle::calc_child_size(335), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -855,7 +855,7 @@ void CUIMenu::tab_exploits()
 
 		g_gui_widgets_i->goto_next_column();
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Frame skip", CMenuStyle::calc_child_size(175), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -877,7 +877,7 @@ void CUIMenu::tab_exploits()
 				});
 			});
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Consistency bypass", CMenuStyle::calc_child_size(175), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -900,7 +900,7 @@ void CUIMenu::tab_exploits()
 		g_gui_widgets_i->end_columns();
 	}
 
-	CUIMenuWidgets::the().add_menu_child(
+	CUIMenuWidgets::the().add_menu_child_collapsible(
 		"Lie to the server", CMenuStyle::child_full_width(400.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[this]()
 		{
@@ -945,7 +945,7 @@ void CUIMenu::tab_movement()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Air stuck", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -957,7 +957,7 @@ void CUIMenu::tab_movement()
 				});
 			});
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Visualization", CMenuStyle::calc_child_size(170), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -975,7 +975,7 @@ void CUIMenu::tab_movement()
 				});
 			});
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Ground strafe", CMenuStyle::calc_child_size(movement_gs_mode.get_value() == 0 ? 500 : 360), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -1037,7 +1037,7 @@ void CUIMenu::tab_movement()
 				});
 			});
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 		"Strafe hack", CMenuStyle::calc_child_size(270), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
@@ -1064,7 +1064,7 @@ void CUIMenu::tab_movement()
 
 		g_gui_widgets_i->goto_next_column();
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 		"Bunny hop", CMenuStyle::calc_child_size(movement_bhop_mode.get_value() == 0 ? 660 : 500), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
@@ -1135,7 +1135,7 @@ void CUIMenu::tab_movement()
 			});
 		});
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 		"Edge bug", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
@@ -1174,7 +1174,7 @@ void CUIMenu::tab_miscellaneous3()
 
 void CUIMenu::tab_config()
 {
-	CUIMenuWidgets::the().add_menu_child(
+	CUIMenuWidgets::the().add_menu_child_collapsible(
 		"Configuration", CMenuStyle::child_full_width(-1.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
@@ -1580,7 +1580,7 @@ void CUIMenu::tab_others()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"UI", CMenuStyle::calc_child_size(120), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -1589,7 +1589,7 @@ void CUIMenu::tab_others()
 				CUIMenuWidgets::the().add_checkbox("Render feature list", &ui_render_feature_list);
 			});
 
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Debug", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
@@ -1625,7 +1625,7 @@ void CUIMenu::tab_others()
 
 		g_gui_widgets_i->goto_next_column();
 		
-		CUIMenuWidgets::the().add_menu_child(
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Storage", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{

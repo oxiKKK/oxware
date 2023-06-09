@@ -61,14 +61,6 @@ enum EButtonFlags
 	BUTTONFLAG_NoHover = BIT(1),
 };
 
-class CGUIWidgetsStyle
-{
-public:
-	inline static constexpr float k_childhdr_text_padding_y = 3.0f;
-	inline static constexpr Vector2D k_childhdr_line_padding = { 5.0f, 2.0f };
-	inline static constexpr float k_childhdr_contents_padding_y = 5.0f;
-};
-
 struct GLFWwindow;
 struct FontObject_t;
 
@@ -91,7 +83,8 @@ public:
 	virtual void block_input_on_all_except_popup(bool block) = 0;
 
 	virtual void add_child(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents) = 0;
-	virtual void add_child_with_header(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents) = 0;
+	virtual void add_child_with_header(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents, bool collapsible = false) = 0;
+	virtual void add_child_with_header_collapsible(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents) = 0;
 
 	virtual Vector2D get_current_window_pos() = 0;
 	virtual Vector2D get_current_window_size() = 0;
@@ -103,7 +96,7 @@ public:
 	// Properties
 	//
 
-	virtual void push_disbled() = 0;
+	virtual void push_disabled() = 0;
 	virtual void pop_disabled() = 0;
 
 	virtual void push_stylevar(ImGuiStyleVar idx, float val) = 0;

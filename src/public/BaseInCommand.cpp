@@ -41,7 +41,7 @@
 
 void BaseInCommand::rebind_key_to(int new_vk)
 {
-	if (m_vk == new_vk && m_bound_initially)
+	if ((m_vk == new_vk && m_bound_initially) || new_vk == 0)
 	{
 		return;
 	}

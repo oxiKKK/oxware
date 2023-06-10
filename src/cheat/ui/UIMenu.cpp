@@ -40,13 +40,19 @@ const float CMenuStyle::k_bottom_right_timestamp_rightside_padding = 5.0f;
 const float CMenuStyle::k_bottom_right_timestamp_bottomside_padding = 2.0f;
 const Vector2D CMenuStyle::k_bottom_left_desc_padding = { 5.0f, 2.0f };
 const float CMenuStyle::k_child_contents_rounding = 5.0f;
-const Vector2D CMenuStyle::k_child_contents_padding = { 10.0f, 5.0f };
+const Vector2D CMenuStyle::k_child_contents_padding = { 5.0f, 2.0f };
 const float CMenuStyle::k_child_width = 210.0f;
 const Vector2D CMenuStyle::k_unload_button_padding = { 15.0f, 15.0f };
 const Vector2D CMenuStyle::k_unload_button_size = { 105.0f, 20.0f };
 const Vector2D CMenuStyle::k_unload_button_pos = { k_menu_rect_size.x - k_unload_button_size.x - k_unload_button_padding.x, k_unload_button_padding.y };
 const Vector2D CMenuStyle::k_about_button_size = { 50.0f, 20.0f };
 const Vector2D CMenuStyle::k_about_button_pos = k_unload_button_pos - Vector2D(k_about_button_size.x + 5.0f, 0.0f);
+
+Vector2D CMenuStyle::calc_child_size(float height) { return { CMenuStyle::k_child_width, height }; }
+float CMenuStyle::get_child_width_w_padding() { return CMenuStyle::k_child_width - CMenuStyle::k_child_contents_padding.x * 2; }
+
+// use this instead of width begin -1.0f
+Vector2D CMenuStyle::child_full_width(float height) { return { -1.0f - k_menu_contents_padding, height }; }
 
 //---------------------------------------------------------------------------------------------------
 
@@ -416,13 +422,30 @@ void CUIMenu::tab_world()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Removals", CMenuStyle::calc_child_size(330), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Removals", CMenuStyle::calc_child_size(250), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Remove screenshake", &remove_screenshake);
 				CUIMenuWidgets::the().add_checkbox("Remove viewmodel", &remove_viewmodel);
 				CUIMenuWidgets::the().add_checkbox("Remove MOTD", &remove_motd);
 				CUIMenuWidgets::the().add_checkbox("Remove sniper scopes", &remove_sniper_scope);
+
+				g_gui_widgets_i->add_separtor_with_text("Remove players");
+				CUIMenuWidgets::the().add_checkbox("All", &remove_players_all);
+
+				if (remove_players_all.get_value())
+				{
+					g_gui_widgets_i->push_disabled();
+				}
+
+				CUIMenuWidgets::the().add_checkbox("Enemy", &remove_players_enemy);
+				CUIMenuWidgets::the().add_checkbox("T", &remove_players_t);
+				CUIMenuWidgets::the().add_checkbox("CT", &remove_players_ct);
+
+				if (remove_players_all.get_value())
+				{
+					g_gui_widgets_i->pop_disabled();
+				}
 
 				g_gui_widgets_i->add_spacing();
 				CUIMenuWidgets::the().add_description_text("In order to disable in-game fog, use \"gl_fog\" command.");
@@ -507,7 +530,7 @@ void CUIMenu::tab_render()
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Studio renderer", CMenuStyle::calc_child_size(375), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Studio renderer", CMenuStyle::calc_child_size(235), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				g_gui_widgets_i->add_padding({ 0, 5.0f });
@@ -542,7 +565,7 @@ void CUIMenu::tab_render()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Model chams", CMenuStyle::calc_child_size(330), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Model chams", CMenuStyle::calc_child_size(250), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(
@@ -600,7 +623,7 @@ void CUIMenu::tab_render()
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"HUD rendering", CMenuStyle::calc_child_size(215), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"HUD rendering", CMenuStyle::calc_child_size(210), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				g_gui_widgets_i->add_padding({ 0, 5.0f });
@@ -695,7 +718,7 @@ void CUIMenu::tab_screen()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Custom vanilla crosshair", CMenuStyle::calc_child_size(280), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Custom vanilla crosshair", CMenuStyle::calc_child_size(270), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(
@@ -718,7 +741,7 @@ void CUIMenu::tab_screen()
 
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Other", CMenuStyle::calc_child_size(150), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Other", CMenuStyle::calc_child_size(140), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Better cl_showfps", &ingamescreen_better_cl_showfps);
@@ -833,7 +856,7 @@ void CUIMenu::tab_exploits()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Bypass game constrains", CMenuStyle::calc_child_size(335), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Bypass game constrains", CMenuStyle::calc_child_size(325), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Re-enable noclip", &bypass_constrain_noclip, "Makes it possible to re-enable noclip in singleplayer. sv_cheats must be enabled.");
@@ -947,7 +970,7 @@ void CUIMenu::tab_movement()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Air stuck", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Air stuck", CMenuStyle::calc_child_size(90), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(
@@ -977,7 +1000,7 @@ void CUIMenu::tab_movement()
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Ground strafe", CMenuStyle::calc_child_size(movement_gs_mode.get_value() == 0 ? 500 : 360), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Ground strafe", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(
@@ -1082,7 +1105,7 @@ void CUIMenu::tab_movement()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-		"Bunny hop", CMenuStyle::calc_child_size(movement_bhop_mode.get_value() == 0 ? 660 : 500), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Bunny hop", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			CUIMenuWidgets::the().feature_enabled_section(
@@ -1153,7 +1176,7 @@ void CUIMenu::tab_movement()
 		});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-		"Edge bug", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Edge bug", CMenuStyle::calc_child_size(290), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			CUIMenuWidgets::the().feature_enabled_section(
@@ -1172,6 +1195,20 @@ void CUIMenu::tab_movement()
 				CUIMenuWidgets::the().add_slider("Fall velocity", "%0.0f units", &movement_eb_min_fall_velocity);
 				CUIMenuWidgets::the().add_slider("Edge dist", "%0.0f units", &movement_eb_edge_dist);
 				CUIMenuWidgets::the().add_slider("Ground dist", "%0.0f units", &movement_eb_ground_dist);
+			});
+		});
+
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+		"Fast run", CMenuStyle::calc_child_size(150), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			CUIMenuWidgets::the().feature_enabled_section(
+			&movement_fastrun_enable,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("No slowdown", &movement_fastrun_no_slowdown);
+				CUIMenuWidgets::the().add_checkbox("Fast walk", &movement_fastrun_fast_walk);
+				CUIMenuWidgets::the().add_slider("Min speed", "%0.0f u/s", &movement_fastrun_fast_walk_min_speed);
 			});
 		});
 

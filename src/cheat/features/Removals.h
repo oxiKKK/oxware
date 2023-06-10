@@ -33,6 +33,11 @@
 extern VarBoolean remove_screenshake;
 extern VarBoolean remove_viewmodel;
 
+extern VarBoolean remove_players_all;
+extern VarBoolean remove_players_t;
+extern VarBoolean remove_players_ct;
+extern VarBoolean remove_players_enemy;
+
 extern VarBoolean remove_hud_enable;
 extern VarBoolean remove_hud_crosshair;
 extern VarBoolean remove_hud_weapons;
@@ -53,6 +58,7 @@ public:
 public:
 	bool remove_screenshake();
 	bool remove_viewmodel();
+	bool remove_player(int id);
 
 	void remove_hud_modifier();
 

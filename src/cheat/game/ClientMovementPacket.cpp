@@ -109,6 +109,11 @@ void CClientMovementPacket::set_button_bit(unsigned short button, bool set)
 	m_previous_buttons_state = m_current_cmd->buttons;
 }
 
+bool CClientMovementPacket::is_moving()
+{
+	return is_in(IN_FORWARD) || is_in(IN_BACK) || is_in(IN_MOVELEFT) || is_in(IN_MOVERIGHT);
+}
+
 void CClientMovementPacket::svside_movement_speed_factor(uint8_t msec, bool override_previous)
 {
 	if (m_ft_modified && !override_previous)

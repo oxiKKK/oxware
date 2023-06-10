@@ -29,16 +29,61 @@
 #include "precompiled.h"
 
 VarBoolean remove_screenshake("remove_screenshake", "Removes all screenshake.", false);
-VarBoolean remove_viewmodel("remove_viewmodel", "Removes viewmodel.", false);
 
 bool CRemovals::remove_screenshake()
 {
 	return ::remove_screenshake.get_value();
 }
 
+VarBoolean remove_viewmodel("remove_viewmodel", "Removes viewmodel.", false);
 bool CRemovals::remove_viewmodel()
 {
 	return ::remove_viewmodel.get_value();
+}
+
+VarBoolean remove_players_all("remove_players_all", "Removes every player.", false);
+VarBoolean remove_players_t("remove_players_t", "Removes Ts.", false);
+VarBoolean remove_players_ct("remove_players_ct", "Removes CTs.", false);
+VarBoolean remove_players_enemy("remove_players_enemy", "Removes enemy players.", false);
+
+bool CRemovals::remove_player(int id)
+{
+	if (remove_players_all.get_value())
+	{
+		return true;
+	}
+
+	auto player = CEntityMgr::the().get_player_by_id(id);
+	if (!player)
+	{
+		return false;
+	}
+
+	auto local = CEntityMgr::the().get_local_player();
+	if (local && remove_players_enemy.get_value())
+	{
+		if (player->get_team() != local->get_team())
+		{
+			return true;
+		}
+	}
+
+	if (player->get_team() == hl::TERRORIST)
+	{
+		if (remove_players_t.get_value())
+		{
+			return true;
+		}
+	}
+	else if (player->get_team() == hl::CT)
+	{
+		if (remove_players_ct.get_value())
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 VarBoolean remove_hud_enable("remove_hud_enable", "Enabled HUD removal.", false);

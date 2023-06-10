@@ -34,13 +34,15 @@ VarBoolean movement_gs_enable("movement_gs_enable", "Enables GroundStrafe hacks"
 VarBoolean movement_eb_enable("movement_eb_enable", "Enables EdgeBug hacks", false);
 VarBoolean movement_strafe_hack_enable("movement_strafe_hack_enable", "Enables strafe hacks", false);
 VarBoolean movement_strafe_helper_enable("movement_strafe_helper_enable", "Enables strafe helper", false);
+VarBoolean movement_fastrun_enable("movement_fastrun_enable", "Enables fast run", false);
 
 InCommand CMovement::bunnyhop = InCommand("movement_bhop", VK_SPACE, &movement_bhop_enable);
 InCommand CMovement::airstuck = InCommand("movement_air_stuck", VK_XBUTTON1, &movement_air_stuck_enable); // mouse4
 InCommand CMovement::gs = InCommand("movement_gs", VK_XBUTTON2, &movement_gs_enable); // mouse5
 InCommand CMovement::eb = InCommand("movement_eb", 'C', &movement_eb_enable);
 InCommand CMovement::strafe = InCommand("movement_strafe_hack", VK_MBUTTON, &movement_strafe_hack_enable); // mouse3
-InCommand CMovement::strafe_helper = InCommand("movement_strafe_helper", VK_MENU, &movement_strafe_helper_enable); // alt
+InCommand CMovement::strafe_helper = InCommand("movement_strafe_helper", NULL, &movement_strafe_helper_enable); 
+InCommand CMovement::fastrun = InCommand("movement_fastrun", NULL, &movement_fastrun_enable);
 
 VarBoolean debug_render_info_movement("debug_render_info_movement", "Movement information", false);
 VarBoolean debug_render_info_movement_bhop("debug_render_info_bhop", "Bunnyhop information", false);
@@ -96,6 +98,10 @@ void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 			CMovementStrafeHack::the().update();
 		}
 
+		if (fastrun.is_active())
+		{
+			CMovementFastRun::the().update();
+		}
 	}
 
 	if (debug.get_value())

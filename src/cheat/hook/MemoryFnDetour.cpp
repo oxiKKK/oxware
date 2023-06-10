@@ -754,6 +754,11 @@ bool R_StudioDrawPlayer_FnDetour_t::install()
 
 int R_StudioDrawPlayer_FnDetour_t::R_StudioDrawPlayer(int flags, hl::entity_state_t* pplayer)
 {
+	if (CRemovals::the().remove_player(pplayer->number - 1))
+	{
+		return 0;
+	}
+
 	if (mdlchams_player_skeleton.get_value())
 	{
 		// disable p_* models when using skeletal chams. This model gets merged into the playermodel, hence createing unecessary

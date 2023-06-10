@@ -49,7 +49,7 @@ public:
 
 	inline bool is_active() const { return m_is_active && (m_var_can_be_activated && m_var_can_be_activated->get_value()); }
 	inline auto get_cmd_name() const { return m_command_name; }
-	inline int get_key_bound() const { return m_vk; }
+	inline int get_key_bound() const { return m_vk; } // 0 if unbound
 
 	inline auto get_in_fn() const { return m_in_fn; }
 	inline auto get_out_fn() const { return m_out_fn; }
@@ -64,7 +64,7 @@ public:
 
 protected:
 	bool m_is_active = false;
-	int m_vk = NULL;
+	int m_vk = NULL; // 0 if unbound
 
 	std::string m_command_name;
 

@@ -339,7 +339,7 @@ void CGUIWidgets::add_child(const std::string& label, const Vector2D& size, bool
 {
 	PushStyleColor(ImGuiCol_ChildBg, g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_ChildBackground>());
 
-	bool should_disable_all_interaction = m_block_input_on_all && (GetCurrentWindow()->Name != "popup_window") && !m_executing_popup_code;
+	bool should_disable_all_interaction = m_block_input_on_all && stricmp(GetCurrentWindow()->Name, "popup_window") && !m_executing_popup_code;
 
 	if (should_disable_all_interaction)
 	{
@@ -363,7 +363,7 @@ void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D
 	auto& data = m_collapsible_child_data[label];
 
 	ImGuiWindowFlags collapsible_flags = 0;
-	
+
 	if (collapsible)
 	{
 		if (data.initial_size.IsZero())
@@ -374,101 +374,113 @@ void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D
 
 		collapsible_flags |= (data.collapsed ? ImGuiWindowFlags_NoScrollbar : 0);
 	}
-	
-	add_child(
-		label, data.size, border, flags | collapsible_flags,
-		[&]()
+
+	PushStyleColor(ImGuiCol_ChildBg, g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_ChildBackground>());
+
+	bool should_disable_all_interaction = m_block_input_on_all && stricmp(GetCurrentWindow()->Name, "popup_window") && !m_executing_popup_code;
+
+	if (should_disable_all_interaction)
+	{
+		flags |= ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav;
+	}
+
+	BeginChild(label.c_str(), data.size, border, flags | collapsible_flags);
+	{
+		auto child_pos = GetWindowPos();
+		auto child_size = GetWindowSize();
+
+		std::string text = label;
+
+		auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_BIGGER, FONTDEC_Regular);
+
+		auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, text.c_str());
+
+		Vector2D header_text_pos = { child_pos.x + CGUIWidgetsStyle::k_childhdr_text_padding_x, child_pos.y + CGUIWidgetsStyle::k_childhdr_text_padding_y };
+
+		auto header_color = (collapsible && data.hovered) ? get_color<GUICLR_HyperTextLinkHovered>() : g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextRegular>();
+
+		// header text
+		g_gui_window_rendering_i->render_text(
+			g_gui_window_rendering_i->get_current_drawlist(),
+			font,
+/*centered*///{ child_pos.x + child_size.x / 2 - label_size.x / 2, child_pos.y + CGUIWidgetsStyle::k_childhdr_text_padding_y },
+			header_text_pos,
+			header_color,
+			text);
+
+		// separator beneath
+		g_gui_window_rendering_i->render_line(
+			g_gui_window_rendering_i->get_current_drawlist(),
+			{ child_pos.x + CGUIWidgetsStyle::k_childhdr_line_padding.x, child_pos.y + label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y },
+			{ child_pos.x + child_size.x - CGUIWidgetsStyle::k_childhdr_line_padding.x, child_pos.y + label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y },
+			g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_Separator>());
+
+		if (collapsible)
 		{
-			auto child_pos = GetWindowPos();
-			auto child_size = GetWindowSize();
+			ImGuiWindow* window = GetCurrentWindow();
 
-#if 0
-			std::string text = std::string(label.length() * 2 - 1, ' ');
-			for (size_t i = 0; i < label.length(); i++)
+			ImVec2 arrow_pos = child_pos + ImVec2(child_size.x - 21.0f, 7.0f);
+			const ImVec2 arrow_size = { window->DrawList->_Data->FontSize, window->DrawList->_Data->FontSize };
+
+			ImRect bb(header_text_pos, arrow_pos + arrow_size);
+			ImGuiID id = window->GetID(label.c_str() + 1);
+
+			ItemSize(bb.Max - bb.Min, 0.0f);
+			ItemAdd(bb, id);
+
+			bool hovered, held;
+			bool pressed = ButtonBehavior(bb, id, &hovered, &held);
+
+			data.hovered = hovered;
+
+			if (pressed)
 			{
-				text[i * 2] = label[i];
-			}
-#else
-			std::string text = label;
-#endif
+				data.collapsed = !data.collapsed;
 
-			auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_BIGGER, FONTDEC_Regular);
-
-			auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, text.c_str());
-
-			Vector2D header_text_pos = { child_pos.x + CGUIWidgetsStyle::k_childhdr_text_padding_x, child_pos.y + CGUIWidgetsStyle::k_childhdr_text_padding_y };
-
-			auto header_color = (collapsible && data.hovered) ? get_color<GUICLR_HyperTextLinkHovered>() : g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextRegular>();
-
-			// header text
-			g_gui_window_rendering_i->render_text(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				font,
-/*centered ->*///{ child_pos.x + child_size.x / 2 - label_size.x / 2, child_pos.y + CGUIWidgetsStyle::k_childhdr_text_padding_y },
-				header_text_pos,
-				header_color,
-				text);
-
-			// separator beneath
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				{ child_pos.x + CGUIWidgetsStyle::k_childhdr_line_padding.x, child_pos.y + label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y },
-				{ child_pos.x + child_size.x - CGUIWidgetsStyle::k_childhdr_line_padding.x, child_pos.y + label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y },
-				g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_Separator>());
-
-			if (collapsible)
-			{
-				ImGuiWindow* window = GetCurrentWindow();
-
-				ImVec2 arrow_pos = child_pos + ImVec2(child_size.x - 21.0f, 7.0f);
-				const ImVec2 arrow_size = { window->DrawList->_Data->FontSize, window->DrawList->_Data->FontSize };
-
-				ImRect bb(header_text_pos, arrow_pos + arrow_size);
-				ImGuiID id = window->GetID(label.c_str() + 1);
-
-				ItemSize(bb.Max - bb.Min, 0.0f);
-				ItemAdd(bb, id);
-
-				bool hovered, held;
-				bool pressed = ButtonBehavior(bb, id, &hovered, &held);
-
-				data.hovered = hovered;
-
-				if (pressed)
+				if (data.collapsed)
 				{
-					data.collapsed = !data.collapsed;
-
-					if (data.collapsed)
-					{
-						data.size = Vector2D(data.initial_size.x, 35.0f);
-					}
-					else
-					{
-						data.size = data.initial_size;
-					}
+					data.size = Vector2D(data.initial_size.x, 35.0f);
 				}
-
-				//			window->DrawList->AddRect(bb.Min, bb.Max, ImColor(0, 230, 0, 230));
-
-				RenderArrow(window->DrawList, arrow_pos, header_color.as_u32(), data.collapsed ? ImGuiDir_Left : ImGuiDir_Down);
-
-				if (IsItemHovered())
+				else
 				{
-					g_imgui_platform_layer_i->override_cursor(GUICURSOR_Hand);
+					data.size = data.initial_size;
 				}
+			}
 
-				Dummy({ 0.0f, 5.0f });
-			}
-			else
+			// for debugging, draws a rect around the arrow hitbox.
+			//window->DrawList->AddRect(bb.Min, bb.Max, ImColor(0, 230, 0, 230));
+
+			RenderArrow(window->DrawList, arrow_pos, header_color.as_u32(), data.collapsed ? ImGuiDir_Left : ImGuiDir_Down);
+
+			if (IsItemHovered())
 			{
-				Dummy({ 0.0f,  label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y + CGUIWidgetsStyle::k_childhdr_contents_padding_y });
+				g_imgui_platform_layer_i->override_cursor(GUICURSOR_Hand);
 			}
-			
-			if (pfn_contents && !data.collapsed)
-			{
-				pfn_contents();
-			}
-		});
+
+			Dummy({ 0.0f, 2.0f });
+		}
+		else
+		{
+			// Note: This is untested.
+			Dummy({ 0.0f,  label_size.y + CGUIWidgetsStyle::k_childhdr_line_padding.y + CGUIWidgetsStyle::k_childhdr_contents_padding_y });
+		}
+
+		if (!data.collapsed)
+		{
+			PushStyleVar(ImGuiStyleVar_WindowPadding, { 0, 0 });
+
+			BeginChild(("inner_" + label).c_str(), Vector2D(-1.0f, -1.0f), false, 0);
+
+			pfn_contents();
+
+			EndChild();
+
+			PopStyleVar();
+		}
+	}
+	EndChild();
+
+	PopStyleColor(1);
 }
 
 void CGUIWidgets::add_child_with_header_collapsible(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents)
@@ -2275,7 +2287,7 @@ bool CGUIWidgets::add_slider_internal(const char* label, T* value, T* min, T* ma
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
-	const float w = window->Size.x - style.WindowPadding.x * 1.5f;
+	const float w = window->Size.x - style.WindowPadding.x * 1.5f - style.ScrollbarSize;
 
 	ImVec2 label_size = CalcTextSize(label, NULL, true);
 
@@ -2285,7 +2297,7 @@ bool CGUIWidgets::add_slider_internal(const char* label, T* value, T* min, T* ma
 	}
 
 	ImRect frame_bb({ window->DC.CursorPos.x + (no_label ? 0.0f : (window->Size.x / 2.f)), window->DC.CursorPos.y },
-						  window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
+					window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
 	ImRect total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
 
 	char label_fixed[256];

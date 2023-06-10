@@ -36,6 +36,7 @@ extern VarBoolean movement_gs_enable;
 extern VarBoolean movement_eb_enable;
 extern VarBoolean movement_strafe_hack_enable;
 extern VarBoolean movement_strafe_helper_enable;
+extern VarBoolean movement_fastrun_enable;
 
 extern VarBoolean debug_render_info_movement;
 extern VarBoolean debug_render_info_movement_bhop;
@@ -57,6 +58,7 @@ private:
 	static InCommand eb;				// CMovementEdgeBug
 	static InCommand strafe;			// CMovementStrafeHack
 	static InCommand strafe_helper;		// CMovementStrafeHelper
+	static InCommand fastrun;			// CMovementFastRun
 
 	void render_debug(hl::usercmd_t* cmd);
 

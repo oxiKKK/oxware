@@ -53,11 +53,11 @@ public:
 	static const Vector2D k_about_button_size;
 	static const Vector2D k_about_button_pos;
 
-	static Vector2D calc_child_size(float height) { return { CMenuStyle::k_child_width, height }; }
-	static float get_child_width_w_padding() { return CMenuStyle::k_child_width - CMenuStyle::k_child_contents_padding.x * 2; }
+	static Vector2D calc_child_size(float height);
+	static float get_child_width_w_padding();
 
 	// use this instead of width begin -1.0f
-	static Vector2D child_full_width(float height) { return { -1.0f - k_menu_contents_padding, height }; }
+	static Vector2D child_full_width(float height);
 };
 
 //----------------------------------------------------------------------------------------------------------------------

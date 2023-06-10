@@ -247,7 +247,17 @@ void CInCommands::update()
 
 void CInCommands::add_keyscan_button(BaseInCommand* in_cmd)
 {
-	std::string key_name = g_user_input_i->virtual_key_to_string(in_cmd->get_key_bound());
+	std::string key_name;
+	
+	int vk_bound = in_cmd->get_key_bound();
+	if (vk_bound != NULL)
+	{
+		key_name = g_user_input_i->virtual_key_to_string(in_cmd->get_key_bound());
+	}
+	else
+	{
+		key_name = "unbound";
+	}
 
 	bool b = g_gui_widgets_i->add_button(std::format("{}##{}", key_name, in_cmd->get_cmd_name()), Vector2D(-1.0f, 25.0f), false, BUTTONFLAG_CenterLabel);
 	if (b)

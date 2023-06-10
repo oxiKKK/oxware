@@ -47,6 +47,9 @@ public:
 	bool was_in(unsigned short in_action) { return m_previous_buttons_state & in_action; }
 	bool is_in(unsigned short in_action) { return m_current_cmd->buttons & in_action; }
 
+	// obviously based on IN_* buttons, not on speed or anything similar
+	bool is_moving();
+
 	void svside_movement_speed_factor(uint8_t msec, bool override_previous = false);
 
 	hl::usercmd_t* get_cmd() { return m_current_cmd; }

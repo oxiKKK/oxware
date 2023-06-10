@@ -144,7 +144,7 @@ void CGUIThemeManager::sync_with_imgui()
 
 	style.Colors[ImGuiCol_TableHeaderBg] = get_current_theme()->get_color<GUICLR_TableHeaderBg>();
 
-	style.ScrollbarSize = 10.f;
+	style.ScrollbarSize = 9.f;
 	style.ScrollbarRounding = 8.f;
 	style.GrabMinSize = 12.0f;
 	style.ChildRounding = style.FrameRounding = style.PopupRounding = 4.0f;

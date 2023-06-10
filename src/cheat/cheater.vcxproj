@@ -203,6 +203,7 @@
     <ClCompile Include="features\IngameScreenRendering.cpp" />
     <ClCompile Include="features\movement\AirStuck.cpp" />
     <ClCompile Include="features\movement\BunnyHop.cpp" />
+    <ClCompile Include="features\movement\FastRun.cpp" />
     <ClCompile Include="features\movement\GroundStrafe.cpp" />
     <ClCompile Include="features\movement\EdgeBug.cpp" />
     <ClCompile Include="features\movement\Movement.cpp" />
@@ -289,6 +290,7 @@
     <ClInclude Include="features\IngameScreenRendering.h" />
     <ClInclude Include="features\movement\AirStuck.h" />
     <ClInclude Include="features\movement\BunnyHop.h" />
+    <ClInclude Include="features\movement\FastRun.h" />
     <ClInclude Include="features\movement\GroundStrafe.h" />
     <ClInclude Include="features\movement\EdgeBug.h" />
     <ClInclude Include="features\movement\Movement.h" />

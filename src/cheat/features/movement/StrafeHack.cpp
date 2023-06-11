@@ -34,8 +34,10 @@
 #include "precompiled.h"
 
 VarBoolean movement_strafe_hack_allow_on_surf("movement_strafe_hack_allow_on_surf", "Strafes also when surfing", true);
+VarBoolean movement_strafe_hack_limit_velocity("movement_strafe_hack_limit_velocity", "Enables velocity limit", false);
+VarInteger movement_strafe_hack_limit_velocity_max("movement_strafe_hack_limit_velocity_max", "Maximum velocity to speed up to", 1000, 50, 3000);
 VarBoolean movement_strafe_hack_dir_reset("movement_strafe_hack_dir_reset", "Always resets the direction to forward if no key is held", true);
-VarFloat movement_strafe_hack_boost("movement_strafe_hack_boost", "How much boost you'll gain while strafing", 1.0f, 0.3f, 1.0f);
+VarFloat movement_strafe_hack_boost("movement_strafe_hack_boost", "How much boost you'll gain while strafing", 1.0f, 0.01f, 1.0f);
 
 enum EDirection
 {
@@ -67,6 +69,12 @@ void CMovementStrafeHack::update()
 {
 	bool is_on_ladder = CLocalState::the().is_on_ladder();
 	if (is_on_ladder)
+	{
+		return;
+	}
+
+	float vel_2d = CLocalState::the().get_local_velocity_2d();
+	if (movement_strafe_hack_limit_velocity.get_value() && vel_2d > movement_strafe_hack_limit_velocity_max.get_value())
 	{
 		return;
 	}
@@ -130,7 +138,6 @@ void CMovementStrafeHack::update()
 	auto cl = CMemoryHookMgr::the().cl().get();
 
 	auto vel_3d = pmove->velocity + Vector(1.0f, 1.0f, 0.0f);
-	auto vel_2d = CLocalState::the().get_local_velocity_2d();
 
 	// [-pi, pi], cl->viewangles[YAW] in radians, but based on velocity and adapted to tangens range of values.
 	float va_vel_tangens = atanf(vel_3d.y / vel_3d.x);
@@ -150,7 +157,7 @@ void CMovementStrafeHack::update()
 	// this should be something around ~436 * the boost. I assume that this is based out of the maximal possible vanilla maxspeed, 
 	// which is 260 with scout * the multiplier (that gets us to maxspeed), i.e. 310 u/s. When you combine this together with X&Y
 	// velocity vectors, you get ~438. (sqrt(310*310+310*310), i.e. sqrt((310*310)*2) or sqrt(2)*310)
-	float sm_factor = ((260.0f * BUNNYJUMP_MAX_SPEED_FACTOR) * std::numbers::sqrt2) * movement_strafe_hack_boost.get_value();
+	float sm_factor = ((260.0f * BUNNYJUMP_MAX_SPEED_FACTOR) * std::numbers::sqrt2);
 	cmd->sidemove = sm_factor * (adif > 0 ? 1 : -1);
 
 	float angle;
@@ -164,7 +171,7 @@ void CMovementStrafeHack::update()
 	nsin = sin(angle);
 	ncos = cos(angle);
 
-	cmd->forwardmove = cmd->sidemove * (osin * ncos - ocos * nsin);
+	cmd->forwardmove = (cmd->sidemove) * (osin * ncos - ocos * nsin);
 	cmd->sidemove *= (osin * nsin + ocos * ncos);
 
 	// add a little bit of forward velocity when not doing on a steep turn
@@ -184,6 +191,8 @@ void CMovementStrafeHack::update()
 	}
 
 	cmd->forwardmove += fs;
+
+	cmd->forwardmove *= movement_strafe_hack_boost.get_value();
 
 	//
 	// swap moves depending on the direction

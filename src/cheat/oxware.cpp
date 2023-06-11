@@ -439,6 +439,13 @@ bool CoXWARE::initialize_hook_managers()
 		return false;
 	}
 
+	// Half-Life commands hook
+	if (!CHLCommandsDetourMgr::the().install_hooks())
+	{
+		CConsole::the().error("Failed to install HL commands hooks.");
+		return false;
+	}
+
 	CConsole::the().info("Initialized all hook managers.");
 
 #ifdef OX_ENABLE_HOOK_TESTING
@@ -454,6 +461,7 @@ void CoXWARE::shutdown_hook_managers()
 	CMemoryFnDetourMgr::the().uninstall_hooks();
 	CSVCFuncDetourMgr::the().uninstall_hooks();
 	CUserMSGDetourMgr::the().uninstall_hooks();
+	CHLCommandsDetourMgr::the().uninstall_hooks();
 }
 
 void CoXWARE::check_for_clientside_protectors()

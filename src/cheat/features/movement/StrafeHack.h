@@ -31,6 +31,8 @@
 #pragma once
 
 extern VarBoolean movement_strafe_hack_allow_on_surf;
+extern VarBoolean movement_strafe_hack_limit_velocity;
+extern VarInteger movement_strafe_hack_limit_velocity_max;
 extern VarBoolean movement_strafe_hack_dir_reset;
 extern VarFloat movement_strafe_hack_boost;
 

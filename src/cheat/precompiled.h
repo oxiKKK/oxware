@@ -233,6 +233,7 @@ namespace hl
 #include "hook/MemoryFnHook.h"
 #include "hook/MemoryFnDetour.h"
 #include "hook/SVCFuncDetour.h"
+#include "hook/HLCommandDetour.h"
 #include "hook/UserMSGDetour.h"
 #include "hook/HLInterfaceHook.h"
 #include "hook/client_dll/MemoryHookCBaseStuff.h"

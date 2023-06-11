@@ -235,6 +235,7 @@
     <ClCompile Include="game\model\StudioModelData.cpp" />
     <ClCompile Include="game\SpriteManager.cpp" />
     <ClCompile Include="hook\client_dll\MemoryHookCBaseStuff.cpp" />
+    <ClCompile Include="hook\HLCommandDetour.cpp" />
     <ClCompile Include="hook\HLInterfaceHook.cpp" />
     <ClCompile Include="hook\HookTests.cpp" />
     <ClCompile Include="hook\MemoryFnDetour.cpp" />
@@ -321,6 +322,7 @@
     <ClInclude Include="game\model\StudioModelData.h" />
     <ClInclude Include="game\SpriteManager.h" />
     <ClInclude Include="hook\client_dll\MemoryHookCBaseStuff.h" />
+    <ClInclude Include="hook\HLCommandDetour.h" />
     <ClInclude Include="hook\HLInterfaceHook.h" />
     <ClInclude Include="hook\HookTests.h" />
     <ClInclude Include="hook\MemoryFnDetour.h" />

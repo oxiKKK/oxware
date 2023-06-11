@@ -98,7 +98,7 @@ void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 			CMovementStrafeHack::the().update();
 		}
 
-		if (fastrun.is_active())
+		if (fastrun.is_active() || (movement_fastrun_always_enabled.get_value() && movement_fastrun_enable.get_value()))
 		{
 			CMovementFastRun::the().update();
 		}

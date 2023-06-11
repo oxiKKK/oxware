@@ -260,6 +260,9 @@
     <ClCompile Include="features\movement\FastRun.cpp">
       <Filter>src\features\movement</Filter>
     </ClCompile>
+    <ClCompile Include="hook\HLCommandDetour.cpp">
+      <Filter>src\hooking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -466,6 +469,9 @@
     </ClInclude>
     <ClInclude Include="features\movement\FastRun.h">
       <Filter>src\features\movement</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\HLCommandDetour.h">
+      <Filter>src\hooking</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -117,7 +117,7 @@ hl::cvar_t* CGoldSrcCommandMgr::get_cvar(const std::string& name)
 {
 	try
 	{
-		return m_cvars[name];
+		return m_cvars.at(name);
 	}
 	catch (...)
 	{
@@ -130,7 +130,7 @@ hl::cmd_function_t* CGoldSrcCommandMgr::get_cmd(const std::string& name)
 {
 	try
 	{
-		return m_commands[name];
+		return m_commands.at(name);
 	}
 	catch (...)
 	{
@@ -171,5 +171,4 @@ void CGoldSrcCommandMgr::for_each_cmd(const std::function<void(hl::cmd_function_
 		callback(cmd);
 		cmd = cmd->next;
 	}
-
 }

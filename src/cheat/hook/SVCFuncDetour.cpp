@@ -48,6 +48,8 @@ void CSVCFuncDetourMgr::uninstall_hooks()
 	svc_stufftext_fn().uninstall();
 }
 
+//----------------------------------------------------------------------------------------------
+
 void CSVCFuncDetourMgr::svc_sound_f()
 {
 	if (CHLNetMessageIO::the().ready_to_read())

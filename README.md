@@ -117,6 +117,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 	- MOTD
 	- Viewmodel
 	- Sniper scopes
+	- Players
 - HUD removals
 	- weapon, crosshair, money, etc...
 - Viewmodel offset
@@ -158,6 +159,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 	- EB hack.
 	- Strafe hack.
 	- Strafe helper.
+	- Fast run & fast walk.
 - Fancy custom cl_showfps rendering
 - Rechecker bypass, see [this video](https://youtu.be/Razs0s7sgno).
 - Instantaneous cheat unload (either via loader or cheat menu)

@@ -525,7 +525,7 @@ void CUIMenu::tab_render()
 				&custom_fov,
 				[]()
 				{
-					CUIMenuWidgets::the().add_slider("FOV scale", "%0.01fx", &custom_fov_value);
+					CUIMenuWidgets::the().add_slider("FOV scale", "%0.1fx", &custom_fov_value);
 				});
 			});
 
@@ -1082,7 +1082,15 @@ void CUIMenu::tab_movement()
 				false);
 
 				g_gui_widgets_i->add_spacing();
-				CUIMenuWidgets::the().add_slider("Boost", "%0.1f", &movement_strafe_hack_boost);
+				CUIMenuWidgets::the().add_slider("Boost", "%0.2f", &movement_strafe_hack_boost);
+
+				CUIMenuWidgets::the().feature_enabled_section(
+				&movement_strafe_hack_limit_velocity,
+				[]()
+				{
+					CUIMenuWidgets::the().add_slider_nolabel("Max", "%0.0f", &movement_strafe_hack_limit_velocity_max);
+				},
+				"Limit velocity");
 			});
 		});
 
@@ -1097,7 +1105,7 @@ void CUIMenu::tab_movement()
 				CUIMenuWidgets::the().add_checkbox("Always enabled", &movement_strafe_helper_always_enabled);
 
 				CUIMenuWidgets::the().add_checkbox("Strafe with mouse", &movement_strafe_helper_strafe_with_mouse);
-				CUIMenuWidgets::the().add_slider("Accumulation", "%0.01f", &movement_strafe_helper_accumulation);//
+				CUIMenuWidgets::the().add_slider("Accumulation", "%0.2f", &movement_strafe_helper_accumulation);//
 				CUIMenuWidgets::the().add_checkbox("Accumulation on ground", &movement_strafe_helper_accumulation_on_ground);
 			});
 		});
@@ -1199,16 +1207,21 @@ void CUIMenu::tab_movement()
 		});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-		"Fast run", CMenuStyle::calc_child_size(150), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Fast run", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			CUIMenuWidgets::the().feature_enabled_section(
 			&movement_fastrun_enable,
 			[]()
 			{
+				CUIMenuWidgets::the().add_checkbox("Always enabled", &movement_fastrun_always_enabled);
+
 				CUIMenuWidgets::the().add_checkbox("No slowdown", &movement_fastrun_no_slowdown);
-				CUIMenuWidgets::the().add_checkbox("Fast walk", &movement_fastrun_fast_walk);
-				CUIMenuWidgets::the().add_slider("Min speed", "%0.0f u/s", &movement_fastrun_fast_walk_min_speed);
+				CUIMenuWidgets::the().add_slider("Max speed##0", "%0.0f u/s", &movement_fastrun_max_speed);
+
+				g_gui_widgets_i->add_separtor_with_text("Fast walk");
+				CUIMenuWidgets::the().add_checkbox("Enable", &movement_fastrun_fast_walk);
+				CUIMenuWidgets::the().add_slider("Max speed##1", "%0.0f u/s", &movement_fastrun_fast_walk_max_speed);
 			});
 		});
 

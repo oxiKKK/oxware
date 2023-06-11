@@ -120,7 +120,9 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Added customizable EB hack.
 - Added customizable Strafe hack.
 - Added customizable strafe helper.
-- Added viewmodel removal
+- Added viewmodel removal.
+- Added players removal.
+- Added fastrun & fastwalk.
 
 ## Bugfixes
 

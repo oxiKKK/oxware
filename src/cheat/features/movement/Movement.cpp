@@ -35,6 +35,7 @@ VarBoolean movement_eb_enable("movement_eb_enable", "Enables EdgeBug hacks", fal
 VarBoolean movement_strafe_hack_enable("movement_strafe_hack_enable", "Enables strafe hacks", false);
 VarBoolean movement_strafe_helper_enable("movement_strafe_helper_enable", "Enables strafe helper", false);
 VarBoolean movement_fastrun_enable("movement_fastrun_enable", "Enables fast run", false);
+VarBoolean movement_auto_jof_enable("movement_auto_jof_enable", "Enables Auto JOF", false);
 
 InCommand CMovement::bunnyhop = InCommand("movement_bhop", VK_SPACE, &movement_bhop_enable);
 InCommand CMovement::airstuck = InCommand("movement_air_stuck", VK_XBUTTON1, &movement_air_stuck_enable); // mouse4
@@ -43,25 +44,12 @@ InCommand CMovement::eb = InCommand("movement_eb", 'C', &movement_eb_enable);
 InCommand CMovement::strafe = InCommand("movement_strafe_hack", VK_MBUTTON, &movement_strafe_hack_enable); // mouse3
 InCommand CMovement::strafe_helper = InCommand("movement_strafe_helper", NULL, &movement_strafe_helper_enable); 
 InCommand CMovement::fastrun = InCommand("movement_fastrun", NULL, &movement_fastrun_enable);
+InCommand CMovement::auto_jof = InCommand("movement_auto_jof", NULL, &movement_auto_jof_enable);
 
 VarBoolean debug_render_info_movement("debug_render_info_movement", "Movement information", false);
 VarBoolean debug_render_info_movement_bhop("debug_render_info_bhop", "Bunnyhop information", false);
 VarBoolean debug_render_info_movement_strafe("debug_render_info_movement_strafe", "Strafehack information", false);
 VarBoolean debug_render_info_movement_strafe_helper("debug_render_info_movement_strafe_helper", "Strafe helper information", false);
-
-#if 0 // test
-InCommandCustom incmd_test = InCommandCustom(
-	"incmd_test", 
-	[](InCommandCustom* _this)
-	{
-		CConsole::the().info("dn");
-	},
-	[](InCommandCustom* _this)
-	{
-		CConsole::the().info("up");
-	}
-);
-#endif
 
 void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 {
@@ -101,6 +89,11 @@ void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 		if (fastrun.is_active() || (movement_fastrun_always_enabled.get_value() && movement_fastrun_enable.get_value()))
 		{
 			CMovementFastRun::the().update();
+		}
+
+		if (auto_jof.is_active() || (movement_auto_jof_always_enabled.get_value() && movement_auto_jof_enable.get_value()))
+		{
+			CMovementAutoJOF::the().update(frametime);
 		}
 	}
 

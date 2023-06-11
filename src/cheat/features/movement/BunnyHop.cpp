@@ -118,11 +118,6 @@ void CMovementBunnyHop::legit_bhop(float frametime)
 	if (randomize_jump_pattern(is_onground))
 	{
 		block_jump = true;
-		CConsole::the().info("blocked");
-	}
-	else
-	{
-		CConsole::the().info("performed");
 	}
 
 	if (perform_jump && !block_jump)
@@ -158,6 +153,29 @@ void CMovementBunnyHop::legit_bhop(float frametime)
 		{
 			simulate_jump(frametime);
 		}
+
+		// TODO: animation breakings and illusion from HPP
+		//if (m_fog_counter > 0 && !CClientMovementPacket::the().is_in(IN_DUCK) && CClientMovementPacket::the().is_in(IN_JUMP))
+		//{
+		//	CClientMovementPacket::the().set_button_bit(IN_DUCK, true);
+		//}
+
+		//static int nFramesInDuck;
+
+		//if (m_fog_counter == 0)
+		//{
+		//	if (nFramesInDuck)
+		//	{
+		//		nFramesInDuck--;
+		//		CClientMovementPacket::the().set_button_bit(IN_DUCK, true);
+		//	}
+		//}
+		//else
+		//{
+		//	// Minimum frames for change to duck state
+		//	nFramesInDuck = 2;
+		//}
+
 		m_fog_counter++;
 	}
 	else
@@ -255,8 +273,7 @@ bool CMovementBunnyHop::predicted_nextframe_on_ground(float frametime)
 		return false;
 	}
 
-	// See if our fall distance is bigger than the distance to ground. Then we're
-	// guaranteed to be next frame on the ground.
+	// try to predict if we'll be on ground next frame. this is far from perfect, but should work most of the time.
 	return fall_vel > 0.0f && ((fall_vel * frametime) * 2.0f > gnd_dist);
 }
 

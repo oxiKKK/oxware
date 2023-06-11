@@ -63,7 +63,9 @@ void CMovementFastRun::update()
 		return;
 	}
 
-	if (movement_fastrun_no_slowdown.get_value())
+	auto pmove = *CMemoryHookMgr::the().pmove().get();
+
+	if (movement_fastrun_no_slowdown.get_value() && vel_2d >= pmove->maxspeed)
 	{
 		faster_run();
 	}

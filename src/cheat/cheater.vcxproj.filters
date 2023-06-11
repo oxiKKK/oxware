@@ -263,6 +263,9 @@
     <ClCompile Include="hook\HLCommandDetour.cpp">
       <Filter>src\hooking</Filter>
     </ClCompile>
+    <ClCompile Include="features\movement\AutoJOF.cpp">
+      <Filter>src\features\movement</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -472,6 +475,9 @@
     </ClInclude>
     <ClInclude Include="hook\HLCommandDetour.h">
       <Filter>src\hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="features\movement\AutoJOF.h">
+      <Filter>src\features\movement</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

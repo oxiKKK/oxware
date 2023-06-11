@@ -1225,6 +1225,31 @@ void CUIMenu::tab_movement()
 			});
 		});
 
+
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+		"Auto JOF", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			CUIMenuWidgets::the().feature_enabled_section(
+			&movement_auto_jof_enable,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Always enabled", &movement_auto_jof_always_enabled);
+				CUIMenuWidgets::the().add_slider("Interval", "%0.0f ms", &movement_auto_jof_interval);
+
+				g_gui_widgets_i->add_separtor_with_text("Min distance & velocity");
+				CUIMenuWidgets::the().feature_enabled_section(
+				&movement_auto_jof_auto,
+				[]()
+				{
+					CUIMenuWidgets::the().add_slider("Distance", "%0.0f units", &movement_auto_jof_min_distance);
+				}, 
+				"Automatic", FALSE);
+
+				CUIMenuWidgets::the().add_slider("Min velocity", "%0.0f u/s", &movement_auto_jof_activation_vel_min, "off");
+			});
+		});
+
 		g_gui_widgets_i->end_columns();
 	}
 }

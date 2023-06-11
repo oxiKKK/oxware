@@ -202,6 +202,7 @@
     <ClCompile Include="CheatInfo.cpp" />
     <ClCompile Include="features\IngameScreenRendering.cpp" />
     <ClCompile Include="features\movement\AirStuck.cpp" />
+    <ClCompile Include="features\movement\AutoJOF.cpp" />
     <ClCompile Include="features\movement\BunnyHop.cpp" />
     <ClCompile Include="features\movement\FastRun.cpp" />
     <ClCompile Include="features\movement\GroundStrafe.cpp" />
@@ -290,6 +291,7 @@
     <ClInclude Include="custom_format_cheat.h" />
     <ClInclude Include="features\IngameScreenRendering.h" />
     <ClInclude Include="features\movement\AirStuck.h" />
+    <ClInclude Include="features\movement\AutoJOF.h" />
     <ClInclude Include="features\movement\BunnyHop.h" />
     <ClInclude Include="features\movement\FastRun.h" />
     <ClInclude Include="features\movement\GroundStrafe.h" />

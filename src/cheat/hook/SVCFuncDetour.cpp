@@ -30,7 +30,7 @@
 
 bool CSVCFuncDetourMgr::install_hooks()
 {
-	//if (!svc_sound_fn().install_svc(svc_sound_f, "svc_sound", svc_sound)) return false;
+	if (!svc_sound_fn().install_svc(svc_sound_f, "svc_sound", svc_sound)) return false;
 	//if (!svc_time_fn().install_svc(svc_time_f, "svc_time", svc_time)) return false;
 	if (!svc_sendcvarvalue_fn().install_svc(svc_sendcvarvalue_f, "svc_sendcvarvalue", svc_sendcvarvalue)) return false;
 	if (!svc_sendcvarvalue2_fn().install_svc(svc_sendcvarvalue2_f, "svc_sendcvarvalue2", svc_sendcvarvalue2)) return false;
@@ -41,7 +41,7 @@ bool CSVCFuncDetourMgr::install_hooks()
 
 void CSVCFuncDetourMgr::uninstall_hooks()
 {
-	//svc_sound_fn().uninstall();
+	svc_sound_fn().uninstall();
 	//svc_time_fn().uninstall();
 	svc_sendcvarvalue_fn().uninstall();
 	svc_sendcvarvalue2_fn().uninstall();
@@ -52,17 +52,19 @@ void CSVCFuncDetourMgr::uninstall_hooks()
 
 void CSVCFuncDetourMgr::svc_sound_f()
 {
-	if (CHLNetMessageIO::the().ready_to_read())
-	{
-		CHLNetMessageIO::the().begin_silent_bit_reading();
+	//if (CHLNetMessageIO::the().ready_to_read())
+	//{
+	//	CHLNetMessageIO::the().begin_silent_bit_reading();
+	//
+	//	int flags = CHLNetMessageIO::the().read_bits(9);
+	//
+	//	CConsole::the().info("svc_sound: flags {}", flags);
+	//
+	//	CHLNetMessageIO::the().end_silent_bit_reading();
+	//}
 
-		int flags = CHLNetMessageIO::the().read_bits(9);
-
-		CConsole::the().info("svc_sound: flags {}", flags);
-
-		CHLNetMessageIO::the().end_silent_bit_reading();
-	}
-
+	CConsole::the().info("sound");
+	
 	CSVCFuncDetourMgr::the().svc_sound_fn().call();
 }
 

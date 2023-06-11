@@ -123,6 +123,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Added viewmodel removal.
 - Added players removal.
 - Added fastrun & fastwalk.
+- Added auto JOF.
 
 ## Bugfixes
 

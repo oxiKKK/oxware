@@ -476,6 +476,17 @@ void CUIMenu::tab_world()
 				});
 			});
 
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+			"Thirdperson", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				g_gui_widgets_i->add_spacing();
+				g_gui_widgets_i->add_spacing();
+
+				CUIMenuWidgets::the().add_slider("Distance", "%0.0f units", &thirdperson_dist);
+				CUIMenuWidgets::the().add_checkbox("Block wall", &thirdperson_block_wall);
+			});
+
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(

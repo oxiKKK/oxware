@@ -266,6 +266,9 @@
     <ClCompile Include="features\movement\AutoJOF.cpp">
       <Filter>src\features\movement</Filter>
     </ClCompile>
+    <ClCompile Include="features\ThirdPerson.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -478,6 +481,9 @@
     </ClInclude>
     <ClInclude Include="features\movement\AutoJOF.h">
       <Filter>src\features\movement</Filter>
+    </ClInclude>
+    <ClInclude Include="features\ThirdPerson.h">
+      <Filter>src\features</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

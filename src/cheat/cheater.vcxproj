@@ -222,6 +222,7 @@
     <ClCompile Include="features\ServerLiar.cpp" />
     <ClCompile Include="features\SmokeVisuals.cpp" />
     <ClCompile Include="features\StuffCMDFilter.cpp" />
+    <ClCompile Include="features\ThirdPerson.cpp" />
     <ClCompile Include="features\VanillaCrosshair.cpp" />
     <ClCompile Include="features\ViewmodelOffset.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -311,6 +312,7 @@
     <ClInclude Include="features\ServerLiar.h" />
     <ClInclude Include="features\SmokeVisuals.h" />
     <ClInclude Include="features\StuffCMDFilter.h" />
+    <ClInclude Include="features\ThirdPerson.h" />
     <ClInclude Include="features\VanillaCrosshair.h" />
     <ClInclude Include="features\ViewmodelOffset.h" />
     <ClInclude Include="features\FeatureManager.h" />

@@ -496,6 +496,13 @@ struct IN_ScaleMouse_FnDetour_t final : public GenericMemoryFnDetour_cdecl<int, 
 	static void IN_ScaleMouse(float *x, float *y);
 };
 
+// int CL_IsThirdPerson()
+struct CL_IsThirdPerson_FnDetour_t final : public GenericMemoryFnDetour_cdecl<int>
+{
+	bool install();
+	static int CL_IsThirdPerson();
+};
+
 //---------------------------------------------------------------------------------
 
 extern float *mouse_x_ptr, *mouse_y_ptr;
@@ -551,6 +558,7 @@ public:
 	inline auto& MSG_WriteUsercmd() { static MSG_WriteUsercmd_FnDetour_t fnhook; return fnhook; }
 	inline auto& CHudSniperScope__Draw() { static CHudSniperScope__Draw_FnDetour_t fnhook; return fnhook; }
 	inline auto& IN_ScaleMouse() { static IN_ScaleMouse_FnDetour_t fnhook; return fnhook; }
+	inline auto& CL_IsThirdPerson() { static CL_IsThirdPerson_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

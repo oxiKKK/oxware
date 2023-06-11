@@ -368,14 +368,6 @@ void CInCommands::render_interactible_incommand_list()
 			g_gui_widgets_i->pop_stylevar();
 		});
 
-	auto window_size = g_gui_widgets_i->get_current_window_size();
-	auto button_size = Vector2D(25, 25);
-	if (g_gui_widgets_i->add_floating_button(";", last_cursor_pos, { window_size.x - 23.0f - button_size.x, 30.0f },
-											 button_size, false, BUTTONFLAG_CenterLabel))
-	{
-		CGenericUtil::the().copy_to_clipboard(";");
-	}
-
 #if 0
 	if (g_gui_widgets_i->add_floating_button("?", last_cursor_pos, { window_size.x - 23.0f - button_size.x - 3.0f - button_size.x, 30.0f },
 											 button_size, false, BUTTONFLAG_CenterLabel))

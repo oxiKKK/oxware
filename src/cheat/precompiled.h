@@ -276,6 +276,7 @@ namespace hl
 #include "features/StuffCmdFilter.h"
 #include "features/ResourceConsistencyBypass.h"
 #include "features/IngameScreenRendering.h"
+#include "features/ThirdPerson.h"
 #include "features/movement/BunnyHop.h"
 #include "features/movement/AirStuck.h"
 #include "features/movement/GroundStrafe.h"

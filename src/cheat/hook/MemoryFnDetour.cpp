@@ -73,6 +73,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	MSG_WriteUsercmd().install();
 	CHudSniperScope__Draw().install();
 	IN_ScaleMouse().install();
+	CL_IsThirdPerson().install();
 
 	return true;
 }
@@ -130,6 +131,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	MSG_WriteUsercmd().uninstall();
 	CHudSniperScope__Draw().uninstall();
 	IN_ScaleMouse().uninstall();
+	CL_IsThirdPerson().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -383,6 +385,8 @@ void V_CalcRefdef_FnDetour_t::V_CalcRefdef(hl::ref_params_t *pparams)
 {
 	CMemoryFnDetourMgr::the().V_CalcRefdef().call(pparams);
 
+	CThirdPerson::the().update(pparams);
+
 	// no-recoil
 	//pparams->viewangles = pparams->cl_viewangles + pparams->punchangle;
 }
@@ -404,7 +408,7 @@ void EV_HLDM_FireBullets_FnDetour_t::EV_HLDM_FireBullets(int idx, float* forward
 	CMemoryFnDetourMgr::the().EV_HLDM_FireBullets().call(idx, forward, right, up, cShots, vecSrc, vecDirShooting, vecSpread, flDistance,
 														 iBulletType, iTracerFreq, tracerCount, iPenetration);
 
-	//Vector vec_start = /*CGameUtil::the().is_local_player(idx) ? CEntityMgr::the().get_local_player().get_view_height() :*/ vecSrc;
+	//Vector vec_start = /*CGameUtil::the().is_local_player(idx) ? CEntityMgr::the().get_local_player().get_eye_pos() :*/ vecSrc;
 
 }
 
@@ -956,6 +960,26 @@ void IN_ScaleMouse_FnDetour_t::IN_ScaleMouse(float* x, float* y)
 	}
 
 	CMemoryFnDetourMgr::the().IN_ScaleMouse().call(x, y);
+}
+
+//---------------------------------------------------------------------------------
+
+bool CL_IsThirdPerson_FnDetour_t::install()
+{
+	initialize("CL_IsThirdPerson", L"client.dll");
+	return detour_using_memory_address((uintptr_t*)CL_IsThirdPerson, (uintptr_t*)CMemoryHookMgr::the().cl_funcs().get()->pfnHUD_CL_IsThirdperson);
+}
+
+int CL_IsThirdPerson_FnDetour_t::CL_IsThirdPerson()
+{
+	return thirdperson_dist.get_value() != 0;
+
+	if (thirdperson_dist.get_value() != 0)
+	{
+		return 1;
+	}
+
+	return CMemoryFnDetourMgr::the().CL_IsThirdPerson().call();
 }
 
 //---------------------------------------------------------------------------------

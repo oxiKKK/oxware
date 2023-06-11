@@ -124,6 +124,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Added players removal.
 - Added fastrun & fastwalk.
 - Added auto JOF.
+- Added thirdperson.
 
 ## Bugfixes
 

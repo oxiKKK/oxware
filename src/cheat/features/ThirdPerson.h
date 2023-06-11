@@ -26,38 +26,20 @@
 *	IN THE SOFTWARE.
 */
 
-#ifndef GENERICPLAYER_H
-#define GENERICPLAYER_H
+#ifndef THIRDPERSON_H
+#define THIRDPERSON_H
 #pragma once
 
-class CGenericPlayer : public CGenericEnt
+extern VarInteger thirdperson_dist;
+extern VarBoolean thirdperson_block_wall;
+
+class CThirdPerson
 {
 public:
-	virtual void update(hl::cl_entity_t* ent);
+	DECL_BASIC_CLASS(CThirdPerson);
 
-	virtual bool is_valid() const { return CGenericEnt::is_valid() && m_extra_playerinfo && m_playerinfo; }
-
-	// getters
-	hl::extra_player_info_t* get_extrainfo() const { return m_extra_playerinfo; }
-	hl::player_info_t* get_playerinfo() const { return m_playerinfo; }
-
-	virtual bool is_alive() const;
-
-	CColor get_color_based_on_team();
-
-	hl::TeamName get_team() const { return m_extra_playerinfo ? (hl::TeamName)m_extra_playerinfo->teamnumber : hl::UNASSIGNED; }
-
-	bool is_local_player() const;
-
-	bool is_standing() const { return get_bounding_box_max().z == 36.0f; }
-	bool is_ducking() const { return get_bounding_box_max().z == 32.0f; }
-
-	// returns "eye position"
-	Vector get_eye_pos() const { return m_ent->origin + CMemoryHookMgr::the().cl().get()->viewheight; }
-
-private:
-	hl::extra_player_info_t* m_extra_playerinfo = nullptr;
-	hl::player_info_t* m_playerinfo = nullptr;
+public:
+	void update(hl::ref_params_t* pparams);
 };
 
-#endif // GENERICPLAYER_H
+#endif // THIRDPERSON_H

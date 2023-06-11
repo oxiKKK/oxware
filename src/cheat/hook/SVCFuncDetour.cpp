@@ -52,7 +52,7 @@ void CSVCFuncDetourMgr::uninstall_hooks()
 
 void CSVCFuncDetourMgr::svc_sound_f()
 {
-	//if (CHLNetMessageIO::the().ready_to_read())
+	//if (CHLNetMessageIO::the().is_ready())
 	//{
 	//	CHLNetMessageIO::the().begin_silent_bit_reading();
 	//
@@ -70,7 +70,7 @@ void CSVCFuncDetourMgr::svc_sound_f()
 
 void CSVCFuncDetourMgr::svc_time_f()
 {
-	if (CHLNetMessageIO::the().ready_to_read())
+	if (CHLNetMessageIO::the().is_ready())
 	{
 		CHLNetMessageIO::the().begin_silent_reading();
 
@@ -84,7 +84,7 @@ void CSVCFuncDetourMgr::svc_time_f()
 
 void CSVCFuncDetourMgr::svc_sendcvarvalue_f()
 {
-	if (CHLNetMessageIO::the().ready_to_read())
+	if (CHLNetMessageIO::the().is_ready())
 	{
 		// we don't actually perform a silent read begin&end operation, because we'll basically reimplement
 		// the function completely. "Replace it"
@@ -157,7 +157,7 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue_f()
 
 void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 {
-	if (CHLNetMessageIO::the().ready_to_read())
+	if (CHLNetMessageIO::the().is_ready())
 	{
 		// we don't actually perform a silent read begin&end operation, because we'll basically reimplement
 		// the function completely. "Replace it"
@@ -226,7 +226,7 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 
 void CSVCFuncDetourMgr::svc_stufftext_f()
 {
-	if (CHLNetMessageIO::the().ready_to_read())
+	if (CHLNetMessageIO::the().is_ready())
 	{
 		if (!CStuffCmdFilter::the().allow_command_to_be_executed())
 		{

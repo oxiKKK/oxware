@@ -120,6 +120,9 @@ struct MSG_WriteStringFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl
 // void __cdecl MSG_WriteCoord(sizebuf_t *sb, float f);
 struct MSG_WriteCoordFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*, float> { bool install() override; };
 
+// void __cdecl MSG_WriteBuf(sizebuf_t* sb, int iSize, void* buf);
+struct MSG_WriteBufFnHook_t final : public GenericMemoryFnHook_cdecl<void, hl::sizebuf_t*, int, void*> { bool install() override; };
+
 //---------------------------------------------------------------------------
 
 // sizebuf_t net_message;
@@ -141,8 +144,8 @@ public:
 public:
 	bool install_hooks();
 
-	// always call this before you start to read!
-	bool ready_to_read() const
+	// always call this before you start to read/write!
+	bool is_ready() const
 	{
 		return m_initialized_hooks;
 	}
@@ -183,6 +186,7 @@ public:
 	void write_float(float f);
 	void write_string(const char* s);
 	void write_coord(float coord);
+	void write_buf(int iSize, void* buf);
 
 	// writing to custom buffer
 	void write_char(hl::sizebuf_t* sb, int8_t i8);
@@ -193,6 +197,7 @@ public:
 	void write_float(hl::sizebuf_t* sb, float f);
 	void write_string(hl::sizebuf_t* sb, const char* s);
 	void write_coord(hl::sizebuf_t* sb, float coord);
+	void write_buf(hl::sizebuf_t* sb, int iSize, void* buf);
 
 private:
 	inline auto& net_message() { static net_messageHook hook; return hook; };
@@ -257,6 +262,7 @@ private:
 	inline auto& MSG_WriteFloat() { static MSG_WriteFloatFnHook_t hook; return hook; }
 	inline auto& MSG_WriteString() { static MSG_WriteStringFnHook_t hook; return hook; }
 	inline auto& MSG_WriteCoord() { static MSG_WriteCoordFnHook_t hook; return hook; }
+	inline auto& MSG_WriteBuf() { static MSG_WriteBufFnHook_t hook; return hook; }
 };
 
 #endif // HLNETMESSAGEIO_H

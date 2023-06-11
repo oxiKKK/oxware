@@ -149,7 +149,6 @@ void CMovementFastRun::faster_run()
 	float y = 267.876434f;
 
 	float a = CMath::the().deg2rad(angle_to_add);
-	CConsole::the().info("angle_to_add: {}", angle_to_add);
 	float sinA = sin(a);
 	float cosA = cos(a);
 

@@ -52,7 +52,7 @@ bool CResourceConsistencyBypass::detour_consistency_info(hl::sizebuf_t* msg)
 		return false;
 	}
 
-	if (!CHLNetMessageIO::the().ready_to_read())
+	if (!CHLNetMessageIO::the().is_ready())
 	{
 		return false;
 	}

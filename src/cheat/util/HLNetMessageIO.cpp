@@ -68,6 +68,7 @@ bool CHLNetMessageIO::install_hooks()
 	MSG_WriteFloat().install();
 	MSG_WriteString().install();
 	MSG_WriteCoord().install();
+	MSG_WriteBuf().install();
 
 	m_initialized_hooks = true;
 
@@ -251,6 +252,11 @@ void CHLNetMessageIO::write_coord(float coord)
 	write_coord(&CMemoryHookMgr::the().cls().get()->netchan.message, coord);
 }
 
+void CHLNetMessageIO::write_buf(int iSize, void* buf)
+{
+	write_buf(&CMemoryHookMgr::the().cls().get()->netchan.message, iSize, buf);
+}
+
 //----------------------------------------------------------------------
 
 void CHLNetMessageIO::write_char(hl::sizebuf_t* sb, int8_t i8)
@@ -291,6 +297,11 @@ void CHLNetMessageIO::write_string(hl::sizebuf_t* sb, const char* s)
 void CHLNetMessageIO::write_coord(hl::sizebuf_t* sb, float coord)
 {
 	MSG_WriteCoord().call(sb, coord);
+}
+
+void CHLNetMessageIO::write_buf(hl::sizebuf_t* sb, int iSize, void* buf)
+{
+	MSG_WriteBuf().call(sb, iSize, buf);
 }
 
 //----------------------------------------------------------------------
@@ -457,6 +468,12 @@ bool MSG_WriteCoordFnHook_t::install()
 	return install_using_bytepattern(0);
 }
 
+bool MSG_WriteBufFnHook_t::install()
+{
+	initialize("MSG_WriteBuf", L"hw.dll");
+	return install_using_bytepattern(0);
+}
+
 //----------------------------------------------------------------------
 
 bool net_messageHook::install()
@@ -476,4 +493,3 @@ bool bfreadHook::install()
 	initialize("bfread", L"hw.dll");
 	return install_using_bytepattern(1);
 }
-

@@ -133,7 +133,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - ESP
 	- Player
 	- Entities
-	- Sound
+	- Sound (+ resolver)
 	- Custom box types
 - Model chams
 	- Viewmodel

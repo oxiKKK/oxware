@@ -74,6 +74,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	CHudSniperScope__Draw().install();
 	IN_ScaleMouse().install();
 	CL_IsThirdPerson().install();
+	CL_ProcessEntityUpdate().install();
 
 	return true;
 }
@@ -132,6 +133,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	CHudSniperScope__Draw().uninstall();
 	IN_ScaleMouse().uninstall();
 	CL_IsThirdPerson().uninstall();
+	CL_ProcessEntityUpdate().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -212,9 +214,13 @@ void Key_Event_FnDetour_t::Key_Event(int key, hl::qboolean down)
 
 	// stop executing the engine key, if our key is bound to an incommand.
 	// TODO: Make this customizable in the future...?
-	if (g_in_commands_i->is_key_bound_and_active(g_user_input_i->engine_key_to_virtual_key(key)))
+	auto local = CEntityMgr::the().get_local_player();
+	if (local && local->is_valid() && local->is_alive())
 	{
-		return;
+		if (g_in_commands_i->is_key_bound_and_active(g_user_input_i->engine_key_to_virtual_key(key)))
+		{
+			return;
+		}
 	}
 
 	// see if this key is bound inside our cheat. if yes, prefer executing our key over engine key.
@@ -253,28 +259,42 @@ bool ClientDLL_CreateMove_FnDetour_t::install()
 
 void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::usercmd_t *cmd, int active)
 {
-	// reset this crap back to it's original state.
-	// TODO: Find a better way of doing this kind of speedhack, i think that modifying the multiplier 
-	//       in CL_Move and CL_RunUsercmd would create the same effect...
-	CGameUtil::the().classic_cs16_cheating_scene_speedhack(1.0);
+	if (active == 0)
+	{
+		CMemoryFnDetourMgr::the().ClientDLL_CreateMove().call(frametime, cmd, active);
+		return;
+	}
 
-	CClientMovementPacket::the().update_clientmove();
+	bool spectator = CGameUtil::the().is_spectator();
+
+	if (!spectator)
+	{
+		// reset this crap back to it's original state.
+		// TODO: Find a better way of doing this kind of speedhack, i think that modifying the multiplier 
+		//       in CL_Move and CL_RunUsercmd would create the same effect...
+		CGameUtil::the().classic_cs16_cheating_scene_speedhack(1.0);
+
+		CClientMovementPacket::the().update_clientmove();
+	}
 
 	CMemoryFnDetourMgr::the().ClientDLL_CreateMove().call(frametime, cmd, active);
 
-	CClientMovementPacket::the().set_current_cmd_for_manipulation(cmd);
-
-	CLocalState::the().update_clientmove(frametime, cmd);
-
-	if (COxWareUI::the().should_disable_ingame_input())
+	if (!spectator)
 	{
-		// disable all movement when the menu is up. This is called by CL_Move() when the game expects
-		// client dll to modify usercmd_t for current command so it can be sent to the server.
-		cmd->buttons = 0;
-		cmd->forwardmove = cmd->sidemove = cmd->upmove = 0;
-	}
+		CClientMovementPacket::the().set_current_cmd_for_manipulation(cmd);
 
-	CMovement::the().update_clientmove(frametime, cmd);
+		CLocalState::the().update_clientmove(frametime, cmd);
+
+		if (COxWareUI::the().should_disable_ingame_input())
+		{
+			// disable all movement when the menu is up. This is called by CL_Move() when the game expects
+			// client dll to modify usercmd_t for current command so it can be sent to the server.
+			cmd->buttons = 0;
+			cmd->forwardmove = cmd->sidemove = cmd->upmove = 0;
+		}
+
+		CMovement::the().update_clientmove(frametime, cmd);
+	}
 }
 
 //---------------------------------------------------------------------------------
@@ -294,8 +314,6 @@ void _Host_Frame_FnDetour_t::_Host_Frame(float time)
 
 	// GoldSrc engine frame function. There goes all code that has to work with ingame things.
 	OX_PROFILE_SCOPE("engine_frame");
-
-	CEntityMgr::the().update();
 
 	CForceEnableDisabled::the().update_disable_sponly_cvars();
 
@@ -319,6 +337,8 @@ void CL_ReallocateDynamicData_FnDetour_t::CL_ReallocateDynamicData(int nMaxClien
 	// must be called after CL_ReallocateDynamicData(), therefore we have stuff like cl.max_edicts set.
 	CEntityMgr::the().erase();
 	CEntityMgr::the().init();
+
+	CSoundEsp::the().reset_cache();
 }
 
 //---------------------------------------------------------------------------------
@@ -531,13 +551,13 @@ bool S_StartDynamicSound_FnDetour_t::install()
 }
 
 void S_StartDynamicSound_FnDetour_t::S_StartDynamicSound(int entnum, int entchannel, hl::sfx_t* sfx, hl::vec_t* origin, 
-													float fvol, float attenuation, int flags, int pitch)
+														 float fvol, float attenuation, int flags, int pitch)
 {
 	if (sfx)
 	{
 		if (strstr(sfx->name, "step"))
 		{
-			CESP::the().register_player_step(origin, entnum);
+			CSoundEsp::the().register_player_step(origin, entnum);
 		}
 	}
 
@@ -683,6 +703,8 @@ void SCR_UpdateScreen_FnDetour_t::SCR_UpdateScreen()
 		return;
 	}
 
+	CEntityMgr::the().update_screen();
+
 	CMemoryFnDetourMgr::the().SCR_UpdateScreen().call();
 }
 
@@ -758,7 +780,7 @@ bool R_StudioDrawPlayer_FnDetour_t::install()
 
 int R_StudioDrawPlayer_FnDetour_t::R_StudioDrawPlayer(int flags, hl::entity_state_t* pplayer)
 {
-	if (CRemovals::the().remove_player(pplayer->number - 1))
+	if (CRemovals::the().remove_player(pplayer->number))
 	{
 		return 0;
 	}
@@ -980,6 +1002,23 @@ int CL_IsThirdPerson_FnDetour_t::CL_IsThirdPerson()
 	}
 
 	return CMemoryFnDetourMgr::the().CL_IsThirdPerson().call();
+}
+
+//---------------------------------------------------------------------------------
+
+bool CL_ProcessEntityUpdate_FnDetour_t::install()
+{
+	initialize("CL_ProcessEntityUpdate", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)CL_ProcessEntityUpdate);
+}
+
+void CL_ProcessEntityUpdate_FnDetour_t::CL_ProcessEntityUpdate(hl::cl_entity_t* ent)
+{
+	// called after packet entities are resolved
+
+	CMemoryFnDetourMgr::the().CL_ProcessEntityUpdate().call(ent);
+
+	CEntityMgr::the().entity_update(ent);
 }
 
 //---------------------------------------------------------------------------------

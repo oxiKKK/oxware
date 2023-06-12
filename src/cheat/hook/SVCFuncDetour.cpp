@@ -62,8 +62,6 @@ void CSVCFuncDetourMgr::svc_sound_f()
 	//
 	//	CHLNetMessageIO::the().end_silent_bit_reading();
 	//}
-
-	CConsole::the().info("sound");
 	
 	CSVCFuncDetourMgr::the().svc_sound_fn().call();
 }

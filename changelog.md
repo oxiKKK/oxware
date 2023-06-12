@@ -125,6 +125,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Added fastrun & fastwalk.
 - Added auto JOF.
 - Added thirdperson.
+- Added sound esp resolver.
 
 ## Bugfixes
 

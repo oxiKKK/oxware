@@ -678,7 +678,7 @@ void CUIMenu::tab_screen()
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"ESP", CMenuStyle::calc_child_size(215), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"ESP", CMenuStyle::calc_child_size(270), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(
@@ -720,6 +720,12 @@ void CUIMenu::tab_screen()
 							CUIMenuWidgets::the().add_slider("Display life", "%0.1f seconds", &esp_sound_interval);
 							CUIMenuWidgets::the().add_checkbox("Filter local", &esp_sound_filter_local);
 							CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
+							CUIMenuWidgets::the().feature_enabled_section(
+							&esp_sound_resolver,
+							[]()
+							{
+								CUIMenuWidgets::the().add_slider("Resolver dist", "%0.0f units", &esp_sound_resolver_distace);
+							}, "Resolver");
 						});
 
 					g_gui_widgets_i->end_tab();

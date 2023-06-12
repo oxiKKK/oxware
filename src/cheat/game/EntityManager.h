@@ -36,7 +36,9 @@ public:
 	DECL_BASIC_CLASS(CEntityMgr);
 
 public:
-	void update();
+	void entity_update(hl::cl_entity_t* ent);
+
+	void update_screen();
 
 	void erase();
 	void init();
@@ -51,7 +53,7 @@ public:
 		}
 		catch (/*const std::out_of_range& err*/...)
 		{
-			CConsole::the().error("Invalid player index when accessing known players: {}", local_index);
+			CConsole::the().error("Failed to get local player: {}", local_index);
 			return nullptr;
 		}
 	}
@@ -64,7 +66,7 @@ public:
 		}
 		catch (/*const std::out_of_range& err*/...)
 		{
-			CConsole::the().error("Invalid player index when accessing known players: {} (2)", index);
+			CConsole::the().error("Failed to get player: {}", index);
 			return nullptr;
 		}
 	}

@@ -36,11 +36,13 @@ VarBoolean esp_only_enemy_team("esp_only_enemy_team", "Esp only on enemy team", 
 VarBoolean esp_entity_enable("esp_entity_enable", "Toggles entity esp", false);
 
 VarBoolean esp_player_enable("esp_player_enable", "Toggles player esp", false);
-VarBoolean esp_player_name("esp_name", "Toggles player name esp", false);
+VarBoolean esp_player_name("esp_name", "Toggles player name esp", false); 
 
 VarBoolean esp_sound_enable("esp_sound_enable", "Toggles sound esp", false);
 VarFloat esp_sound_interval("esp_sound_interval", "Time of which the esp node is alive", 1.0f, 0.5f, 5.0f);
 VarBoolean esp_sound_filter_local("esp_sound_filter_local", "Doesn't apply sound esp on local player", true);
+VarBoolean esp_sound_resolver("esp_sound_resolver", "Tries to resolve entity indexes when anti-cheat is used", true);
+VarInteger esp_sound_resolver_distace("esp_sound_resolver_distace", "How far you want to resolve to", 64, 20, 100);
 
 void CESP::initialize_gui()
 {
@@ -51,13 +53,8 @@ void CESP::initialize_gui()
 			return esp_enable.get_value() && 
 				((esp_player_enable.get_value() && !CEntityMgr::the().m_known_players.empty()) ||
 				 (esp_entity_enable.get_value() && !CEntityMgr::the().m_known_entities.empty()) ||
-				 (esp_sound_enable.get_value() && !m_stepsounds.empty()));
+				 (esp_sound_enable.get_value() && !CSoundEsp::the().m_stepsounds.empty()));
 		});
-}
-
-void CESP::register_player_step(const Vector& origin, int entid)
-{
-	m_stepsounds.push_back({ origin, entid, GetTickCount()});
 }
 
 void CESP::on_render()
@@ -252,19 +249,11 @@ void CESP::render_entities()
 
 void CESP::render_sound()
 {
-	uint32_t max = ((uint32_t)esp_sound_interval.get_value()) * 1000;
+	uint32_t time_limit = ((uint32_t)esp_sound_interval.get_value()) * 1000;
 
-	if (!m_stepsounds.empty())
-	{
-		auto& last_sound = m_stepsounds.front();
+	CSoundEsp::the().update(time_limit);
 
-		if (last_sound.get_life_duration_ms() > max)
-		{
-			m_stepsounds.pop_front();
-		}
-	}
-
-	for (const auto& step : m_stepsounds)
+	for (const auto& step : CSoundEsp::the().m_stepsounds)
 	{
 		if (esp_sound_filter_local.get_value() && CGameUtil::the().is_local_player(step.entid))
 		{
@@ -283,7 +272,7 @@ void CESP::render_sound()
 			if (life_dur == 0)
 			{
 				// assert there's no division by 0
-				life_dur = 1.0f / max;
+				life_dur = 1.0f / time_limit;
 			}
 
 #if 0
@@ -295,7 +284,7 @@ void CESP::render_sound()
 					CColor(255, 255, 255, 255),
 					"step");
 #else
-			float current_ratio = (life_dur / max); // get 0-1 ratio
+			float current_ratio = (life_dur / time_limit); // get 0-1 ratio
 			int animated_alpha = (int)(255.0f - current_ratio * 255.0f);
 			float animated_scale = 5.0f + (current_ratio * 10.0f);
 			float animated_rouding = 1.0f + (current_ratio * 20.0f);
@@ -311,29 +300,6 @@ void CESP::render_sound()
 					step_color = player->get_color_based_on_team();
 				}
 			}
-			else
-			{
-#if 0
-				// some servers have anticheat for sound-esp that they basically send invalid entid when a stepsound is
-				// made, hence confusing our team-recognition code. 
-				// 
-				// However, this code is really, really slow.. (but usually works)
-				for (auto& [index, plr] : CEntityMgr::the().m_known_players)
-				{
-					auto ent = plr.cl_entity();
-					if (!ent)
-					{
-						continue;
-					}
-
-					if (step.origin < ent->origin + 100.0f && step.origin > ent->origin - 100.0f)
-					{
-						step_color = plr.get_color_based_on_team();
-						break;
-					}
-				}
-#endif
-			}
 
 			g_gui_window_rendering_i->render_box_outline(
 				g_gui_window_rendering_i->get_current_drawlist(), 
@@ -342,6 +308,13 @@ void CESP::render_sound()
 				CColor(), 
 				animated_rouding, 
 				CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f), 1.5f);
+
+			g_gui_window_rendering_i->render_text(
+				g_gui_window_rendering_i->get_current_drawlist(),
+				g_gui_fontmgr_i->get_font("segoeui", FONT_SMALLEST, FONTDEC_Bold),
+				screen,
+				CColor(230, 230, 230, 230),
+				std::format("{}", step.entid));
 #endif
 		}
 	}
@@ -469,4 +442,74 @@ EFontSize CESP::fontsize_by_dist(float dist, float max_dist)
 	auto result = (EFontSize)(FONT_EXTRA - (EFontSize)std::round(limit));
 
 	return std::clamp(result, FONT_SMALLEST, FONT_EXTRA);
+}
+
+//---------------------------------------------------------------------------------------
+
+void CSoundEsp::register_player_step(const Vector& sound_origin, int entid)
+{
+	if (esp_sound_resolver.get_value())
+	{
+		resolve_sound_entid(sound_origin, entid);
+	}
+
+	m_stepsounds.push_back({ sound_origin, entid, GetTickCount() });
+}
+
+void CSoundEsp::update(uint32_t time_limit)
+{
+	if (!m_stepsounds.empty())
+	{
+		auto& last_sound = m_stepsounds.front();
+
+		if (last_sound.get_life_duration_ms() > time_limit)
+		{
+			m_stepsounds.pop_front();
+		}
+	}
+}
+
+void CSoundEsp::reset_cache()
+{
+	CConsole::the().info("Reseting sound esp resolver cache... ({} entries)", m_resolver_cache.bucket_count());
+	m_resolver_cache.clear();
+}
+
+void CSoundEsp::resolve_sound_entid(const Vector& sound_origin, int& entid)
+{
+	if (CGameUtil::the().is_player_index(entid))
+	{
+		return; // valid
+	}
+
+	// try to lookup the cache
+	auto it = m_resolver_cache.find(entid);
+	if (it != m_resolver_cache.end())
+	{
+		//CConsole::the().info("grabbed from cache {} to {}", entid, (*it).second.resolved_index);
+		entid = (*it).second.resolved_index;
+		return; // found a match!
+	}
+
+	// some servers have anticheat for sound-esp that they basically send invalid entid when a stepsound is
+	// made, hence confusing our team-recognition code. 
+	for (auto& [index, plr] : CEntityMgr::the().m_known_players)
+	{
+		auto ent = plr.cl_entity();
+		if (!ent)
+		{
+			continue;
+		}
+
+		if (ent->curstate.origin.Distance(sound_origin) < esp_sound_resolver_distace.get_value())
+		{
+			int unresolved = entid;
+			entid = index;
+			m_resolver_cache[unresolved] = index;
+			//CConsole::the().info("resolved {} to {}", unresolved, index);
+			return;
+		}
+	}
+
+	//CConsole::the().error("Failed to resolve: {}", entid);
 }

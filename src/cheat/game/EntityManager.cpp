@@ -28,44 +28,33 @@
 
 #include "precompiled.h"
 
-void CEntityMgr::update()
-{
-	OX_PROFILE_SCOPE("entity_mgr");
-	
-	if (!CGameUtil::the().is_fully_connected())
+void CEntityMgr::entity_update(hl::cl_entity_t* ent)
+{	
+	if (ent->player)
 	{
-		return;
+		m_known_players[ent->index].update(ent);
 	}
-
-	auto cl = CMemoryHookMgr::the().cl().get();
-
-#if 0
-	auto t1 = std::chrono::high_resolution_clock::now();
-#endif
-
-	for (int i = 0; i < cl->num_entities; i++)
+	else
 	{
-		auto ent = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetEntityByIndex(i);
-		if (!ent)
+		m_known_entities[ent->index].update(ent);
+	}
+}
+
+void CEntityMgr::update_screen()
+{
+	return; // TODO: Keep?
+	CEngineFontRendering::the().render_debug("--- Player info ---");
+
+	for (const auto& [id, p] : m_known_players)
+	{
+		if (!p.is_valid())
 		{
+			CEngineFontRendering::the().render_debug("{:<2}: invalid", id);
 			continue;
 		}
 
-		if (i > 0 && i < cl->maxclients)
-		{
-			m_known_players[i].update(ent);
-		}
-		else
-		{
-			m_known_entities[i].update(ent);
-		}
+		CEngineFontRendering::the().render_debug("{:<2}: {}", id, p.get_playerinfo()->name);
 	}
-
-#if 0
-	CConsole::the().info("Entity manager update: {} us for {} entities", 
-						 std::chrono::duration<float, std::micro>(std::chrono::high_resolution_clock::now() - t1).count(), 
-						 m_known_players.size() + m_known_entities.size());
-#endif
 }
 
 void CEntityMgr::init()

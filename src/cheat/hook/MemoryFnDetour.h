@@ -503,6 +503,13 @@ struct CL_IsThirdPerson_FnDetour_t final : public GenericMemoryFnDetour_cdecl<in
 	static int CL_IsThirdPerson();
 };
 
+// void __cdecl CL_ProcessEntityUpdate(cl_entity_t *ent)
+struct CL_ProcessEntityUpdate_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, hl::cl_entity_t*>
+{
+	bool install();
+	static void CL_ProcessEntityUpdate(hl::cl_entity_t *ent);
+};
+
 //---------------------------------------------------------------------------------
 
 extern float *mouse_x_ptr, *mouse_y_ptr;
@@ -559,6 +566,7 @@ public:
 	inline auto& CHudSniperScope__Draw() { static CHudSniperScope__Draw_FnDetour_t fnhook; return fnhook; }
 	inline auto& IN_ScaleMouse() { static IN_ScaleMouse_FnDetour_t fnhook; return fnhook; }
 	inline auto& CL_IsThirdPerson() { static CL_IsThirdPerson_FnDetour_t fnhook; return fnhook; }
+	inline auto& CL_ProcessEntityUpdate() { static CL_ProcessEntityUpdate_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

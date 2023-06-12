@@ -468,14 +468,13 @@ void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D
 		if (!data.collapsed)
 		{
 			PushStyleVar(ImGuiStyleVar_WindowPadding, { 0, 0 });
-
 			BeginChild(("inner_" + label).c_str(), Vector2D(-1.0f, -1.0f), false, 0);
+			PopStyleVar();
 
 			pfn_contents();
 
 			EndChild();
 
-			PopStyleVar();
 		}
 	}
 	EndChild();

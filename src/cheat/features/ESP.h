@@ -43,6 +43,8 @@ extern VarBoolean esp_player_name;
 extern VarBoolean esp_sound_enable;
 extern VarFloat esp_sound_interval;
 extern VarBoolean esp_sound_filter_local;
+extern VarBoolean esp_sound_resolver;
+extern VarInteger esp_sound_resolver_distace;
 
 static const int k_step_display_interval_s = 10;
 
@@ -58,6 +60,35 @@ struct PlayerStepSound
 	uint32_t spawntime_ms;
 };
 
+struct SoundEntIndexResolverCache
+{
+	SoundEntIndexResolverCache() : resolved_index(0) {}
+	SoundEntIndexResolverCache(int resolved) : resolved_index(resolved) {}
+	
+	// if original == resolved, everything is fine
+	int resolved_index;
+};
+
+class CSoundEsp
+{
+public:
+	DECL_BASIC_CLASS(CSoundEsp);
+
+public:
+	void register_player_step(const Vector& sound_origin, int entid);
+
+	void update(uint32_t time_limit);
+
+	std::deque<PlayerStepSound> m_stepsounds;
+
+	void reset_cache();
+
+private:
+	void resolve_sound_entid(const Vector& sound_origin, int& entid);
+
+	std::unordered_map<int, SoundEntIndexResolverCache> m_resolver_cache;
+};
+
 class CESP
 {
 public:
@@ -65,8 +96,6 @@ public:
 
 public:
 	void initialize_gui();
-
-	void register_player_step(const Vector& origin, int entid);
 
 private:
 	void on_render();
@@ -78,8 +107,6 @@ private:
 	void render_box_for_four_points(const Vector2D& top_left, const Vector2D& top_right, const Vector2D& bottom_right, const Vector2D& bottom_left, const CColor& color, float box_tall_half);
 
 	EFontSize fontsize_by_dist(float dist, float max_dist);
-
-	std::deque<PlayerStepSound> m_stepsounds;
 };
 
 #endif // ESP_H

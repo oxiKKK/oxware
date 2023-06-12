@@ -255,8 +255,8 @@ void Sprite_t::render_additive(const Vector2D& position, const CColor& color, bo
 		CColor new_color = CColor(color.r * 255.0f, color.g * 255.0f, color.b * 255.0f);
 		CSpriteMgr::the().scale_hud_colors(new_color, dim);
 
-		CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_Set(atlas_id, (int)new_color.r, (int)new_color.g, (int)new_color.b);
-		CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_DrawAdditive(frame, (int)render_x, (int)render_y, &rect);
+		CMemoryHookMgr::the().cl_enginefuncs()->pfnSPR_Set(atlas_id, (int)new_color.r, (int)new_color.g, (int)new_color.b);
+		CMemoryHookMgr::the().cl_enginefuncs()->pfnSPR_DrawAdditive(frame, (int)render_x, (int)render_y, &rect);
 	}
 }
 
@@ -288,7 +288,7 @@ bool SpriteAtlas_t::get_cached_sprite_data()
 
 bool SpriteAtlas_t::precache_engine_sprite()
 {
-	m_sprite_atlas_id = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_Load(m_sprite_atlas_model_path.string().c_str());
+	m_sprite_atlas_id = CMemoryHookMgr::the().cl_enginefuncs()->pfnSPR_Load(m_sprite_atlas_model_path.string().c_str());
 	if (m_sprite_atlas_id == NULL_SPRITE)
 	{
 		CConsole::the().error("Failed to precache engine sprite '{}'", m_sprite_atlas_model_path);

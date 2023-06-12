@@ -269,6 +269,9 @@
     <ClCompile Include="features\ThirdPerson.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
+    <ClCompile Include="hook\SecurityModuleHook.cpp">
+      <Filter>src\hooking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -484,6 +487,9 @@
     </ClInclude>
     <ClInclude Include="features\ThirdPerson.h">
       <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\SecurityModuleHook.h">
+      <Filter>src\hooking</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

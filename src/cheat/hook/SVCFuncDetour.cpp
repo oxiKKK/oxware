@@ -105,7 +105,7 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue_f()
 		}
 
 		// Send back the cvar type to server
-		auto cvar = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer(requested_cvar);
+		auto cvar = CMemoryHookMgr::the().cl_enginefuncs()->pfnGetCvarPointer(requested_cvar);
 		if (cvar == NULL)
 		{
 			CHLNetMessageIO::the().write_string("Bad CVAR request");
@@ -181,7 +181,7 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 		}
 
 		// Send back the cvar type to server
-		auto cvar = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer(requested_cvar);
+		auto cvar = CMemoryHookMgr::the().cl_enginefuncs()->pfnGetCvarPointer(requested_cvar);
 		if (cvar == NULL)
 		{
 			CHLNetMessageIO::the().write_string("Bad CVAR request");

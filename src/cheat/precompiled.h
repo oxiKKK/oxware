@@ -236,6 +236,7 @@ namespace hl
 #include "hook/HLCommandDetour.h"
 #include "hook/UserMSGDetour.h"
 #include "hook/HLInterfaceHook.h"
+#include "hook/SecurityModuleHook.h"
 #include "hook/client_dll/MemoryHookCBaseStuff.h"
 
 // util

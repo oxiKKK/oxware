@@ -103,7 +103,7 @@ float CVanillaCrosshair::get_weapon_max_speed_for_crosshair(int weapon_id)
 
 int CVanillaCrosshair::scaled_base(int screen_width)
 {
-	char* crosshair_size = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarString((char*)"cl_crosshair_size");
+	char* crosshair_size = CMemoryHookMgr::the().cl_enginefuncs()->pfnGetCvarString((char*)"cl_crosshair_size");
 
 	if (crosshair_size != NULL)
 	{
@@ -263,7 +263,7 @@ void CVanillaCrosshair::draw()
 
 	int type = crosshair_type.get_value();
 
-	auto fillrgba = crosshair_translucent.get_value() ? CMemoryHookMgr::the().cl_enginefuncs().get()->pfnFillRGBA : CMemoryHookMgr::the().cl_enginefuncs().get()->pfnFillRGBABlend;
+	auto fillrgba = crosshair_translucent.get_value() ? CMemoryHookMgr::the().cl_enginefuncs()->pfnFillRGBA : CMemoryHookMgr::the().cl_enginefuncs()->pfnFillRGBABlend;
 
 	int t = crosshair_thickness.get_value();
 

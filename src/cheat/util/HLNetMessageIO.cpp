@@ -214,47 +214,47 @@ float CHLNetMessageIO::read_coord()
 
 void CHLNetMessageIO::write_char(int8_t i8)
 {
-	write_char(&CMemoryHookMgr::the().cls().get()->netchan.message, i8);
+	write_char(&CMemoryHookMgr::the().cls()->netchan.message, i8);
 }
 
 void CHLNetMessageIO::write_byte(uint8_t ui8)
 {
-	write_byte(&CMemoryHookMgr::the().cls().get()->netchan.message, ui8);
+	write_byte(&CMemoryHookMgr::the().cls()->netchan.message, ui8);
 }
 
 void CHLNetMessageIO::write_short(int16_t i16)
 {
-	write_short(&CMemoryHookMgr::the().cls().get()->netchan.message, i16);
+	write_short(&CMemoryHookMgr::the().cls()->netchan.message, i16);
 }
 
 void CHLNetMessageIO::write_word(uint16_t ui16)
 {
-	write_word(&CMemoryHookMgr::the().cls().get()->netchan.message, ui16);
+	write_word(&CMemoryHookMgr::the().cls()->netchan.message, ui16);
 }
 
 void CHLNetMessageIO::write_long(int32_t i32)
 {
-	write_long(&CMemoryHookMgr::the().cls().get()->netchan.message, i32);
+	write_long(&CMemoryHookMgr::the().cls()->netchan.message, i32);
 }
 
 void CHLNetMessageIO::write_float(float f)
 {
-	write_float(&CMemoryHookMgr::the().cls().get()->netchan.message, f);
+	write_float(&CMemoryHookMgr::the().cls()->netchan.message, f);
 }
 
 void CHLNetMessageIO::write_string(const char* s)
 {
-	write_string(&CMemoryHookMgr::the().cls().get()->netchan.message, (char*)s);
+	write_string(&CMemoryHookMgr::the().cls()->netchan.message, (char*)s);
 }
 
 void CHLNetMessageIO::write_coord(float coord)
 {
-	write_coord(&CMemoryHookMgr::the().cls().get()->netchan.message, coord);
+	write_coord(&CMemoryHookMgr::the().cls()->netchan.message, coord);
 }
 
 void CHLNetMessageIO::write_buf(int iSize, void* buf)
 {
-	write_buf(&CMemoryHookMgr::the().cls().get()->netchan.message, iSize, buf);
+	write_buf(&CMemoryHookMgr::the().cls()->netchan.message, iSize, buf);
 }
 
 //----------------------------------------------------------------------

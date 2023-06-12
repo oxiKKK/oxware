@@ -31,13 +31,10 @@
 bool CMemoryHookMgr::install_hooks()
 {
 	// let's install individual hooks.
-	if (!cl_funcs().install()) return false;
-	if (!cl_enginefuncs().install()) return false;
 	if (!pmainwindow().install()) return false;
 	// host_initialized gets installed while initialization because it's needed in order to continue initing.
 	if (!sv_player().install()) return false;
 	if (!cl().install()) return false;
-	if (!cls().install()) return false;
 	if (!gGlobalVariables().install()) return false;
 	if (!scr_fov_value().install()) return false;
 	if (CoXWARE::the().get_build_number() < 8684) // old struct
@@ -65,46 +62,24 @@ bool CMemoryHookMgr::install_hooks()
 
 //-----------------------------------------------------------------------------
 
-bool cl_funcs_MemoryHook::install()
+hl::cl_enginefunc_t* CMemoryHookMgr::cl_enginefuncs()
 {
-	initialize("cl_funcs", L"hw.dll");
-	return install_using_bytepattern(1);
+	return CSecurityModuleHook::the().cl_enginefuncs();
 }
 
-void cl_funcs_MemoryHook::test_hook()
+hl::cldll_func_t* CMemoryHookMgr::cl_funcs()
 {
-	auto p = get();
-	hl::qboolean is_3rdperson;
-
-	CHookTests::the().run_seh_protected_block(
-		m_name, 
-		[&]()
-		{
-			// see if we won't crash
-			is_3rdperson = p->pfnHUD_CL_IsThirdperson();
-
-			return true;
-		});
+	return CSecurityModuleHook::the().cl_funcs();
 }
 
-//-----------------------------------------------------------------------------
-
-bool cl_enginefuncs_MemoryHook::install()
+hl::client_static_t* CMemoryHookMgr::cls()
 {
-	initialize("cl_enginefuncs", L"hw.dll");
-	return install_using_bytepattern(1);
+	return CSecurityModuleHook::the().cls();
 }
 
-void cl_enginefuncs_MemoryHook::test_hook()
+char** CMemoryHookMgr::keybindings()
 {
-	auto p = get();
-
-	CHookTests::the().run_seh_protected_block(
-		m_name,
-		[&]()
-		{
-			return p->pfnGetCvarPointer((char*)"fps_max");
-		});
+	return CSecurityModuleHook::the().keybindings();
 }
 
 //-----------------------------------------------------------------------------
@@ -184,26 +159,6 @@ void cl_MemoryHook::test_hook()
 			}
 
 			return true;
-		});
-}
-
-//-----------------------------------------------------------------------------
-
-bool cls_MemoryHook::install()
-{
-	initialize("cls", L"hw.dll");
-	return install_using_bytepattern(1);
-}
-
-void cls_MemoryHook::test_hook()
-{
-	auto p = get();
-
-	CHookTests::the().run_seh_protected_block(
-		m_name,
-		[&]()
-		{
-			return p->state >= hl::ca_dedicated && p->state <= hl::ca_active;
 		});
 }
 

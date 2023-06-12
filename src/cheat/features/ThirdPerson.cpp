@@ -49,7 +49,7 @@ void CThirdPerson::update(hl::ref_params_t* pparams)
 	// Start from clients view pos.
 	Vector start_eye = local->get_eye_pos();
 	
-	auto event_api = CMemoryHookMgr::the().cl_enginefuncs().get()->pEventAPI;
+	auto event_api = CMemoryHookMgr::the().cl_enginefuncs()->pEventAPI;
 	
 	// Trace for solid wall.
 	hl::pmtrace_t tr;

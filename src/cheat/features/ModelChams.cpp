@@ -453,7 +453,7 @@ void CModelChams::force_default_models()
 
 		if (!wpn_name.empty())
 		{
-			vm->model = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnCL_LoadModel(wpn_name.c_str(), NULL);
+			vm->model = CMemoryHookMgr::the().cl_enginefuncs()->pfnCL_LoadModel(wpn_name.c_str(), NULL);
 		}
 	}
 }

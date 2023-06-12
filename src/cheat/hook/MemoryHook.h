@@ -176,6 +176,7 @@ inline bool GenericMemoryHook<T>::install_using_bytepattern(size_t dereference_c
 	}
 
 	CBytePattern p = g_bytepattern_bank_i->get_pattern(m_name);
+	CConsole::the().info("{}", p.pattern_as_string());
 	if (p.empty())
 	{
 		on_hook_install_fail("Couldn't find byte pattern for current hook inside the bank!!!");
@@ -249,20 +250,6 @@ inline bool GenericMemoryHook<T>::install_using_memory_address(uintptr_t* memory
 
 //-----------------------------------------------------------------------------
 
-// cldll_func_t cl_funcs;
-struct cl_funcs_MemoryHook final : public GenericMemoryHook<hl::cldll_func_t> 
-{
-	bool install() override;
-	void test_hook() override;
-};
-
-// cl_enginefunc_t gEngfuncs;
-struct cl_enginefuncs_MemoryHook final : public GenericMemoryHook<hl::cl_enginefunc_t>
-{
-	bool install() override;
-	void test_hook() override;
-};
-
 // HWND *pmainwindow;
 struct pmainwindow_MemoryHook final : public GenericMemoryHook<HWND*>
 {
@@ -285,13 +272,6 @@ struct sv_player_MemoryHook final : public GenericMemoryHook<hl::edict_t*>
 
 // client_state_t cl;
 struct cl_MemoryHook final : public GenericMemoryHook<hl::client_state_t>
-{
-	bool install() override;
-	void test_hook() override;
-};
-
-// client_static_t cls;
-struct cls_MemoryHook final : public GenericMemoryHook<hl::client_static_t>
 {
 	bool install() override;
 	void test_hook() override;
@@ -427,13 +407,10 @@ public:
 	// individual hooks
 	//
 
-	inline static auto& cl_funcs() { static cl_funcs_MemoryHook hook; return hook; };
-	inline static auto& cl_enginefuncs() { static cl_enginefuncs_MemoryHook hook; return hook; };
 	inline static auto& pmainwindow() { static pmainwindow_MemoryHook hook; return hook; };
 	inline static auto& host_initialized() { static host_initialized_MemoryHook hook; return hook; };
 	inline static auto& sv_player() { static sv_player_MemoryHook hook; return hook; };
 	inline static auto& cl() { static cl_MemoryHook hook; return hook; };
-	inline static auto& cls() { static cls_MemoryHook hook; return hook; };
 	inline static auto& gGlobalVariables() { static gGlobalVariables_MemoryHook hook; return hook; };
 	inline static auto& scr_fov_value() { static scr_fov_value_MemoryHook hook; return hook; };
 	inline static auto& g_PlayerExtraInfo() { static g_PlayerExtraInfo_MemoryHook hook; return hook; };
@@ -449,6 +426,15 @@ public:
 	inline static auto& host_framecount() { static host_framecount_MemoryHook hook; return hook; };
 	inline static auto& realtime() { static realtime_MemoryHook hook; return hook; };
 	inline static auto& random_1k_speedhack_modifier_constant() { static random_1k_speedhack_modifier_constant_MemoryHook hook; return hook; };
+
+	//
+	// we can get these from elsewhere
+	//
+
+	static hl::cl_enginefunc_t* cl_enginefuncs();
+	static hl::cldll_func_t* cl_funcs();
+	static hl::client_static_t* cls();
+	static char** keybindings();
 };
 
 #endif // MEMORYHOOK_H

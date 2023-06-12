@@ -69,7 +69,7 @@ void CGoldSrcCommandMgr::initialize()
 	CConsole::the().info("Took {} seconds (ours)", std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - t1).count());
 
 	t1 = std::chrono::high_resolution_clock::now();
-	_cvar = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetCvarPointer((char*)"fps_max");
+	_cvar = CMemoryHookMgr::the().cl_enginefuncs()->pfnGetCvarPointer((char*)"fps_max");
 	CConsole::the().info("Took {} seconds (vanilla)", std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - t1).count());
 
 	//
@@ -87,7 +87,7 @@ void CGoldSrcCommandMgr::initialize()
 	CConsole::the().info("Took {} seconds (ours iteration)", std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - t1).count());
 
 	t1 = std::chrono::high_resolution_clock::now();
-	auto cvar = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetFirstCvarPtr();
+	auto cvar = CMemoryHookMgr::the().cl_enginefuncs()->pfnGetFirstCvarPtr();
 	while (cvar)
 	{
 		// stuff
@@ -153,7 +153,7 @@ void CGoldSrcCommandMgr::for_each_cvar(const std::function<void(hl::cvar_t*cvar)
 {
 	// in terms of iteration, going through a linked list is faster than through our map 
 	// (I have measured it and its about 10x faster)
-	auto cvar = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetFirstCvarPtr();
+	auto cvar = CMemoryHookMgr::the().cl_enginefuncs()->pfnGetFirstCvarPtr();
 	while (cvar)
 	{
 		callback(cvar);
@@ -165,7 +165,7 @@ void CGoldSrcCommandMgr::for_each_cmd(const std::function<void(hl::cmd_function_
 {
 	// in terms of iteration, going through a linked list is faster than through our map 
 	// (I have measured it and its about 10x faster)
-	auto cmd = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetFirstCmdFunctionHandle();
+	auto cmd = CMemoryHookMgr::the().cl_enginefuncs()->pfnGetFirstCmdFunctionHandle();
 	while (cmd)
 	{
 		callback(cmd);

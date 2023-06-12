@@ -243,6 +243,7 @@
     <ClCompile Include="hook\MemoryFnDetour.cpp" />
     <ClCompile Include="hook\MemoryFnHook.cpp" />
     <ClCompile Include="hook\MemoryHook.cpp" />
+    <ClCompile Include="hook\SecurityModuleHook.cpp" />
     <ClCompile Include="hook\SVCFuncDetour.cpp" />
     <ClCompile Include="hook\UserMSGDetour.cpp" />
     <ClCompile Include="InCommands.cpp" />
@@ -332,6 +333,7 @@
     <ClInclude Include="hook\MemoryFnDetour.h" />
     <ClInclude Include="hook\MemoryFnHook.h" />
     <ClInclude Include="hook\MemoryHook.h" />
+    <ClInclude Include="hook\SecurityModuleHook.h" />
     <ClInclude Include="hook\SVCFuncDetour.h" />
     <ClInclude Include="hook\UserMSGDetour.h" />
     <ClInclude Include="oxware.h" />

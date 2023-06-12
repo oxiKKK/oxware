@@ -398,7 +398,7 @@ void R_ForceCVars_FnDetour_t::R_ForceCVars(hl::qboolean mp)
 bool V_CalcRefdef_FnDetour_t::install()
 {
 	initialize("V_CalcRefdef", L"client.dll");
-	return detour_using_memory_address((uintptr_t*)V_CalcRefdef, (uintptr_t*)CMemoryHookMgr::the().cl_funcs().get()->pfnHUD_CalcRef);
+	return detour_using_memory_address((uintptr_t*)V_CalcRefdef, (uintptr_t*)CMemoryHookMgr::the().cl_funcs()->pfnHUD_CalcRef);
 }
 
 void V_CalcRefdef_FnDetour_t::V_CalcRefdef(hl::ref_params_t *pparams)
@@ -437,7 +437,7 @@ void EV_HLDM_FireBullets_FnDetour_t::EV_HLDM_FireBullets(int idx, float* forward
 bool HUD_Redraw_FnDetour_t::install()
 {
 	initialize("HUD_Redraw", L"client.dll");
-	return detour_using_memory_address((uintptr_t*)HUD_Redraw, (uintptr_t*)CMemoryHookMgr::the().cl_funcs().get()->pfnHUD_Redraw);
+	return detour_using_memory_address((uintptr_t*)HUD_Redraw, (uintptr_t*)CMemoryHookMgr::the().cl_funcs()->pfnHUD_Redraw);
 }
 
 int HUD_Redraw_FnDetour_t::HUD_Redraw(float time, int intermission)
@@ -713,7 +713,7 @@ void SCR_UpdateScreen_FnDetour_t::SCR_UpdateScreen()
 bool SPR_Set_FnDetour_t::install()
 {
 	initialize("SPR_Set", L"hw.dll");
-	return detour_using_memory_address((uintptr_t*)SPR_Set, (uintptr_t*)CMemoryHookMgr::the().cl_enginefuncs().get()->pfnSPR_Set);
+	return detour_using_memory_address((uintptr_t*)SPR_Set, (uintptr_t*)CMemoryHookMgr::the().cl_enginefuncs()->pfnSPR_Set);
 }
 
 void SPR_Set_FnDetour_t::SPR_Set(hl::HSPRITE_t hSprite, int r, int g, int b)
@@ -892,7 +892,7 @@ void Cmd_AddMallocCommand_FnDetour_t::Cmd_AddMallocCommand(char* cmd_name, hl::x
 	// cmd_functions = cmd;
 	//
 	// so I assume that cmd_functions points to the newly added entry.
-	auto cmd = CMemoryHookMgr::the().cl_enginefuncs().get()->pfnGetFirstCmdFunctionHandle(); // cannot be null
+	auto cmd = CMemoryHookMgr::the().cl_enginefuncs()->pfnGetFirstCmdFunctionHandle(); // cannot be null
 	CGoldSrcCommandMgr::the().register_cmd(cmd->name, cmd);
 }
 
@@ -901,7 +901,7 @@ void Cmd_AddMallocCommand_FnDetour_t::Cmd_AddMallocCommand(char* cmd_name, hl::x
 bool hudRegisterVariable_FnDetour_t::install()
 {
 	initialize("hudRegisterVariable", L"hw.dll");
-	return detour_using_memory_address((uintptr_t*)hudRegisterVariable, (uintptr_t*)CMemoryHookMgr::the().cl_enginefuncs().get()->pfnRegisterVariable);
+	return detour_using_memory_address((uintptr_t*)hudRegisterVariable, (uintptr_t*)CMemoryHookMgr::the().cl_enginefuncs()->pfnRegisterVariable);
 }
 
 hl::cvar_t* hudRegisterVariable_FnDetour_t::hudRegisterVariable(char* szName, char* szValue, int flags)
@@ -989,7 +989,7 @@ void IN_ScaleMouse_FnDetour_t::IN_ScaleMouse(float* x, float* y)
 bool CL_IsThirdPerson_FnDetour_t::install()
 {
 	initialize("CL_IsThirdPerson", L"client.dll");
-	return detour_using_memory_address((uintptr_t*)CL_IsThirdPerson, (uintptr_t*)CMemoryHookMgr::the().cl_funcs().get()->pfnHUD_CL_IsThirdperson);
+	return detour_using_memory_address((uintptr_t*)CL_IsThirdPerson, (uintptr_t*)CMemoryHookMgr::the().cl_funcs()->pfnHUD_CL_IsThirdperson);
 }
 
 int CL_IsThirdPerson_FnDetour_t::CL_IsThirdPerson()

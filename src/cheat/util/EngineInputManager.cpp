@@ -75,7 +75,7 @@ void CEngineInput::toggle_ingame_clientdll_mouse(bool active)
 {
 	m_clientdll_mouse_enabled = active;
 
-	auto cl_funcs = CMemoryHookMgr::the().cl_funcs().get();
+	auto cl_funcs = CMemoryHookMgr::the().cl_funcs();
 	if (cl_funcs)
 	{
 		if (active)
@@ -221,14 +221,10 @@ void CEngineInput::toggle_relative_mouse_mode(bool enable)
 	}
 
 	// Relative mouse mode without m_rawinput can cause issues. This is by the engine design.
-	auto& enginefuncs_hook = CMemoryHookMgr::the().cl_enginefuncs();
-	if (enginefuncs_hook.is_installed())
+	auto m_rawinput = CGoldSrcCommandMgr::the().get_cvar("m_rawinput");
+	if (m_rawinput && m_rawinput->value != 0.0f)
 	{
-		auto m_rawinput = CGoldSrcCommandMgr::the().get_cvar("m_rawinput");
-		if (m_rawinput && m_rawinput->value != 0.0f)
-		{
-			SDL_SetRelativeMouseMode(enable);
-		}
+		SDL_SetRelativeMouseMode(enable);
 	}
 }
 

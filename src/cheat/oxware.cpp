@@ -97,7 +97,7 @@ bool CoXWARE::initialize_phase2()
 		return false;
 	}
 
-	g_variablemgr_i->provide_hl_execute_cmd_pfn((m_hl_execute_cmd_pfn_t)CMemoryHookMgr::the().cl_enginefuncs().get()->pfnClientCmd);
+	g_variablemgr_i->provide_hl_execute_cmd_pfn((m_hl_execute_cmd_pfn_t)CMemoryHookMgr::the().cl_enginefuncs()->pfnClientCmd);
 	
 	CFeatureManager::the().initialize();
 
@@ -381,6 +381,13 @@ void CoXWARE::unload_dependencies()
 
 bool CoXWARE::initialize_hook_managers()
 {
+	// security module hook
+	if (!CSecurityModuleHook::the().install_hooks())
+	{
+		CConsole::the().error("Failed to install security module hooks.");
+		return false;
+	}
+
 	// memory hook
 	if (!CMemoryHookMgr::the().install_hooks())
 	{
@@ -458,6 +465,7 @@ bool CoXWARE::initialize_hook_managers()
 void CoXWARE::shutdown_hook_managers()
 {
 	// we uninstall hooks only that ch ange memory.
+	CSecurityModuleHook::the().uninstall_hooks();
 	CMemoryFnDetourMgr::the().uninstall_hooks();
 	CSVCFuncDetourMgr::the().uninstall_hooks();
 	CUserMSGDetourMgr::the().uninstall_hooks();

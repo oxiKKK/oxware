@@ -31,7 +31,6 @@
 #pragma once
 
 extern VarFloat movement_eb_intensity;
-extern VarBoolean movement_eb_auto;
 extern VarBoolean movement_eb_enable_on_ramps;
 extern VarInteger movement_eb_min_fall_velocity;
 extern VarInteger movement_eb_edge_dist;

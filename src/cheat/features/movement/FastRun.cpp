@@ -30,7 +30,6 @@
 
 #include "precompiled.h"
 
-VarBoolean movement_fastrun_always_enabled("movement_fastrun_always_enabled", "Enabled even if the key isn't held", false);
 VarBoolean movement_fastrun_no_slowdown("movement_fastrun_no_slowdown", "Enables you to not lose speed that much while fastrunning", false);
 VarInteger movement_fastrun_max_speed("movement_fastrun_max_speed", "Enables you to not lose speed that much while fastrunning", 277, 251, 278);
 VarBoolean movement_fastrun_fast_walk("movement_fastrun_fast_walk", "Enables you to walk fast without making stepping sounds", false);
@@ -39,7 +38,8 @@ VarInteger movement_fastrun_fast_walk_max_speed("movement_fastrun_fast_walk_max_
 void CMovementFastRun::update()
 {
 	bool is_onground = CLocalState::the().is_on_ground_safe();
-	if (!is_onground)
+	bool is_surfing = CLocalState::the().is_surfing();
+	if (!is_onground || is_surfing)
 	{
 		return;
 	}

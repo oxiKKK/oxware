@@ -95,6 +95,9 @@ private:
 	void nsdn_speedhack();
 
 	int m_jump_timer_ms = 0;
+
+	bool timer_allows_jump();
+	void reset_jump_time();
 };
 
 #endif // BUNNYHOP_H

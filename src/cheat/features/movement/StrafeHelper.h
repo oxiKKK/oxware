@@ -30,7 +30,6 @@
 #define STRAFEHELPER_H
 #pragma once
 
-extern VarBoolean movement_strafe_helper_always_enabled;
 extern VarBoolean movement_strafe_helper_strafe_with_mouse;
 extern VarFloat movement_strafe_helper_accumulation;
 extern VarBoolean movement_strafe_helper_accumulation_on_ground;

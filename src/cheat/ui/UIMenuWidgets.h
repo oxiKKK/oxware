@@ -38,6 +38,7 @@ public:
 public:
 	bool add_checkbox(const std::string& label, VarBoolean* var, const char* additional_desc = nullptr);
 	bool add_checkbox_with_color(const std::string& label, VarBoolean* toggle_var, VarColor* colors_var, bool alpha = false, const char* additional_desc = nullptr);
+	bool add_checkbox_with_incommand_keypress_button(const std::string& label, VarBoolean* var, const char* incommand_name, const char* additional_desc = nullptr);
 
 	bool add_color_edit(const std::string& label, VarColor* colors_var, const char* additional_desc = nullptr);
 
@@ -58,6 +59,9 @@ public:
 
 	void feature_enabled_section(VarBoolean* var_boolean, const std::function<void()>& callback, const std::string& title = "Enable", bool see_if_enabled = true);
 	void feature_enabled_section(VarBoolean* var_boolean, VarColor* colors_var, const std::function<void()>& callback, bool alpha = false, const std::string& title = "Enable", bool see_if_enabled = true);
+
+	// additions for incommands, since they use different checkbox widget
+	void feature_enabled_section_incommands(BaseInCommand* in_cmd, const std::function<void()>& callback, const std::string& title = "Enable", bool see_if_enabled = true);
 
 private:
 	void handle_widget_hover(BaseVariable* var);

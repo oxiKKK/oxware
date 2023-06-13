@@ -28,7 +28,6 @@
 
 #include "precompiled.h"
 
-VarBoolean movement_eb_auto("movement_eb_auto", "Performs eb checks automatically. If this is off, you have to bind an incommand.", true);
 VarFloat movement_eb_intensity("movement_eb_intensity", "How intense the edgebug will be", 0.1f, 0.1f, 1.0f);
 VarBoolean movement_eb_enable_on_ramps("movement_eb_enable_on_ramps", "Whenever to enable edgebug on ramped surfaces or not", false);
 VarInteger movement_eb_min_fall_velocity("movement_eb_min_fall_velocity", "Fall velocity at which the EdgeBugging will start speeding", 200, 100, 500);

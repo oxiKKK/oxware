@@ -214,12 +214,15 @@ void Key_Event_FnDetour_t::Key_Event(int key, hl::qboolean down)
 
 	// stop executing the engine key, if our key is bound to an incommand.
 	// TODO: Make this customizable in the future...?
-	auto local = CEntityMgr::the().get_local_player();
-	if (local && local->is_valid() && local->is_alive())
+	if (CGameUtil::the().is_fully_connected())
 	{
-		if (g_in_commands_i->is_key_bound_and_active(g_user_input_i->engine_key_to_virtual_key(key)))
+		auto local = CEntityMgr::the().get_local_player();
+		if (local && local->is_valid() && local->is_alive())
 		{
-			return;
+			if (g_in_commands_i->is_key_bound_and_active(g_user_input_i->engine_key_to_virtual_key(key)))
+			{
+				return;
+			}
 		}
 	}
 
@@ -259,41 +262,34 @@ bool ClientDLL_CreateMove_FnDetour_t::install()
 
 void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::usercmd_t *cmd, int active)
 {
-	if (active == 0)
-	{
-		CMemoryFnDetourMgr::the().ClientDLL_CreateMove().call(frametime, cmd, active);
-		return;
-	}
-
-	bool spectator = CGameUtil::the().is_spectator();
-
-	if (!spectator)
-	{
-		// reset this crap back to it's original state.
-		// TODO: Find a better way of doing this kind of speedhack, i think that modifying the multiplier 
-		//       in CL_Move and CL_RunUsercmd would create the same effect...
-		CGameUtil::the().classic_cs16_cheating_scene_speedhack(1.0);
-
-		CClientMovementPacket::the().update_clientmove();
-	}
-
 	CMemoryFnDetourMgr::the().ClientDLL_CreateMove().call(frametime, cmd, active);
-
-	if (!spectator)
+	
+	if (active)
 	{
-		CClientMovementPacket::the().set_current_cmd_for_manipulation(cmd);
+		// update if we're alive, connected, etc..
+		g_in_commands_i->update_activation_conditions();
 
 		CLocalState::the().update_clientmove(frametime, cmd);
 
-		if (COxWareUI::the().should_disable_ingame_input())
+		if (!CGameUtil::the().is_spectator())
 		{
-			// disable all movement when the menu is up. This is called by CL_Move() when the game expects
-			// client dll to modify usercmd_t for current command so it can be sent to the server.
-			cmd->buttons = 0;
-			cmd->forwardmove = cmd->sidemove = cmd->upmove = 0;
-		}
+			// reset this crap back to it's original state.
+			// TODO: Find a better way of doing this kind of speedhack, i think that modifying the multiplier 
+			//       in CL_Move and CL_RunUsercmd would create the same effect...
+			CGameUtil::the().classic_cs16_cheating_scene_speedhack(1.0);
 
-		CMovement::the().update_clientmove(frametime, cmd);
+			CClientMovementPacket::the().update_clientmove(cmd);
+
+			if (COxWareUI::the().should_disable_ingame_input())
+			{
+				// disable all movement when the menu is up. This is called by CL_Move() when the game expects
+				// client dll to modify usercmd_t for current command so it can be sent to the server.
+				cmd->buttons = 0;
+				cmd->forwardmove = cmd->sidemove = cmd->upmove = 0;
+			}
+
+			CMovement::the().update_clientmove(frametime, cmd);
+		}
 	}
 }
 

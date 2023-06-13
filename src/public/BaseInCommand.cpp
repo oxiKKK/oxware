@@ -39,6 +39,18 @@
 
 //--------------------------------------------------------------
 
+bool BaseInCommand::is_active() const
+{
+	bool does_meet_conditions = g_in_commands_i->does_meet_activation_conditions(m_activation_condition);
+	if (!does_meet_conditions)
+	{
+		return false;
+	}
+
+	bool toggled_on = m_var_toggle->get_value();
+	return (m_is_active && toggled_on) || (m_var_always_enabled->get_value() && toggled_on);
+}
+
 void BaseInCommand::rebind_key_to(int new_vk)
 {
 	if ((m_vk == new_vk && m_bound_initially) || new_vk == 0)
@@ -54,8 +66,8 @@ void BaseInCommand::rebind_key_to(int new_vk)
 		return;
 	}
 
-	std::string in_id = "in_" + m_command_name;
-	std::string out_id = "out_" + m_command_name;
+	std::string in_id = "in_" + m_name;
+	std::string out_id = "out_" + m_name;
 
 	// remove first, if bound already
 	if (key.on_pressed_callback_exists(in_id))
@@ -101,12 +113,12 @@ void BaseInCommand::rebind_key_to(int new_vk)
 	std::string key_name_new = g_user_input_i->virtual_key_to_string(new_vk);
 	if (!m_bound_initially)
 	{
-		CConsole::the().info("Bound '{}' to {}.", m_command_name, key_name_new);
+		CConsole::the().info("Bound '{}' to {}.", m_name, key_name_new);
 	}
 	else
 	{
 		std::string key_name_old = g_user_input_i->virtual_key_to_string(m_vk);
-		CConsole::the().info("Rebound '{}' from {} to {}.", m_command_name, key_name_old, key_name_new);
+		CConsole::the().info("Rebound '{}' from {} to {}.", m_name, key_name_old, key_name_new);
 	}
 
 	m_vk = new_vk;
@@ -118,6 +130,26 @@ void BaseInCommand::rebind_key_to(int new_vk)
 void InCommand::register_cmd()
 {
 	rebind_key_to(m_vk);
+
+	//
+	// register variables
+	//
+
+	// toggle variable
+	{
+		std::string variable_name = m_name + "_enable";
+		std::string variable_description = "Toggles " + m_name + ".";
+		m_var_toggle = new VarBoolean(variable_name.c_str(), variable_description.c_str(), m_enable_variable_by_default);
+		g_variablemgr_i->register_single_variable(m_var_toggle);
+	}
+
+	// always enabled variable
+	{
+		std::string variable_name = m_name + "_always_enabled";
+		std::string variable_description = "If on, " + m_name + " will be enabled without the key pressed.";
+		m_var_always_enabled = new VarBoolean(variable_name.c_str(), variable_description.c_str(), false);
+		g_variablemgr_i->register_single_variable(m_var_always_enabled);
+	}
 }
 
 //--------------------------------------------------------------
@@ -155,7 +187,7 @@ bool StaticInCommandContainer::see_for_overflow(BaseInCommand* current_incommand
 	if (m_incommands.size() >= k_max_incommands)
 	{
 		CConsole::the().error("InCommand {} couldn't be added, because the limit for current module has already been reached. ({})",
-							  current_incommand->get_cmd_name(), k_max_incommands);
+							  current_incommand->get_name(), k_max_incommands);
 		return false;
 	}
 

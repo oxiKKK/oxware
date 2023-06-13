@@ -30,7 +30,6 @@
 #define FASTRUN_H
 #pragma once
 
-extern VarBoolean movement_fastrun_always_enabled;
 extern VarBoolean movement_fastrun_no_slowdown;
 extern VarInteger movement_fastrun_max_speed;
 extern VarBoolean movement_fastrun_fast_walk;

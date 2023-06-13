@@ -79,7 +79,7 @@
 
 // bit helper
 template<typename T>
-consteval T BIT(T N) { return (1 << N); }
+consteval T BIT(T N) { return N == -1 ? 0 : (1 << N); }
 
 // decl singleton for a class instance
 #define DECL_BASIC_CLASS(name)			\

@@ -112,6 +112,8 @@ public:
 	virtual void set_cursor_pos(const Vector2D& pos) = 0;
 	virtual Vector2D get_cursor_pos() = 0;
 
+	virtual Vector2D get_content_region_avail() = 0;
+
 	virtual void sameline(float offset_from_start_x = 0.0f, float spacing = -1.0f) = 0;
 
 	virtual bool is_last_widget_hovered() = 0;

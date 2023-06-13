@@ -97,6 +97,8 @@ public:
 	void set_cursor_pos(const Vector2D& pos);
 	Vector2D get_cursor_pos();
 
+	Vector2D get_content_region_avail();
+
 	void sameline(float offset_from_start_x = 0.0f, float spacing = -1.0);
 
 	bool is_last_widget_hovered();
@@ -574,6 +576,11 @@ void CGUIWidgets::set_cursor_pos(const Vector2D& pos)
 Vector2D CGUIWidgets::get_cursor_pos()
 {
 	return GetCursorPos();
+}
+
+Vector2D CGUIWidgets::get_content_region_avail()
+{
+	return GetContentRegionAvail();
 }
 
 void CGUIWidgets::sameline(float offset_from_start_x, float spacing)

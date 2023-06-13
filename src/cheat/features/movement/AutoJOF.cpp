@@ -28,7 +28,6 @@
 
 #include "precompiled.h"
 
-VarBoolean movement_auto_jof_always_enabled("movement_auto_jof_always_enabled", "Enabled even if the key isn't held", false);
 VarBoolean movement_auto_jof_auto("movement_auto_jof_auto", "Automatically tries to determine the right moment when to jump", true);
 VarFloat movement_auto_jof_min_distance("movement_auto_jof_min_distance", "Minimal distance of where to jump from. 2 is good for 100 fps without network lags.", 2.0f, 0.5f, 10.0f);
 VarInteger movement_auto_jof_interval("movement_auto_jof_interval", "Time in milliseconds of where to activate the jump again", 1000, 100, 2000);

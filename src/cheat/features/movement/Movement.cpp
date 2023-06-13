@@ -28,23 +28,14 @@
 
 #include "precompiled.h"
 
-VarBoolean movement_bhop_enable("movement_bhop_enable", "Enables BunnyHop hacks", false);
-VarBoolean movement_air_stuck_enable("movement_air_stuck_enable", "Allows to get stuck in the mid air, when on", false);
-VarBoolean movement_gs_enable("movement_gs_enable", "Enables GroundStrafe hacks", false);
-VarBoolean movement_eb_enable("movement_eb_enable", "Enables EdgeBug hacks", false);
-VarBoolean movement_strafe_hack_enable("movement_strafe_hack_enable", "Enables strafe hacks", false);
-VarBoolean movement_strafe_helper_enable("movement_strafe_helper_enable", "Enables strafe helper", false);
-VarBoolean movement_fastrun_enable("movement_fastrun_enable", "Enables fast run", false);
-VarBoolean movement_auto_jof_enable("movement_auto_jof_enable", "Enables Auto JOF", false);
-
-InCommand CMovement::bunnyhop = InCommand("movement_bhop", VK_SPACE, &movement_bhop_enable);
-InCommand CMovement::airstuck = InCommand("movement_air_stuck", VK_XBUTTON1, &movement_air_stuck_enable); // mouse4
-InCommand CMovement::gs = InCommand("movement_gs", VK_XBUTTON2, &movement_gs_enable); // mouse5
-InCommand CMovement::eb = InCommand("movement_eb", 'C', &movement_eb_enable);
-InCommand CMovement::strafe = InCommand("movement_strafe_hack", VK_MBUTTON, &movement_strafe_hack_enable); // mouse3
-InCommand CMovement::strafe_helper = InCommand("movement_strafe_helper", NULL, &movement_strafe_helper_enable); 
-InCommand CMovement::fastrun = InCommand("movement_fastrun", NULL, &movement_fastrun_enable);
-InCommand CMovement::auto_jof = InCommand("movement_auto_jof", NULL, &movement_auto_jof_enable);
+InCommand CMovement::bunnyhop = InCommand("movement_bhop", VK_SPACE, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected);
+InCommand CMovement::airstuck = InCommand("movement_air_stuck", VK_XBUTTON1, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected); // mouse4
+InCommand CMovement::gs = InCommand("movement_gs", VK_XBUTTON2, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected); // mouse5
+InCommand CMovement::eb = InCommand("movement_eb", 'C', false, IN_ACTCOND_Alive | IN_ACTCOND_Connected );
+InCommand CMovement::strafe = InCommand("movement_strafe_hack", VK_MBUTTON, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected ); // mouse3
+InCommand CMovement::strafe_helper = InCommand("movement_strafe_helper", NULL, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected );
+InCommand CMovement::fastrun = InCommand("movement_fastrun", NULL, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected );
+InCommand CMovement::auto_jof = InCommand("movement_auto_jof", NULL, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected );
 
 VarBoolean debug_render_info_movement("debug_render_info_movement", "Movement information", false);
 VarBoolean debug_render_info_movement_bhop("debug_render_info_bhop", "Bunnyhop information", false);
@@ -53,50 +44,58 @@ VarBoolean debug_render_info_movement_strafe_helper("debug_render_info_movement_
 
 void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 {
-	auto local = CEntityMgr::the().get_local_player();
-	if (local && local->is_alive())
+	run_incommands(frametime, cmd);
+
+	run_debug(cmd);
+
+	feed_plot(frametime, cmd);
+}
+
+void CMovement::run_incommands(float frametime, hl::usercmd_t *cmd)
+{
+	if (bunnyhop.is_active())
 	{
-		if (bunnyhop.is_active())
-		{
-			CMovementBunnyHop::the().update(frametime);
-		}
-
-		if (gs.is_active())
-		{
-			CMovementGroundStrafe::the().update(frametime);
-		}
-
-		if (eb.is_active() || (movement_eb_auto.get_value() && movement_eb_enable.get_value()))
-		{
-			CMovementEdgeBug::the().update(frametime);
-		}
-
-		if (airstuck.is_active())
-		{
-			CMovementAirStuck::the().update();
-		}
-
-		if (strafe_helper.is_active() || (movement_strafe_helper_always_enabled.get_value() && movement_strafe_helper_enable.get_value()))
-		{
-			CMovementStrafeHelper::the().update();
-		}
-
-		if (strafe.is_active())
-		{
-			CMovementStrafeHack::the().update();
-		}
-
-		if (fastrun.is_active() || (movement_fastrun_always_enabled.get_value() && movement_fastrun_enable.get_value()))
-		{
-			CMovementFastRun::the().update();
-		}
-
-		if (auto_jof.is_active() || (movement_auto_jof_always_enabled.get_value() && movement_auto_jof_enable.get_value()))
-		{
-			CMovementAutoJOF::the().update(frametime);
-		}
+		CMovementBunnyHop::the().update(frametime);
 	}
 
+	if (gs.is_active())
+	{
+		CMovementGroundStrafe::the().update(frametime);
+	}
+
+	if (eb.is_active())
+	{
+		CMovementEdgeBug::the().update(frametime);
+	}
+
+	if (airstuck.is_active())
+	{
+		CMovementAirStuck::the().update();
+	}
+
+	if (strafe_helper.is_active())
+	{
+		CMovementStrafeHelper::the().update();
+	}
+
+	if (strafe.is_active())
+	{
+		CMovementStrafeHack::the().update();
+	}
+
+	if (fastrun.is_active())
+	{
+		CMovementFastRun::the().update();
+	}
+
+	if (auto_jof.is_active())
+	{
+		CMovementAutoJOF::the().update(frametime);
+	}
+}
+
+void CMovement::run_debug(hl::usercmd_t* cmd)
+{
 	if (debug.get_value())
 	{
 		if (debug_render_info_movement.get_value())
@@ -119,8 +118,6 @@ void CMovement::update_clientmove(float frametime, hl::usercmd_t *cmd)
 			CMovementStrafeHelper::the().render_debug();
 		}
 	}
-
-	feed_plot(frametime, cmd);
 }
 
 void CMovement::render_debug(hl::usercmd_t* cmd)

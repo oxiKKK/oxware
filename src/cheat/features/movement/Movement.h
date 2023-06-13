@@ -30,15 +30,6 @@
 #define MOVEMENT_H
 #pragma once
 
-extern VarBoolean movement_bhop_enable;
-extern VarBoolean movement_air_stuck_enable;
-extern VarBoolean movement_gs_enable;
-extern VarBoolean movement_eb_enable;
-extern VarBoolean movement_strafe_hack_enable;
-extern VarBoolean movement_strafe_helper_enable;
-extern VarBoolean movement_fastrun_enable;
-extern VarBoolean movement_auto_jof_enable;
-
 extern VarBoolean debug_render_info_movement;
 extern VarBoolean debug_render_info_movement_bhop;
 extern VarBoolean debug_render_info_movement_strafe;
@@ -52,7 +43,6 @@ public:
 public:
 	void update_clientmove(float frametime, hl::usercmd_t *cmd);
 
-private:
 	static InCommand bunnyhop;			// CMovementBunnyHop
 	static InCommand airstuck;			// CMovementAirStuck
 	static InCommand gs;				// CMovementGroundStrafe
@@ -61,6 +51,11 @@ private:
 	static InCommand strafe_helper;		// CMovementStrafeHelper
 	static InCommand fastrun;			// CMovementFastRun
 	static InCommand auto_jof;			// CMovementAutoJOF
+
+private:
+
+	void run_incommands(float frametime, hl::usercmd_t *cmd);
+	void run_debug(hl::usercmd_t *cmd);
 
 	void render_debug(hl::usercmd_t* cmd);
 

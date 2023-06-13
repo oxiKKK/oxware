@@ -37,6 +37,9 @@ public:
 	~CInCommands();
 
 	void initialize();
+	void update();
+
+	void update_activation_conditions();
 
 	void render_interactible_incommand_list();
 
@@ -53,10 +56,11 @@ public:
 
 	bool is_key_bound_and_active(int vk);
 
-private:
-	void update();
+	bool does_meet_activation_conditions(EActivationCondition act_cond);
 
-	void add_keyscan_button(BaseInCommand* in_cmd);
+	void add_keyscan_button(BaseInCommand* in_cmd, const Vector2D& size);
+
+private:
 	void end_key_binding_mode(int vk_pressed);
 	BaseInCommand* m_in_cmd_to_be_rebound;
 
@@ -64,6 +68,8 @@ private:
 
 private:
 	std::unordered_map<std::string, BaseInCommand*> m_in_commands;
+
+	EActivationCondition m_activation_conditions_for_this_frame = IN_ACTCOND_None;
 };
 
 CInCommands g_in_commands;
@@ -99,11 +105,27 @@ void CInCommands::initialize()
 	provide_cfg_load_export_callbacks();
 }
 
+void CInCommands::update_activation_conditions()
+{
+	m_activation_conditions_for_this_frame = IN_ACTCOND_None;
+
+	if (CGameUtil::the().is_fully_connected())
+	{
+		m_activation_conditions_for_this_frame |= IN_ACTCOND_Connected;
+	}
+
+	auto local = CEntityMgr::the().get_local_player();
+	if (local && local->is_valid() && local->is_alive())
+	{
+		m_activation_conditions_for_this_frame |= IN_ACTCOND_Alive;
+	}
+}
+
 void CInCommands::add_command(BaseInCommand* in_cmd)
 {
-	m_in_commands.insert({ in_cmd->get_cmd_name(), in_cmd });
+	m_in_commands.insert({ in_cmd->get_name(), in_cmd });
 
-	CConsole::the().info("Added InCommand: '{}'.", in_cmd->get_cmd_name());
+	CConsole::the().info("Added InCommand: '{}'.", in_cmd->get_name());
 }
 
 void CInCommands::register_incommands_per_module(StaticInCommandContainer* incommand_container, const char* module_name)
@@ -182,13 +204,15 @@ void CInCommands::create_incommands_from_json(const nlohmann::json& json)
 			continue;
 		}
 
-		int vk = g_user_input_i->string_to_virtual_key(key_str);
-		if (vk == NULL)
+		int vk = NULL;
+		if (key_str != "unbound")
 		{
-			continue;
+			vk = g_user_input_i->string_to_virtual_key(key_str);
+			if (vk != NULL)
+			{
+				in_cmd->rebind_key_to(vk);
+			}
 		}
-
-		in_cmd->rebind_key_to(vk);
 	}
 }
 
@@ -196,7 +220,14 @@ void CInCommands::export_incommands_to_json(nlohmann::json& json)
 {
 	for (const auto& [name, in_cmd] : m_in_commands)
 	{
-		json["in_commands"][name]["key"] = g_user_input_i->virtual_key_to_string(in_cmd->get_key_bound());
+		int vk = in_cmd->get_key_bound();
+		if (vk == NULL) // unbound
+		{
+			json["in_commands"][name]["key"] = "unbound";
+			continue;
+		}
+
+		json["in_commands"][name]["key"] = g_user_input_i->virtual_key_to_string(vk);
 	}
 }
 
@@ -225,7 +256,7 @@ bool CInCommands::is_key_bound_and_active(int vk)
 {
 	for (const auto& [name, in_cmd] : m_in_commands)
 	{
-		if (in_cmd->get_key_bound() == vk && in_cmd->is_active())
+		if (in_cmd->get_key_bound() == vk && in_cmd->is_active() && does_meet_activation_conditions(in_cmd->get_activation_condition()))
 		{
 			return true;
 		}
@@ -245,7 +276,7 @@ void CInCommands::update()
 	}
 }
 
-void CInCommands::add_keyscan_button(BaseInCommand* in_cmd)
+void CInCommands::add_keyscan_button(BaseInCommand* in_cmd, const Vector2D& size)
 {
 	std::string key_name;
 	
@@ -259,7 +290,7 @@ void CInCommands::add_keyscan_button(BaseInCommand* in_cmd)
 		key_name = "unbound";
 	}
 
-	bool b = g_gui_widgets_i->add_button(std::format("{}##{}", key_name, in_cmd->get_cmd_name()), Vector2D(-1.0f, 25.0f), false, BUTTONFLAG_CenterLabel);
+	bool b = g_gui_widgets_i->add_button(std::format("{}##{}", key_name, in_cmd->get_name()), size, false, BUTTONFLAG_CenterLabel);
 	if (b)
 	{
 		assert(m_in_cmd_to_be_rebound == nullptr && "InCommand binding wasn't finished! m_in_cmd_to_be_rebound isn't null!");
@@ -274,9 +305,9 @@ void CInCommands::end_key_binding_mode(int vk_pressed)
 	if (vk_pressed != VK_LBUTTON && vk_pressed != VK_ESCAPE)
 	{
 		m_in_cmd_to_be_rebound->rebind_key_to(vk_pressed);
-		m_in_cmd_to_be_rebound = nullptr;
 	}
 
+	m_in_cmd_to_be_rebound = nullptr;
 	g_user_input_i->reset_bound_key();
 }
 
@@ -307,10 +338,13 @@ void CInCommands::provide_cfg_load_export_callbacks()
 	cheat_settings->provide_export_fn(export_fn);
 }
 
+bool CInCommands::does_meet_activation_conditions(EActivationCondition act_cond)
+{
+	return m_activation_conditions_for_this_frame == act_cond;
+}
+
 void CInCommands::render_interactible_incommand_list()
 {
-	update();
-
 	auto last_cursor_pos = g_gui_widgets_i->get_cursor_pos();
 
 	CUIMenuWidgets::the().add_menu_child(
@@ -321,13 +355,19 @@ void CInCommands::render_interactible_incommand_list()
 
 			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_CellPadding, { 2.0f, 1.0f });
 
-			if (g_gui_widgets_i->begin_columns("incommands_column", 2))
+			if (g_gui_widgets_i->begin_columns("incommands_column", 4))
 			{
 				g_gui_widgets_i->setup_column_fixed_width(100.0f);
+				g_gui_widgets_i->setup_column_fixed_width(50.0f);
+				g_gui_widgets_i->setup_column_fixed_width(50.0f);
 				g_gui_widgets_i->setup_column_fixed_width(283.0f);
 
 				g_gui_widgets_i->goto_next_column();
 				g_gui_widgets_i->add_text("Key name");
+				g_gui_widgets_i->goto_next_column();
+				g_gui_widgets_i->add_text("Enable");
+				g_gui_widgets_i->goto_next_column();
+				g_gui_widgets_i->add_text("Always");
 				g_gui_widgets_i->goto_next_column();
 				g_gui_widgets_i->add_text("Command");
 
@@ -342,9 +382,11 @@ void CInCommands::render_interactible_incommand_list()
 				"incommands_list", Vector2D(-1.0f, -1.0f), false, ImGuiWindowFlags_None,
 				[&]()
 				{
-					if (g_gui_widgets_i->begin_columns("binds_column_nested", 2))
+					if (g_gui_widgets_i->begin_columns("binds_column_nested", 4))
 					{
 						g_gui_widgets_i->setup_column_fixed_width(100.0f);
+						g_gui_widgets_i->setup_column_fixed_width(50.0f);
+						g_gui_widgets_i->setup_column_fixed_width(50.0f);
 						g_gui_widgets_i->setup_column_fixed_width(285.0f);
 
 						for (const auto& [name, in_cmd] : m_in_commands)
@@ -353,7 +395,17 @@ void CInCommands::render_interactible_incommand_list()
 
 							int vk = in_cmd->get_key_bound();
 
-							add_keyscan_button(in_cmd);
+							add_keyscan_button(in_cmd, Vector2D(-1.0f, 25.0f));
+
+							g_gui_widgets_i->goto_next_column();
+
+							auto toggle_var = in_cmd->get_toggle_var();
+							CUIMenuWidgets::the().add_checkbox(std::format("##{}_0", name), toggle_var);
+
+							g_gui_widgets_i->goto_next_column();
+							
+							auto always_enabled_var = in_cmd->get_always_enabled_var();
+							CUIMenuWidgets::the().add_checkbox(std::format("##{}_1", name), always_enabled_var);
 
 							g_gui_widgets_i->goto_next_column();
 

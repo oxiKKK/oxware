@@ -28,7 +28,6 @@
 
 #include "precompiled.h"
 
-VarBoolean movement_strafe_helper_always_enabled("movement_strafe_helper_auto", "Strafes automatically, i.e. when not on ground, surf, etc.", true);
 VarBoolean movement_strafe_helper_strafe_with_mouse("movement_strafe_helper_strafe_with_mouse", "Performs moves with mouse. Works only forward/backward", false);
 VarFloat movement_strafe_helper_accumulation("movement_strafe_helper_accumulation", "Adds YAW angles to your strafes making them more efficient", 1.0f, 0.01f, 3.0f);
 VarBoolean movement_strafe_helper_accumulation_on_ground("movement_strafe_helper_accumulation_on_ground", "Enables strafe accumulation when on ground", false);

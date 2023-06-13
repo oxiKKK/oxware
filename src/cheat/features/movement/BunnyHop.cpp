@@ -52,13 +52,21 @@ void CMovementBunnyHop::update(float frametime)
 
 	if (movement_bhop_jump_in_water.get_value() && CLocalState::the().get_waterlevel() >= 2)
 	{
-		CClientMovementPacket::the().set_button_bit(IN_JUMP, true);
+		if (timer_allows_jump())
+		{
+			CClientMovementPacket::the().set_button_bit(IN_JUMP, true);
+			reset_jump_time();
+		}
 		return;
 	}
 	
 	if (movement_bhop_jump_on_ladder.get_value() && CLocalState::the().is_on_ladder())
 	{
-		CClientMovementPacket::the().set_button_bit(IN_JUMP, true);
+		if (timer_allows_jump())
+		{
+			CClientMovementPacket::the().set_button_bit(IN_JUMP, true);
+			reset_jump_time();
+		}
 		return;
 	}
 
@@ -76,8 +84,7 @@ void CMovementBunnyHop::update(float frametime)
 
 void CMovementBunnyHop::rage_bhop(float frametime)
 {
-	int repeat_ms = movement_bhop_repeat_ms.get_value();
-	if (repeat_ms != 0 && GetTickCount() - m_jump_timer_ms <= repeat_ms)
+	if (!timer_allows_jump())
 	{
 		return;
 	}
@@ -88,7 +95,7 @@ void CMovementBunnyHop::rage_bhop(float frametime)
 
 	if (jump)
 	{
-		m_jump_timer_ms = GetTickCount();
+		reset_jump_time();
 	}
 
 	CClientMovementPacket::the().set_button_bit(IN_JUMP, jump);
@@ -132,26 +139,16 @@ void CMovementBunnyHop::legit_bhop(float frametime)
 			}
 		}
 
-		// this scope determines whenever we just jumped this frame
-		bool blocked_by_timer = false;
-		if (is_onground)
+		if (timer_allows_jump())
 		{
-			int repeat_ms = movement_bhop_repeat_ms.get_value();
-			if (repeat_ms != 0 && GetTickCount() - m_jump_timer_ms <= repeat_ms)
-			{
-				blocked_by_timer = true;
-			}
-
-			if (!blocked_by_timer) // see if was blocked by the timer
+			if (is_onground)
 			{
 				nsdn_speedhack();
-				m_jump_timer_ms = GetTickCount();
 			}
-		}
 
-		if (!blocked_by_timer) // same here
-		{
 			simulate_jump(frametime);
+
+			reset_jump_time();
 		}
 
 		// TODO: animation breakings and illusion from HPP
@@ -309,4 +306,31 @@ void CMovementBunnyHop::nsdn_speedhack()
 			break;
 		}
 	}
+}
+
+bool CMovementBunnyHop::timer_allows_jump()
+{
+	int repeat_ms = movement_bhop_repeat_ms.get_value();
+	if (repeat_ms == 0)
+	{
+		return true;
+	}
+
+	if (GetTickCount() - m_jump_timer_ms <= repeat_ms)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void CMovementBunnyHop::reset_jump_time()
+{
+	int repeat_ms = movement_bhop_repeat_ms.get_value();
+	if (repeat_ms == 0)
+	{
+		return;
+	}
+
+	m_jump_timer_ms = GetTickCount();
 }

@@ -35,24 +35,39 @@
 class BaseInCommand;
 using fnInCommandCallback = void(*)(BaseInCommand* _this);
 
+enum EActivationCondition
+{
+	IN_ACTCOND_None = BIT(-1),
+	IN_ACTCOND_Connected = BIT(0),
+	IN_ACTCOND_Alive = BIT(1),
+};
+DEFINE_ENUM_BITWISE_OPERATORS(EActivationCondition);
+
 class BaseInCommand
 {
 public:
-	explicit BaseInCommand(const std::string& command_name, int key_default, VarBoolean* var_can_be_activated,
+	explicit BaseInCommand(const std::string& name, int key_default, bool enable_by_default,
+						   EActivationCondition act_cond,
 						   fnInCommandCallback in, fnInCommandCallback out) :
-		m_command_name(command_name),
+		m_name(name),
 		m_vk(key_default),
-		m_var_can_be_activated(var_can_be_activated),
+		m_enable_variable_by_default(enable_by_default),
+		m_activation_condition(act_cond),
 		m_in_fn(in), m_out_fn(out)
 	{
 	}
 
-	inline bool is_active() const { return m_is_active && (m_var_can_be_activated && m_var_can_be_activated->get_value()); }
-	inline auto get_cmd_name() const { return m_command_name; }
+	// tell whenever the InCommand is activated or not
+	bool is_active() const;
+
+	inline auto get_activation_condition() const { return m_activation_condition; }
+	inline auto get_name() const { return m_name; }
 	inline int get_key_bound() const { return m_vk; } // 0 if unbound
 
 	inline auto get_in_fn() const { return m_in_fn; }
 	inline auto get_out_fn() const { return m_out_fn; }
+	inline auto get_toggle_var() const { return m_var_toggle; }
+	inline auto get_always_enabled_var() const { return m_var_always_enabled; }
 
 	void rebind_key_to(int new_vk);
 
@@ -66,21 +81,26 @@ protected:
 	bool m_is_active = false;
 	int m_vk = NULL; // 0 if unbound
 
-	std::string m_command_name;
+	std::string m_name;
 
 	// down/up callbacks
 	fnInCommandCallback m_in_fn, m_out_fn;
 
 	bool m_bound_initially = false;
 
-	VarBoolean* m_var_can_be_activated = nullptr;
+	// variable to enable/disable this incommand completely (optional)
+	VarBoolean* m_var_toggle = nullptr;
+	VarBoolean* m_var_always_enabled = nullptr;
+	bool m_enable_variable_by_default = false;
+
+	EActivationCondition m_activation_condition = IN_ACTCOND_None;
 };
 
 class InCommand : public BaseInCommand
 {
 public:
-	explicit InCommand(const std::string& command_name, int key_default, VarBoolean* var_can_be_activated) :
-		BaseInCommand(command_name, key_default, var_can_be_activated,
+	explicit InCommand(const std::string& name, int key_default, bool enable_by_default, EActivationCondition act_cond = IN_ACTCOND_None) :
+		BaseInCommand(name, key_default, enable_by_default, act_cond,
 					  [](BaseInCommand* _this) { _this->set_is_active(true); },
 					  [](BaseInCommand* _this) { _this->set_is_active(false); })
 	{

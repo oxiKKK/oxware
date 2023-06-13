@@ -187,6 +187,8 @@ void CUIMenu::on_initialize()
 
 void CUIMenu::on_render()
 {
+	g_in_commands_i->update();
+
 	g_gui_widgets_i->set_next_window_pos({ 100, 100 }, ImGuiCond_Once);
 	g_gui_widgets_i->set_next_window_size(CMenuStyle::k_menu_rect_size, ImGuiCond_Once);
 	g_gui_widgets_i->set_next_window_rounding(CMenuStyle::k_rounding_factor, ImDrawFlags_RoundCornersTopRight | ImDrawFlags_RoundCornersBottomLeft);
@@ -990,8 +992,8 @@ void CUIMenu::tab_movement()
 			"Air stuck", CMenuStyle::calc_child_size(90), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().feature_enabled_section(
-				&movement_air_stuck_enable,
+				CUIMenuWidgets::the().feature_enabled_section_incommands(
+				&CMovement::the().airstuck,
 				[]()
 				{
 					CUIMenuWidgets::the().add_slider("Intensity", "%0.0f", &movement_air_stuck_intensity, "froze");
@@ -1020,19 +1022,22 @@ void CUIMenu::tab_movement()
 			"Ground strafe", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				CUIMenuWidgets::the().feature_enabled_section(
-				&movement_gs_enable,
+				CUIMenuWidgets::the().feature_enabled_section_incommands(
+				&CMovement::the().gs,
 				[]()
 				{
 					g_gui_widgets_i->add_separtor_with_text("No slowdown");
 
-					CUIMenuWidgets::the().add_checkbox("Enable", &movement_gs_mode_noslowdown);
+					CUIMenuWidgets::the().feature_enabled_section(
+					&movement_gs_mode_noslowdown,
+					[]()
+					{
+						CUIMenuWidgets::the().add_listbox("Method##nsdn", &movement_gs_mode_noslowdown_method, { "Server speedhack", "Engine speedhack" });
 
-					CUIMenuWidgets::the().add_listbox("Method##nsdn", &movement_gs_mode_noslowdown_method, { "Server speedhack", "Engine speedhack" });
+						g_gui_widgets_i->add_spacing();
 
-					g_gui_widgets_i->add_spacing();
-
-					CUIMenuWidgets::the().add_slider("Speed factor", "%0.0fx", &movement_gs_mode_noslowdown_factor, NULL, "full speed");
+						CUIMenuWidgets::the().add_slider("Speed factor", "%0.0fx", &movement_gs_mode_noslowdown_factor, NULL, "full speed");
+					}, "Enable##nsdn");
 
 					g_gui_widgets_i->add_separtor_with_text("Method");
 					CUIMenuWidgets::the().add_listbox("Mode", &movement_gs_mode, { "Legit", "Rage" });
@@ -1082,8 +1087,8 @@ void CUIMenu::tab_movement()
 		"Strafe hack", CMenuStyle::calc_child_size(225), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
-			CUIMenuWidgets::the().feature_enabled_section(
-			&movement_strafe_hack_enable,
+			CUIMenuWidgets::the().feature_enabled_section_incommands(
+			&CMovement::the().strafe,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Allow on surf", &movement_strafe_hack_allow_on_surf);
@@ -1105,7 +1110,7 @@ void CUIMenu::tab_movement()
 				&movement_strafe_hack_limit_velocity,
 				[]()
 				{
-					CUIMenuWidgets::the().add_slider_nolabel("Max", "%0.0f", &movement_strafe_hack_limit_velocity_max);
+					CUIMenuWidgets::the().add_slider_nolabel("Max", "%0.0f units", &movement_strafe_hack_limit_velocity_max);
 				},
 				"Limit velocity");
 			});
@@ -1115,12 +1120,10 @@ void CUIMenu::tab_movement()
 		"Strafe helper", CMenuStyle::calc_child_size(180), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
-			CUIMenuWidgets::the().feature_enabled_section(
-			&movement_strafe_helper_enable,
+			CUIMenuWidgets::the().feature_enabled_section_incommands(
+			&CMovement::the().strafe_helper,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Always enabled", &movement_strafe_helper_always_enabled);
-
 				CUIMenuWidgets::the().add_checkbox("Strafe with mouse", &movement_strafe_helper_strafe_with_mouse);
 				CUIMenuWidgets::the().add_slider("Accumulation", "%0.2f", &movement_strafe_helper_accumulation);//
 				CUIMenuWidgets::the().add_checkbox("Accumulation on ground", &movement_strafe_helper_accumulation_on_ground);
@@ -1133,21 +1136,24 @@ void CUIMenu::tab_movement()
 		"Bunny hop", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
-			CUIMenuWidgets::the().feature_enabled_section(
-			&movement_bhop_enable, 
+			CUIMenuWidgets::the().feature_enabled_section_incommands(
+			&CMovement::the().bunnyhop,
 			[]()
 			{
 				g_gui_widgets_i->add_separtor_with_text("No slowdown");
-				CUIMenuWidgets::the().add_checkbox("Enable##nsdn", &movement_bhop_mode_noslowdown);
+				CUIMenuWidgets::the().feature_enabled_section(
+				&movement_bhop_mode_noslowdown,
+				[]()
+				{
+					CUIMenuWidgets::the().add_listbox("Method##nsdn", &movement_bhop_mode_noslowdown_method, { "Server speedhack", "Engine speedhack" });
 
-				CUIMenuWidgets::the().add_listbox("Method", &movement_bhop_mode_noslowdown_method, { "Server speedhack", "Engine speedhack" });
+					g_gui_widgets_i->add_spacing();
+					CUIMenuWidgets::the().add_slider("Speed factor", "%0.0fx", &movement_bhop_mode_noslowdown_factor, NULL, "full speed");
 
-				g_gui_widgets_i->add_spacing();
+					g_gui_widgets_i->add_spacing();
 
-				g_gui_widgets_i->add_spacing();
-				CUIMenuWidgets::the().add_slider("Speed factor", "%0.0fx", &movement_bhop_mode_noslowdown_factor, NULL, "full speed");
-
-				CUIMenuWidgets::the().add_description_text("Note that this uses speedhack, which most of the anti-cheats can detect.");
+					CUIMenuWidgets::the().add_description_text("Note that this uses speedhack, which most of the anti-cheats can detect.");
+				}, "Enable##nsdn");
 
 				g_gui_widgets_i->add_separtor_with_text("Others");
 				g_gui_widgets_i->add_spacing();
@@ -1204,12 +1210,11 @@ void CUIMenu::tab_movement()
 		"Edge bug", CMenuStyle::calc_child_size(290), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
-			CUIMenuWidgets::the().feature_enabled_section(
-			&movement_eb_enable,
+			CUIMenuWidgets::the().feature_enabled_section_incommands(
+			&CMovement::the().eb,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Enable on ramps", &movement_eb_enable_on_ramps);
-				CUIMenuWidgets::the().add_checkbox("Auto", &movement_eb_auto);
 
 				g_gui_widgets_i->add_separtor_with_text("Tweaking");
 
@@ -1227,12 +1232,10 @@ void CUIMenu::tab_movement()
 		"Fast run", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
-			CUIMenuWidgets::the().feature_enabled_section(
-			&movement_fastrun_enable,
+			CUIMenuWidgets::the().feature_enabled_section_incommands(
+			&CMovement::the().fastrun,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Always enabled", &movement_fastrun_always_enabled);
-
 				CUIMenuWidgets::the().add_checkbox("No slowdown", &movement_fastrun_no_slowdown);
 				CUIMenuWidgets::the().add_slider("Max speed##0", "%0.0f u/s", &movement_fastrun_max_speed);
 
@@ -1242,16 +1245,14 @@ void CUIMenu::tab_movement()
 			});
 		});
 
-
 		CUIMenuWidgets::the().add_menu_child_collapsible(
 		"Auto JOF", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
-			CUIMenuWidgets::the().feature_enabled_section(
-			&movement_auto_jof_enable,
+			CUIMenuWidgets::the().feature_enabled_section_incommands(
+			&CMovement::the().auto_jof,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Always enabled", &movement_auto_jof_always_enabled);
 				CUIMenuWidgets::the().add_slider("Interval", "%0.0f ms", &movement_auto_jof_interval);
 
 				g_gui_widgets_i->add_separtor_with_text("Min distance & velocity");
@@ -1259,7 +1260,7 @@ void CUIMenu::tab_movement()
 				&movement_auto_jof_auto,
 				[]()
 				{
-					CUIMenuWidgets::the().add_slider("Distance", "%0.0f units", &movement_auto_jof_min_distance);
+					CUIMenuWidgets::the().add_slider("Distance", "%0.1f units", &movement_auto_jof_min_distance);
 				}, 
 				"Automatic", FALSE);
 
@@ -1283,7 +1284,7 @@ void CUIMenu::tab_miscellaneous3()
 
 void CUIMenu::tab_config()
 {
-	CUIMenuWidgets::the().add_menu_child_collapsible(
+	CUIMenuWidgets::the().add_menu_child(
 		"Configuration", CMenuStyle::child_full_width(-1.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{

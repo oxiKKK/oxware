@@ -60,6 +60,36 @@ bool CUIMenuWidgets::add_checkbox_with_color(const std::string& label, VarBoolea
 	return ret;
 }
 
+bool CUIMenuWidgets::add_checkbox_with_incommand_keypress_button(const std::string& label, VarBoolean* var, const char* incommand_name, const char* additional_desc)
+{
+	float value = var->get_value();
+	bool ret = g_gui_widgets_i->add_checkbox(label, &value);
+
+	var->set_value(value);
+	
+	auto in_cmd = g_in_commands_i->get_incommand(incommand_name);
+	assert(in_cmd && "Invalid incommand name while query!");
+	if (in_cmd)
+	{
+		g_gui_widgets_i->sameline();
+
+		static Vector2D button_size = Vector2D(80.0f, 20.0f);
+
+		auto cursor_pos = g_gui_widgets_i->get_cursor_pos();
+		g_gui_widgets_i->set_cursor_pos({ cursor_pos.x + g_gui_widgets_i->get_content_region_avail().x - button_size.x, cursor_pos.y });
+
+		g_in_commands_i->add_keyscan_button(in_cmd, button_size);
+
+		g_gui_widgets_i->add_spacing();
+	}
+	
+	add_description_text(additional_desc);
+
+	handle_widget_hover(var);
+
+	return ret;
+}
+
 bool CUIMenuWidgets::add_color_edit(const std::string& label, VarColor* colors_var, const char* additional_desc)
 {
 	auto color = colors_var->get_value();
@@ -288,6 +318,28 @@ void CUIMenuWidgets::feature_enabled_section(VarBoolean* var_boolean, VarColor* 
 	add_checkbox(std::format("{}##{}", title, var_boolean->get_name()), var_boolean);
 
 	bool enabled = var_boolean->get_value();
+
+	if (!enabled && see_if_enabled || enabled && !see_if_enabled)
+	{
+		g_gui_widgets_i->push_disabled();
+	}
+
+	callback();
+
+	if (!enabled && see_if_enabled || enabled && !see_if_enabled)
+	{
+		g_gui_widgets_i->pop_disabled();
+	}
+}
+
+void CUIMenuWidgets::feature_enabled_section_incommands(BaseInCommand* in_cmd, const std::function<void()>& callback,
+														const std::string& title, bool see_if_enabled)
+{
+	auto toggle_var = in_cmd->get_toggle_var();
+
+	add_checkbox_with_incommand_keypress_button(std::format("{}##{}", title, toggle_var->get_name()), toggle_var, in_cmd->get_name().c_str());
+
+	bool enabled = toggle_var->get_value();
 
 	if (!enabled && see_if_enabled || enabled && !see_if_enabled)
 	{

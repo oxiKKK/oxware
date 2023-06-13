@@ -30,7 +30,6 @@
 #define AUTOJOF_H
 #pragma once
 
-extern VarBoolean movement_auto_jof_always_enabled;
 extern VarBoolean movement_auto_jof_auto;
 extern VarFloat movement_auto_jof_min_distance;
 extern VarInteger movement_auto_jof_interval;

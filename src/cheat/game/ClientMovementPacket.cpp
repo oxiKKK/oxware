@@ -68,9 +68,11 @@ void CClientMovementPacket::update_msg_writeusercmd(hl::usercmd_t* to)
 	}
 }
 
-void CClientMovementPacket::update_clientmove()
+void CClientMovementPacket::update_clientmove(hl::usercmd_t* cmd)
 {
 	reset_ft_state();
+
+	set_current_cmd_for_manipulation(cmd);
 }
 
 //-----------------------------------------------------------------

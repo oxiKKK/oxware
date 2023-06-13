@@ -37,7 +37,7 @@ inline void callback_table_hook_t<T>::install(const char* name, T* _ptr, const T
 	CConsole::the().info("Found {} at 0x{:08X}", name, (uintptr_t)_ptr);
 }
 
-#if 1
+#if 0
 #define P(name) CConsole::the().info("{}()", name)
 #else
 #define P(name)
@@ -849,7 +849,7 @@ void CSecurityModuleHook::fill_modfuncs_callback_table()
 	pg_modfuncs->m_pfnGetEngDstAddrs = ModFuncs_GetEngDstAddrs;
 	pg_modfuncs->m_pfnModuleLoaded = ModFuncs_ModuleLoaded;
 	pg_modfuncs->m_pfnProcessOutgoingNet = ModFuncs_ProcessOutgoingNet;
-	pg_modfuncs->m_pfnProcessIncomingNet = pfnModFuncs_ProcessIncomingNet;
+	pg_modfuncs->m_pfnProcessIncomingNet = ModFuncs_ProcessIncomingNet;
 	pg_modfuncs->m_pfnTextureLoad = ModFuncs_TextureLoad;
 	pg_modfuncs->m_pfnModelLoad = ModFuncs_ModelLoad;
 	pg_modfuncs->m_pfnFrameBegin = ModFuncs_FrameBegin;

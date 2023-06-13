@@ -37,7 +37,7 @@ public:
 
 public:
 	void update_msg_writeusercmd(hl::usercmd_t* to);
-	void update_clientmove();
+	void update_clientmove(hl::usercmd_t* cmd);
 
 	void set_current_cmd_for_manipulation(hl::usercmd_t* cmd) { m_current_cmd = cmd; }
 

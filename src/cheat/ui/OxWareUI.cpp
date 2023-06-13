@@ -366,7 +366,7 @@ void COxWareUI::create_welcome_popup()
 
 				g_gui_widgets_i->add_text("Discord");
 				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("__oxiKKK#5015");
+				g_gui_widgets_i->add_text("__ox__");
 				g_gui_widgets_i->goto_next_column();
 
 				g_gui_widgets_i->add_text("Steam");

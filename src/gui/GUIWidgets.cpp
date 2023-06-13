@@ -246,7 +246,7 @@ private:
 	struct collapsible_child_data_t
 	{
 		bool collapsed;
-		Vector2D initial_size, size;
+		float initial_height, height;
 		bool hovered;
 	};
 	std::unordered_map<std::string, collapsible_child_data_t> m_collapsible_child_data;
@@ -368,10 +368,10 @@ void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D
 
 	if (collapsible)
 	{
-		if (data.initial_size.IsZero())
+		if (data.initial_height == 0.0f)
 		{
-			data.initial_size = size;
-			data.size = size;
+			data.initial_height = size.y;
+			data.height = size.y;
 		}
 
 		collapsible_flags |= (data.collapsed ? ImGuiWindowFlags_NoScrollbar : 0);
@@ -386,7 +386,7 @@ void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D
 		flags |= ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav;
 	}
 
-	BeginChild(label.c_str(), data.size, border, flags | collapsible_flags);
+	BeginChild(label.c_str(), { size.x, data.height }, border, flags | collapsible_flags);
 	{
 		auto child_pos = GetWindowPos();
 		auto child_size = GetWindowSize();
@@ -441,11 +441,11 @@ void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D
 
 				if (data.collapsed)
 				{
-					data.size = Vector2D(data.initial_size.x, 35.0f);
+					data.height = 35.0f;
 				}
 				else
 				{
-					data.size = data.initial_size;
+					data.height = data.initial_height;
 				}
 			}
 

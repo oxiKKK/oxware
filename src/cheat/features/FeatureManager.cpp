@@ -33,11 +33,15 @@ void CFeatureManager::initialize()
 	CConsole::the().info("Initializing Feature Manager...");
 
 	precache_features();
+
+	m_initialized = true;
 }
 
 void CFeatureManager::shutdown()
 {
 	m_features.clear();
+
+	m_initialized = false;
 }
 
 void CFeatureManager::add_new_feature(const BaseFeature& feature)
@@ -70,6 +74,9 @@ void CFeatureManager::precache_features()
 	// removals
 	add_new_feature(BaseFeature(&remove_screenshake, "Remove screenshake"));
 	add_new_feature(BaseFeature(&remove_hud_enable, "HUD removal"));
+	add_new_feature(BaseFeature(&remove_motd, "MOTD removal"));
+	add_new_feature(BaseFeature(&remove_sniper_scope, "Sniper scope removal"));
+	add_new_feature(BaseFeature(&remove_viewmodel, "Viewmodel removal"));
 
 	// viewmodel offset
 	add_new_feature(BaseFeature(&viewmodel_offset_enable, "Viewmodel offset"));
@@ -99,6 +106,28 @@ void CFeatureManager::precache_features()
 	// InGame Screen rendering
 	add_new_feature(BaseFeature(&ingamescreen_better_cl_showfps, "Better cl_showfps"));
 
-	
+	// Movement
+	add_new_feature(BaseFeature(CMovement::bunnyhop.get_toggle_var(), "Bunnyhop"));
+	add_new_feature(BaseFeature(CMovement::airstuck.get_toggle_var(), "Air stuck"));
+	add_new_feature(BaseFeature(CMovement::gs.get_toggle_var(), "Ground-strafe"));
+	add_new_feature(BaseFeature(CMovement::eb.get_toggle_var(), "Edge bug"));
+	add_new_feature(BaseFeature(CMovement::strafe.get_toggle_var(), "Strafe hack"));
+	add_new_feature(BaseFeature(CMovement::strafe_helper.get_toggle_var(), "Strafe helper"));
+	add_new_feature(BaseFeature(CMovement::fastrun.get_toggle_var(), "Fast run"));
+	add_new_feature(BaseFeature(CMovement::auto_jof.get_toggle_var(), "Auto JOF"));
+	add_new_feature(BaseFeature(&movement_plot, "Movement visualization"));
+
+	// debug
+	add_new_feature(BaseFeature(&debug, "Debug"));
+
+	// thirdperson
+	add_new_feature(BaseFeature(&thirdperson_dist, 0, "Thirdperson"));
+
+	// non-steam fps fix
+	add_new_feature(BaseFeature(&nonsteam_fps_fix, "Non-steam FPS fix"));
+
+	// consistency bypass
+	add_new_feature(BaseFeature(&consistencybypass_enable, "Consistency bypass"));
+
 	CConsole::the().info("Precached all features.");
 }

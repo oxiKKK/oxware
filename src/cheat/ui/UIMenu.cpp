@@ -28,6 +28,8 @@
 
 #include "precompiled.h"
 
+VarBoolean ui_menu_resizable("ui_menu_resizable", "This is a beta feature!", false);
+
 // Note: moved here from the header file for faster compile times
 const float CMenuStyle::k_rounding_factor = 20.0f;
 const Vector2D CMenuStyle::k_menu_rect_size = { 600, 400 };
@@ -46,7 +48,7 @@ const Vector2D CMenuStyle::k_unload_button_padding = { 15.0f, 15.0f };
 const Vector2D CMenuStyle::k_unload_button_size = { 105.0f, 20.0f };
 const Vector2D CMenuStyle::k_about_button_size = { 50.0f, 20.0f };
 
-Vector2D CMenuStyle::calc_child_size(float height) { return { CMenuStyle::k_child_width, height }; }
+Vector2D CMenuStyle::calc_child_size(float height) { return { -1.0f, height }; }
 float CMenuStyle::get_child_width_w_padding() { return CMenuStyle::k_child_width - CMenuStyle::k_child_contents_padding.x * 2; }
 
 // use this instead of width begin -1.0f
@@ -193,9 +195,14 @@ void CUIMenu::on_render()
 
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowMinSize, CMenuStyle::k_menu_rect_size);
 
-	static constexpr auto window_flags = 
-		ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav 
-		/*| ImGuiWindowFlags_NoResize*/ | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
+	auto window_flags =
+		ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav
+		| ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
+
+	if (ui_menu_resizable.get_value())
+	{
+		window_flags &= ~ImGuiWindowFlags_NoResize;
+	}
 
 	auto segoeui_extra = g_gui_fontmgr_i->get_font("segoeui", FONT_EXTRA, FONTDEC_Bold);
 	auto segoeui_small = g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Bold);
@@ -522,6 +529,24 @@ void CUIMenu::tab_world()
 
 					CUIMenuWidgets::the().add_description_text("Everything changed here will take effect only on new smoke creation.");
 				});
+			});
+
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+			"Non-steam fps fix", CMenuStyle::calc_child_size(150), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &nonsteam_fps_fix);
+
+				CUIMenuWidgets::the().add_description_text(
+					"This fixes the FPS movement dependence, where with higher fps you would get slomotion movement and \"higher\" gravity."
+					"\nFor more technical details, follow this link:");
+
+				g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Regular));
+				if (g_gui_widgets_i->add_hypertext_link("github.com/ValveSoftware/halflife/issues/1940"))
+				{
+					CGenericUtil::the().open_link_inside_browser("https://github.com/ValveSoftware/halflife/issues/1940");
+				}
+				g_gui_widgets_i->pop_font();
 			});
 
 		g_gui_widgets_i->end_columns();
@@ -937,10 +962,10 @@ void CUIMenu::tab_exploits()
 					CUIMenuWidgets::the().add_description_text(
 						"This enables to send false consistency information to the server, when it gets requested.",
 
-						"Consistency in the GoldSrc games is a technique that enables servers to check whenever clients have the same files"
-						" as the server has. The server can also check for malicious DLL files anywhere inside your Half-Life folder (cheat dlls)."
-						" Plugins use this to detect cheats when you're econnecting to a server and can ban you if they find some.\n\n"
-						"Using this technique allows you to bypass not only the checks for invalid dlls, but also for other things such as models, sprites, sounds, etc.");
+						"Consistency in GoldSrc games is a technique that enables servers to check whenever clients have same files"
+						" as the server does. The server can also check for malicious DLL files anywhere inside your Half-Life folder (cheat dlls)."
+						" Plugins use this to detect cheats when you're connecting to a server and can ban you if they find some.\n\n"
+						"This allows you to bypass not only the checks for invalid dlls, but also for other things such as models, sprites, sounds, etc.");
 				});
 			});
 
@@ -1695,12 +1720,25 @@ void CUIMenu::tab_others()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"UI", CMenuStyle::calc_child_size(120), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"UI", CMenuStyle::calc_child_size(180), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Enable rain", &ui_background_rain);
 				CUIMenuWidgets::the().add_checkbox("Enable background fade", &ui_background_fade);
-				CUIMenuWidgets::the().add_checkbox("Render feature list", &ui_render_feature_list);
+
+				g_gui_widgets_i->add_separtor_with_text("Menu");
+				CUIMenuWidgets::the().add_checkbox("Resizable", &ui_menu_resizable);
+
+				g_gui_widgets_i->add_separtor_with_text("Feature list");
+				CUIMenuWidgets::the().feature_enabled_section(
+				&ui_render_feature_list,
+				[]()
+				{
+					CUIMenuWidgets::the().add_listbox("Font type", &ui_feature_list_font, { "Bold", "Regular" });
+					CUIMenuWidgets::the().add_listbox("Font size", &ui_feature_list_font_size, { "Smaller", "Bigger" });
+					
+					CUIMenuWidgets::the().add_checkbox("Check for overlow", &ui_feature_list_overflow);
+				}, "Show");
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
@@ -1722,16 +1760,22 @@ void CUIMenu::tab_others()
 						{ -1.0f, tab_height },
 						[]()
 						{
-							CUIMenuWidgets::the().add_checkbox("Enable", &debug_render_info);
-
-							g_gui_widgets_i->add_spacing();
-							g_gui_widgets_i->add_separtor_with_text("Movement");
-							CUIMenuWidgets::the().add_checkbox("Enable##movement", &debug_render_info_movement);
-
-							g_gui_widgets_i->add_spacing();
-							CUIMenuWidgets::the().add_checkbox("Bhop", &debug_render_info_movement_bhop);
-							CUIMenuWidgets::the().add_checkbox("Strafe hack", &debug_render_info_movement_strafe);
-							CUIMenuWidgets::the().add_checkbox("Strafe helper", &debug_render_info_movement_strafe_helper);
+							CUIMenuWidgets::the().feature_enabled_section(
+							&debug_render_info,
+							[]()
+							{
+								g_gui_widgets_i->add_spacing();
+								g_gui_widgets_i->add_separtor_with_text("Movement");
+								CUIMenuWidgets::the().feature_enabled_section(
+								&debug_render_info_movement,
+								[]()
+								{
+									g_gui_widgets_i->add_spacing();
+									CUIMenuWidgets::the().add_checkbox("Bhop", &debug_render_info_movement_bhop);
+									CUIMenuWidgets::the().add_checkbox("Strafe hack", &debug_render_info_movement_strafe);
+									CUIMenuWidgets::the().add_checkbox("Strafe helper", &debug_render_info_movement_strafe_helper);
+								}, "Enable##movement");
+							});
 						});
 
 					g_gui_widgets_i->end_tab();

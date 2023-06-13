@@ -119,4 +119,8 @@ consteval T BIT(T N) { return N == -1 ? 0 : (1 << N); }
 // the first engine build in which sdl was introduced instead of winapi.
 #define FIRST_SDL_BUILD 5943
 
+// first build (that i could find) where this fix got proposed
+// https://github.com/ValveSoftware/halflife/issues/1940#issuecomment-13052903
+#define FIRST_CLMOVE_DPS_DEPENDENCE_BUILD 6100 // something around ~6100
+
 #endif // COMMONDEFS_H

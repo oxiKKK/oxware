@@ -30,6 +30,10 @@
 #define UIFEATURELIST_H
 #pragma once
 
+extern VarInteger ui_feature_list_font;
+extern VarInteger ui_feature_list_font_size;
+extern VarBoolean ui_feature_list_overflow;
+
 class CUIFeatureList final : public IRenderingContext_ParentActivate
 {
 public:

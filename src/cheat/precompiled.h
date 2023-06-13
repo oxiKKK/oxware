@@ -278,6 +278,7 @@ namespace hl
 #include "features/ResourceConsistencyBypass.h"
 #include "features/IngameScreenRendering.h"
 #include "features/ThirdPerson.h"
+#include "features/NonSteamFpsFixer.h"
 #include "features/movement/BunnyHop.h"
 #include "features/movement/AirStuck.h"
 #include "features/movement/GroundStrafe.h"

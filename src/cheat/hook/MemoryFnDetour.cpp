@@ -288,6 +288,8 @@ void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::
 				cmd->forwardmove = cmd->sidemove = cmd->upmove = 0;
 			}
 
+			CNonSteamFpsFixer::the().fix_fps();
+
 			CMovement::the().update_clientmove(frametime, cmd);
 		}
 	}

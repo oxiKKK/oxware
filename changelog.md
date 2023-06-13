@@ -126,9 +126,11 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Added auto JOF.
 - Added thirdperson.
 - Added sound esp resolver.
+- Added fps fixer for non-steam cs.
 
 ## Bugfixes
 
 - Fixed a bug where sound and entity esp background box wasn't rendering when toggled on.
 - Fixed duplicated menu entires inside tabs 💩.
 - Fixed a bug where mouse cursor wouldn't change to "hand" when hovered over tab items.
+- Fixed random crash that sometimes occured relating to feature list and menu.

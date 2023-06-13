@@ -272,6 +272,9 @@
     <ClCompile Include="hook\SecurityModuleHook.cpp">
       <Filter>src\hooking</Filter>
     </ClCompile>
+    <ClCompile Include="features\NonSteamFpsFixer.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -490,6 +493,9 @@
     </ClInclude>
     <ClInclude Include="hook\SecurityModuleHook.h">
       <Filter>src\hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="features\NonSteamFpsFixer.h">
+      <Filter>src\features</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

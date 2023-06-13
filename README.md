@@ -121,7 +121,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - HUD removals
 	- weapon, crosshair, money, etc...
 - Viewmodel offset
-- Smoke visuals, see [this video](https://youtu.be/PL2f-weiF84). 🚬
+- Smoke visuals, see [this video](https://youtu.be/PL2f-weiF84) 🚬
 - Flashbang fade modifier
 - Built-in console with custom commands 🖥
 - FOV changer
@@ -129,7 +129,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - Skeletal chams 💀
 - Playermodel head hitbox rendering, see [this image](https://i.imgur.com/bYzp8KD.png). 🟩
 - Server command filter (svc_stufftext filter)
-- Ability to view "real" hit-able playermodel and its head hitbox. See [this image](https://i.imgur.com/weWGM5C.png) and [this youtube video](https://youtu.be/xMd9m3McNvo).
+- Ability to view "real" hit-able playermodel and its head hitbox. See [this image](https://i.imgur.com/weWGM5C.png) and [this youtube video](https://youtu.be/xMd9m3McNvo)
 - ESP
 	- Player
 	- Entities
@@ -154,16 +154,17 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 	- Displaying current velocity 
 - Default viewmodel enforcement
 - Movement
-	- Air stuck, see [this video](https://youtu.be/9snddT03M34).
+	- Air stuck, see [this video](https://youtu.be/9snddT03M34)
 	- Legit/Rage bhop hack 🐇
-	- GS hack.
-	- EB hack.
-	- Strafe hack.
-	- Strafe helper.
-	- Fast run & fast walk.
-	- Auto JOF.
+	- GS hack
+	- EB hack
+	- Strafe hack
+	- Strafe helper
+	- Fast run & fast walk
+	- Auto JOF
 - Fancy custom cl_showfps rendering
-- Rechecker bypass, see [this video](https://youtu.be/Razs0s7sgno).
+- FPS fixer for non-steam CS
+- Rechecker bypass, see [this video](https://youtu.be/Razs0s7sgno)
 - Instantaneous cheat unload (either via loader or cheat menu)
 - Injection using manual mapping 🗺
 - Custom UI (modified version of imgui)

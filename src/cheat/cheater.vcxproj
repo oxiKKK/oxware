@@ -210,6 +210,7 @@
     <ClCompile Include="features\movement\Movement.cpp" />
     <ClCompile Include="features\movement\StrafeHack.cpp" />
     <ClCompile Include="features\movement\StrafeHelper.cpp" />
+    <ClCompile Include="features\NonSteamFpsFixer.cpp" />
     <ClCompile Include="features\ResourceConsistencyBypass.cpp" />
     <ClCompile Include="features\BulletTrace.cpp" />
     <ClCompile Include="features\BypassGameConstrains.cpp" />
@@ -301,6 +302,7 @@
     <ClInclude Include="features\movement\Movement.h" />
     <ClInclude Include="features\movement\StrafeHack.h" />
     <ClInclude Include="features\movement\StrafeHelper.h" />
+    <ClInclude Include="features\NonSteamFpsFixer.h" />
     <ClInclude Include="features\ResourceConsistencyBypass.h" />
     <ClInclude Include="features\BulletTrace.h" />
     <ClInclude Include="features\BypassGameConstrains.h" />

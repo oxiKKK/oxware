@@ -36,7 +36,7 @@ class CMenuStyle
 public:
 	static const float k_rounding_factor;
 	static const Vector2D k_menu_rect_size;
-	static const Vector2D k_tab_select_size;
+	static const float k_tab_select_width;
 	static const float k_top_region_size_h;
 	static const float k_menu_contents_padding;
 	static const float k_menu_contents_padding_bottom;
@@ -49,9 +49,7 @@ public:
 	static const float k_child_width;
 	static const Vector2D k_unload_button_padding;
 	static const Vector2D k_unload_button_size;
-	static const Vector2D k_unload_button_pos;
 	static const Vector2D k_about_button_size;
-	static const Vector2D k_about_button_pos;
 
 	static Vector2D calc_child_size(float height);
 	static float get_child_width_w_padding();

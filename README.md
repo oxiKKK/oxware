@@ -3,7 +3,7 @@
 <img src="https://i.imgur.com/rMxVH3j.png" width="27%" height="27%"></img>
 
 
-Welcome to **oxWARE**! A free Counter-Strike 1.6 cheat built with love and passion, featuring over **46,000 lines of C++ code in more than 233 source files!**
+Welcome to **oxWARE**! A free Counter-Strike 1.6 cheat built with love and passion, featuring over **50,000 lines of C++ code in more than 260 source files!**
 
 This cheat is still in <b>alpha stage</b> of development!<br>
 I will be contributing to it in the near future as much as possible, adding new features et cetera.<br>

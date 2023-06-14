@@ -111,6 +111,7 @@ public:
 
 	virtual void set_cursor_pos(const Vector2D& pos) = 0;
 	virtual Vector2D get_cursor_pos() = 0;
+	virtual Vector2D get_cursor_screen_pos() = 0;
 
 	virtual Vector2D get_content_region_avail() = 0;
 

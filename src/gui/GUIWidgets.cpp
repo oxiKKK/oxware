@@ -96,6 +96,7 @@ public:
 
 	void set_cursor_pos(const Vector2D& pos);
 	Vector2D get_cursor_pos();
+	Vector2D get_cursor_screen_pos();
 
 	Vector2D get_content_region_avail();
 
@@ -576,6 +577,11 @@ void CGUIWidgets::set_cursor_pos(const Vector2D& pos)
 Vector2D CGUIWidgets::get_cursor_pos()
 {
 	return GetCursorPos();
+}
+
+Vector2D CGUIWidgets::get_cursor_screen_pos()
+{
+	return GetCursorScreenPos();
 }
 
 Vector2D CGUIWidgets::get_content_region_avail()

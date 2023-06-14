@@ -86,6 +86,8 @@ int CMainLoader::run(HINSTANCE hinst)
 		return RET_FAILURE;
 	}
 
+	g_devconsole_i->enable_tooltip(false);
+
 	decide_injection_type();
 
 	on_window_invoke();

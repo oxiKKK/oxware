@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-VarInteger thirdperson_dist("thirdperson_dist", "Distance from the player when in 3rd person view", 120, 0, 300);
+VarInteger thirdperson_dist("thirdperson_dist", "Distance from the player when in 3rd person view", 0, 0, 300);
 VarBoolean thirdperson_block_wall("thirdperson_block_wall", "3rd person camera gets blocked by a solid object, doesn't clip through", true);
 
 void CThirdPerson::update(hl::ref_params_t* pparams)

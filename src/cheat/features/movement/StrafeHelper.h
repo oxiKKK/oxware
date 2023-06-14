@@ -30,9 +30,12 @@
 #define STRAFEHELPER_H
 #pragma once
 
-extern VarBoolean movement_strafe_helper_strafe_with_mouse;
 extern VarFloat movement_strafe_helper_accumulation;
 extern VarBoolean movement_strafe_helper_accumulation_on_ground;
+
+extern VarBoolean movement_strafe_helper_strafe_with_mouse;
+extern VarBoolean movement_strafe_helper_strafe_dir_auto;
+extern VarInteger movement_strafe_helper_strafe_dir;
 
 class CMovementStrafeHelper
 {
@@ -46,6 +49,8 @@ public:
 
 private:
 	void correction();
+
+	int deduce_direction(hl::usercmd_t* cmd);
 
 private:
 	// 0 == left, 1 == right, 2 == forward

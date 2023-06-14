@@ -66,6 +66,8 @@ bool CUIMenuWidgets::add_checkbox_with_incommand_keypress_button(const std::stri
 	bool ret = g_gui_widgets_i->add_checkbox(label, &value);
 
 	var->set_value(value);
+
+	handle_widget_hover(var);
 	
 	auto in_cmd = g_in_commands_i->get_incommand(incommand_name);
 	assert(in_cmd && "Invalid incommand name while query!");
@@ -84,8 +86,6 @@ bool CUIMenuWidgets::add_checkbox_with_incommand_keypress_button(const std::stri
 	}
 	
 	add_description_text(additional_desc);
-
-	handle_widget_hover(var);
 
 	return ret;
 }

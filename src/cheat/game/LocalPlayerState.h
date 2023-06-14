@@ -43,6 +43,7 @@ public:
 	DECL_BASIC_CLASS(CLocalState);
 
 public:
+	void update_pre_clientmove(float frametime, hl::usercmd_t *cmd);
 	void update_clientmove(float frametime, hl::usercmd_t *cmd);
 
 	hl::clientdata_t* get_current_frame_clientdata();
@@ -88,6 +89,8 @@ public:
 	// resolve the hull for ourselfs, otherwise tracing code will fail
 	inline EPlayerHull get_current_hull_tracing() const { return m_tracing_hull; }
 
+	inline Vector2D get_viewangle_delta() const { return m_vieangle_delta; }
+
 private:
 	hl::frame_t* m_current_frame = nullptr;
 
@@ -104,6 +107,9 @@ private:
 	EPlayerHull m_tracing_hull = HULL_STANDING;
 
 	bool m_is_surfing = false;
+
+	Vector2D m_vieangle_delta;
+	Vector m_last_viewangles; // used to calc the delta
 };
 
 #endif // LOCALPLAYERSTATE_H

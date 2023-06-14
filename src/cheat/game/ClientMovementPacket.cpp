@@ -137,7 +137,7 @@ void CClientMovementPacket::reset_ft_state()
 
 //-----------------------------------------------------------------------------------------------------
 
-VarBoolean movement_plot("movement_plot", "Enables visualization plot for movement", true);
+VarBoolean movement_plot("movement_plot", "Enables visualization plot for movement", false);
 VarInteger movement_plot_row_height("movement_plot_row_height", "Height of each row", 30, 10, 100);
 VarInteger movement_plot_scale("movement_plot_scale", "Overall scale of visualized data", 1, 1, 5);
 VarBoolean movement_plot_stop("movement_plot_stop", "Stops collection of data when on", false);

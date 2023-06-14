@@ -28,11 +28,24 @@
 
 #include "precompiled.h"
 
+void CLocalState::update_pre_clientmove(float frametime, hl::usercmd_t * cmd)
+{
+	auto cl = CMemoryHookMgr::the().cl().get();
+	m_last_viewangles = cl->viewangles;
+}
+
 void CLocalState::update_clientmove(float frametime, hl::usercmd_t* cmd)
 {
 	// cache everything related to our client.
 
 	auto cl = CMemoryHookMgr::the().cl().get();
+	m_vieangle_delta = Vector2D(cl->viewangles[YAW] - m_last_viewangles[YAW], cl->viewangles[PITCH] - m_last_viewangles[PITCH]);
+	m_vieangle_delta *= -1.0f;
+
+	// round to zero
+	if (m_vieangle_delta.x < 0.01 && m_vieangle_delta.x > -0.01) m_vieangle_delta.x = 0.0f;
+	if (m_vieangle_delta.y < 0.01 && m_vieangle_delta.y > -0.01) m_vieangle_delta.y = 0.0f;
+
 	m_pmove = *CMemoryHookMgr::the().pmove().get();
 
 	m_current_frame = &cl->frames[cl->parsecountmod];

@@ -163,8 +163,8 @@ void CMovement::render_debug(hl::usercmd_t* cmd)
 	CEngineFontRendering::the().render_debug("Yaw: {} a", cmd->viewangles[YAW]);
 	CEngineFontRendering::the().render_debug("usehull: {}", pmove->usehull);
 
-	if (mouse_x_ptr)
-		CEngineFontRendering::the().render_debug("Mouse delta: {}", Vector2D(*mouse_x_ptr, *mouse_y_ptr));
+	auto va_delta = CLocalState::the().get_viewangle_delta();
+	CEngineFontRendering::the().render_debug("VA delta: {}", va_delta);
 }
 
 void CMovement::feed_plot(float frametime, hl::usercmd_t * cmd)

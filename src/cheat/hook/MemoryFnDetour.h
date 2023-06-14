@@ -489,13 +489,6 @@ struct CHudSniperScope__Draw_FnDetour_t final : public GenericMemoryFnDetour_thi
 	static int __thiscall CHudSniperScope__Draw(void* ecx, float flTime);
 };
 
-// void IN_ScaleMouse(float *x, float *y)
-struct IN_ScaleMouse_FnDetour_t final : public GenericMemoryFnDetour_cdecl<int, float*, float*>
-{
-	bool install();
-	static void IN_ScaleMouse(float *x, float *y);
-};
-
 // int CL_IsThirdPerson()
 struct CL_IsThirdPerson_FnDetour_t final : public GenericMemoryFnDetour_cdecl<int>
 {
@@ -511,8 +504,6 @@ struct CL_ProcessEntityUpdate_FnDetour_t final : public GenericMemoryFnDetour_cd
 };
 
 //---------------------------------------------------------------------------------
-
-extern float *mouse_x_ptr, *mouse_y_ptr;
 
 class CMemoryFnDetourMgr
 {
@@ -564,7 +555,6 @@ public:
 	inline auto& hudRegisterVariable() { static hudRegisterVariable_FnDetour_t fnhook; return fnhook; }
 	inline auto& MSG_WriteUsercmd() { static MSG_WriteUsercmd_FnDetour_t fnhook; return fnhook; }
 	inline auto& CHudSniperScope__Draw() { static CHudSniperScope__Draw_FnDetour_t fnhook; return fnhook; }
-	inline auto& IN_ScaleMouse() { static IN_ScaleMouse_FnDetour_t fnhook; return fnhook; }
 	inline auto& CL_IsThirdPerson() { static CL_IsThirdPerson_FnDetour_t fnhook; return fnhook; }
 	inline auto& CL_ProcessEntityUpdate() { static CL_ProcessEntityUpdate_FnDetour_t fnhook; return fnhook; }
 

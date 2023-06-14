@@ -1146,16 +1146,23 @@ void CUIMenu::tab_movement()
 		});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-		"Strafe helper", CMenuStyle::calc_child_size(180), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		"Strafe helper", CMenuStyle::calc_child_size(240), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[]()
 		{
 			CUIMenuWidgets::the().feature_enabled_section_incommands(
 			&CMovement::the().strafe_helper,
 			[]()
 			{
-				CUIMenuWidgets::the().add_checkbox("Strafe with mouse", &movement_strafe_helper_strafe_with_mouse);
 				CUIMenuWidgets::the().add_slider("Accumulation", "%0.2f", &movement_strafe_helper_accumulation);//
 				CUIMenuWidgets::the().add_checkbox("Accumulation on ground", &movement_strafe_helper_accumulation_on_ground);
+
+				CUIMenuWidgets::the().feature_enabled_section(
+				&movement_strafe_helper_strafe_with_mouse,
+				[]()
+				{
+					CUIMenuWidgets::the().add_listbox("Direction", &movement_strafe_helper_strafe_dir, { "Forward", "Right", "Back", "Left" });
+					CUIMenuWidgets::the().add_checkbox("Deduce automatically", &movement_strafe_helper_strafe_dir_auto);
+				}, "Strafe with mouse");
 			});
 		});
 
@@ -1367,6 +1374,8 @@ void CUIMenu::tab_config()
 
 				g_gui_widgets_i->add_text("Configuration files");
 
+				g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, Vector2D(5, 5));
+
 				g_gui_widgets_i->add_child(
 					"configs", { -1.0f, -1.0f - status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
 					[]()
@@ -1540,6 +1549,8 @@ void CUIMenu::tab_config()
 
 							}
 						}
+
+						g_gui_widgets_i->pop_stylevar();
 
 						g_gui_widgets_i->add_spacing();
 						CUIMenuWidgets::the().add_slider("Autosave interval", "%0.0f seconds", g_config_mgr_i->get_save_cfg_interval_var());

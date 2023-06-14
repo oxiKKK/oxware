@@ -129,5 +129,8 @@ void CFeatureManager::precache_features()
 	// consistency bypass
 	add_new_feature(BaseFeature(&consistencybypass_enable, "Consistency bypass"));
 
+	// anti demo recorder
+	add_new_feature(BaseFeature(&anti_demo_recorder_enable, "Anti demo recorder"));
+
 	CConsole::the().info("Precached all features.");
 }

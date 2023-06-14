@@ -275,6 +275,9 @@
     <ClCompile Include="features\NonSteamFpsFixer.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
+    <ClCompile Include="features\AntiDemoRecorder.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -495,6 +498,9 @@
       <Filter>src\hooking</Filter>
     </ClInclude>
     <ClInclude Include="features\NonSteamFpsFixer.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="features\AntiDemoRecorder.h">
       <Filter>src\features</Filter>
     </ClInclude>
   </ItemGroup>

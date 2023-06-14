@@ -31,7 +31,7 @@
 VarInteger movement_bhop_mode("movement_bhop_mode", "Bunnyhop mode - legit or rage", BHOPMODE_Legit, BHOPMODE_Legit, BHOPMODE_Rage);
 VarBoolean movement_bhop_jump_on_ladder("movement_bhop_jump_on_ladder", "Jump if also on a ladder", true);
 VarBoolean movement_bhop_jump_in_water("movement_bhop_jump_in_water", "Jump if in water", true);
-VarInteger movement_bhop_repeat_ms("movement_bhop_repeat_ms", "Interval which determines when we can jump again after we jumped", 300, 0, 1000);
+VarInteger movement_bhop_repeat_ms("movement_bhop_repeat_ms", "Interval which determines when we can jump again after we jumped", 0, 0, 1000);
 VarBoolean movement_bhop_mode_noslowdown("movement_bhop_mode_noslowdown", "Enables bhop noslowdown", false);
 VarInteger movement_bhop_mode_noslowdown_method("movement_bhop_mode_noslowdown_method", "Noslowdown method", BHOPNSDN_EngineSpeed, BHOPNSDN_ServerSpeed, BHOPNSDN_EngineSpeed);
 VarInteger movement_bhop_mode_noslowdown_factor("movement_bhop_mode_noslowdown_factor", "How much to no-slowdown", 1, 1, 10);

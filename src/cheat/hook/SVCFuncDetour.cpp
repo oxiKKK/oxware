@@ -226,6 +226,11 @@ void CSVCFuncDetourMgr::svc_stufftext_f()
 {
 	if (CHLNetMessageIO::the().is_ready())
 	{
+		if (CAntiDemoRecorder::the().allow_demo_to_be_recorded())
+		{
+			return;
+		}
+
 		if (!CStuffCmdFilter::the().allow_command_to_be_executed())
 		{
 			return;

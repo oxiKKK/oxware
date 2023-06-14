@@ -200,6 +200,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CheatInfo.cpp" />
+    <ClCompile Include="features\AntiDemoRecorder.cpp" />
     <ClCompile Include="features\IngameScreenRendering.cpp" />
     <ClCompile Include="features\movement\AirStuck.cpp" />
     <ClCompile Include="features\movement\AutoJOF.cpp" />
@@ -292,6 +293,7 @@
     <ClInclude Include="..\public\DependencyLoader.h" />
     <ClInclude Include="..\public\interface.h" />
     <ClInclude Include="custom_format_cheat.h" />
+    <ClInclude Include="features\AntiDemoRecorder.h" />
     <ClInclude Include="features\IngameScreenRendering.h" />
     <ClInclude Include="features\movement\AirStuck.h" />
     <ClInclude Include="features\movement\AutoJOF.h" />

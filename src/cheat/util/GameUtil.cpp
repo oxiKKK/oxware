@@ -637,6 +637,120 @@ void CGameUtil::classic_cs16_cheating_scene_speedhack(double new_speed)
 	}
 }
 
+// taken from hlsdk
+static char com_token[1500];
+const char *COM_Parse(const char *data)
+{
+	int             c;
+	int             len;
+
+	len = 0;
+	com_token[0] = 0;
+
+	if (!data)
+		return NULL;
+
+	// skip whitespace
+skipwhite:
+	while ((c = *data) <= ' ')
+	{
+		if (c == 0)
+			return NULL;                    // end of file;
+		data++;
+	}
+
+	// skip // comments
+	if (c == '/' && data[1] == '/')
+	{
+		while (*data && *data != '\n')
+			data++;
+		goto skipwhite;
+	}
+
+
+	// handle quoted strings specially
+	if (c == '\"')
+	{
+		data++;
+		while (1)
+		{
+			c = *data++;
+			if (c == '\"' || !c)
+			{
+				com_token[len] = 0;
+				return data;
+			}
+			com_token[len] = c;
+			len++;
+		}
+	}
+
+	// parse single characters
+	if (c == '{' || c == '}' || c == ')' || c == '(' || c == '\'' || c == ',')
+	{
+		com_token[len] = c;
+		len++;
+		com_token[len] = 0;
+		return data + 1;
+	}
+
+	// parse a regular word
+	do
+	{
+		com_token[len] = c;
+		data++;
+		len++;
+		c = *data;
+		if (c == '{' || c == '}' || c == ')' || c == '(' || c == '\'' || c == ',')
+			break;
+	} while (c > 32);
+
+	com_token[len] = 0;
+	return data;
+}
+
+std::vector<std::string> CGameUtil::tokenize_goldsrc_command(const char* text)
+{
+	std::vector<std::string> tokens;
+
+	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
+
+	while (1)
+	{
+		// Skip whitespace up to a /n
+		while (*text && *text <= ' ' && *text != '\n')
+		{
+			text++;
+		}
+
+		// A newline seperates commands in the buffer
+		if (*text == '\n')
+		{
+			text++;
+			break;
+		}
+
+		if (!*text)
+			break;
+
+		// Parse the actual text and retreive tokens
+		text = COM_Parse(text);
+		if (!text)
+			break;
+
+		// Exceeded the token length
+		if ((strlen(com_token) + 1) >= CMD_MAX_TOKEN_LENGTH)
+			break;
+
+		if (tokens.size() < 80)
+		{
+			tokens.push_back(com_token);
+		}
+	}
+
+	return tokens;
+}
+
 void CGameUtil::locate_engine_compile_timestamp()
 {
 	if (!m_engine_compile_date.empty())

@@ -92,6 +92,9 @@ public:
 	// see the function definition for more information :-)
 	void classic_cs16_cheating_scene_speedhack(double new_speed);
 
+	// equivalent to Cmd_TokenizeString()
+	std::vector<std::string> tokenize_goldsrc_command(const char* text);
+
 private:
 	void locate_engine_compile_timestamp();
 

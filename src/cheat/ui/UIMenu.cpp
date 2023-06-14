@@ -500,6 +500,17 @@ void CUIMenu::tab_world()
 				CUIMenuWidgets::the().add_checkbox("Block wall", &thirdperson_block_wall);
 			});
 
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+			"Anti demo recorder", CMenuStyle::calc_child_size(120), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Enable", &anti_demo_recorder_enable);
+
+				CUIMenuWidgets::the().add_description_text(
+					"If enabled, server will not be able to record demos on your game.\n"
+					"You'll be notified every time server wants to start a demo inside the console.");
+			});
+
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(

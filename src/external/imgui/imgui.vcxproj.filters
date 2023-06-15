@@ -7,6 +7,12 @@
     <Filter Include="src\backend">
       <UniqueIdentifier>{00b2cf98-fa7c-48bf-a674-adbfab10237a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\misc">
+      <UniqueIdentifier>{24378de1-a8e4-41e6-bc81-ff020d6cdc32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\misc\freetype">
+      <UniqueIdentifier>{691be24e-547b-4d85-ba5a-64151c1fb064}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -42,6 +48,9 @@
     <ClInclude Include="backends\imgui_impl_opengl2.h">
       <Filter>src\backend</Filter>
     </ClInclude>
+    <ClInclude Include="misc\freetype\imgui_freetype.h">
+      <Filter>src\misc\freetype</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -70,6 +79,9 @@
     </ClCompile>
     <ClCompile Include="backends\imgui_impl_opengl2.cpp">
       <Filter>src\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\freetype\imgui_freetype.cpp">
+      <Filter>src\misc\freetype</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

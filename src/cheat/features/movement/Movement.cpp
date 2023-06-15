@@ -133,6 +133,7 @@ void CMovement::render_debug(hl::usercmd_t* cmd)
 	Vector vel_vec = CLocalState::the().get_local_velocity_vec();
 
 	auto pmove = *CMemoryHookMgr::the().pmove().get();
+	auto cl = CMemoryHookMgr::the().cl().get();
 
 	float velocity = CLocalState::the().get_local_velocity_2d();
 	static float last_velocity = velocity;
@@ -159,7 +160,9 @@ void CMovement::render_debug(hl::usercmd_t* cmd)
 	CEngineFontRendering::the().render_debug("Sidemove: {}", cmd->sidemove);
 	CEngineFontRendering::the().render_debug("Maxspeed: {}", pmove->maxspeed);
 	CEngineFontRendering::the().render_debug("Movespeed: {}", movespeed);
+	CEngineFontRendering::the().render_debug("Movetype: {}", pmove->movetype);
 	CEngineFontRendering::the().render_debug("Viewangles: {}", cmd->viewangles);
+	CEngineFontRendering::the().render_debug("prediction_error: {}", cl->prediction_error.Length());
 	CEngineFontRendering::the().render_debug("Yaw: {} a", cmd->viewangles[YAW]);
 	CEngineFontRendering::the().render_debug("usehull: {}", pmove->usehull);
 

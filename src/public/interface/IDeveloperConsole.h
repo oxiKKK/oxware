@@ -88,6 +88,8 @@ public:
 	virtual FilePath_t get_logfile_path() = 0;
 	virtual FilePath_t get_logfile_path_fancy() = 0; // with %appdata% instead of the actual directory
 
+	virtual void enable_tooltip(bool enable) = 0;
+
 protected:
 	template<typename T>
 	struct print_color_t

@@ -148,6 +148,8 @@ bool CoXWARE::initialize()
 		return false;
 	}
 
+	g_devconsole_i->enable_tooltip(true);
+
 	// keyboard/mouse I/O
 	g_user_input_i->initialize();
 

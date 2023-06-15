@@ -313,6 +313,11 @@ void CVariableManager::for_each_command(const std::function<void(BaseCommand*)>&
 
 void CVariableManager::execute_command(const std::string& command_sequence, bool silent)
 {
+	if (command_sequence == " ")
+	{
+		return;
+	}
+
 	// collect individual commands separated by ';'
 	std::string current_command;
 	bool in_quotes = false;

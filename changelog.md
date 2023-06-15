@@ -128,6 +128,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Added sound esp resolver.
 - Added fps fixer for non-steam cs.
 - Added anti demo recorder.
+- Improved console input UI.
 
 ## Bugfixes
 

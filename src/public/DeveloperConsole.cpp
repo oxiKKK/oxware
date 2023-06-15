@@ -78,6 +78,11 @@ public:
 	FilePath_t get_logfile_path();
 	FilePath_t get_logfile_path_fancy(); // with %appdata% instead of the actual directory
 
+	void enable_tooltip(bool enable)
+	{
+		m_tooltip_enabled = enable;
+	}
+
 private:
 	std::string generate_logfilename();
 
@@ -129,8 +134,22 @@ private:
 
 	std::string m_logfile_path_current;
 
+	bool m_reclaim_focus = false;
+	char m_input_buffer[256];
+
 	// command history
 	std::deque<std::string> m_entered_commands;
+	int m_history_pos = 0;
+
+	// via up and down arrows
+	int m_selected_candidate = -1;
+	std::vector<std::string> m_tooltip_candidates;
+	void rebuild_tooltip_canditate_list(const char* input_buffer, int length);
+	void render_candidate_tooltip();
+
+	bool m_tooltip_enabled = false;
+
+	inline static constexpr int k_max_tooltip_candidates = 999; // "unlimited", since we have a scrollbar
 };
 
 BaseCommand clear(
@@ -142,7 +161,7 @@ BaseCommand clear(
 );
 
 BaseCommand print(
-	"print", "Prints string to the console",
+	"print", "<message>", "Prints string to the console",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
 		if (args.count() <= 1)
@@ -213,6 +232,9 @@ void CDeveloperConsole::initialize(const std::string& module_name)
 
 		print_locally(EOutputCategory::INFO, std::format("Logging to {}", get_logfile_path()));
 	}
+
+	// push empty buffer because that's what we start with
+	m_entered_commands.push_back("");
 
 	print_locally(EOutputCategory::INFO, "Console Initialized");
 }
@@ -321,41 +343,58 @@ void CDeveloperConsole::render()
 
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 4.0f, 4.0f });
 
-	static char buffer[256];
 	ImGuiInputTextFlags input_text_flags = 
 		ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | 
-		ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
-	bool reclaim_focus = false;
-	if (g_gui_widgets_i->add_text_input("Enter commands", buffer, sizeof(buffer), input_text_flags, true, &text_edit_callback_stub, (void*)this))
+		ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackEdit;
+	if (g_gui_widgets_i->add_text_input("Enter commands", m_input_buffer, sizeof(m_input_buffer), input_text_flags, true, &text_edit_callback_stub, (void*)this))
 	{
-		if (buffer[0])
+		if (m_selected_candidate != -1)
 		{
-			// feed the parser with new buffer
-			g_variablemgr_i->execute_command(buffer);
-
-			if (m_entered_commands.size() > 20)
-			{
-				m_entered_commands.pop_front();
-			}
-
-			m_entered_commands.push_back(buffer);
-
-			strcpy(buffer, "");
+			// pressed enter while a tooltip candidate was selected by cursor
+			strcpy(m_input_buffer, m_tooltip_candidates[m_selected_candidate].c_str());
+			rebuild_tooltip_canditate_list(m_input_buffer, strlen(m_input_buffer));
 		}
 		else
 		{
-			print_console(EOutputCategory::INFO, "> ");
+			if (m_input_buffer[0])
+			{
+				// feed the parser with new buffer
+				g_variablemgr_i->execute_command(m_input_buffer);
+
+				if (m_entered_commands.size() > 20)
+				{
+					m_entered_commands.pop_front();
+				}
+
+				// insert, but not duplicates
+				if (std::find(m_entered_commands.begin(), m_entered_commands.end(), m_input_buffer) == m_entered_commands.end())
+				{
+					m_entered_commands.push_back(m_input_buffer);
+				}
+
+//				print_console(EOutputCategory::INFO, "input");
+				m_history_pos = 0;
+
+				strcpy(m_input_buffer, "");
+			}
+			else
+			{
+				print_console(EOutputCategory::INFO, "> ");
+			}
 		}
 
-		reclaim_focus = true;
+		m_reclaim_focus = true;
 	}
 
 	// Auto-focus on window apparition
 	g_gui_widgets_i->set_item_default_focus();
-	if (reclaim_focus)
+	if (m_reclaim_focus)
 	{
 		g_gui_widgets_i->set_keyboard_focus_here(-1); // Auto focus previous widget
+		m_reclaim_focus = false;
 	}
+
+	render_candidate_tooltip();
 
 	g_gui_widgets_i->pop_stylevar(1); // WindowPadding
 }
@@ -563,50 +602,106 @@ void CDeveloperConsole::prepare_log_directory()
 
 int CDeveloperConsole::text_edit_callback(ImGuiInputTextCallbackData* data)
 {
+	bool history = false;
+	
 	switch (data->EventFlag)
 	{
 		case ImGuiInputTextFlags_CallbackCompletion:
 		{
+			// pressing tab on empty buffer is as if you'd press down arrow key
+			if (m_tooltip_candidates.empty())
+			{
+				int max_size = (int)(m_entered_commands.size() - 1);
+				if (++m_history_pos > max_size)
+				{
+					m_history_pos = 0; // roll back with tab
+				}
+//				print_console(EOutputCategory::INFO, std::format("history_pos: {}", m_history_pos));
+				history = true;
+			}
+			else
+			{
+				int max_size = (int)(m_tooltip_candidates.size() - 1);
+				if (++m_selected_candidate > max_size)
+				{
+					m_selected_candidate = 0; // roll back with tab
+				}
+//				print_console(EOutputCategory::INFO, std::format("m_selected_candidate: {}", m_selected_candidate));
+			}
 			break;
 		}
 		case ImGuiInputTextFlags_CallbackHistory:
 		{
-			static int history_pos = 0;
 			switch (data->EventKey)
 			{
-				case ImGuiKey_UpArrow:
-				{
-					history_pos--;
-
-					if (history_pos < 0)
-					{
-						history_pos = m_entered_commands.size() - 1;
-					}
-					break;
-				}
 				case ImGuiKey_DownArrow:
 				{
-					history_pos++;
-
-					if (history_pos > (int)(m_entered_commands.size() - 1))
+					if (m_tooltip_candidates.empty())
 					{
-						history_pos = 0;
+						if (--m_history_pos < 0)
+						{
+							m_history_pos = 0;
+						}
+//						print_console(EOutputCategory::INFO, std::format("history_pos: {}", m_history_pos));
+						history = true;
+					}
+					else
+					{
+						int max_size = (int)(m_tooltip_candidates.size() - 1);
+						if (++m_selected_candidate > max_size)
+						{
+							m_selected_candidate = m_tooltip_candidates.empty() ? 0 : max_size;
+						}
+//						print_console(EOutputCategory::INFO, std::format("m_selected_candidate: {}", m_selected_candidate));
 					}
 					break;
 				}
-			}
-
-			if (!m_entered_commands.empty())
-			{
-				auto& item = m_entered_commands.at(history_pos);
-
-				g_gui_widgets_i->delete_chars_on_textinput_buffer(data, 0, data->BufTextLen);
-				g_gui_widgets_i->insert_chars_to_textinput_buffer(data, 0, item.c_str());
+				case ImGuiKey_UpArrow:
+				{
+					if (m_tooltip_candidates.empty())
+					{
+						int max_size = (int)(m_entered_commands.size() - 1);
+						if (++m_history_pos > max_size)
+						{
+							m_history_pos = m_entered_commands.empty() ? 0 : max_size;
+						}
+//						print_console(EOutputCategory::INFO, std::format("history_pos: {}", m_history_pos));
+						history = true;
+					}
+					else
+					{
+						if (--m_selected_candidate < 0)
+						{
+							m_selected_candidate = 0;
+						}
+//						print_console(EOutputCategory::INFO, std::format("m_selected_candidate: {}", m_selected_candidate));
+					}
+					break;
+				}
 			}
 
 			break;
 		}
+		case ImGuiInputTextFlags_CallbackEdit:
+		{
+			rebuild_tooltip_canditate_list(data->Buf, data->BufTextLen);
+
+			m_history_pos = 0;
+//			print_console(EOutputCategory::INFO,std::format("data->EventChar: {}", data->EventChar));
+//			print_console(EOutputCategory::INFO,std::format("data->EventKey: {}", (int)data->EventKey));
+			break;
+		}
 	}
+
+	// changed history
+	if (history && !m_entered_commands.empty())
+	{
+		auto& item = m_entered_commands.at(m_history_pos);
+
+		g_gui_widgets_i->delete_chars_on_textinput_buffer(data, 0, data->BufTextLen);
+		g_gui_widgets_i->insert_chars_to_textinput_buffer(data, 0, (item + " ").c_str());
+	}
+
 	return 0;
 }
 
@@ -634,4 +729,108 @@ void CDeveloperConsole::log(const output_line_t& line)
 	m_logfile_output_stream << line.contents;
 
 	std::flush(m_logfile_output_stream);
+}
+
+void CDeveloperConsole::rebuild_tooltip_canditate_list(const char* input_buffer, int length)
+{
+	m_tooltip_candidates.clear();
+
+	g_variablemgr_i->for_each_command(
+		[&](BaseCommand* cmd)
+		{
+			bool match = true;
+
+			for (int k = 0; k < length; k++)
+			{
+				if (input_buffer[k] != cmd->get_name()[k])
+				{
+					match = false;
+					break;
+				}
+			}
+
+			if (m_tooltip_candidates.size() <= k_max_tooltip_candidates && match)
+			{
+				m_tooltip_candidates.push_back(cmd->get_name());
+			}
+		});
+
+	g_variablemgr_i->for_each_variable(
+		[&](BaseVariable* var)
+		{
+			bool match = true;
+
+			for (int k = 0; k < length; k++)
+			{
+				if (input_buffer[k] != var->get_name()[k])
+				{
+					match = false;
+					break;
+				}
+			}
+
+			if (m_tooltip_candidates.size() <= k_max_tooltip_candidates && match)
+			{
+				m_tooltip_candidates.push_back(std::format("{} {}", var->get_name(), var->get_value_string()));
+			}
+		});
+}
+
+void CDeveloperConsole::render_candidate_tooltip()
+{
+	if (!m_tooltip_enabled)
+	{
+		return;
+	}
+
+	if (m_input_buffer[0] == 0 || m_tooltip_candidates.empty())
+	{
+		if (!m_tooltip_candidates.empty())
+		{
+			m_tooltip_candidates.clear(); 
+			// prevent softlock situation where the input buffer is empty and tooltip isn't 
+			// m_tooltip_candidatesrendering however, the container still holds elements.
+		}
+		
+		m_selected_candidate = -1;
+		return;
+	}
+	
+	if (m_tooltip_candidates.size() == 1 && m_tooltip_candidates[0] == m_input_buffer)
+	{
+		// don't display only one item if already in input box
+		m_tooltip_candidates.clear();
+	}
+
+	g_gui_widgets_i->set_next_window_pos(g_gui_widgets_i->get_cursor_screen_pos());
+	g_gui_widgets_i->set_next_window_size(Vector2D(320, (m_tooltip_candidates.size() * 20.0f) > 150 ? 150 : m_tooltip_candidates.size() * 20.0f));
+	g_gui_widgets_i->set_next_window_rounding(5.0f, ImDrawFlags_RoundCornersBottom);
+
+	g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("proggyclean", FONT_SMALL, FONTDEC_Regular));
+	g_gui_widgets_i->create_new_window(
+		"Console tooltip",
+		ImGuiWindowFlags_Tooltip |
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_HorizontalScrollbar,
+		[&]()
+		{
+			int n = 0;
+			for (const auto& c : m_tooltip_candidates)
+			{
+				if (g_gui_widgets_i->add_selectable(c.empty() ? "##selectable" : c, n == m_selected_candidate))
+				{
+					strcpy(m_input_buffer, c.c_str());
+
+					// reset stuff
+					m_selected_candidate = -1;
+					m_reclaim_focus = true; // TODO: needed?
+					rebuild_tooltip_canditate_list(m_input_buffer, strlen(m_input_buffer));
+				}
+
+				n++;
+			}
+		});
+	g_gui_widgets_i->pop_font();
 }

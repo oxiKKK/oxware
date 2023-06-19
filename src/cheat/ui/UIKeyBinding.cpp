@@ -39,12 +39,18 @@ void CUIKeyBinding::update()
 
 	keep_bound_keys_up_to_date();
 
-	int vk_pressed = g_user_input_i->get_bound_key();
-	if (vk_pressed != NULL)
-	{
-		// a key was just bound from the UserInput code
+	// see if we are actually the ones who started the key binding mode.
+	bool did_start_key_binding_mode = m_current_key_bound != nullptr;
 
-		end_key_binding_mode(vk_pressed);
+	if (did_start_key_binding_mode)
+	{
+		int vk_pressed = g_user_input_i->get_bound_key();
+		if (vk_pressed != NULL)
+		{
+			// a key was just bound from the UserInput code
+
+			end_key_binding_mode(vk_pressed);
+		}
 	}
 }
 
@@ -286,7 +292,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 						g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
 
 						g_gui_widgets_i->execute_simple_popup_popup(
-							"new_bind_popup", { 120, 60 }, ImGuiWindowFlags_NoMove,
+							"new_bind_popup", { 140, 60 }, ImGuiWindowFlags_NoMove,
 							[&]()
 							{
 								static bool close_current_popup = false;
@@ -330,7 +336,8 @@ void CUIKeyBinding::render_interactible_bind_list()
 						g_gui_widgets_i->end_columns();
 					}
 
-					g_gui_widgets_i->add_text("* The bind subsystem is still in beta!", TEXTPROP_Disabled, g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
+					g_gui_widgets_i->add_text("* The bind subsystem is still in beta!", TEXTPROP_Disabled, 
+											  g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular));
 				});
 
 			g_gui_widgets_i->pop_stylevar();

@@ -185,13 +185,13 @@ void CClientMovementPacketPlot::on_render()
 	// reset for new frame
 	y_offset = 0.0f;
 
+	auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Bold);
+	
 	// render each data
 	int n = 1;
 	for (auto& [name, data_container] : m_data)
 	{
 		auto& [data, color] = data_container;
-
-		auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Bold);
 
 		Vector2D current_header_base = m_plot_base + Vector2D(1, -y_offset);
 		Vector2D current_data_base = current_header_base + Vector2D(data_entry_width_total, 0);
@@ -199,8 +199,8 @@ void CClientMovementPacketPlot::on_render()
 		// render header
 		g_gui_window_rendering_i->render_text_with_background(
 			g_gui_window_rendering_i->get_current_drawlist(),
-			font,
-			current_header_base - Vector2D(0, data_entry_height_total / 2 + g_gui_fontmgr_i->calc_font_text_size(font, name.c_str()).y / 2),
+			text_font,
+			current_header_base - Vector2D(0, data_entry_height_total / 2 + g_gui_fontmgr_i->calc_font_text_size(text_font, name.c_str()).y / 2),
 			white, name);
 
 		// top line

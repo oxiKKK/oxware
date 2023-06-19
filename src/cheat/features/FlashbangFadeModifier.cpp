@@ -55,6 +55,7 @@ void CFlashbangFadeModifier::initialize_gui()
 		{
 			return flashfademod_enable.get_value();
 		});
+
 }
 
 float CFlashbangFadeModifier::fade_percentage()
@@ -89,10 +90,10 @@ void CFlashbangFadeModifier::on_render()
 
 	auto screen = g_imgui_platform_layer_i->get_screen_size();
 
-	auto font = g_gui_fontmgr_i->get_font("proggyclean", FONT_MEDIUM, FONTDEC_Regular);
+	auto percentage_font = g_gui_fontmgr_i->get_font(FID_ProggyClean, FontSize::UIText.medium(), FDC_Regular);
 
 	auto label = std::format("flashed {:.1f} %", percent);
-	auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, label.c_str());
+	auto label_size = g_gui_fontmgr_i->calc_font_text_size(percentage_font, label.c_str());
 
 	g_gui_window_rendering_i->render_box(
 		g_gui_window_rendering_i->get_current_drawlist(), 
@@ -102,7 +103,7 @@ void CFlashbangFadeModifier::on_render()
 
 	g_gui_window_rendering_i->render_text_with_background(
 		g_gui_window_rendering_i->get_current_drawlist(), 
-		font,
+		percentage_font,
 		{ screen.x / 2 - label_size.x / 2, 10.0f }, 
 		CColor(230, 230, 230, 230), 
 		label);

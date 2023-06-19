@@ -32,7 +32,38 @@
 
 #include <imgui_internal.h>
 
+#include <set>
+
+static BaseFontContainer_t* find_static_font_container(const char* name)
+{
+	for (auto& f : g_static_fonts)
+	{
+		if (!stricmp(name, f.m_name))
+		{
+			return &f;
+		}
+	}
+	assert(0);
+	return nullptr;
+}
+
+//----------------------------------------------------------------------------------------------
+
+using FontIdentifier_t = std::tuple<EFontId, EFontDecoration, float>;
+
+MAKE_HASHABLE(FontIdentifier_t, std::get<0>(t), std::get<1>(t), std::get<1>(t));
+
+//----------------------------------------------------------------------------------------------
+
 IGUIFontManager* g_gui_fontmgr_i = nullptr;
+
+BaseCommand ui_reload_fonts(
+	"ui_reload_fonts", "Rebuilds all of the fonts.",
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		g_gui_fontmgr_i->rebuild_fonts();
+	}
+);
 
 class CGUIFontManager : public IGUIFontManager
 {
@@ -40,37 +71,52 @@ public:
 	CGUIFontManager();
 	~CGUIFontManager();
 
+	bool pre_newframe();
+
 	void initialize();
 
 	void push_default_font();
 	void pop_default_font();
 
-	FontObject_t* get_font(const char* name, EFontSize size = FONT_REGULAR, EFontDecoration decor = FONTDEC_Regular);
-	ImFont* get_imgui_font(const char* name, EFontSize size = FONT_REGULAR, EFontDecoration decor = FONTDEC_Regular);
-	FontObject_t* get_default_font();
+	ImFont* get_font(EFontId id, float size_px, EFontDecoration decor = FDC_Regular);
+	ImFont* get_default_font();
 
-	Vector2D calc_font_text_size(FontObject_t* font, const char* text);
+	Vector2D calc_font_text_size(ImFont* font, const char* text);
 
-	void build_new_font_from_mem(const char* name);
-
-private:
-	BaseFontContainer_t* find_static_font_container(const char* name)
+	void rebuild_fonts()
 	{
-		for (auto& f : g_static_fonts)
-		{
-			if (!stricmp(name, f.m_name))
-			{
-				return &f;
-			}
-		}
-		assert(0);
-		return nullptr;
+		m_needs_font_rebuild = true;
 	}
 
-private:
-	std::vector<FontPlaceholder_t> m_precached_fonts;
+	void add_freetype_builder_flags(FreeTypeBuilderFlags f, bool set)
+	{
+		if (set)
+		{
+			m_freetype_builder_flags |= f;
+		}
+		else
+		{
+			m_freetype_builder_flags &= ~f;
+		}
 
-	FontObject_t* m_default_font = nullptr;
+		rebuild_fonts();
+	}
+
+	FreeTypeBuilderFlags get_freetype_builder_flags() { return m_freetype_builder_flags; }
+
+private:
+	std::unordered_map<FontIdentifier_t, ImFont*> m_precached_fonts;
+
+	ImFont* m_default_font = nullptr;
+
+	ImFont* precache_font(EFontId id, float size_px, EFontDecoration decor);
+
+	bool m_needs_font_rebuild = false;
+	std::set<FontIdentifier_t> m_fonts_that_needs_to_be_precached;
+
+	FreeTypeBuilderFlags m_freetype_builder_flags;
+
+	void rebuild_font_atlas();
 };
 
 CGUIFontManager g_gui_fontmgr;
@@ -92,21 +138,54 @@ CGUIFontManager::~CGUIFontManager()
 	g_gui_fontmgr_i = nullptr;
 }
 
+bool CGUIFontManager::pre_newframe()
+{
+	for (const auto& [id, decor, px] : m_fonts_that_needs_to_be_precached)
+	{
+		precache_font(id, px, decor);
+
+		if (!m_needs_font_rebuild)
+		{
+			m_needs_font_rebuild = true;
+		}
+	}
+
+	m_fonts_that_needs_to_be_precached.clear();
+
+	if (m_needs_font_rebuild)
+	{
+		rebuild_font_atlas();
+		m_needs_font_rebuild = false;
+		return true;
+	}
+
+	return false;
+}
+
+void CGUIFontManager::rebuild_font_atlas()
+{
+	auto t1 = std::chrono::high_resolution_clock::now();
+
+	ImFontAtlas* atlas = ImGui::GetIO().Fonts;
+	atlas->FontBuilderIO = ImGuiFreeType::GetBuilderForFreeType();
+	atlas->FontBuilderFlags = m_freetype_builder_flags;
+
+	atlas->Build();
+
+	auto t2 = std::chrono::high_resolution_clock::now();
+
+	CConsole::the().info("Took {} seconds to rebuild all fonts.",
+						 std::chrono::duration<float, std::ratio<1, 1>>(t2 - t1).count());
+}
+
 void CGUIFontManager::initialize()
 {
-	CConsole::the().info("Initializing GUI FontManager");
-	CConsole::the().info("There will be {} instances of the same font with size beginning from {} up to {} (step is {})", 
-						 (int)FONT_SIZE_COUNT, k_font_scale_min, k_font_scale_min + (k_font_scale_step * (float)FONT_SIZE_COUNT), k_font_scale_step);
-
-	build_new_font_from_mem("segoeui");
-	build_new_font_from_mem("proggyclean");
-
-	m_default_font = get_font("segoeui", FONT_MEDIUM, FONTDEC_Bold);
+	m_default_font = precache_font(FID_SegoeUI, 16.0f, FDC_Bold);
 }
 
 void CGUIFontManager::push_default_font()
 {
-	ImGui::PushFont(m_default_font->m_precached_font_object);
+	ImGui::PushFont(m_default_font);
 }
 
 void CGUIFontManager::pop_default_font()
@@ -114,91 +193,110 @@ void CGUIFontManager::pop_default_font()
 	ImGui::PopFont();
 }
 
-FontObject_t* CGUIFontManager::get_font(const char* name, EFontSize size, EFontDecoration decor)
+ImFont* CGUIFontManager::get_font(EFontId id, float size_px, EFontDecoration decor)
 {
-	for (auto& f : m_precached_fonts)
+	//
+	// see if already precached
+	//
+	auto iter = m_precached_fonts.find(std::make_tuple(id, decor, size_px));
+	if (iter != m_precached_fonts.end())
 	{
-		if (!stricmp(f.m_font_name, name))
-		{
-			return f.get_by_decoration_and_size(decor, size);
-		}
+		return (*iter).second;
 	}
 
-	assert(0);
-	return nullptr;
+	//
+	// not found, schedule precache and meanwhile return the default font
+	//
+	m_fonts_that_needs_to_be_precached.insert(std::make_tuple(id, decor, size_px));
+	
+	return m_default_font;
 }
 
-ImFont* CGUIFontManager::get_imgui_font(const char* name, EFontSize size, EFontDecoration decor)
-{
-	auto font = get_font(name, size, decor);
-	if (!font)
-	{
-		return nullptr;
-	}
-
-	return font->m_precached_font_object;
-}
-
-FontObject_t* CGUIFontManager::get_default_font()
+ImFont* CGUIFontManager::get_default_font()
 {
 	return m_default_font;
 }
 
-Vector2D CGUIFontManager::calc_font_text_size(FontObject_t* font, const char* text)
+Vector2D CGUIFontManager::calc_font_text_size(ImFont* font, const char* text)
 {
-	assert(font && font->m_precached_font_object);
-	return font->m_precached_font_object->CalcTextSizeA(font->get_size_px(), FLT_MAX, 0, text);
+	return font->CalcTextSizeA(font->FontSize, FLT_MAX, 0, text);
 }
 
-void CGUIFontManager::build_new_font_from_mem(const char* name)
+ImFont* CGUIFontManager::precache_font(EFontId id, float size_px, EFontDecoration decor)
 {
-	// Note that the name must exist somewhere in the "assets" static library. See compressed_font_data.h
-
 	auto& io = ImGui::GetIO();
 
-	FontPlaceholder_t font_placeholder;
-	font_placeholder.m_font_name = name;
+	auto container = find_static_font_container(g_font_filenames[id]);
+	assert(container && "The container for this font doesn't exist!");
 
-	float scale_step = 0.0f;
-	for (size_t n = FONT_SMALLEST; n < FONT_SIZE_COUNT; n++)
+	ImFont* added_font = nullptr;
+
+	ImFontConfig cfg;
+	cfg.SizePixels = size_px;
+
+	// For smaller fonts, setting this throws out better results.
+	if (size_px <= 12)
 	{
-		auto static_font = find_static_font_container(name);
-		assert(static_font);
-
-		//
-		// regular
-		//
-		if (static_font->m_regular.raw_data)
-		{
-			auto font_regular = io.Fonts->AddFontFromMemoryCompressedTTF(static_font->m_regular.raw_data, static_font->m_regular.size, k_font_scale_min + scale_step);
-			assert(font_regular);
-			font_placeholder.add_sized_font(font_regular, FONTDEC_Regular, (EFontSize)n);
-		}
-
-		//
-		// bold
-		//
-		if (static_font->m_bold.raw_data)
-		{
-			auto font_bold = io.Fonts->AddFontFromMemoryCompressedTTF(static_font->m_bold.raw_data, static_font->m_bold.size, k_font_scale_min + scale_step);
-			assert(font_bold);
-			font_placeholder.add_sized_font(font_bold, FONTDEC_Bold, (EFontSize)n);
-		}
-
-		//
-		// light
-		//
-		if (static_font->m_light.raw_data)
-		{
-			auto font_light = io.Fonts->AddFontFromMemoryCompressedTTF(static_font->m_light.raw_data, static_font->m_light.size, k_font_scale_min + scale_step);
-			assert(font_light);
-			font_placeholder.add_sized_font(font_light, FONTDEC_Light, (EFontSize)n);
-		}
-
-		scale_step += k_font_scale_step;
+		cfg.GlyphBuildFlags |= ImGuiFreeTypeGlyphBuildFlags_ForceAutoHint;
 	}
 
-	m_precached_fonts.push_back(font_placeholder);
+	static const ImWchar glyph_ranges[] =
+	{
+		0x0020, 0x00FF, // Basic Latin + Latin Supplement
+		0x0400, 0x052F, // Cyrillic + Cyrillic Supplement
+		0x2000, 0x206F, // General Punctuation
+		0x2DE0, 0x2DFF, // Cyrillic Extended-A
+		0x3000, 0x30FF, // CJK Symbols and Punctuations, Hiragana, Katakana
+		0x31F0, 0x31FF, // Katakana Phonetic Extensions
+		0xFF00, 0xFFEF, // Half-width characters
+		0xFFFD, 0xFFFD, // Invalid
+		0x4e00, 0x9FAF, // CJK Ideograms
+		0xA640, 0xA69F, // Cyrillic Extended-B
+		0x2010, 0x205E, // Punctuations
+		0x0E00, 0x0E7F, // Thai
+		0x0102, 0x0103,
+		0x0110, 0x0111,
+		0x0128, 0x0129,
+		0x0168, 0x0169,
+		0x01A0, 0x01A1,
+		0x01AF, 0x01B0,
+		0x1EA0, 0x1EF9,
+		0,
+	};
 
-	CConsole::the().info("Added font '{}' to the list.", name);
+	switch (decor)
+	{
+		case FDC_Regular:
+		{
+			assert(container->m_regular.raw_data && "The font specified doesn't have regular decoration available!");
+
+			added_font = io.Fonts->AddFontFromMemoryCompressedTTF(container->m_regular.raw_data, container->m_regular.size, size_px, &cfg, glyph_ranges);
+			break;
+		}
+		case FDC_Bold:
+		{
+			assert(container->m_bold.raw_data && "The font specified doesn't have bold decoration available!");
+
+			//cfg.GlyphBuildFlags = ImGuiFreeTypeGlyphBuildFlags_Italic;
+			added_font = io.Fonts->AddFontFromMemoryCompressedTTF(container->m_bold.raw_data, container->m_bold.size, size_px, &cfg, glyph_ranges);
+			break;
+		}
+		case FDC_Light:
+		{
+			assert(container->m_light.raw_data && "The font specified doesn't have light decoration available!");
+
+			//cfg.GlyphBuildFlags = ImGuiFreeTypeGlyphBuildFlags_Bold;
+			added_font = io.Fonts->AddFontFromMemoryCompressedTTF(container->m_light.raw_data, container->m_light.size, size_px, &cfg, glyph_ranges);
+			break;
+		}
+	}
+
+	// the function shouldn't fail, but anyways
+	assert(added_font && "AddFontFromMemoryCompressedTTF failed while adding font.");
+
+	m_precached_fonts[std::make_tuple(id, decor, size_px)] = added_font;
+
+	CConsole::the().info("Added font '{}' ({}) of size {}px to the list.", g_font_filenames[id], g_font_decors[decor], size_px);
+
+	return added_font;
 }

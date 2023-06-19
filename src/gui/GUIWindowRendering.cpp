@@ -45,10 +45,10 @@ public:
 	ImDrawList* get_background_drawlist() { return ImGui::GetBackgroundDrawList(); }
 	ImDrawList* get_foreground_drawlist() { return ImGui::GetForegroundDrawList(); }
 
-	void render_text(ImDrawList* current, FontObject_t* font, const Vector2D& at, const CColor& color, const std::string& what);
+	void render_text(ImDrawList* current, ImFont* font, const Vector2D& at, const CColor& color, const std::string& what);
 	void render_line(ImDrawList* current, const Vector2D& from, const Vector2D& to, const CColor& color, float thicc = 1.0f);
 	
-	void render_text_with_background(ImDrawList* current, FontObject_t* font, const Vector2D& at, const CColor& color, const std::string& what);
+	void render_text_with_background(ImDrawList* current, ImFont* font, const Vector2D& at, const CColor& color, const std::string& what);
 
 	// box without and with an outline
 	void render_box(ImDrawList* current, const Vector2D& top_left, const Vector2D& bottom_right, const CColor& color, float rounding = 1.0f);
@@ -78,9 +78,9 @@ CGUIWindowRendering::~CGUIWindowRendering()
 	g_gui_window_rendering_i = nullptr;
 }
 
-void CGUIWindowRendering::render_text(ImDrawList* current, FontObject_t* font, const Vector2D& at, const CColor& color, const std::string& what)
+void CGUIWindowRendering::render_text(ImDrawList* current, ImFont* font, const Vector2D& at, const CColor& color, const std::string& what)
 {
-	current->AddText(font->m_precached_font_object, font->get_size_px(), at, color.as_u32(), what.c_str());
+	current->AddText(font, font->FontSize, at, color.as_u32(), what.c_str());
 }
 
 void CGUIWindowRendering::render_line(ImDrawList* current, const Vector2D& from, const Vector2D& to, const CColor& color, float thicc)
@@ -88,7 +88,7 @@ void CGUIWindowRendering::render_line(ImDrawList* current, const Vector2D& from,
 	current->AddLine(from, to, color.as_u32());
 }
 
-void CGUIWindowRendering::render_text_with_background(ImDrawList* current, FontObject_t* font, const Vector2D& at, const CColor& color, const std::string& what)
+void CGUIWindowRendering::render_text_with_background(ImDrawList* current, ImFont* font, const Vector2D& at, const CColor& color, const std::string& what)
 {
 	auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, what.c_str());
 

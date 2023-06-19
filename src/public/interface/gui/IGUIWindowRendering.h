@@ -37,9 +37,9 @@ public:
 	virtual ImDrawList* get_background_drawlist() = 0;
 	virtual ImDrawList* get_foreground_drawlist() = 0;
 
-	virtual void render_text(ImDrawList* current, FontObject_t* font, const Vector2D& at, const CColor& color, const std::string& what) = 0;
+	virtual void render_text(ImDrawList* current, ImFont* font, const Vector2D& at, const CColor& color, const std::string& what) = 0;
 
-	virtual void render_text_with_background(ImDrawList* current, FontObject_t* font, const Vector2D& at, const CColor& color, const std::string& what) = 0;
+	virtual void render_text_with_background(ImDrawList* current, ImFont* font, const Vector2D& at, const CColor& color, const std::string& what) = 0;
 
 	virtual void render_line(ImDrawList* current, const Vector2D& from, const Vector2D& to, const CColor& color, float thicc = 1.0f) = 0;
 

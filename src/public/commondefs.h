@@ -123,4 +123,28 @@ consteval T BIT(T N) { return N == -1 ? 0 : (1 << N); }
 // https://github.com/ValveSoftware/halflife/issues/1940#issuecomment-13052903
 #define FIRST_CLMOVE_DPS_DEPENDENCE_BUILD 6100 // something around ~6100
 
+//
+// create a custom std::hash<> for your custom type
+//
+
+inline void hash_combine(std::size_t& seed) { }
+
+template <typename T, typename... Rest>
+inline void hash_combine(std::size_t& seed, const T& v, Rest... rest) {
+	std::hash<T> hasher;
+	seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+	hash_combine(seed, rest...);
+}
+
+#define MAKE_HASHABLE(type, ...) \
+    namespace std {\
+        template<> struct hash<type> {\
+            std::size_t operator()(const type &t) const {\
+                std::size_t ret = 0;\
+                hash_combine(ret, __VA_ARGS__);\
+                return ret;\
+            }\
+        };\
+    }
+
 #endif // COMMONDEFS_H

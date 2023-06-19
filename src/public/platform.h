@@ -65,6 +65,10 @@
 #include <winsock.h>
 #include <knownfolders.h>
 
+#ifdef small
+#undef small // bruh
+#endif
+
 //---------------------------------------------------------------------------------
 
 // Bypass the POSIX deprecation errors

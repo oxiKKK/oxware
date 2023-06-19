@@ -107,11 +107,24 @@ struct std::formatter<EBindFlags> : std::formatter<std::string> {
 	}
 };
 
+enum EBindInternalState
+{
+	BINDSTATE_None = 0,
+
+	BINDSTATE_ExecutedWhenCheatUIWasOff = BIT(0),	// the bind was executed when UI was off. Handy for on push and release binds.
+	BINDSTATE_ExecutedWhenGameUIWasOff = BIT(1),	// 
+};
+DEFINE_ENUM_BITWISE_OPERATORS(EBindInternalState);
+
+
 struct bind_t
 {
 	std::string cmd_sequence_0, cmd_sequence_1;
 	EBindType type;
 	EBindFlags flags;
+
+	// internal data
+	EBindInternalState internal_state;
 };
 
 class IBindManager 

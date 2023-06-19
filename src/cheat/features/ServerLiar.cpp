@@ -148,7 +148,7 @@ void CServerLiar::render_ui()
 	{
 		auto color = CColor(0, 112, 0, 170);
 
-		g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
+		g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_ProggyClean, FontSize::UIText.medium(), FDC_Regular));
 		g_gui_widgets_i->add_colored_text(color, m_current_status);
 		g_gui_widgets_i->pop_font();
 	}

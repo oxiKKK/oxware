@@ -69,10 +69,11 @@ void CUIFeatureList::on_render()
 				{
 					if (f->is_enabled())
 					{
-						EFontDecoration decor = ui_feature_list_font.get_value() == 0 ? FONTDEC_Bold : FONTDEC_Regular;
-						EFontSize fsize = ui_feature_list_font_size.get_value() == 0 ? FONT_SMALL : FONT_MEDIUM;
+						EFontDecoration decor = ui_feature_list_font.get_value() == 0 ? FDC_Bold : FDC_Regular;
+						float fsize = ui_feature_list_font_size.get_value() == 0 ? FontSize::UIText.medium() : FontSize::UIText.regular();
 
-						auto feature_font = g_gui_fontmgr_i->get_font("segoeui", fsize, decor);
+						auto feature_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, fsize, decor);
+
 						auto label_size = g_gui_fontmgr_i->calc_font_text_size(feature_font, f->get_name().c_str());
 
 						bool check_for_overflow = ui_feature_list_overflow.get_value();

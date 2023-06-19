@@ -548,7 +548,8 @@ void COxWareUI::render_popup()
 		{
 			if (!m_popup_window_title.empty())
 			{
-				g_gui_widgets_i->add_text(m_popup_window_title, TEXTPROP_None, g_gui_fontmgr_i->get_font("segoeui", FONT_BIGGEST, FONTDEC_Regular));
+				auto title_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.large(), FDC_Regular);
+				g_gui_widgets_i->add_text(m_popup_window_title, TEXTPROP_None, title_font);
 			}
 
 			g_gui_widgets_i->add_child(

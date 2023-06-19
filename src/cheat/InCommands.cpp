@@ -267,12 +267,19 @@ bool CInCommands::is_key_bound_and_active(int vk)
 
 void CInCommands::update()
 {
-	int vk_pressed = g_user_input_i->get_bound_key();
-	if (vk_pressed != NULL)
-	{
-		// a key was just bound from the UserInput code
+	// We can check this way if we started the key binding mode from our code.
+	// Because it could be started elsewhere, e.g. bindmanager code.
+	bool did_start_key_binding_mode = m_in_cmd_to_be_rebound != nullptr;
 
-		end_key_binding_mode(vk_pressed);
+	if (did_start_key_binding_mode)
+	{
+		int vk_pressed = g_user_input_i->get_bound_key();
+		if (vk_pressed != NULL && g_user_input_i->is_in_key_binding_mode())
+		{
+			// a key was just bound from the UserInput code
+
+			end_key_binding_mode(vk_pressed);
+		}
 	}
 }
 

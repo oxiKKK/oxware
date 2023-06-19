@@ -987,6 +987,11 @@ bool CL_ProcessEntityUpdate_FnDetour_t::install()
 
 void CL_ProcessEntityUpdate_FnDetour_t::CL_ProcessEntityUpdate(hl::cl_entity_t* ent)
 {
+	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
+	{
+		return;
+	}
+
 	// called after packet entities are resolved
 
 	CMemoryFnDetourMgr::the().CL_ProcessEntityUpdate().call(ent);

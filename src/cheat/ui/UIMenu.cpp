@@ -87,7 +87,7 @@ void MenuTabItem::render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId
 {
 	g_gui_widgets_i->set_cursor_pos(relative_offset);
 
-	auto button_font = g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_MEDIUM, FONTDEC_Bold);
+	auto button_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText, FDC_Bold);
 	g_gui_widgets_i->push_font(button_font);
 
 	// text color
@@ -126,7 +126,7 @@ void MenuTabSection::render(Vector2D& offset, Vector2D& relative_offset, const V
 
 void MenuTabSection::render_current_label(Vector2D& offset, Vector2D& relative_offset, const Vector2D& child_size)
 {
-	auto section_label_font = g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Regular);
+	auto section_label_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText, FDC_Regular);
 
 	// section title
 	g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(), 
@@ -135,8 +135,8 @@ void MenuTabSection::render_current_label(Vector2D& offset, Vector2D& relative_o
 										  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextLight),
 										  m_label);
 
-	relative_offset.y += section_label_font->get_size_px();
-	offset.y += section_label_font->get_size_px();
+	relative_offset.y += section_label_font->FontSize;
+	offset.y += section_label_font->FontSize;
 
 	// separator underneath
 	g_gui_window_rendering_i->render_line(g_gui_window_rendering_i->get_current_drawlist(), 
@@ -204,8 +204,8 @@ void CUIMenu::on_render()
 		window_flags &= ~ImGuiWindowFlags_NoResize;
 	}
 
-	auto segoeui_extra = g_gui_fontmgr_i->get_font("segoeui", FONT_EXTRA, FONTDEC_Bold);
-	auto segoeui_small = g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Bold);
+	auto segoeui_extra = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.extra(), FDC_Bold);
+	auto segoeui_small = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Bold);
 
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 
@@ -263,7 +263,7 @@ void CUIMenu::on_render()
 			//
 			// render topside contents
 			//
-			auto topside_font = g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Regular);
+			auto topside_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular);
 
 			auto version_label = std::format("Version: {}", OXVER_STRING);
 			g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(), 
@@ -366,7 +366,7 @@ void CUIMenu::on_render()
 
 	auto screen = g_imgui_platform_layer_i->get_screen_size();
 
-	auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_REGULAR, FONTDEC_Regular);
+	auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText, FDC_Regular);
 
 	const char* label = "www.github.com/oxiKKK/oxware";
 	auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, label);
@@ -552,7 +552,7 @@ void CUIMenu::tab_world()
 					"This fixes the FPS movement dependence, where with higher fps you would get slomotion movement and \"higher\" gravity."
 					"\nFor more technical details, follow this link:");
 
-				g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Regular));
+				g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular));
 				if (g_gui_widgets_i->add_hypertext_link("github.com/ValveSoftware/halflife/issues/1940"))
 				{
 					CGenericUtil::the().open_link_inside_browser("https://github.com/ValveSoftware/halflife/issues/1940");
@@ -603,7 +603,7 @@ void CUIMenu::tab_render()
 												   "Renders \"Real playermodel\". Hitboxes of this playermodel are used for hit registration, no matter what the acutal model is.");
 
 				CUIMenuWidgets::the().add_description_text_ex("You can see this why this is useful here:", nullptr, true);
-				g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Regular));
+				g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular));
 				if (g_gui_widgets_i->add_hypertext_link("https://youtu.be/xMd9m3McNvo"))
 				{
 					CGenericUtil::the().open_link_inside_browser("https://youtu.be/xMd9m3McNvo");
@@ -732,6 +732,8 @@ void CUIMenu::tab_screen()
 					CUIMenuWidgets::the().add_checkbox("Box background", &esp_background);
 					CUIMenuWidgets::the().add_listbox("Box type", &esp_box_type, { "Normal", "Corners" });
 
+					CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
+
 					g_gui_widgets_i->begin_tab("esp_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
 					float tab_height = -1.0f;
@@ -761,7 +763,6 @@ void CUIMenu::tab_screen()
 							CUIMenuWidgets::the().add_checkbox("Enable ##sound", &esp_sound_enable);
 							CUIMenuWidgets::the().add_slider("Display life", "%0.1f seconds", &esp_sound_interval);
 							CUIMenuWidgets::the().add_checkbox("Filter local", &esp_sound_filter_local);
-							CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
 							CUIMenuWidgets::the().feature_enabled_section(
 							&esp_sound_resolver,
 							[]()
@@ -854,7 +855,7 @@ void CUIMenu::tab_exploits()
 					g_gui_widgets_i->add_text(
 						"How does it work", 
 						TEXTPROP_Wrapped,
-						g_gui_fontmgr_i->get_font("segoeui", FONT_REGULAR, FONTDEC_Regular));
+						g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText, FDC_Regular));
 
 					g_gui_widgets_i->add_text(
 						"For example, often the server sends command to you such as \"fps_max 100; developer 0\" etc."
@@ -1483,7 +1484,7 @@ void CUIMenu::tab_config()
 									if (name_buffer[0])
 									{
 										g_gui_widgets_i->add_text(std::format("'{}.json'", name_buffer),
-																  TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
+																  TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular));
 									}
 								},
 								[&]() // on close
@@ -1582,7 +1583,7 @@ void CUIMenu::tab_config()
 					{
 						auto color = error ? CColor(112, 0, 0, 170) : CColor(0, 112, 0, 170);
 
-						g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
+						g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular));
 						g_gui_widgets_i->add_colored_text(color, msg);
 						g_gui_widgets_i->pop_font();
 					}
@@ -1635,8 +1636,8 @@ void CUIMenu::tab_cmdlist()
 				}, 
 				[&]()
 				{
-					auto small_font = g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Regular);
-					g_gui_widgets_i->push_font(small_font->m_precached_font_object);
+					auto small_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular);
+					g_gui_widgets_i->push_font(small_font);
 
 					int n = 0;
 					g_variablemgr_i->for_each_command(
@@ -1701,8 +1702,8 @@ void CUIMenu::tab_varlist()
 				},
 				[&]()
 				{
-					auto small_font = g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Regular);
-					g_gui_widgets_i->push_font(small_font->m_precached_font_object);
+					auto small_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular);
+					g_gui_widgets_i->push_font(small_font);
 
 					int n = 0;
 					g_variablemgr_i->for_each_variable(
@@ -1749,7 +1750,7 @@ void CUIMenu::tab_others()
 				CUIMenuWidgets::the().add_checkbox("Enable background fade", &ui_background_fade);
 
 				g_gui_widgets_i->add_separtor_with_text("Menu");
-				CUIMenuWidgets::the().add_checkbox("Resizable", &ui_menu_resizable);
+				CUIMenuWidgets::the().add_checkbox("Resizable (beta)", &ui_menu_resizable);
 
 				g_gui_widgets_i->add_separtor_with_text("Feature list");
 				CUIMenuWidgets::the().feature_enabled_section(
@@ -1758,9 +1759,25 @@ void CUIMenu::tab_others()
 				{
 					CUIMenuWidgets::the().add_listbox("Font type", &ui_feature_list_font, { "Bold", "Regular" });
 					CUIMenuWidgets::the().add_listbox("Font size", &ui_feature_list_font_size, { "Smaller", "Bigger" });
-					
+
 					CUIMenuWidgets::the().add_checkbox("Check for overlow", &ui_feature_list_overflow);
 				}, "Show");
+
+				g_gui_widgets_i->add_separtor_with_text("Fonts");
+
+				static bool no_hinting = g_gui_fontmgr_i->get_freetype_builder_flags() & FreeTypeBuilderFlags_NoHinting;
+				static bool no_auto_hint = g_gui_fontmgr_i->get_freetype_builder_flags() & FreeTypeBuilderFlags_NoAutoHint;
+				static bool force_auto_hint = g_gui_fontmgr_i->get_freetype_builder_flags() & FreeTypeBuilderFlags_ForceAutoHint;
+				static bool light_hinting = g_gui_fontmgr_i->get_freetype_builder_flags() & FreeTypeBuilderFlags_LightHinting;
+				static bool mono_hinting = g_gui_fontmgr_i->get_freetype_builder_flags() & FreeTypeBuilderFlags_MonoHinting;
+
+				if (g_gui_widgets_i->add_checkbox("No hinting", &no_hinting)) g_gui_fontmgr_i->add_freetype_builder_flags(FreeTypeBuilderFlags_NoHinting, no_hinting);
+				if (g_gui_widgets_i->add_checkbox("No auto-hint", &no_auto_hint)) g_gui_fontmgr_i->add_freetype_builder_flags(FreeTypeBuilderFlags_NoAutoHint, no_auto_hint);
+				if (g_gui_widgets_i->add_checkbox("Force auto-hint", &force_auto_hint)) g_gui_fontmgr_i->add_freetype_builder_flags(FreeTypeBuilderFlags_ForceAutoHint, force_auto_hint);
+				if (g_gui_widgets_i->add_checkbox("Light hinting", &light_hinting)) g_gui_fontmgr_i->add_freetype_builder_flags(FreeTypeBuilderFlags_LightHinting, light_hinting);
+				if (g_gui_widgets_i->add_checkbox("Mono hinting", &mono_hinting)) g_gui_fontmgr_i->add_freetype_builder_flags(FreeTypeBuilderFlags_MonoHinting, mono_hinting);
+
+
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
@@ -1810,7 +1827,7 @@ void CUIMenu::tab_others()
 			"Storage", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Regular);
+				auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular);
 
 				auto cheat_directory = g_filesystem_i->get_appdata_path();
 

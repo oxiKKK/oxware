@@ -134,7 +134,7 @@ namespace
         bool                    InitFont(FT_Library ft_library, const ImFontConfig& cfg, unsigned int extra_user_flags); // Initialize from an external data buffer. Doesn't copy data, and you must ensure it stays valid up to this object lifetime.
         void                    CloseFont();
         void                    SetPixelHeight(int pixel_height); // Change font pixel size. All following calls to RasterizeGlyph() will use this size
-        const FT_Glyph_Metrics* LoadGlyph(uint32_t in_codepoint);
+        const FT_Glyph_Metrics* LoadGlyph(ImGuiFreeTypeGlyphBuildFlags Flags, uint32_t in_codepoint);
         const FT_Bitmap*        RenderGlyphAndGetInfo(GlyphInfo* out_glyph_info);
         void                    BlitGlyph(const FT_Bitmap* ft_bitmap, uint32_t* dst, uint32_t dst_pitch, unsigned char* multiply_table = NULL);
         ~FreeTypeFont()         { CloseFont(); }
@@ -225,18 +225,25 @@ namespace
         Info.MaxAdvanceWidth = (float)FT_CEIL(metrics.max_advance);
     }
 
-    const FT_Glyph_Metrics* FreeTypeFont::LoadGlyph(uint32_t codepoint)
+    const FT_Glyph_Metrics* FreeTypeFont::LoadGlyph(ImGuiFreeTypeGlyphBuildFlags Flags, uint32_t codepoint)
     {
         uint32_t glyph_index = FT_Get_Char_Index(Face, codepoint);
         if (glyph_index == 0)
             return NULL;
+
+        auto f = LoadFlags;
+
+        if (Flags & ImGuiFreeTypeBuilderFlags_ForceAutoHint)
+        {
+            f |= FT_LOAD_FORCE_AUTOHINT;
+        }
 
 		// If this crash for you: FreeType 2.11.0 has a crash bug on some bitmap/colored fonts.
 		// - https://gitlab.freedesktop.org/freetype/freetype/-/issues/1076
 		// - https://github.com/ocornut/imgui/issues/4567
 		// - https://github.com/ocornut/imgui/issues/4566
 		// You can use FreeType 2.10, or the patched version of 2.11.0 in VcPkg, or probably any upcoming FreeType version.
-        FT_Error error = FT_Load_Glyph(Face, glyph_index, LoadFlags);
+        FT_Error error = FT_Load_Glyph(Face, glyph_index, f);
         if (error)
             return NULL;
 
@@ -245,9 +252,9 @@ namespace
         IM_ASSERT(slot->format == FT_GLYPH_FORMAT_OUTLINE || slot->format == FT_GLYPH_FORMAT_BITMAP);
 
         // Apply convenience transform (this is not picking from real "Bold"/"Italic" fonts! Merely applying FreeType helper transform. Oblique == Slanting)
-        if (UserFlags & ImGuiFreeTypeBuilderFlags_Bold)
+        if (Flags & ImGuiFreeTypeGlyphBuildFlags_Bold)
             FT_GlyphSlot_Embolden(slot);
-        if (UserFlags & ImGuiFreeTypeBuilderFlags_Oblique)
+        if (Flags & ImGuiFreeTypeGlyphBuildFlags_Italic)
         {
             FT_GlyphSlot_Oblique(slot);
             //FT_BBox bbox;
@@ -371,6 +378,7 @@ struct ImFontBuildSrcGlyphFT
     GlyphInfo           Info;
     uint32_t            Codepoint;
     unsigned int*       BitmapData;         // Point within one of the dst_tmp_bitmap_buffers[] array
+    ImGuiFreeTypeGlyphBuildFlags Flags;     // oxware
 
     ImFontBuildSrcGlyphFT() { memset((void*)this, 0, sizeof(*this)); }
 };
@@ -485,6 +493,7 @@ bool ImFontAtlasBuildWithFreeTypeEx(FT_Library ft_library, ImFontAtlas* atlas, u
     // 3. Unpack our bit map into a flat list (we now have all the Unicode points that we know are requested _and_ available _and_ not overlapping another)
     for (int src_i = 0; src_i < src_tmp_array.Size; src_i++)
     {
+        ImFontConfig& cfg = atlas->ConfigData[src_i];
         ImFontBuildSrcDataFT& src_tmp = src_tmp_array[src_i];
         src_tmp.GlyphsList.reserve(src_tmp.GlyphsCount);
 
@@ -498,6 +507,7 @@ bool ImFontAtlasBuildWithFreeTypeEx(FT_Library ft_library, ImFontAtlas* atlas, u
                     {
                         ImFontBuildSrcGlyphFT src_glyph;
                         src_glyph.Codepoint = (ImWchar)(((it - it_begin) << 5) + bit_n);
+                        src_glyph.Flags = cfg.GlyphBuildFlags;
                         //src_glyph.GlyphIndex = 0; // FIXME-OPT: We had this info in the previous step and lost it..
                         src_tmp.GlyphsList.push_back(src_glyph);
                     }
@@ -549,7 +559,7 @@ bool ImFontAtlasBuildWithFreeTypeEx(FT_Library ft_library, ImFontAtlas* atlas, u
         {
             ImFontBuildSrcGlyphFT& src_glyph = src_tmp.GlyphsList[glyph_i];
 
-            const FT_Glyph_Metrics* metrics = src_tmp.Font.LoadGlyph(src_glyph.Codepoint);
+            const FT_Glyph_Metrics* metrics = src_tmp.Font.LoadGlyph(src_glyph.Flags, src_glyph.Codepoint);
             if (metrics == NULL)
                 continue;
 

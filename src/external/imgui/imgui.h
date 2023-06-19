@@ -2660,6 +2660,17 @@ struct ImDrawData
 // [SECTION] Font API (ImFontConfig, ImFontGlyph, ImFontAtlasFlags, ImFontAtlas, ImFontGlyphRangesBuilder, ImFont)
 //-----------------------------------------------------------------------------
 
+// oxware added
+enum ImGuiFreeTypeGlyphBuildFlags_
+{
+    ImGuiFreeTypeGlyphBuildFlags_None = 0,
+    ImGuiFreeTypeGlyphBuildFlags_Bold = 1 << 0,
+    ImGuiFreeTypeGlyphBuildFlags_Italic = 1 << 1,
+    ImGuiFreeTypeGlyphBuildFlags_ForceAutoHint = 1 << 2,
+};
+
+typedef int ImGuiFreeTypeGlyphBuildFlags;
+
 struct ImFontConfig
 {
     void*           FontData;               //          // TTF/OTF data
@@ -2679,6 +2690,7 @@ struct ImFontConfig
     unsigned int    FontBuilderFlags;       // 0        // Settings for custom font builder. THIS IS BUILDER IMPLEMENTATION DEPENDENT. Leave as zero if unsure.
     float           RasterizerMultiply;     // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
     ImWchar         EllipsisChar;           // -1       // Explicitly specify unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
+    ImGuiFreeTypeGlyphBuildFlags GlyphBuildFlags;       // oxware
 
     // [Internal]
     char            Name[40];               // Name (strictly to ease debugging)

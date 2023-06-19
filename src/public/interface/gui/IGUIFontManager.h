@@ -30,114 +30,128 @@
 #define IGUIFONTMANAGER_H
 #pragma once
 
-#include <string>
-#include <map>
-
 enum EFontDecoration
 {
-	FONTDEC_Regular = BIT(0),
-	FONTDEC_Bold = BIT(1),
-	FONTDEC_Light = BIT(2),
+	FDC_Regular,
+	FDC_Bold,
+	FDC_Light,
+
+	NUM_FONT_DECORATIONS
 };
 
-struct FontObject_t
+static const char* g_font_decors[NUM_FONT_DECORATIONS] =
 {
-	FontObject_t() :
-		m_precached_font_object(nullptr)
-	{
-	}
-	explicit FontObject_t(ImFont* precached_font) :
-		m_precached_font_object(precached_font)
-	{
-	}
-
-	inline float get_size_px() const { assert(m_precached_font_object); return m_precached_font_object->FontSize; };
-
-	ImFont* m_precached_font_object;
+	"regular",	// FDC_Regular
+	"bold",		// FDC_Bold
+	"light",	// FDC_Light
 };
 
-enum EFontSize
+enum EFontId
 {
-	FONT_SMALLEST, 
-	FONT_SMALL, 
-	FONT_MEDIUM, 
-	FONT_REGULAR, 
-	FONT_BIGGER, 
-	FONT_BIG, 
-	FONT_BIGGEST, 
-	FONT_EXTRA, 
+	FID_SegoeUI,
+	FID_ProggyClean,
+	// if you add more fonts, don't forget to modify g_font_filenames[], too!
 
-	FONT_SIZE_COUNT
+	NUM_FONTS,
 };
 
-static constexpr float k_font_scale_min = 10.0f;
-static constexpr float k_font_scale_step = 3.0f; // we will build FONT_SIZE_COUNT fonts with this scaling factor. So it will be 10, 13, 16, 19, ... FONT_SIZE_COUNTx
-
-// holds decorated instances of the same font
-struct FontPlaceholder_t
+static const char* g_font_filenames[NUM_FONTS] =
 {
-	FontPlaceholder_t() :
-		m_font_name("uninitialized"),
-		m_decorated_scaled_variants()
-	{
-	}
-
-	void add_sized_font(ImFont* precached_font, EFontDecoration decor, EFontSize size)
-	{
-		m_decorated_scaled_variants[decor][size] = FontObject_t(precached_font);
-	}
-
-	inline bool does_have_decoration(EFontDecoration decor)
-	{
-		for (auto& [key, scaled_fonts] : m_decorated_scaled_variants)
-		{
-			if (decor == key)
-				return true;
-		}
-		return false;
-	}
-
-	inline FontObject_t* get_by_decoration_and_size(EFontDecoration decor, EFontSize size)
-	{
-		// fuuu, a lot of maps
-		for (auto& [key, scaled_fonts] : m_decorated_scaled_variants)
-		{
-			if (decor == key)
-			{
-				for (auto& [key1, font1] : scaled_fonts)
-				{
-					if (key1 == size)
-						return &font1;
-				}
-			}
-		}
-		assert(0);
-		return nullptr;
-	}
-
-	const char* m_font_name;
-
-	// holds decorated fonts (bold, light, etc) and each of these has FONT_SIZE_COUNT amount of fonts precached, each having unique size in pixels.
-	std::map<EFontDecoration, std::map<EFontSize, FontObject_t>> m_decorated_scaled_variants;
+	"segoeui",			// FID_SegoeUI
+	"proggyclean",		// FID_ProggyClean
 };
 
-struct ImFont;
+#ifdef small
+#undef small // bruh
+#endif
+
+inline static constexpr int k_min_font_size = 5;
+inline static constexpr int k_max_font_size = 60;
+//inline static constexpr int k_step = 3;
+// we'll precache k_max_font_size - k_min_font_size at startup for each decoration and for each font
+
+struct ft_size
+{
+	consteval ft_size(int _l) : l(_l) { }
+	consteval operator int() const { return l; }
+
+	inline consteval int smallest(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 0.65f) * scale); }
+	inline consteval int small(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 0.75f) * scale); }
+	inline consteval int medium(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 0.85f) * scale); }
+	inline consteval int regular(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 1.00f) * scale); }
+	inline consteval int bigger(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 1.25f) * scale); }
+	inline consteval int big(float scale = 1.0f) const			{ return constexpr_floor(((float)l * 1.45f) * scale); }
+	inline consteval int large(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 1.65f) * scale); }
+	inline consteval int extra(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 1.85f) * scale); }
+
+	int l;
+
+private:
+	constexpr int constexpr_floor(float f) const
+	{
+		const int i = static_cast<int>(f);
+		return f < i ? i - 1 : i;
+	}
+};
+
+struct FontSize
+{
+private:
+	template<int size>
+	inline static consteval int validate()
+	{
+		// see if the size is within bounds.
+		static_assert((int)((float)size * 0.65f) >= k_min_font_size && (int)((float)size * 1.85f) <= k_max_font_size,
+					  "the font size is too big.");
+		return size;
+	}
+
+public:
+
+	// UI
+	inline static constexpr ft_size UIText = validate<16>();
+
+	// Debug
+	inline static constexpr ft_size Debug = validate<14>();
+};
+
+// wrapper over the enum in imgui so that we don't have to include imgui outside of UI code.
+enum FreeTypeBuilderFlags
+{
+	FreeTypeBuilderFlags_None = 0,
+	FreeTypeBuilderFlags_NoHinting = 1 << 0,		// Disable hinting. This generally generates 'blurrier' bitmap glyphs when the glyph are rendered in any of the anti-aliased modes.
+	FreeTypeBuilderFlags_NoAutoHint = 1 << 1,		// Disable auto-hinter.
+	FreeTypeBuilderFlags_ForceAutoHint = 1 << 2,	// Indicates that the auto-hinter is preferred over the font's native hinter.
+	FreeTypeBuilderFlags_LightHinting = 1 << 3,		// A lighter hinting algorithm for gray-level modes. Many generated glyphs are fuzzier but better resemble their original shape. This is achieved by snapping glyphs to the pixel grid only vertically (Y-axis), as is done by Microsoft's ClearType and Adobe's proprietary font renderer. This preserves inter-glyph spacing in horizontal text.
+	FreeTypeBuilderFlags_MonoHinting = 1 << 4,		// Strong hinting algorithm that should only be used for monochrome output.
+	FreeTypeBuilderFlags_Bold = 1 << 5,				// Styling: Should we artificially embolden the font?
+	FreeTypeBuilderFlags_Oblique = 1 << 6,			// Styling: Should we slant the font, emulating italic style?
+	FreeTypeBuilderFlags_Monochrome = 1 << 7,		// Disable anti-aliasing. Combine this with MonoHinting for best results!
+	FreeTypeBuilderFlags_LoadColor = 1 << 8,		// Enable FreeType color-layered glyphs
+	FreeTypeBuilderFlags_Bitmap = 1 << 9			// Enable FreeType bitmap glyphs
+};
+DEFINE_ENUM_BITWISE_OPERATORS(FreeTypeBuilderFlags);
 
 class IGUIFontManager
 {
 public:
 	virtual void initialize() = 0;
 
+	// call before ImGui::NewFrame(). Returns true if atlas was rebuilt
+	virtual bool pre_newframe() = 0;
+
 	virtual void push_default_font() = 0;
 	virtual void pop_default_font() = 0;
 
-	virtual FontObject_t* get_font(const char* name, EFontSize size = FONT_REGULAR, EFontDecoration decor = FONTDEC_Regular) = 0;
-	virtual	ImFont* get_imgui_font(const char* name, EFontSize size = FONT_REGULAR, EFontDecoration decor = FONTDEC_Regular) = 0;
-	virtual FontObject_t* get_default_font() = 0;
+	virtual ImFont* get_font(EFontId id, float size_px, EFontDecoration decor = FDC_Regular) = 0;
+	virtual ImFont* get_default_font() = 0;
 
-	virtual Vector2D calc_font_text_size(FontObject_t* font, const char* text) = 0;
+	virtual Vector2D calc_font_text_size(ImFont* font, const char* text) = 0;
 
-	virtual void build_new_font_from_mem(const char* name) = 0;
+	virtual void rebuild_fonts() = 0;
+
+	virtual void add_freetype_builder_flags(FreeTypeBuilderFlags f, bool set) = 0;
+	virtual FreeTypeBuilderFlags get_freetype_builder_flags() = 0;
 };
 
 extern IGUIFontManager* g_gui_fontmgr_i;

@@ -40,7 +40,7 @@ class CGUIWidgetsStyle
 public:
 	inline static constexpr float k_childhdr_text_padding_x = 5.0f;
 	inline static constexpr float k_childhdr_text_padding_y = 3.0f;
-	inline static constexpr Vector2D k_childhdr_line_padding = { 5.0f, 2.0f };
+	inline static constexpr Vector2D k_childhdr_line_padding = { 5.0f, 4.0f };
 	inline static constexpr float k_childhdr_contents_padding_y = 5.0f;
 };
 
@@ -120,11 +120,11 @@ public:
 	// Widgets
 	//
 
-	void add_text(const std::string& text, ETextProperties properties = TEXTPROP_None, FontObject_t* font = nullptr);
-	void add_bullet_text(const std::string& text, ETextProperties properties = TEXTPROP_None, FontObject_t* font = nullptr);
+	void add_text(const std::string& text, ETextProperties properties = TEXTPROP_None, ImFont* font = nullptr);
+	void add_bullet_text(const std::string& text, ETextProperties properties = TEXTPROP_None, ImFont* font = nullptr);
 	void add_colored_text(const CColor& color, const std::string& text, ETextProperties properties = TEXTPROP_None);
-	void add_window_centered_text(const std::string& text, FontObject_t* font = nullptr);
-	void add_window_centered_text_disabled(const std::string& text, FontObject_t* font = nullptr);
+	void add_window_centered_text(const std::string& text, ImFont* font = nullptr);
+	void add_window_centered_text_disabled(const std::string& text, ImFont* font = nullptr);
 
 	bool add_button(const std::string& label, const Vector2D& size, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None);
 	bool add_toggle_button(const std::string& label, const Vector2D& size, bool selected = false, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None);
@@ -132,6 +132,7 @@ public:
 	bool add_hypertext_link(const std::string& label);
 
 	bool add_checkbox(const std::string& label, float* value);
+	bool add_checkbox(const std::string& label, bool* value);
 	bool add_checkbox_with_color(const std::string& label, float* value, float rgba[4], ImGuiColorEditFlags flags);
 
 	bool add_color_edit(const std::string& label, float rgba[4], ImGuiColorEditFlags flags);
@@ -213,13 +214,14 @@ public:
 	void add_console();
 
 private:
-	void add_bullet_text_internal(const std::string& text, ETextProperties properties = TEXTPROP_None, FontObject_t* font = nullptr);
+	void add_bullet_text_internal(const std::string& text, ETextProperties properties = TEXTPROP_None, ImFont* font = nullptr);
 
-	void add_window_centered_text_ex(const std::string& text, const CColor& text_color, FontObject_t* font);
+	void add_window_centered_text_ex(const std::string& text, const CColor& text_color, ImFont* font);
 
 	bool add_button_internal(const char* label, const Vector2D& size, bool selected, EButtonFlags flags);
 
-	bool add_checkbox_internal(const char*label, float* value);
+	template<typename T>
+	bool add_checkbox_internal(const char*label, T* value);
 	bool add_checkbox_with_color_internal(const char* label, float* value, float rgba[4], ImGuiColorEditFlags flags);
 
 	void add_text_wrapped(const char* text);
@@ -394,7 +396,7 @@ void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D
 
 		std::string text = label;
 
-		auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_BIGGER, FONTDEC_Regular);
+		auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.big(1.05f), FDC_Regular);
 
 		auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, text.c_str());
 
@@ -639,7 +641,7 @@ void CGUIWidgets::pop_executing_popup_code()
 	m_executing_popup_code = false;
 }
 
-void CGUIWidgets::add_text(const std::string& text, ETextProperties properties, FontObject_t* font)
+void CGUIWidgets::add_text(const std::string& text, ETextProperties properties, ImFont* font)
 {
 	//
 	// decorations
@@ -647,7 +649,7 @@ void CGUIWidgets::add_text(const std::string& text, ETextProperties properties, 
 
 	if (font)
 	{
-		PushFont(font->m_precached_font_object);
+		PushFont(font);
 	}
 
 	if (properties & TEXTPROP_Slim)
@@ -718,7 +720,7 @@ void CGUIWidgets::add_text(const std::string& text, ETextProperties properties, 
 	}
 }
 
-void CGUIWidgets::add_bullet_text(const std::string& text, ETextProperties properties, FontObject_t* font)
+void CGUIWidgets::add_bullet_text(const std::string& text, ETextProperties properties, ImFont* font)
 {
 	return add_bullet_text_internal(text, properties, font);
 }
@@ -730,24 +732,24 @@ void CGUIWidgets::add_colored_text(const CColor& color, const std::string& text,
 	PopStyleColor();
 }
 
-void CGUIWidgets::add_window_centered_text(const std::string& text, FontObject_t* font)
+void CGUIWidgets::add_window_centered_text(const std::string& text, ImFont* font)
 {
 	auto text_color = GetStyle().Colors[ImGuiCol_Text];
 
 	if (!font)
 	{
-		font = g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Regular);
+		font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular);
 	}
 	add_window_centered_text_ex(text, text_color, font);
 }
 
-void CGUIWidgets::add_window_centered_text_disabled(const std::string& text, FontObject_t* font)
+void CGUIWidgets::add_window_centered_text_disabled(const std::string& text, ImFont* font)
 {
 	auto text_color = GetStyle().Colors[ImGuiCol_TextDisabled];
 
 	if (!font)
 	{
-		font = g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Regular);
+		font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular);
 	}
 	add_window_centered_text_ex(text, text_color, font);
 }
@@ -861,6 +863,18 @@ bool CGUIWidgets::add_checkbox(const std::string& label, float* value)
 	return ret;
 }
 
+bool CGUIWidgets::add_checkbox(const std::string& label, bool* value)
+{
+	bool ret = add_checkbox_internal(label.c_str(), value);
+
+	if (IsItemHovered())
+	{
+		g_imgui_platform_layer_i->override_cursor(GUICURSOR_Hand);
+	}
+
+	return ret;
+}
+
 bool CGUIWidgets::add_checkbox_with_color(const std::string& label, float* value, float rgba[4], ImGuiColorEditFlags flags)
 {
 	bool ret = add_checkbox_with_color_internal(label.c_str(), value, rgba, flags);
@@ -947,14 +961,14 @@ bool CGUIWidgets::add_text_input(const std::string& label, char* buffer, size_t 
 	return ret;
 }
 
-bool CGUIWidgets::add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, 
+bool CGUIWidgets::add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size,
 									ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void * user_data)
 {
 	PushStyleColor(ImGuiCol_FrameBg, get_color<GUICLR_InputTextBg>());
 
 	PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 
-	PushFont(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_REGULAR, FONTDEC_Light));
+	PushFont(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.bigger(), FDC_Light));
 
 	bool ret = InputTextEx(label.c_str(), NULL, buffer, buffer_size, input_size, flags | ImGuiInputTextFlags_NoLabel, callback, user_data);
 
@@ -1014,7 +1028,7 @@ void CGUIWidgets::end_columns()
 
 void CGUIWidgets::add_separtor_with_text(const std::string& text)
 {
-	auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_REGULAR, FONTDEC_Regular);
+	auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.bigger(), FDC_Regular);
 	add_text(text, TEXTPROP_Slim, font);
 
 	Separator();
@@ -1040,7 +1054,7 @@ void CGUIWidgets::render_clipped_contents(size_t size, const std::function<void(
 
 void CGUIWidgets::add_readmore_on_hover_widget(const char* text)
 {
-	push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Regular));
+	push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular));
 	add_text("Read more...", TEXTPROP_None);
 	if (IsItemHovered(ImGuiHoveredFlags_DelayNormal))
 	{
@@ -1057,7 +1071,7 @@ void CGUIWidgets::add_readmore_on_hover_widget(const char* text)
 
 void CGUIWidgets::add_readmore_on_hover_widget_ex(const std::function<void()>& callback)
 {
-	push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Regular));
+	push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular));
 	add_text("Read more...", TEXTPROP_None);
 	if (IsItemHovered(ImGuiHoveredFlags_DelayNormal))
 	{
@@ -1136,7 +1150,7 @@ bool CGUIWidgets::add_simple_listbox(const std::string & label, int* value, cons
 	bool edited = false;
 	if (begin_listbox(label, items[*value]))
 	{
-		push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
+		push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular));
 		push_stylevar(ImGuiStyleVar_ItemSpacing, { 0.0f, 1.0f });
 
 		for (size_t i = 0; i < items.size(); i++)
@@ -1306,13 +1320,13 @@ void CGUIWidgets::add_console()
 //	Internal API
 //
 
-void CGUIWidgets::add_bullet_text_internal(const std::string& text, ETextProperties properties, FontObject_t* font)
+void CGUIWidgets::add_bullet_text_internal(const std::string& text, ETextProperties properties, ImFont* font)
 {
 	Bullet();
 	add_text(text, properties, font);
 }
 
-void CGUIWidgets::add_window_centered_text_ex(const std::string& text, const CColor& text_color, FontObject_t* font)
+void CGUIWidgets::add_window_centered_text_ex(const std::string& text, const CColor& text_color, ImFont* font)
 {
 	auto window_size = GetWindowSize();
 	auto cursor_screen = GetCursorScreenPos();
@@ -1327,7 +1341,7 @@ void CGUIWidgets::add_window_centered_text_ex(const std::string& text, const CCo
 		cursor_screen.y + window_size.y / 2 - label_size.y / 2 - style.WindowPadding.y,
 	};
 
-	GetWindowDrawList()->AddText(font->m_precached_font_object, font->get_size_px(), center_pos, text_color.as_u32(), text.c_str());
+	GetWindowDrawList()->AddText(font, font->FontSize, center_pos, text_color.as_u32(), text.c_str());
 }
 
 bool CGUIWidgets::add_button_internal(const char* label, const Vector2D& size, bool selected, EButtonFlags flags)
@@ -1389,7 +1403,8 @@ bool CGUIWidgets::add_button_internal(const char* label, const Vector2D& size, b
 	return pressed;
 }
 
-bool CGUIWidgets::add_checkbox_internal(const char* label, float* value)
+template<typename T>
+bool CGUIWidgets::add_checkbox_internal(const char* label, T* value)
 {
 	ImGuiWindow* window = GetCurrentWindow();
 	if (window->SkipItems)
@@ -1685,7 +1700,7 @@ bool CGUIWidgets::begin_combo_internal(const char* label, const char* preview_la
 		preview_label = NULL;
 	}
 
-	PushFont(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_MEDIUM, FONTDEC_Regular));
+	PushFont(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText, FDC_Regular));
 
 	// Render preview and label
 	if (preview_label != NULL && !(flags & ImGuiComboFlags_NoPreview))
@@ -2401,7 +2416,7 @@ bool CGUIWidgets::add_slider_internal(const char* label, T* value, T* min, T* ma
 
 	const ImVec2 value_label_size = CalcTextSize(value_buf, NULL, true);
 
-	PushFont(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Bold));
+	PushFont(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Bold));
 
 	const float value_label_offset = 1.f;
 	RenderTextClipped({ frame_bb_thin_min.x + frame_bb_thin_size.x / 2.f - value_label_size.x / 2.f, frame_bb_thin_min.y - value_label_size.y - value_label_offset },

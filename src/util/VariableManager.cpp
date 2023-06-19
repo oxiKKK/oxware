@@ -233,15 +233,16 @@ void CVariableManager::register_variables_and_commands_per_module(StaticVariable
 		if (list.empty())
 		{
 			CConsole::the().info("Module {} has no variables to be registered.", module_name);
-			return;
 		}
-
-		CConsole::the().info("Registering {} variables from module {}...", list.size(), module_name);
-
-		// Merge vars from other modules into one continuous list.
-		for (BaseVariable* var : list)
+		else
 		{
-			register_single_variable(var);
+			CConsole::the().info("Registering {} variables from module {}...", list.size(), module_name);
+
+			// Merge vars from other modules into one continuous list.
+			for (BaseVariable* var : list)
+			{
+				register_single_variable(var);
+			}
 		}
 	}
 
@@ -252,15 +253,16 @@ void CVariableManager::register_variables_and_commands_per_module(StaticVariable
 		if (list.empty())
 		{
 			CConsole::the().info("Module {} has no commands to be registered.", module_name);
-			return;
 		}
-
-		CConsole::the().info("Registering {} commands from module {}...", list.size(), module_name);
-
-		// Merge cmds from other modules into one continuous list.
-		for (BaseCommand* cmd : list)
+		else
 		{
-			register_single_command(cmd);
+			CConsole::the().info("Registering {} commands from module {}...", list.size(), module_name);
+
+			// Merge cmds from other modules into one continuous list.
+			for (BaseCommand* cmd : list)
+			{
+				register_single_command(cmd);
+			}
 		}
 	}
 }

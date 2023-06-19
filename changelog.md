@@ -129,6 +129,8 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Added fps fixer for non-steam cs.
 - Added anti demo recorder.
 - Improved console input UI.
+- Added support for cyrillic, thai, vietnamese and chinese.
+- Added freetype fonts instead of truetype.
 
 ## Bugfixes
 

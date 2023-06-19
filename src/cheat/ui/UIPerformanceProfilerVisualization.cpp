@@ -91,22 +91,22 @@ void CUIPerfProfilerVisualization::on_render()
 						{ -1.0f, -1.0f }, false, ImGuiWindowFlags_HorizontalScrollbar,
 						[]()
 						{
-									g_code_perf_profiler_i->for_each_sampled_profile_snapshot(
-										[](const ProfSnapshotEntry* e)
-										{
-															g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_SMALL, FONTDEC_Regular));
-															g_gui_widgets_i->add_text(std::format(
-																"{}: avg: {}{:2.3f} ms samples: {}",
-																e->m_name, (e->m_avg_time_ms < 0.001f) ? ">" : "", e->m_avg_time_ms, e->m_num_samples, e->m_srcloc.function_name(),
-																e->m_srcloc.function_name()));
-															g_gui_widgets_i->pop_font();
-										});
+							g_code_perf_profiler_i->for_each_sampled_profile_snapshot(
+								[](const ProfSnapshotEntry* e)
+								{
+									g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular));
+									g_gui_widgets_i->add_text(std::format(
+										"{}: avg: {}{:2.3f} ms samples: {}",
+										e->m_name, (e->m_avg_time_ms < 0.001f) ? ">" : "", e->m_avg_time_ms, e->m_num_samples, e->m_srcloc.function_name(),
+										e->m_srcloc.function_name()));
+									g_gui_widgets_i->pop_font();
+								});
 
-									g_gui_widgets_i->add_separator();
-									g_gui_widgets_i->add_text(std::format("sum avg: {:2.3f} ms (engine: {:2.3f} ms), {:2.1f} % overhead",
-																		  g_code_perf_profiler_i->get_ms_total(),
-																		  CGameUtil::the().get_engine_frametime() * 1000.0,
-																		  ((g_code_perf_profiler_i->get_ms_total() / 1000.0) / CGameUtil::the().get_engine_frametime()) * 100.0));
+							g_gui_widgets_i->add_separator();
+							g_gui_widgets_i->add_text(std::format("sum avg: {:2.3f} ms (engine: {:2.3f} ms), {:2.1f} % overhead",
+																  g_code_perf_profiler_i->get_ms_total(),
+																  CGameUtil::the().get_engine_frametime() * 1000.0,
+																  ((g_code_perf_profiler_i->get_ms_total() / 1000.0) / CGameUtil::the().get_engine_frametime()) * 100.0));
 						});
 				});
 		});

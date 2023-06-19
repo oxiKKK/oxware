@@ -65,7 +65,7 @@ bool CImGUILayerWin32::initialize()
 		return false;
 	}
 
-	return true;
+	return true; 
 }
 
 void CImGUILayerWin32::destroy()
@@ -79,6 +79,13 @@ void CImGUILayerWin32::destroy()
 
 void CImGUILayerWin32::on_render(const std::function<void()>& post_render_callback)
 {
+	if (g_gui_fontmgr_i->pre_newframe())
+	{
+		// REUPLOAD FONT TEXTURE TO GPU
+		ImGui_ImplOpenGL2_DestroyDeviceObjects();
+		ImGui_ImplOpenGL2_CreateDeviceObjects();
+	}
+
 	// Start the Dear ImGui frame
 	ImGui_ImplWin32_NewFrame();
 	ImGui_ImplOpenGL2_NewFrame();

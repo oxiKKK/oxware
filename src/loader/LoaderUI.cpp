@@ -74,6 +74,7 @@ void CLoaderUI::initialize()
 	};
 
 	CMainLoader::the().get_injector()->provide_on_injector_event_callback(on_injector_event_fn);
+
 }
 
 void CLoaderUI::render_tab_main()
@@ -82,8 +83,8 @@ void CLoaderUI::render_tab_main()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		auto button_font = g_gui_fontmgr_i->get_imgui_font("segoeui", FONT_EXTRA, FONTDEC_Regular);
-		g_gui_widgets_i->push_font(button_font);
+		auto very_large_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.extra() * 1.5f, FDC_Bold);
+		g_gui_widgets_i->push_font(very_large_font);
 
 		auto injected_object = CMainLoader::the().get_injector()->get_injected_dll(MODULE_CHEAT);
 
@@ -133,7 +134,7 @@ void CLoaderUI::render_tab_main()
 				}
 
 				g_gui_widgets_i->push_color(ImGuiCol_Text, status.second);
-				g_gui_widgets_i->add_window_centered_text(status.first, g_gui_fontmgr_i->get_font("segoeui", FONT_EXTRA, FONTDEC_Regular));
+				g_gui_widgets_i->add_window_centered_text(status.first, very_large_font);
 				g_gui_widgets_i->pop_color(1);
 			});
 

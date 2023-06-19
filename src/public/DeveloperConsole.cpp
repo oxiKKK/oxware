@@ -253,33 +253,33 @@ void CDeveloperConsole::render()
 {
 	const float footer_height_to_reserve = -32.0f;
 
-	g_gui_widgets_i->add_text("Console", TEXTPROP_None, g_gui_fontmgr_i->get_font("segoeui", FONT_BIGGEST, FONTDEC_Regular));
+	g_gui_widgets_i->add_text("Console", TEXTPROP_None, g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.extra(), FDC_Regular));
 
 	auto window_size = g_gui_widgets_i->get_current_window_size();
 	auto window_pos = g_gui_widgets_i->get_current_window_pos();
-
-	auto font = g_gui_fontmgr_i->get_font("segoeui", FONT_MEDIUM, FONTDEC_Regular);
 
 	float spacing = 25.0f;
 	float offset_from_the_right = 80.0f;
 	float y_offset = 15.0f;
 
+	auto info_font = g_gui_fontmgr_i->get_font(FID_ProggyClean, FontSize::UIText.medium(), FDC_Regular);
+
 	// lines
 	auto label = std::format("{} lines", m_contents.size());
-	auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, label.c_str());
+	auto label_size = g_gui_fontmgr_i->calc_font_text_size(info_font, label.c_str());
 	g_gui_window_rendering_i->render_text(
 		g_gui_window_rendering_i->get_current_drawlist(),
-		font,
+		info_font,
 		{ window_pos.x + window_size.x - offset_from_the_right - label_size.x, window_pos.y + y_offset },
 		g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextBlack>(),
 		label);
 
 	// logging path
 	auto label1 = std::format("logging to \"{}\"", get_logfile_path_fancy());
-	auto label1_size = g_gui_fontmgr_i->calc_font_text_size(font, label1.c_str());
+	auto label1_size = g_gui_fontmgr_i->calc_font_text_size(info_font, label1.c_str());
 	g_gui_window_rendering_i->render_text(
 		g_gui_window_rendering_i->get_current_drawlist(),
-		font,
+		info_font,
 		{ window_pos.x + window_size.x - offset_from_the_right - label_size.x - spacing - label1_size.x, window_pos.y + y_offset },
 		g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextBlack>(),
 		label1);
@@ -291,22 +291,22 @@ void CDeveloperConsole::render()
 		{
 			g_gui_widgets_i->render_clipped_contents(
 				m_contents.size(),
-				[this](int line_no)
+				[&](int line_no)
 				{
 					auto& line = m_contents.at(line_no);
 
 					// shrink a little..
 					g_gui_widgets_i->push_stylevar(ImGuiStyleVar_ItemSpacing, { 0.0f, 1.0f });
 					g_gui_widgets_i->push_stylevar(ImGuiStyleVar_IndentSpacing, 0.0f);
-					g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("proggyclean", FONT_SMALL, FONTDEC_Regular));
+					g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_ProggyClean, FontSize::UIText.small(), FDC_Regular));
 
-					g_gui_widgets_i->add_text(line_preamble(line), TEXTPROP_ColorBlack);
+					g_gui_widgets_i->add_text(line_preamble(line), TEXTPROP_ColorRegular);
 					g_gui_widgets_i->sameline();
-					g_gui_widgets_i->add_text("[", TEXTPROP_ColorBlack);
+					g_gui_widgets_i->add_text("[", TEXTPROP_ColorRegular);
 					g_gui_widgets_i->sameline();
 					g_gui_widgets_i->add_colored_text(s_module_color_table[(int)line.module].color, outputmodule_as_string(line.module));
 					g_gui_widgets_i->sameline();
-					g_gui_widgets_i->add_text("] ", TEXTPROP_ColorBlack);
+					g_gui_widgets_i->add_text("] ", TEXTPROP_ColorRegular);
 					g_gui_widgets_i->sameline();
 
 					const char* which[] = { "", "error: ", "warning: " };
@@ -468,6 +468,10 @@ void CDeveloperConsole::unregister_module(EOutputModule which)
 }
 
 #include <shlobj_core.h>
+
+#ifdef small
+#undef small // TODO: move this to a shared place
+#endif
 
 // just a little hack over the fact that this code already exists inside the FileSystem code.. since we
 // want to have the console ready right as soon as the application starts, we cannot just use the appdata manager
@@ -787,15 +791,15 @@ void CDeveloperConsole::render_candidate_tooltip()
 	{
 		if (!m_tooltip_candidates.empty())
 		{
-			m_tooltip_candidates.clear(); 
+			m_tooltip_candidates.clear();
 			// prevent softlock situation where the input buffer is empty and tooltip isn't 
 			// m_tooltip_candidatesrendering however, the container still holds elements.
 		}
-		
+
 		m_selected_candidate = -1;
 		return;
 	}
-	
+
 	if (m_tooltip_candidates.size() == 1 && m_tooltip_candidates[0] == m_input_buffer)
 	{
 		// don't display only one item if already in input box
@@ -806,7 +810,7 @@ void CDeveloperConsole::render_candidate_tooltip()
 	g_gui_widgets_i->set_next_window_size(Vector2D(320, (m_tooltip_candidates.size() * 20.0f) > 150 ? 150 : m_tooltip_candidates.size() * 20.0f));
 	g_gui_widgets_i->set_next_window_rounding(5.0f, ImDrawFlags_RoundCornersBottom);
 
-	g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_imgui_font("proggyclean", FONT_SMALL, FONTDEC_Regular));
+	g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_ProggyClean, FontSize::UIText.small(), FDC_Regular));
 	g_gui_widgets_i->create_new_window(
 		"Console tooltip",
 		ImGuiWindowFlags_Tooltip |

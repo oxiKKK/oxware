@@ -144,23 +144,21 @@ void CESP::render_players()
 				continue;
 			}
 
-			auto scaled_font = FONT_SMALLEST;
-
-			auto playername_font = g_gui_fontmgr_i->get_font("segoeui", scaled_font, FONTDEC_Bold);
+			auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Bold);
 
 			const char* label_text = plr.get_playerinfo()->name;
 			if (!label_text)
 			{
 				label_text = "null";
 			}
-			auto label_size = g_gui_fontmgr_i->calc_font_text_size(playername_font, label_text);
+			auto label_size = g_gui_fontmgr_i->calc_font_text_size(text_font, label_text);
 
 			float label_padding = 1.0f + 1.0f; // 1 for the box outline thickness
 			Vector2D label_topleft = { box_botright.x - (box_wide_half + label_size.x / 2), box_botright.y + label_padding };
 
 			g_gui_window_rendering_i->render_text_with_background(
 				g_gui_window_rendering_i->get_current_drawlist(),
-				playername_font,
+				text_font,
 				label_topleft,
 				CColor(255, 255, 255, 255),
 				label_text);
@@ -225,21 +223,20 @@ void CESP::render_entities()
 			// render text
 			//
 
-			auto playername_font = g_gui_fontmgr_i->get_font("segoeui", FONT_SMALLEST, FONTDEC_Bold);
-
 			const char* label_text = model.hl_model()->name;
 			if (!label_text)
 			{
 				label_text = "null";
 			}
-			auto label_size = g_gui_fontmgr_i->calc_font_text_size(playername_font, label_text);
+			auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Bold);
+			auto label_size = g_gui_fontmgr_i->calc_font_text_size(text_font, label_text);
 
 			float label_padding = 1.0f + 1.0f; // 1 for the box outline thickness
 			Vector2D label_topleft = { box_botright.x - (box_wide_half + label_size.x / 2), box_botright.y + label_padding };
 
 			g_gui_window_rendering_i->render_text_with_background(
 				g_gui_window_rendering_i->get_current_drawlist(),
-				playername_font,
+				text_font,
 				label_topleft,
 				CColor(255, 255, 255, 255),
 				label_text);
@@ -275,15 +272,6 @@ void CESP::render_sound()
 				life_dur = 1.0f / time_limit;
 			}
 
-#if 0
-			auto font = g_gui_fontmgr_i->get_font("proggyclean", FONT_SMALL, FONTDEC_Regular);
-			g_gui_window_rendering_i->render_text_with_background(
-					g_gui_window_rendering_i->get_current_drawlist(),
-					font,
-					screen,
-					CColor(255, 255, 255, 255),
-					"step");
-#else
 			float current_ratio = (life_dur / time_limit); // get 0-1 ratio
 			int animated_alpha = (int)(255.0f - current_ratio * 255.0f);
 			float animated_scale = 5.0f + (current_ratio * 10.0f);
@@ -308,14 +296,6 @@ void CESP::render_sound()
 				CColor(), 
 				animated_rouding, 
 				CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f), 1.5f);
-
-			g_gui_window_rendering_i->render_text(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				g_gui_fontmgr_i->get_font("segoeui", FONT_SMALLEST, FONTDEC_Bold),
-				screen,
-				CColor(230, 230, 230, 230),
-				std::format("{}", step.entid));
-#endif
 		}
 	}
 }
@@ -431,17 +411,6 @@ void CESP::render_box_for_four_points(const Vector2D& top_left, const Vector2D& 
 			top_left, top_right, bottom_right, bottom_left,
 			bg_color);
 	}
-}
-
-EFontSize CESP::fontsize_by_dist(float dist, float max_dist)
-{
-	// get [0, 1] ratio
-	float dist_10 = dist / max_dist;
-	float limit = dist_10 * (float)FONT_SIZE_COUNT;
-
-	auto result = (EFontSize)(FONT_EXTRA - (EFontSize)std::round(limit));
-
-	return std::clamp(result, FONT_SMALLEST, FONT_EXTRA);
 }
 
 //---------------------------------------------------------------------------------------

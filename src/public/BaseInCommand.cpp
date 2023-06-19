@@ -58,22 +58,26 @@ void BaseInCommand::rebind_key_to(int new_vk)
 		return;
 	}
 
+	std::string in_id = "in_" + m_name;
+	std::string out_id = "out_" + m_name;
+
+	// get the old key, if any, and unregister the previous callback
 	bool found;
+	auto& old_key = g_user_input_i->get_key(m_vk, &found);
+	if (found)
+	{
+		if (old_key.on_pressed_callback_exists(in_id))
+			old_key.remove_on_pressed_callback(in_id);
+		if (old_key.on_unpressed_callback_exists(out_id))
+			old_key.remove_on_unpressed_callback(out_id);
+	}
+
 	auto& key = g_user_input_i->get_key(new_vk, &found);
 	if (!found)
 	{
 		CConsole::the().info("Failed to rebind InCommand! Invalid key: {}", new_vk);
 		return;
 	}
-
-	std::string in_id = "in_" + m_name;
-	std::string out_id = "out_" + m_name;
-
-	// remove first, if bound already
-	if (key.on_pressed_callback_exists(in_id))
-		key.remove_on_pressed_callback(in_id);
-	if (key.on_unpressed_callback_exists(in_id))
-		key.remove_on_unpressed_callback(out_id);
 
 	// on pressed, once
 	key.add_on_pressed_callback(

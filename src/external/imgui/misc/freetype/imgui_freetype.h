@@ -18,6 +18,7 @@ struct ImFontBuilderIO;
 // You can set those flags on a per font basis in ImFontConfig::FontBuilderFlags
 enum ImGuiFreeTypeBuilderFlags
 {
+    ImGuiFreeTypeBuilderFlags_None          = 0,
     ImGuiFreeTypeBuilderFlags_NoHinting     = 1 << 0,   // Disable hinting. This generally generates 'blurrier' bitmap glyphs when the glyph are rendered in any of the anti-aliased modes.
     ImGuiFreeTypeBuilderFlags_NoAutoHint    = 1 << 1,   // Disable auto-hinter.
     ImGuiFreeTypeBuilderFlags_ForceAutoHint = 1 << 2,   // Indicates that the auto-hinter is preferred over the font's native hinter.

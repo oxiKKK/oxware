@@ -105,8 +105,6 @@ private:
 	void render_sound();
 
 	void render_box_for_four_points(const Vector2D& top_left, const Vector2D& top_right, const Vector2D& bottom_right, const Vector2D& bottom_left, const CColor& color, float box_tall_half);
-
-	EFontSize fontsize_by_dist(float dist, float max_dist);
 };
 
 #endif // ESP_H

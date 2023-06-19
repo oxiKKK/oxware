@@ -73,6 +73,13 @@ void CImGUILayerGLFW::destroy()
 
 void CImGUILayerGLFW::on_render(const std::function<void()>& post_render_callback)
 {
+	if (g_gui_fontmgr_i->pre_newframe())
+	{
+		// REUPLOAD FONT TEXTURE TO GPU
+		ImGui_ImplOpenGL3_DestroyDeviceObjects();
+		ImGui_ImplOpenGL3_CreateDeviceObjects();
+	}
+
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();

@@ -377,7 +377,10 @@ float CGameUtil::compute_edge_distance(const Vector& origin, float edge_trace_di
 
 	static auto trace_endpos_helper = [&](const Vector& start, const Vector& end, int N) -> float
 	{
-		hl::pmtrace_t* tr = cl_enginefuncs->pfnPM_TraceLine(
+		// Note: there were some really, really, really weird issues with this lambda capturing. If i tried
+		//		 to use `cl_enginefuncs` used above, basically what happened was that the pointer suddenly
+		//		 inside this lambda scope became invalid? I don't understand at all. Anyway, this works..
+		hl::pmtrace_t* tr = CMemoryHookMgr::the().cl_enginefuncs()->pfnPM_TraceLine(
 			(Vector)start, (Vector)end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull_tracing(), -1);
 		return tr->endpos[N];
 	};

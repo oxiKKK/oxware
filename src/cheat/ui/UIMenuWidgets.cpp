@@ -236,7 +236,7 @@ void CUIMenuWidgets::add_description_text(const char* additional_desc, const cha
 	if (!additional_desc)
 		return;
 
-	g_gui_widgets_i->add_text(additional_desc, TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Regular));
+	g_gui_widgets_i->add_text(additional_desc, TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular));
 	if (!readmore_string)
 	{
 		if (!no_padding)
@@ -254,7 +254,7 @@ void CUIMenuWidgets::add_description_text_ex(const char* additional_desc, const 
 {
 	if (additional_desc)
 	{
-		g_gui_widgets_i->add_text(additional_desc, TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font("segoeui", FONT_SMALL, FONTDEC_Regular));
+		g_gui_widgets_i->add_text(additional_desc, TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular));
 	}
 
 	if (!callback)

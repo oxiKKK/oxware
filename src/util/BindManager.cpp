@@ -705,6 +705,16 @@ void CBindManager::register_keypress_event_on_push_and_release(UserKey_t& key, i
 					bool exec_silent = bind->flags & BINDFLAG_Silent;
 					g_variablemgr_i->execute_command(bind->cmd_sequence_0, exec_silent);
 				}
+
+				if (g_cheat_info_i->is_cheat_ui_running())
+				{
+					bind->internal_state |= BINDSTATE_ExecutedWhenCheatUIWasOff;
+				}
+
+				if (g_cheat_info_i->is_game_ui_running())
+				{
+					bind->internal_state |= BINDSTATE_ExecutedWhenGameUIWasOff;
+				}
 			}
 		});
 
@@ -718,7 +728,19 @@ void CBindManager::register_keypress_event_on_push_and_release(UserKey_t& key, i
 
 			if (bind)
 			{
-				// always execute release callbacks, even we're on top of UI
+				// always execute release callbacks, even we're on top of UI, but only if
+				// we pressed the key before the UI was up, i.e. we pressed the bound key, 
+				// and while pressed we also toggled the UI. If we pressed the key when already
+				// on top of UI, don't do anything, unless we've enabled it. Same applies for Game UI.
+				if (bind->internal_state & BINDSTATE_ExecutedWhenCheatUIWasOff && !(bind->flags & BINDFLAG_ExecuteOverUI))
+				{
+					return;
+				}
+
+				if (bind->internal_state & BINDSTATE_ExecutedWhenGameUIWasOff && !(bind->flags & BINDFLAG_ExecuteOverGameUI))
+				{
+					return;
+				}
 
 				g_variablemgr_i->execute_command(bind->cmd_sequence_1, bind->flags & BINDFLAG_Silent);
 			}

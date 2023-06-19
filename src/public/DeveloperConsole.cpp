@@ -196,8 +196,6 @@ CDeveloperConsole::CDeveloperConsole()
 CDeveloperConsole::~CDeveloperConsole()
 {
 	g_devconsole_i = nullptr;
-
-	shutdown();
 }
 
 static std::string remove_extension(const std::string& filename) {

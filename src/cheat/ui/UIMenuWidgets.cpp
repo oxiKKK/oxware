@@ -315,7 +315,7 @@ void CUIMenuWidgets::feature_enabled_section(VarBoolean* var_boolean, const std:
 void CUIMenuWidgets::feature_enabled_section(VarBoolean* var_boolean, VarColor* colors_var, 
 											 const std::function<void()>& callback, bool alpha, const std::string& title, bool see_if_enabled)
 {
-	add_checkbox(std::format("{}##{}", title, var_boolean->get_name()), var_boolean);
+	add_checkbox_with_color(std::format("{}##{}", title, var_boolean->get_name()), var_boolean, colors_var, alpha);
 
 	bool enabled = var_boolean->get_value();
 

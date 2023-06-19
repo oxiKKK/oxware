@@ -394,12 +394,12 @@ void CUIKeyBinding::render_interactible_bind_list()
 
 				g_gui_widgets_i->add_text("Use the \"bind\" or \"bind_on_push_and_release\" command to bind command to a key. Example:", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_bullet_text("bind \"f4\" \"ui_toggle_menu\" - This command binds the UI toggle command to f4.", TEXTPROP_Wrapped);
-				g_gui_widgets_i->add_bullet_text("bind_on_push_and_release\"f5\" \"print pushed!\" \"print unpushed!\" - As soon as f4 is pressed, \"pushed!\" is printed to the console. As soon as it is unpressed, \"unpushed!\" is printed.", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_bullet_text("bind_on_push_and_release \"f5\" \"print pushed!\" \"print unpushed!\" - As soon as f5 is pressed, \"pushed!\" is printed to the console. As soon as it is unpressed, \"unpushed!\" is printed.", TEXTPROP_Wrapped);
 
 				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
 				g_gui_widgets_i->add_separtor_with_text("Binding through the UI");
 
-				g_gui_widgets_i->add_text("Use the UI to bind any command sequence to a key. Inside the \"bind\" tab, there are all of the current binds listed.", TEXTPROP_Wrapped);			});
+				g_gui_widgets_i->add_text("Use the UI to bind any command sequence to a key. Inside the \"Binds\" tab, there are all of the current binds listed.", TEXTPROP_Wrapped);			});
 	}
 }
 
@@ -499,8 +499,6 @@ void CUIKeyBinding::update_keyscan_button_title(int new_vk)
 void CUIKeyBinding::switch_to_key_binding_mode(key_scan_button_info_t* info,
 											   const fnOnKeyBoundCallback& on_key_bound_callback)
 {
-	assert(!m_current_key_bound && "Tried to bind new key while the old one was still in the process of binding!");
-
 	m_current_key_bound = info;
 
 	if (!m_on_key_bound_callback)

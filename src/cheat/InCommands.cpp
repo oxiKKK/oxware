@@ -274,7 +274,7 @@ void CInCommands::update()
 	if (did_start_key_binding_mode)
 	{
 		int vk_pressed = g_user_input_i->get_bound_key();
-		if (vk_pressed != NULL && g_user_input_i->is_in_key_binding_mode())
+		if (vk_pressed != NULL)
 		{
 			// a key was just bound from the UserInput code
 
@@ -300,8 +300,6 @@ void CInCommands::add_keyscan_button(BaseInCommand* in_cmd, const Vector2D& size
 	bool b = g_gui_widgets_i->add_button(std::format("{}##{}", key_name, in_cmd->get_name()), size, false, BUTTONFLAG_CenterLabel);
 	if (b)
 	{
-		assert(m_in_cmd_to_be_rebound == nullptr && "InCommand binding wasn't finished! m_in_cmd_to_be_rebound isn't null!");
-
 		m_in_cmd_to_be_rebound = in_cmd;
 		g_user_input_i->activate_key_binding_mode();
 	}

@@ -170,6 +170,15 @@ void CGLFWApp::glfw_update()
 	// GLFW code goes here...
 	glfwSetWindowTitle(m_glfw_window, m_app_title.c_str());
 
+	// always keep the window at the same size. There was some bug where the window would randomly
+	// resize due to CS resolution change or whatever, just random things. prevent that from happening.
+	int w, h;
+	glfwGetWindowSize(m_glfw_window, &w, &h);
+	if (w != m_app_width || h != m_app_height)
+	{
+		glfwSetWindowSize(m_glfw_window, m_app_width, m_app_height);
+	}
+
 	// Renderer code goes here...
 	g_imgui_platform_layer_i->render();
 

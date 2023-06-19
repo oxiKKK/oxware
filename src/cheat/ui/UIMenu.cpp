@@ -204,7 +204,7 @@ void CUIMenu::on_render()
 		window_flags &= ~ImGuiWindowFlags_NoResize;
 	}
 
-	auto segoeui_extra = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.extra(), FDC_Bold);
+	auto segoeui_extra = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.extra(1.1f), FDC_Bold);
 	auto segoeui_small = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Bold);
 
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });

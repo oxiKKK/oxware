@@ -68,6 +68,8 @@ void CConsole::destroy()
 	if (m_devcon_i)
 	{
 		m_devcon_i->unregister_module(m_current_module);
+
+		m_devcon_i->shutdown();
 	}
 
 	m_initialized = false;

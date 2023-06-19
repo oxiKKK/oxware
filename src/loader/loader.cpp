@@ -103,6 +103,7 @@ int CMainLoader::run(HINSTANCE hinst)
 	unload_dependencies();
 
 	release_handles();
+
 	return RET_SUCCESS;
 }
 

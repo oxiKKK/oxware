@@ -783,6 +783,11 @@ bool R_StudioDrawPlayer_FnDetour_t::install()
 
 int R_StudioDrawPlayer_FnDetour_t::R_StudioDrawPlayer(int flags, hl::entity_state_t* pplayer)
 {
+	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
+	{
+		return CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
+	}
+
 	if (CRemovals::the().remove_player(pplayer->number))
 	{
 		return 0;
@@ -851,6 +856,11 @@ bool SCR_DrawFPS_FnDetour_t::install()
 
 void SCR_DrawFPS_FnDetour_t::SCR_DrawFPS()
 {
+	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
+	{
+		return;
+	}
+
 	// this is in fact a good place to render custom engine stuff from
 
 	CEngineRendering::the().repaint();

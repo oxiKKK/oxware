@@ -31,6 +31,7 @@
 bool CMemoryFnDetourMgr::install_hooks()
 {
 	// let's install and detour individual hooks.
+	glBegin().install();
 	wglSwapBuffers().install();
 	if (CoXWARE::the().get_build_number() <= 4554) // TODO: figure out how far does this go, to which version
 	{
@@ -83,6 +84,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	m_unloading_hooks_mutex = true;
 
 	// now, uninstall the detour from each function.
+	glBegin().uninstall();
 	wglSwapBuffers().uninstall();
 	if (CoXWARE::the().get_build_number() <= 4554) // TODO: figure out how far does this go, to which version
 	{
@@ -997,6 +999,26 @@ void CL_ProcessEntityUpdate_FnDetour_t::CL_ProcessEntityUpdate(hl::cl_entity_t* 
 	CMemoryFnDetourMgr::the().CL_ProcessEntityUpdate().call(ent);
 
 	CEntityMgr::the().entity_update(ent);
+}
+
+//---------------------------------------------------------------------------------
+
+bool glBegin_FnDetour_t::install()
+{
+	initialize("glBegin", L"opengl32.dll");
+	return detour_using_exported_name((uintptr_t*)glBegin, "glBegin");
+}
+
+void glBegin_FnDetour_t::glBegin(GLenum mode)
+{
+	// Note: That detouring functions such as glBegin can be really slow, because of how often they're called.
+
+	if (mode == GL_POLYGON)
+	{
+		CWorldVisuals::the().update_gl_begin();
+	}
+
+	CMemoryFnDetourMgr::the().glBegin().call(mode);
 }
 
 //---------------------------------------------------------------------------------

@@ -142,6 +142,9 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 	- Flat/shaded
 	- Disabled playermodel animations
 - Thirdperson
+- World visuals
+	- Rainbow world 🌈
+	- Dimlight
 - Bypassing game constrains
 	- Re-enabling noclip (normally disabled in CS 1.6)
 	- Custom render distance

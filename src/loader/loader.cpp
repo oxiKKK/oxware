@@ -177,7 +177,23 @@ bool CMainLoader::check_supported_os_version()
 {
 	auto ver = CGenericUtil::the().get_os_version();
 
-	return ver.dwMajorVersion == 10 && ver.dwMinorVersion == 0;
+	//
+	// https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-osversioninfoexa#remarks
+	//
+
+	// windows 10/11:
+	if (ver.dwMajorVersion >= 10)
+	{
+		return true;
+	}
+
+	// windows 8/8.1: TODO
+	//if (ver.dwMajorVersion >= 6 && ver.dwMinorVersion >= 2)
+	//{
+	//	return true;
+	//}
+
+	return false;
 }
 
 void CMainLoader::decide_injection_type()

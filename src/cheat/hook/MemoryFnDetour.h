@@ -248,6 +248,13 @@ struct wglSwapBuffers_FnDetour_t final : public GenericMemoryFnDetour_stdcall<BO
 	static BOOL APIENTRY wglSwapBuffers(HDC hdc);
 };
 
+struct glBegin_FnDetour_t final : public GenericMemoryFnDetour_stdcall<void, GLenum>
+{
+	bool install();
+
+	static void APIENTRY glBegin(GLenum mode);
+};
+
 // void __cdecl VGui_CallEngineSurfaceAppHandler(void *event, void *userData)
 struct VGui_CallEngineSurfaceAppHandler_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, void *, void *>
 {
@@ -520,6 +527,7 @@ public:
 	bool exit_if_uninstalling() const { return m_unloading_hooks_mutex ? true : false; }
 
 	// individual hooks
+	inline auto& glBegin() { static glBegin_FnDetour_t fnhook; return fnhook; }
 	inline auto& wglSwapBuffers() { static wglSwapBuffers_FnDetour_t fnhook; return fnhook; }
 	inline auto& VGui_CallEngineSurfaceAppHandler() { static VGui_CallEngineSurfaceAppHandler_FnDetour_t fnhook; return fnhook; }
 	inline auto& VGui_CallEngineSurfaceAppHandler4554() { static VGui_CallEngineSurfaceAppHandler4554_FnDetour_t fnhook; return fnhook; }

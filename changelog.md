@@ -131,6 +131,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Improved console input UI.
 - Added support for cyrillic, thai, vietnamese and chinese.
 - Added freetype fonts instead of truetype.
+- Added world visuals.
 
 ## Bugfixes
 

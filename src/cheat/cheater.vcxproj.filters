@@ -278,6 +278,9 @@
     <ClCompile Include="features\AntiDemoRecorder.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
+    <ClCompile Include="features\WorldVisuals.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -501,6 +504,9 @@
       <Filter>src\features</Filter>
     </ClInclude>
     <ClInclude Include="features\AntiDemoRecorder.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="features\WorldVisuals.h">
       <Filter>src\features</Filter>
     </ClInclude>
   </ItemGroup>

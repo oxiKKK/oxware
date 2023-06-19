@@ -280,6 +280,7 @@ namespace hl
 #include "features/ThirdPerson.h"
 #include "features/NonSteamFpsFixer.h"
 #include "features/AntiDemoRecorder.h"
+#include "features/WorldVisuals.h"
 #include "features/movement/BunnyHop.h"
 #include "features/movement/AirStuck.h"
 #include "features/movement/GroundStrafe.h"

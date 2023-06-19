@@ -139,3 +139,4 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Fixed duplicated menu entires inside tabs 💩.
 - Fixed a bug where mouse cursor wouldn't change to "hand" when hovered over tab items.
 - Fixed random crash that sometimes occured relating to feature list and menu.
+- Fixed crosshair not being properly aligned with higher thickness.

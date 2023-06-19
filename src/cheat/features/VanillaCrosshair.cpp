@@ -266,20 +266,21 @@ void CVanillaCrosshair::draw()
 	auto fillrgba = crosshair_translucent.get_value() ? CMemoryHookMgr::the().cl_enginefuncs()->pfnFillRGBA : CMemoryHookMgr::the().cl_enginefuncs()->pfnFillRGBABlend;
 
 	int t = crosshair_thickness.get_value();
+	int t_c = t > 1 ? (t / 2) : 0;
 
 	if (type == 0)
 	{
-		fillrgba(w / 2 - (int)crosshair_dist - bar_size + 1, h / 2, bar_size, t, r, g, b, a);	// left
-		fillrgba(w / 2 + (int)crosshair_dist, h / 2, bar_size, t, r, g, b, a);					// right
-		fillrgba(w / 2, h / 2 - (int)crosshair_dist - bar_size + 1, t, bar_size, r, g, b, a);	// top
-		fillrgba(w / 2, h / 2 + (int)crosshair_dist, t, bar_size, r, g, b, a);					// bottom
+		fillrgba(w / 2 - (int)crosshair_dist - bar_size + 1, h / 2 - t_c, bar_size, t, r, g, b, a);		// left
+		fillrgba(w / 2 + (int)crosshair_dist, h / 2 - t_c, bar_size, t, r, g, b, a);					// right
+		fillrgba(w / 2 - t_c, h / 2 - (int)crosshair_dist - bar_size + 1, t, bar_size, r, g, b, a);		// top
+		fillrgba(w / 2 - t_c, h / 2 + (int)crosshair_dist, t, bar_size, r, g, b, a);					// bottom
 	}
 	else if (type == 1) // T-shaped
 	{
-		fillrgba(w / 2 - (int)crosshair_dist - bar_size + 1, h / 2, bar_size, t, r, g, b, a);	// left
-		fillrgba(w / 2 + (int)crosshair_dist, h / 2, bar_size, t, r, g, b, a);					// right
-		// top one missing
-		fillrgba(w / 2, h / 2 + (int)crosshair_dist, t, bar_size, r, g, b, a);					// bottom
+		fillrgba(w / 2 - (int)crosshair_dist - bar_size + 1, h / 2 - (t / 2), bar_size, t, r, g, b, a);		// left
+		fillrgba(w / 2 + (int)crosshair_dist, h / 2 - (t / 2), bar_size, t, r, g, b, a);					// right
+//		fillrgba(w / 2 - (t / 2), h / 2 - (int)crosshair_dist - bar_size + 1, t, bar_size, r, g, b, a);		// top
+		fillrgba(w / 2 - (t / 2), h / 2 + (int)crosshair_dist, t, bar_size, r, g, b, a);					// bottom
 	}
 	else if (type == 2) // circle
 	{

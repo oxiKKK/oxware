@@ -159,11 +159,14 @@ void CClientMovementPacketPlot::on_render()
 		return;
 	}
 
-	auto screen_size = g_imgui_platform_layer_i->get_screen_size();
-	if (m_plot_base.IsZero())
+	auto screen_pos = CVideoModeUtil::the().get_ingame_viewport_pos();
+	auto screen_size = CVideoModeUtil::the().get_real_screen_size();
+	if (screen_size.IsZero())
 	{
-		m_plot_base = { 0, screen_size.y - 100 };
+		return;
 	}
+
+	m_plot_base = { screen_pos.x, screen_size.y - 100 };
 
 	static float y_offset = 0.0f;
 	float data_entry_height_total = movement_plot_row_height.get_value();
@@ -179,7 +182,7 @@ void CClientMovementPacketPlot::on_render()
 	// render background
 	g_gui_window_rendering_i->render_box(
 		g_gui_window_rendering_i->get_current_drawlist(),
-		m_plot_base - Vector2D(0, y_offset), Vector2D(screen_size.x, m_plot_base.y),
+		m_plot_base - Vector2D(0, y_offset), Vector2D(m_plot_base.x + screen_size.x, m_plot_base.y),
 		CColor(0, 0, 0, 120));
 
 	// reset for new frame

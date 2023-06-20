@@ -75,6 +75,8 @@ public:
 	// aka the "about" dialog
 	void create_welcome_popup();
 
+	inline HWND get_window_handle() const { return m_hwnd; }
+
 private:
 	void initialize(HWND wnd);
 

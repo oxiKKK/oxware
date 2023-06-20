@@ -55,6 +55,7 @@ bool CMemoryHookMgr::install_hooks()
 	if (!pStudioAPI().install()) return false;
 	if (!host_framecount().install()) return false;
 	if (!realtime().install()) return false;
+	if (!IVideoMode().install()) return false;
 	if (!random_1k_speedhack_modifier_constant().install()) return false;
 
 	return true;
@@ -444,6 +445,26 @@ void realtime_MemoryHook::test_hook()
 		[&]()
 	{
 		return *p > 0.0;
+	});
+}
+
+//-----------------------------------------------------------------------------
+
+bool IVideoMode_MemoryHook::install()
+{
+	initialize("videomode", L"hw.dll");
+	return install_using_bytepattern(1);
+}
+
+void IVideoMode_MemoryHook::test_hook()
+{
+	auto p = get();
+
+	CHookTests::the().run_seh_protected_block(
+		m_name,
+		[&]()
+	{
+		return *p != nullptr;
 	});
 }
 

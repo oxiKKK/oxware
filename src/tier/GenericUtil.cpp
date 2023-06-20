@@ -274,3 +274,15 @@ void CGenericUtil::pop_page_protection()
 
 	reset_page_protection_data();
 }
+
+Vector2D CGenericUtil::get_window_pos(HWND hwnd)
+{
+	Vector2D v{};
+	RECT rect = { NULL };
+	if (GetWindowRect(hwnd, &rect))
+	{
+		v.x = rect.left;
+		v.y = rect.top;
+	}
+	return v;
+}

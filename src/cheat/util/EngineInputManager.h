@@ -39,6 +39,7 @@ public:
 	void initialize();
 
 	// SDL2 routines. Note that these are only relevant on SDL engine builds.
+	void(__cdecl*SDL_WarpMouseInWindow)(void* window, int x, int y);
 	int(__cdecl*SDL_SetRelativeMouseMode)(int enabled);
 	unsigned(__cdecl* SDL_GetRelativeMouseState)(int* x, int* y);
 	void(__cdecl*SDL_PumpEvents)();
@@ -57,13 +58,8 @@ public:
 	void surface_disable_cursor();
 	void surface_enable_cursor();
 	void surface_set_cursor(hl::vgui2::CursorCode code);
-	Vector2D surface_get_screen_size();
 	void surface_set_cursor_pos(const Vector2D& pos);
-	Vector2D surface_get_cursor_pos();
-	void surface_centerize_cursor_position()
-	{
-		surface_set_cursor_pos(surface_get_screen_size() / 2.0f);
-	}
+	void surface_centerize_cursor_position();
 
 	// miscellaneous handling
 	// enables/disabled ingame input depending on several scenarious

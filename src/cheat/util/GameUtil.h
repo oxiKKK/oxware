@@ -95,6 +95,8 @@ public:
 	// equivalent to Cmd_TokenizeString()
 	std::vector<std::string> tokenize_goldsrc_command(const char* text);
 
+	Vector2D get_window_pos();
+
 private:
 	void locate_engine_compile_timestamp();
 

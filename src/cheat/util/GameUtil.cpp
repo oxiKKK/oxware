@@ -95,25 +95,27 @@ bool CGameUtil::world_to_screen(Vector world, Vector2D& screen)
 {
 	hl::qboolean z_clipped = CMemoryHookMgr::the().cl_enginefuncs()->pTriAPI->WorldToScreen(world, screen);
 
-	int wide, tall;
-	auto isurface = CHLInterfaceHook::the().ISurface();
-	if (!isurface)
+	// get the real screen size. in fullscreen, the monitor size and in windowed mode, the window size.
+	Vector2D screen_size = CVideoModeUtil::the().get_real_screen_size();
+	if (screen_size.IsZero())
 	{
 		return false;
 	}
-	isurface->GetScreenSize(wide, tall);
+
+	float blackbars_x_offset = CVideoModeUtil::the().get_ingame_viewport_pos().x;
 
 	if (z_clipped)
 	{
 		return false;
 	}
 
-	// transform to screen scale
+	// transform to screen scale if withing bounds (-1, +1)
 	if (screen.x < 1.0f && screen.x > -1.0f && 
 		screen.y < 1.0f && screen.y > -1.0f)
 	{
-		screen.x = (screen.x * (wide / 2.f)) + (wide / 2.f);
-		screen.y = (-screen.y * (tall / 2.f)) + (tall / 2.f);
+		screen.x = (screen.x * (screen_size.x / 2.f)) + (screen_size.x / 2.f) + blackbars_x_offset;
+		screen.y = (-screen.y * (screen_size.y / 2.f)) + (screen_size.y / 2.f);
+
 		return true;
 	}
 
@@ -752,6 +754,13 @@ std::vector<std::string> CGameUtil::tokenize_goldsrc_command(const char* text)
 	}
 
 	return tokens;
+}
+
+Vector2D CGameUtil::get_window_pos()
+{
+	HWND hwnd = COxWareUI::the().get_window_handle();
+	assert(hwnd);
+	return CGenericUtil::the().get_window_pos(hwnd);
 }
 
 void CGameUtil::locate_engine_compile_timestamp()

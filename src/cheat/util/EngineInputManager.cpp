@@ -32,6 +32,7 @@ void CEngineInput::initialize()
 {
 	if (CoXWARE::the().get_build_number() >= FIRST_SDL_BUILD)
 	{
+		SDL_WarpMouseInWindow = (decltype(SDL_WarpMouseInWindow))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_WarpMouseInWindow");
 		SDL_SetRelativeMouseMode = (decltype(SDL_SetRelativeMouseMode))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_SetRelativeMouseMode");
 		SDL_GetRelativeMouseState = (decltype(SDL_GetRelativeMouseState))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_GetRelativeMouseState");
 		SDL_PumpEvents = (decltype(SDL_PumpEvents))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_PumpEvents");
@@ -110,42 +111,36 @@ void CEngineInput::surface_set_cursor(hl::vgui2::CursorCode code)
 	}
 }
 
-Vector2D CEngineInput::surface_get_screen_size()
-{
-	auto surfacefuncs = CHLInterfaceHook::the().ISurface();
-	int wide = 0, tall = 0;
-	if (surfacefuncs)
-	{
-		surfacefuncs->GetScreenSize(wide, tall);
-	}
-	return { (float)wide, (float)tall };
-}
-
 void CEngineInput::surface_set_cursor_pos(const Vector2D& pos)
 {
-	auto surfacefuncs = CHLInterfaceHook::the().ISurface();
-	if (surfacefuncs)
-	{
-		surfacefuncs->SurfaceSetCursorPos((int)pos.x, (int)pos.y);
+	Vector2D pos_to_set = pos;
 
-		if (CoXWARE::the().get_build_number() >= FIRST_SDL_BUILD)
+	if (CoXWARE::the().get_build_number() >= FIRST_SDL_BUILD)
+	{
+		auto pmainwindow = *CMemoryHookMgr::the().pmainwindow().get();
+		if (!*pmainwindow)
 		{
-			int x, y;
-			SDL_PumpEvents();
-			SDL_GetRelativeMouseState(&x, &y);
+			return;
 		}
+
+		SDL_WarpMouseInWindow(*pmainwindow, (int)pos_to_set.x, (int)pos_to_set.y);
+
+		int x, y;
+		SDL_PumpEvents();
+		SDL_GetRelativeMouseState(&x, &y);
+	}
+	else
+	{
+		// This is in absolute coordinates, so offset from the window position
+		pos_to_set += CGameUtil::the().get_window_pos();
+		SetCursorPos((int)pos_to_set.x, (int)pos_to_set.y);
 	}
 }
 
-Vector2D CEngineInput::surface_get_cursor_pos()
+void CEngineInput::surface_centerize_cursor_position()
 {
-	int wide = 0, tall = 0;
-	auto surfacefuncs = CHLInterfaceHook::the().ISurface();
-	if (surfacefuncs)
-	{
-		surfacefuncs->SurfaceGetCursorPos(wide, tall);
-	}
-	return Vector2D((float)wide, (float)tall);
+	auto offset = CVideoModeUtil::the().get_ingame_viewport_pos();
+	surface_set_cursor_pos(offset + CVideoModeUtil::the().get_real_screen_size() / 2.0f);
 }
 
 void CEngineInput::toggle_ingame_input(bool enable)

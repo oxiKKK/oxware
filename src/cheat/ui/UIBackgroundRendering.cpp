@@ -46,14 +46,22 @@ void CUIBackgroundRendering::on_render()
 		return;
 	}
 
-	g_gui_widgets_i->set_next_window_pos({}, ImGuiCond_Once);
-	g_gui_widgets_i->set_next_window_size(g_imgui_platform_layer_i->get_screen_size(), ImGuiCond_Once);
+	auto screen_pos = CVideoModeUtil::the().get_ingame_viewport_pos();
+	auto screen_size = CVideoModeUtil::the().get_real_screen_size();
+
+	if (screen_size.IsZero())
+	{
+		return;
+	}
+
+	g_gui_widgets_i->set_next_window_pos({ screen_pos.x, 0 }, ImGuiCond_Always);
+	g_gui_widgets_i->set_next_window_size(screen_size, ImGuiCond_Always);
 
 	static constexpr auto window_flags =
 		ImGuiWindowFlags_NoDecoration |
 		ImGuiWindowFlags_NoSavedSettings |
-		ImGuiWindowFlags_NoBackground |
 		ImGuiWindowFlags_NoInputs |
+		ImGuiWindowFlags_NoBackground |
 		ImGuiWindowFlags_NoFocusOnAppearing |
 		ImGuiWindowFlags_NoBringToFrontOnFocus |
 		ImGuiWindowFlags_NoNav;
@@ -61,8 +69,17 @@ void CUIBackgroundRendering::on_render()
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 
 	g_gui_widgets_i->create_new_window(
-		"background_rendering", window_flags, [this]()
+		"background_rendering", window_flags, [&]()
 		{
+#if 0 // debug: render a rect around bounds of this window
+			g_gui_window_rendering_i->render_box_outline(
+				g_gui_window_rendering_i->get_current_drawlist(), 
+				screen_pos, screen_pos + screen_size,
+				CColor(230, 0, 0, 0), 0, 
+				CColor(230, 0, 0, 230), 4.0f
+			);
+#endif
+
 			for (auto& callback : m_render_code_callbacks)
 			{
 				if (callback)

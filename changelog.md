@@ -140,3 +140,14 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Fixed a bug where mouse cursor wouldn't change to "hand" when hovered over tab items.
 - Fixed random crash that sometimes occured relating to feature list and menu.
 - Fixed crosshair not being properly aligned with higher thickness.
+
+# v1.0.5
+
+## Additions and improvements
+
+- 
+
+## Bugfixes
+
+- Fixed ([#0002](https://github.com/oxiKKK/oxware/issues/2))
+- Fixed a bug related to mouse cursor where if you were in game alive and you'd alt+tab out of the game, you could not move your mouse.

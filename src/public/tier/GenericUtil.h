@@ -91,6 +91,8 @@ public:
 	void push_page_protection(uintptr_t address, size_t size, uint32_t page_protection_flags);
 	void pop_page_protection();
 
+	Vector2D get_window_pos(HWND hwnd);
+
 private:
 	uint32_t m_old_page_protection_flags;
 	uint32_t m_page_protection_patch_address;

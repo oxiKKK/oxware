@@ -320,6 +320,8 @@ void _Host_Frame_FnDetour_t::_Host_Frame(float time)
 
 	CForceEnableDisabled::the().update_disable_sponly_cvars();
 
+	CVideoModeUtil::the().update();
+
 	CMemoryFnDetourMgr::the()._Host_Frame().call(time);
 }
 

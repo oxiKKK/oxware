@@ -397,6 +397,8 @@ bool CoXWARE::initialize_hook_managers()
 		return false;
 	}
 
+	CVideoModeUtil::the().initialize();
+
 	CGoldSrcCommandMgr::the().initialize();
 
 	// HL interface hook

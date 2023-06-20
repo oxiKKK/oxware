@@ -82,56 +82,56 @@ void CESP::on_render()
 
 void CESP::render_players()
 {
-	for (auto& [index, plr] : CEntityMgr::the().m_known_players)
+	for (auto& [index, player] : CEntityMgr::the().m_known_players)
 	{
-		if (!plr.is_valid())
+		// check if the player is valid
+		if (!player.is_valid() || !player.is_alive() || player.is_out_of_update_for(1.0f) || player.is_local_player())
 		{
 			continue;
 		}
 
-		auto& model = plr.associated_model();
-		auto cl_ent = plr.cl_entity();
-		auto plr_info = plr.get_playerinfo();
+		auto& model = player.associated_model();
 
-#if 0
-		if (model.is_valid() && plr_info)
-		{
-			auto hl_model = model.hl_model();
-
-			auto text = std::format("{}: {} & {} ducking = {}",
-									plr_info->name,
-									cl_ent->curstate.mins,
-									cl_ent->curstate.maxs, 
-									plr.is_ducking());
-			g_gui_widgets_i->add_text(text, TEXTPROP_ColorWhite);
-		}
-#endif
-
-		if (!plr.is_alive() || plr.is_out_of_update_for(1.0f) || plr.is_local_player() || !model.is_valid())
+		// check if model is valid
+		if (!model.is_valid())
 		{
 			continue;
 		}
 
+		// check for player team
 		if (esp_only_enemy_team.get_value() && !CGameUtil::the().is_player_on_enemy_team(index))
 		{
 			continue;
 		}
 
+		auto cl_ent = player.cl_entity();
+
+		// filter out invalid origins
+		if (cl_ent->origin.IsZero())
+		{
+			continue;
+		}
+
+		auto plr_info = player.get_playerinfo();
+
 		Vector2D box_top2d, box_bot2d;
-		Vector box_top3d = cl_ent->origin + Vector(0.0f, 0.0f, plr.get_bounding_box_max().z); // add a little bit of height
-		Vector box_bot3d = cl_ent->origin + Vector(0.0f, 0.0f, plr.get_bounding_box_min().z);
+		Vector box_top3d = cl_ent->origin + Vector(0.0f, 0.0f, player.get_bounding_box_max().z); // add a little bit of height
+		Vector box_bot3d = cl_ent->origin + Vector(0.0f, 0.0f, player.get_bounding_box_min().z);
 		if (CGameUtil::the().world_to_screen(box_top3d, box_top2d) &&
 			CGameUtil::the().world_to_screen(box_bot3d, box_bot2d))
 		{
+			//box_top2d.x += 240;
+			//box_bot2d.x += 240;
+
 			float box_tall_half = box_bot2d.y - box_top2d.y;
-			float box_wide_half = box_tall_half / (4.6f/* * (plr.is_ducking() ? 2 : 1)*/); // tweaked ration to perfection
+			float box_wide_half = box_tall_half / (4.6f/* * (player.is_ducking() ? 2 : 1)*/); // tweaked ration to perfection
 
  			Vector2D box_topleft = { box_top2d[0] - box_wide_half, box_top2d[1] };
 			Vector2D box_topright = { box_top2d[0] + box_wide_half, box_top2d[1] };
 			Vector2D box_botleft = { box_bot2d[0] - box_wide_half, box_bot2d[1] };
 			Vector2D box_botright = { box_bot2d[0] + box_wide_half, box_bot2d[1] };
 
-			auto team_color = plr.get_color_based_on_team();
+			auto team_color = player.get_color_based_on_team();
 
 			render_box_for_four_points(box_topleft, box_topright, box_botright, box_botleft, team_color, box_tall_half);
 
@@ -139,67 +139,63 @@ void CESP::render_players()
 			// render text
 			//
 
-			if (!esp_player_name.get_value())
+			if (esp_player_name.get_value())
 			{
-				continue;
+				auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Bold);
+
+				const char* label_text = player.get_playerinfo()->name;
+				if (!label_text)
+				{
+					label_text = "none";
+				}
+				auto label_size = g_gui_fontmgr_i->calc_font_text_size(text_font, label_text);
+
+				float label_padding = 1.0f + 1.0f; // 1 for the box outline thickness
+				Vector2D label_topleft = { box_botright.x - (box_wide_half + label_size.x / 2), box_botright.y + label_padding };
+
+				g_gui_window_rendering_i->render_text_with_background(
+					g_gui_window_rendering_i->get_current_drawlist(),
+					text_font,
+					label_topleft,
+					CColor(255, 255, 255, 255),
+					label_text);
 			}
-
-			auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Bold);
-
-			const char* label_text = plr.get_playerinfo()->name;
-			if (!label_text)
-			{
-				label_text = "null";
-			}
-			auto label_size = g_gui_fontmgr_i->calc_font_text_size(text_font, label_text);
-
-			float label_padding = 1.0f + 1.0f; // 1 for the box outline thickness
-			Vector2D label_topleft = { box_botright.x - (box_wide_half + label_size.x / 2), box_botright.y + label_padding };
-
-			g_gui_window_rendering_i->render_text_with_background(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				text_font,
-				label_topleft,
-				CColor(255, 255, 255, 255),
-				label_text);
 		}
 	}
 }
 
 void CESP::render_entities()
 {
-	for (auto& [index, ent] : CEntityMgr::the().m_known_entities)
+	for (auto& [index, entity] : CEntityMgr::the().m_known_entities)
 	{
-		if (!ent.is_valid())
+		// see if entity is valid
+		if (!entity.is_valid() || entity.is_out_of_update_for(1.0f))
 		{
 			continue;
 		}
 
-		auto& model = ent.associated_model();
-		auto cl_ent = ent.cl_entity();
+		auto& model = entity.associated_model();
 
-		if (ent.is_out_of_update_for(1.0f) || !model.is_valid())
+		// see if model is valid
+		if (!model.is_valid())
 		{
 			continue;
 		}
 
+		auto cl_ent = entity.cl_entity();
+
+		// filter out invalid origins
 		if (cl_ent->origin.IsZero())
 		{
 			continue;
 		}
 
-		auto bbox_min = ent.get_bounding_box_min();
-		auto bbox_max = ent.get_bounding_box_max();
+		auto bbox_min = entity.get_bounding_box_min();
+		auto bbox_max = entity.get_bounding_box_max();
 
-		if (bbox_min.IsZero())
-		{
-			bbox_min.z = -5.0f;
-		}
-
-		if (bbox_max.IsZero())
-		{
-			bbox_max.z = 5.0f;
-		}
+		// correct bounding boxes
+		if (bbox_min.IsZero()) bbox_min.z = -5.0f;
+		if (bbox_max.IsZero()) bbox_max.z = 5.0f;
 
 		Vector2D box_top2d, box_bot2d;
 		Vector box_top3d = cl_ent->origin + Vector(0.0f, 0.0f, bbox_max.z); // add a little bit of height
@@ -208,13 +204,14 @@ void CESP::render_entities()
 			CGameUtil::the().world_to_screen(box_bot3d, box_bot2d))
 		{
 			float box_tall_half = box_bot2d.y - box_top2d.y;
-			float box_wide_half = box_tall_half; // tweaked ration to perfection
+			float box_wide_half = box_tall_half;
 
 			Vector2D box_topleft = { box_top2d[0] - box_wide_half, box_top2d[1] };
 			Vector2D box_topright = { box_top2d[0] + box_wide_half, box_top2d[1] };
 			Vector2D box_botleft = { box_bot2d[0] - box_wide_half, box_bot2d[1] };
 			Vector2D box_botright = { box_bot2d[0] + box_wide_half, box_bot2d[1] };
 
+			// pinkish color
 			auto color = CColor(199, 21, 133, 230);
 
 			render_box_for_four_points(box_topleft, box_topright, box_botright, box_botleft, color, box_tall_half);
@@ -226,7 +223,7 @@ void CESP::render_entities()
 			const char* label_text = model.hl_model()->name;
 			if (!label_text)
 			{
-				label_text = "null";
+				label_text = "none";
 			}
 			auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Bold);
 			auto label_size = g_gui_fontmgr_i->calc_font_text_size(text_font, label_text);

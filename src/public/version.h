@@ -39,8 +39,8 @@
 
 #define OXVER_MAJOR		1
 #define OXVER_MINOR		0
-#define OXVER_PATCH		4
-#define OXVER_STRING	"1.0.4" // don't forget to change, too!
+#define OXVER_PATCH		5
+#define OXVER_STRING	"1.0.5" // don't forget to change, too!
 
 #if defined(_DEBUG)
 #define OX_BUILD "debug"

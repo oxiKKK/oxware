@@ -205,6 +205,7 @@ namespace hl
 #include <hlsdk/interface/GameUI/IClientVGUI.h>
 #include <hlsdk/interface/IEngineVGui.h>
 #include <hlsdk/interface/IFileSystem.h>
+#include <hlsdk/interface/IVideoMode.h>
 
 // game_shared
 #include <hlsdk/game_shared/shareddefs.h>
@@ -259,6 +260,7 @@ namespace hl
 #include "game/SpriteManager.h"
 #include "game/LocalPlayerState.h"
 #include "game/ClientMovementPacket.h"
+#include "game/VideoModeUtil.h"
 
 // features
 #include "features/FeatureManager.h"

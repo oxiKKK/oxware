@@ -88,7 +88,12 @@ void CFlashbangFadeModifier::on_render()
 		return;
 	}
 
-	auto screen = g_imgui_platform_layer_i->get_screen_size();
+	auto screen_pos = CVideoModeUtil::the().get_ingame_viewport_pos();
+	auto screen_size = CVideoModeUtil::the().get_real_screen_size();
+	if (screen_size.IsZero())
+	{
+		return;
+	}
 
 	auto percentage_font = g_gui_fontmgr_i->get_font(FID_ProggyClean, FontSize::UIText.medium(), FDC_Regular);
 
@@ -97,14 +102,14 @@ void CFlashbangFadeModifier::on_render()
 
 	g_gui_window_rendering_i->render_box(
 		g_gui_window_rendering_i->get_current_drawlist(), 
-		{ 0.0f, 0.0f }, 
-		{ screen.x * (percent * 0.01f), 3.0f },
+		{ screen_pos },
+		{ screen_pos.x + screen_size.x * (percent * 0.01f), 3.0f },
 		CColor(0, 170, 230, 200));
 
 	g_gui_window_rendering_i->render_text_with_background(
 		g_gui_window_rendering_i->get_current_drawlist(), 
 		percentage_font,
-		{ screen.x / 2 - label_size.x / 2, 10.0f }, 
+		{ screen_pos.x + screen_size.x / 2 - label_size.x / 2, 10.0f },
 		CColor(230, 230, 230, 230), 
 		label);
 }

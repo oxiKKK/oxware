@@ -281,6 +281,9 @@
     <ClCompile Include="features\WorldVisuals.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
+    <ClCompile Include="game\VideoModeUtil.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -508,6 +511,9 @@
     </ClInclude>
     <ClInclude Include="features\WorldVisuals.h">
       <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="game\VideoModeUtil.h">
+      <Filter>src\game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -468,7 +468,7 @@ void COxWareUI::handle_ingame_mouseevents()
 	}
 
 	// to prevent some stupid bugs from leaving the mouse not active even tho it's supposed to be..
-	if (CGameUtil::the().is_fully_connected())
+	if (CGameUtil::the().is_fully_connected() && GetFocus() == m_hwnd)
 	{
 		CEngineInput::the().toggle_ingame_clientdll_mouse(!m_is_any_interactible_rendering_context_active);
 	}

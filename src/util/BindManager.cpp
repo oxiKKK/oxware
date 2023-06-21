@@ -193,6 +193,8 @@ public:
 
 	bool is_key_bound(int vk);
 
+	bool should_block_engine_key(int vk);
+
 private:
 	void register_keypress_event_on_push(UserKey_t& key, int virtual_key, bind_t& new_bind);
 	void register_keypress_event_on_push_and_release(UserKey_t& key, int virtual_key, bind_t& new_bind);
@@ -594,7 +596,7 @@ bool CBindManager::is_key_bindable(int vk)
 	return vk != VK_ESCAPE && vk != VK_INSERT && vk != VK_OEM_3;
 }
 
-EBindFlags CBindManager::parse_flags_out_of_string(const std::string & flags_str)
+EBindFlags CBindManager::parse_flags_out_of_string(const std::string& flags_str)
 {
 	EBindFlags flags = BINDFLAG_None;
 	std::string current_token;
@@ -625,6 +627,10 @@ EBindFlags CBindManager::parse_flags_out_of_string(const std::string & flags_str
 			{
 				flags |= BINDFLAG_Silent;
 			}
+			if (current_token == bind_flags_to_str[BINDFLAG_DisableInGameKey])
+			{
+				flags |= BINDFLAG_DisableInGameKey;
+			}
 
 			current_token.clear(); // throw out after used
 
@@ -639,6 +645,7 @@ EBindFlags CBindManager::parse_flags_out_of_string(const std::string & flags_str
 
 std::string CBindManager::create_string_out_of_flags(EBindFlags flags)
 {
+	// we have a custom formatter for flags, so use that
 	return std::format("{}", flags);
 }
 
@@ -663,6 +670,19 @@ bool CBindManager::is_key_bound(int vk)
 	{
 		if (_vk == vk)
 			return true;
+	}
+	return false;
+}
+
+bool CBindManager::should_block_engine_key(int vk)
+{
+	for (auto& [_vk, bind] : m_registerd_binds)
+	{
+		if (_vk == vk)
+		{
+			// if the user said to not execute the engine key, we won't execute it, and instead will execute our bind.
+			return bind.flags & BINDFLAG_DisableInGameKey;
+		}
 	}
 	return false;
 }

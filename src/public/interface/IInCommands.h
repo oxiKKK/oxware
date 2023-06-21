@@ -40,12 +40,9 @@ class IInCommands : public IBaseInterface
 {
 public:
 	virtual void initialize() = 0;
-	virtual void update() = 0;
 
 	// call this in the beginning of engine frame, but not too early. CL_Move is enough (CL_CreateMove, too)
 	virtual void update_activation_conditions() = 0;
-
-	virtual void render_interactible_incommand_list() = 0;
 
 	virtual void add_command(BaseInCommand* in_cmd) = 0;
 
@@ -60,9 +57,10 @@ public:
 
 	virtual bool is_key_bound_and_active(int vk) = 0;
 
-	virtual bool does_meet_activation_conditions(EActivationCondition act_cond) = 0;
+	// user can explicitly tell whenever we should execute the engine key as well or block it.
+	virtual bool should_block_engine_key(int vk) = 0;
 
-	virtual void add_keyscan_button(BaseInCommand* in_cmd, const Vector2D& size) = 0;
+	virtual bool does_meet_activation_conditions(EActivationCondition act_cond) = 0;
 };
 
 extern IInCommands* g_in_commands_i;

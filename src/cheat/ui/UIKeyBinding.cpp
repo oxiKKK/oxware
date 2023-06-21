@@ -103,7 +103,6 @@ void CUIKeyBinding::render_interactible_bind_list()
 						} popup_st{};
 
 						int bind_to_be_removed = -1;
-						std::pair<int, std::string> bind_to_be_rebound = { NULL, "" };
 						g_bindmgr_i->for_each_bind(
 							[&](int vk, const bind_t& bind)
 							{
@@ -195,7 +194,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 						g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
 						static bool was_popup_opened = false;
 						bool popup_opened = g_gui_widgets_i->execute_simple_popup_popup(
-							"bind_popup", { 180, 155 }, ImGuiWindowFlags_NoMove,
+							"bind_popup", { 180, 185 }, ImGuiWindowFlags_NoMove,
 							[&]()
 							{
 								if (g_gui_widgets_i->add_button("Remove", { -1.0f, 0.0f }, false))
@@ -263,6 +262,22 @@ void CUIKeyBinding::render_interactible_bind_list()
 										else
 										{
 											bind->flags &= ~BINDFLAG_Silent;
+										}
+									}
+								}
+
+								if (g_gui_widgets_i->add_checkbox("Disable in-game key", &bound_key->f_disable_ingame_key))
+								{
+									auto bind = g_bindmgr_i->get_bind(popup_st.vk);
+									if (bind)
+									{
+										if (bound_key->f_disable_ingame_key)
+										{
+											bind->flags |= BINDFLAG_DisableInGameKey;
+										}
+										else
+										{
+											bind->flags &= ~BINDFLAG_DisableInGameKey;
 										}
 									}
 								}
@@ -473,15 +488,6 @@ void CUIKeyBinding::setup_interactible_bind_list()
 		{
 			insert_new_key_bind(vk, bind);
 
-			// and update the data.
-			strncpy(m_bound_keys[vk].cmd_0.data(), bind.cmd_sequence_0.c_str(), buffer_len);
-			strncpy(m_bound_keys[vk].cmd_1.data(), bind.cmd_sequence_1.c_str(), buffer_len);
-
-			if (bind.type == BIND_OnPushAndRelease)
-			{
-				m_bound_keys[vk].has_two_cmds = true;
-			}
-
 			insert_new_key_scan_button_info(vk);
 		});
 }
@@ -526,24 +532,27 @@ void CUIKeyBinding::end_key_binding_mode(int vk_pressed)
 
 void CUIKeyBinding::keep_bound_keys_up_to_date()
 {
-	// refresh the list so that it keeps up to date
+	// refresh the list so that it keeps up to date with the actual list
 	static uint32_t t = GetTickCount();
 	if (GetTickCount() - t > 500)
 	{
 		g_bindmgr_i->for_each_bind(
 			[&](int vk, const bind_t& bind)
 			{
-				strncpy(m_bound_keys[vk].cmd_0.data(), bind.cmd_sequence_0.c_str(), buffer_len);
-				strncpy(m_bound_keys[vk].cmd_1.data(), bind.cmd_sequence_1.c_str(), buffer_len);
+				auto& bound_key = m_bound_keys[vk];
+
+				strncpy(bound_key.cmd_0.data(), bind.cmd_sequence_0.c_str(), buffer_len);
+				strncpy(bound_key.cmd_1.data(), bind.cmd_sequence_1.c_str(), buffer_len);
 
 				if (bind.type == BIND_OnPushAndRelease)
 				{
-					m_bound_keys[vk].has_two_cmds = true;
+					bound_key.has_two_cmds = true;
 				}
 
-				m_bound_keys[vk].f_execute_over_ui = (float)(bind.flags & BINDFLAG_ExecuteOverUI);
-				m_bound_keys[vk].f_execute_over_game_ui = (float)(bind.flags & BINDFLAG_ExecuteOverGameUI);
-				m_bound_keys[vk].f_silent = (float)(bind.flags & BINDFLAG_Silent);
+				bound_key.f_execute_over_ui = (bind.flags & BINDFLAG_ExecuteOverUI);
+				bound_key.f_execute_over_game_ui = (bind.flags & BINDFLAG_ExecuteOverGameUI);
+				bound_key.f_silent = (bind.flags & BINDFLAG_Silent);
+				bound_key.f_disable_ingame_key = (bind.flags & BINDFLAG_DisableInGameKey);
 
 				update_keyscan_button_title(vk);
 			});
@@ -574,9 +583,10 @@ bound_key_t* CUIKeyBinding::insert_new_key_bind(int vk, const bind_t& bind)
 		(*iter).second.has_two_cmds = true;
 	}
 
-	(*iter).second.f_execute_over_ui = (float)(bind.flags & BINDFLAG_ExecuteOverUI);
-	(*iter).second.f_execute_over_game_ui = (float)(bind.flags & BINDFLAG_ExecuteOverGameUI);
-	(*iter).second.f_silent = (float)(bind.flags & BINDFLAG_Silent);
+	(*iter).second.f_execute_over_ui = (bind.flags & BINDFLAG_ExecuteOverUI);
+	(*iter).second.f_execute_over_game_ui = (bind.flags & BINDFLAG_ExecuteOverGameUI);
+	(*iter).second.f_silent = (bind.flags & BINDFLAG_Silent);
+	(*iter).second.f_disable_ingame_key = (bind.flags & BINDFLAG_DisableInGameKey);
 
 	strncpy((*iter).second.cmd_0.data(), bind.cmd_sequence_0.c_str(), buffer_len);
 	strncpy((*iter).second.cmd_1.data(), bind.cmd_sequence_1.c_str(), buffer_len);

@@ -187,7 +187,8 @@ void CUIMenu::on_initialize()
 
 void CUIMenu::on_render()
 {
-	g_in_commands_i->update();
+	// we have to update it here since the keyscan buttons may be outside of the InCommands tab.
+	CUIInCommandKeyBinding::the().update();
 
 	g_gui_widgets_i->set_next_window_pos({ 100, 100 }, ImGuiCond_Once);
 	g_gui_widgets_i->set_next_window_size(CMenuStyle::k_menu_rect_size, ImGuiCond_Once);
@@ -1612,7 +1613,7 @@ void CUIMenu::tab_binds()
 
 void CUIMenu::tab_incommands()
 {
-	g_in_commands_i->render_interactible_incommand_list();
+	CUIInCommandKeyBinding::the().render_interactible_list();
 }
 
 void CUIMenu::tab_cmdlist()

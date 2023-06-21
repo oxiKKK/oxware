@@ -213,21 +213,15 @@ void Key_Event_FnDetour_t::Key_Event(int key, hl::qboolean down)
 	}
 
 	// stop executing the engine key, if our key is bound to an incommand.
-	// TODO: Make this customizable in the future...?
-	if (CGameUtil::the().is_fully_connected())
+	// but only if we said to block it.
+	if (g_in_commands_i->should_block_engine_key(g_user_input_i->engine_key_to_virtual_key(key)))
 	{
-		auto local = CEntityMgr::the().get_local_player();
-		if (local && local->is_valid() && local->is_alive())
-		{
-			if (g_in_commands_i->is_key_bound_and_active(g_user_input_i->engine_key_to_virtual_key(key)))
-			{
-				return;
-			}
-		}
+		return;
 	}
 
 	// see if this key is bound inside our cheat. if yes, prefer executing our key over engine key.
-	if (g_bindmgr_i->is_key_bound(g_user_input_i->engine_key_to_virtual_key(key)))
+	// but only if user said to do so, this is controled by a bind flag.
+	if (g_bindmgr_i->should_block_engine_key(g_user_input_i->engine_key_to_virtual_key(key)))
 	{
 		return;
 	}

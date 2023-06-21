@@ -35,13 +35,56 @@
 class BaseInCommand;
 using fnInCommandCallback = void(*)(BaseInCommand* _this);
 
+// Conditions whenever to activate the incommand or not
 enum EActivationCondition
 {
 	IN_ACTCOND_None = BIT(-1),
-	IN_ACTCOND_Connected = BIT(0),
-	IN_ACTCOND_Alive = BIT(1),
+	IN_ACTCOND_Connected = BIT(0),		// executes only if connected to a server
+	IN_ACTCOND_Alive = BIT(1),			// executes only if alive
 };
 DEFINE_ENUM_BITWISE_OPERATORS(EActivationCondition);
+
+enum EInCommandFlags
+{
+	IN_FLAG_None = BIT(-1),
+	IN_FLAG_DisableInGameKey = BIT(0),	// don't run the engine command bound to same key when it is pressed
+};
+DEFINE_ENUM_BITWISE_OPERATORS(EInCommandFlags);
+
+static std::unordered_map<EInCommandFlags, std::string> incommand_flags_to_str = 
+{
+	{
+		{ IN_FLAG_None, "none" },
+		{ IN_FLAG_DisableInGameKey, "disable_ingame_key" },
+	}
+};
+
+template <>
+struct std::formatter<EInCommandFlags> : std::formatter<std::string> {
+	auto format(EInCommandFlags flags, std::format_context& ctx) {
+		if (flags == IN_FLAG_None)
+		{
+			return std::formatter<string>::format("none", ctx);
+		}
+
+		std::string flags_str;
+		bool add_colon = false;
+		if (flags & IN_FLAG_DisableInGameKey)
+		{
+			flags_str = incommand_flags_to_str[IN_FLAG_DisableInGameKey];
+			add_colon = true;
+		}
+		//if (flags & XXX)
+		//{
+		//	flags_str += (add_colon ? ", " : "") + incommand_flags_to_str[XXX];
+		//	add_colon = true;
+		//}
+
+		// NOTE: Don't forget to add separator ', ' after the first command
+
+		return std::formatter<string>::format(flags_str, ctx);
+	}
+};
 
 class BaseInCommand
 {
@@ -61,13 +104,14 @@ public:
 	bool is_active() const;
 
 	inline auto get_activation_condition() const { return m_activation_condition; }
-	inline auto get_name() const { return m_name; }
+	inline const auto& get_name() const { return m_name; }
 	inline int get_key_bound() const { return m_vk; } // 0 if unbound
 
 	inline auto get_in_fn() const { return m_in_fn; }
 	inline auto get_out_fn() const { return m_out_fn; }
 	inline auto get_toggle_var() const { return m_var_toggle; }
 	inline auto get_always_enabled_var() const { return m_var_always_enabled; }
+	inline auto get_flags() const { return m_flags; }
 
 	void rebind_key_to(int new_vk);
 
@@ -75,7 +119,20 @@ public:
 
 	virtual void add_to_global_list() = 0;
 
-	void set_is_active(bool is_active) { m_is_active = is_active; }
+	// setters
+	inline void set_is_active(bool is_active) { m_is_active = is_active; }
+	inline void set_flags(EInCommandFlags f) { m_flags = f; }
+	inline void add_flags(EInCommandFlags f, bool set)
+	{
+		if (set)
+		{
+			m_flags |= f;
+		}
+		else
+		{
+			m_flags &= ~f;
+		}
+	}
 
 protected:
 	bool m_is_active = false;
@@ -94,6 +151,8 @@ protected:
 	bool m_enable_variable_by_default = false;
 
 	EActivationCondition m_activation_condition = IN_ACTCOND_None;
+
+	EInCommandFlags m_flags = IN_FLAG_None;
 };
 
 class InCommand : public BaseInCommand

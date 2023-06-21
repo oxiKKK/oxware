@@ -36,7 +36,9 @@ struct bound_key_t
 {
 	std::array<char, buffer_len> cmd_0, cmd_1;
 	int state;
-	float f_execute_over_ui, f_execute_over_game_ui, f_silent;
+
+	// flags
+	bool f_execute_over_ui, f_execute_over_game_ui, f_silent, f_disable_ingame_key;
 	bool has_two_cmds;
 };
 

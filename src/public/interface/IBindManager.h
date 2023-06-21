@@ -52,9 +52,15 @@ struct std::formatter<EBindType> : std::formatter<std::string> {
 
 		switch (type)
 		{
-			case BIND_OnPush:			return std::formatter<string>::format(bind_type_to_str[type], ctx);
-			case BIND_OnPushAndRelease:	return std::formatter<string>::format(bind_type_to_str[type], ctx);
-			default:					return std::formatter<string>::format("unknown", ctx);
+			case BIND_OnPush:
+			case BIND_OnPushAndRelease:
+			{
+				return std::formatter<string>::format(bind_type_to_str[type], ctx);
+			}
+			default:
+			{
+				return std::formatter<string>::format("unknown", ctx);
+			}
 		}
 	}
 };
@@ -66,6 +72,7 @@ enum EBindFlags
 	BINDFLAG_ExecuteOverUI = BIT(0),		// execute the bind still if the Cheat UI is up.
 	BINDFLAG_ExecuteOverGameUI = BIT(1),	// execute the bind still if the Game UI is up.
 	BINDFLAG_Silent = BIT(2),				// don't log anything to console when executing the bind.
+	BINDFLAG_DisableInGameKey = BIT(3),		// don't run the engine command bound to same key when it is pressed
 };
 DEFINE_ENUM_BITWISE_OPERATORS(EBindFlags);
 
@@ -76,12 +83,17 @@ static std::unordered_map<EBindFlags, std::string> bind_flags_to_str
 		{ BINDFLAG_ExecuteOverUI, "execute_over_ui" },
 		{ BINDFLAG_ExecuteOverGameUI, "execute_over_game_ui" },
 		{ BINDFLAG_Silent, "silent" },
+		{ BINDFLAG_DisableInGameKey, "disable_ingame_key" },
 	}
 };
 
 template <>
 struct std::formatter<EBindFlags> : std::formatter<std::string> {
 	auto format(EBindFlags flags, std::format_context& ctx) {
+		if (flags == BINDFLAG_None)
+		{
+			return std::formatter<string>::format("none", ctx);
+		}
 
 		std::string flags_str;
 		bool add_colon = false;
@@ -100,6 +112,11 @@ struct std::formatter<EBindFlags> : std::formatter<std::string> {
 			flags_str += (add_colon ? ", " : "") + bind_flags_to_str[BINDFLAG_Silent];
 			add_colon = true;
 		}
+		if (flags & BINDFLAG_DisableInGameKey)
+		{
+			flags_str += (add_colon ? ", " : "") + bind_flags_to_str[BINDFLAG_DisableInGameKey];
+			add_colon = true;
+		}
 
 		// NOTE: Don't forget to add separator ', ' after the first command
 
@@ -115,7 +132,6 @@ enum EBindInternalState
 	BINDSTATE_ExecutedWhenGameUIWasOff = BIT(1),	// 
 };
 DEFINE_ENUM_BITWISE_OPERATORS(EBindInternalState);
-
 
 struct bind_t
 {
@@ -159,6 +175,9 @@ public:
 	virtual bool should_execute_bind(EBindFlags flags) = 0;
 
 	virtual bool is_key_bound(int vk) = 0;
+
+	// based on flags, tell whenever to block the engine key and execute our bind instead of engine bind.
+	virtual bool should_block_engine_key(int vk) = 0;
 };
 
 extern IBindManager* g_bindmgr_i;

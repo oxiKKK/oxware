@@ -303,6 +303,7 @@ namespace hl
 #include "ui/UIBackgroundRendering.h"
 #include "ui/UIPerformanceProfilerVisualization.h"
 #include "ui/UIKeyBinding.h"
+#include "ui/UIInCommandBinding.h"
 #include "ui/OxWareUI.h"
 
 #endif // PRECOMPILED_H

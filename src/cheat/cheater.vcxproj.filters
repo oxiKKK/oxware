@@ -284,6 +284,9 @@
     <ClCompile Include="game\VideoModeUtil.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
+    <ClCompile Include="ui\UIInCommandBinding.cpp">
+      <Filter>src\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -514,6 +517,9 @@
     </ClInclude>
     <ClInclude Include="game\VideoModeUtil.h">
       <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\UIInCommandBinding.h">
+      <Filter>src\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

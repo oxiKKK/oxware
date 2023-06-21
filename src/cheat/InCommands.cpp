@@ -37,11 +37,8 @@ public:
 	~CInCommands();
 
 	void initialize();
-	void update();
 
 	void update_activation_conditions();
-
-	void render_interactible_incommand_list();
 
 	void add_command(BaseInCommand* in_cmd);
 
@@ -56,15 +53,15 @@ public:
 
 	bool is_key_bound_and_active(int vk);
 
+	bool should_block_engine_key(int vk);
+
 	bool does_meet_activation_conditions(EActivationCondition act_cond);
 
-	void add_keyscan_button(BaseInCommand* in_cmd, const Vector2D& size);
-
 private:
-	void end_key_binding_mode(int vk_pressed);
-	BaseInCommand* m_in_cmd_to_be_rebound;
-
 	void provide_cfg_load_export_callbacks();
+
+	EInCommandFlags parse_flags_out_of_string(const std::string& flags_str);
+	std::string create_string_out_of_flags(EInCommandFlags flags);
 
 private:
 	std::unordered_map<std::string, BaseInCommand*> m_in_commands;
@@ -164,7 +161,8 @@ void CInCommands::create_incommands_from_json(const nlohmann::json& json)
 	/*
 		"in_commands": {
 			"movement_bhop": {
-				"key":	"space"
+				"key":		"space"
+				"flags":	"none, ..."
 			}, 
 			...
 		}
@@ -172,7 +170,7 @@ void CInCommands::create_incommands_from_json(const nlohmann::json& json)
 
 	for (auto& [incmd_name, in_cmd] : in_commands->items())
 	{
-		std::string key_str;
+		std::string key_str, flags_str;
 
 		auto try_to_parse = [&](const std::string& what, std::string& output, bool doesnt_matter = false) {
 			try
@@ -192,10 +190,16 @@ void CInCommands::create_incommands_from_json(const nlohmann::json& json)
 			}
 		};
 
-		// commnad
+		// key bound
 		if (!try_to_parse("key", key_str))
 		{
 			continue;
+		}
+
+		// flags
+		if (!try_to_parse("flags", flags_str, true))
+		{
+			// doesn't have to return, this is optional
 		}
 
 		auto in_cmd = get_incommand(incmd_name);
@@ -213,6 +217,14 @@ void CInCommands::create_incommands_from_json(const nlohmann::json& json)
 				in_cmd->rebind_key_to(vk);
 			}
 		}
+
+		// parse flags
+		EInCommandFlags flags = parse_flags_out_of_string(flags_str);
+
+		if (flags != IN_FLAG_None)
+		{
+			in_cmd->set_flags(flags);
+		}
 	}
 }
 
@@ -228,6 +240,10 @@ void CInCommands::export_incommands_to_json(nlohmann::json& json)
 		}
 
 		json["in_commands"][name]["key"] = g_user_input_i->virtual_key_to_string(vk);
+
+		std::string flags_str = create_string_out_of_flags(in_cmd->get_flags());
+
+		json["in_commands"][name]["flags"] = flags_str;
 	}
 }
 
@@ -256,7 +272,11 @@ bool CInCommands::is_key_bound_and_active(int vk)
 {
 	for (const auto& [name, in_cmd] : m_in_commands)
 	{
-		if (in_cmd->get_key_bound() == vk && in_cmd->is_active() && does_meet_activation_conditions(in_cmd->get_activation_condition()))
+		bool will_exec_incmd =
+			in_cmd->is_active() &&
+			does_meet_activation_conditions(in_cmd->get_activation_condition());
+		
+		if (in_cmd->get_key_bound() == vk && will_exec_incmd)
 		{
 			return true;
 		}
@@ -265,55 +285,21 @@ bool CInCommands::is_key_bound_and_active(int vk)
 	return false;
 }
 
-void CInCommands::update()
+bool CInCommands::should_block_engine_key(int vk)
 {
-	// We can check this way if we started the key binding mode from our code.
-	// Because it could be started elsewhere, e.g. bindmanager code.
-	bool did_start_key_binding_mode = m_in_cmd_to_be_rebound != nullptr;
-
-	if (did_start_key_binding_mode)
+	for (const auto& [name, in_cmd] : m_in_commands)
 	{
-		int vk_pressed = g_user_input_i->get_bound_key();
-		if (vk_pressed != NULL)
-		{
-			// a key was just bound from the UserInput code
+		bool will_exec_incmd =
+			in_cmd->is_active() &&
+			does_meet_activation_conditions(in_cmd->get_activation_condition());
 
-			end_key_binding_mode(vk_pressed);
+		if (in_cmd->get_key_bound() == vk && will_exec_incmd)
+		{
+			return in_cmd->get_flags() & IN_FLAG_DisableInGameKey;
 		}
 	}
-}
 
-void CInCommands::add_keyscan_button(BaseInCommand* in_cmd, const Vector2D& size)
-{
-	std::string key_name;
-	
-	int vk_bound = in_cmd->get_key_bound();
-	if (vk_bound != NULL)
-	{
-		key_name = g_user_input_i->virtual_key_to_string(in_cmd->get_key_bound());
-	}
-	else
-	{
-		key_name = "unbound";
-	}
-
-	bool b = g_gui_widgets_i->add_button(std::format("{}##{}", key_name, in_cmd->get_name()), size, false, BUTTONFLAG_CenterLabel);
-	if (b)
-	{
-		m_in_cmd_to_be_rebound = in_cmd;
-		g_user_input_i->activate_key_binding_mode();
-	}
-}
-
-void CInCommands::end_key_binding_mode(int vk_pressed)
-{
-	if (vk_pressed != VK_LBUTTON && vk_pressed != VK_ESCAPE)
-	{
-		m_in_cmd_to_be_rebound->rebind_key_to(vk_pressed);
-	}
-
-	m_in_cmd_to_be_rebound = nullptr;
-	g_user_input_i->reset_bound_key();
+	return false;
 }
 
 void CInCommands::provide_cfg_load_export_callbacks()
@@ -343,98 +329,48 @@ void CInCommands::provide_cfg_load_export_callbacks()
 	cheat_settings->provide_export_fn(export_fn);
 }
 
+EInCommandFlags CInCommands::parse_flags_out_of_string(const std::string & flags_str)
+{
+	EInCommandFlags flags = IN_FLAG_None;
+	std::string current_token;
+	for (size_t i = 0; i < flags_str.length(); i++)
+	{
+		char c = flags_str[i];
+		bool last = (i == flags_str.length() - 1);
+		if (c == ',' || last)
+		{
+			if (last)
+			{
+				current_token.push_back(c);
+			}
+
+			// trim space
+			current_token.erase(current_token.find_last_not_of(' ') + 1); // suffixing spaces
+			current_token.erase(0, current_token.find_first_not_of(' ')); // prefixing spaces
+
+			if (current_token == incommand_flags_to_str[IN_FLAG_DisableInGameKey])
+			{
+				flags |= IN_FLAG_DisableInGameKey;
+			}
+
+			current_token.clear(); // throw out after used
+
+		}
+		else
+		{
+			current_token.push_back(c);
+		}
+	}
+	return flags;
+}
+
+std::string CInCommands::create_string_out_of_flags(EInCommandFlags flags)
+{
+	// we have a custom formatter for flags, so use that
+	return std::format("{}", flags);
+}
+
 bool CInCommands::does_meet_activation_conditions(EActivationCondition act_cond)
 {
 	return m_activation_conditions_for_this_frame == act_cond;
-}
-
-void CInCommands::render_interactible_incommand_list()
-{
-	auto last_cursor_pos = g_gui_widgets_i->get_cursor_pos();
-
-	CUIMenuWidgets::the().add_menu_child(
-		"InCommands", CMenuStyle::child_full_width(-1.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[&]()
-		{
-			g_gui_widgets_i->add_spacing();
-
-			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_CellPadding, { 2.0f, 1.0f });
-
-			if (g_gui_widgets_i->begin_columns("incommands_column", 4))
-			{
-				g_gui_widgets_i->setup_column_fixed_width(100.0f);
-				g_gui_widgets_i->setup_column_fixed_width(50.0f);
-				g_gui_widgets_i->setup_column_fixed_width(50.0f);
-				g_gui_widgets_i->setup_column_fixed_width(283.0f);
-
-				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("Key name");
-				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("Enable");
-				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("Always");
-				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("Command");
-
-				g_gui_widgets_i->end_columns();
-			}
-
-			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
-
-			g_gui_widgets_i->add_separator();
-
-			g_gui_widgets_i->add_child(
-				"incommands_list", Vector2D(-1.0f, -1.0f), false, ImGuiWindowFlags_None,
-				[&]()
-				{
-					if (g_gui_widgets_i->begin_columns("binds_column_nested", 4))
-					{
-						g_gui_widgets_i->setup_column_fixed_width(100.0f);
-						g_gui_widgets_i->setup_column_fixed_width(50.0f);
-						g_gui_widgets_i->setup_column_fixed_width(50.0f);
-						g_gui_widgets_i->setup_column_fixed_width(285.0f);
-
-						for (const auto& [name, in_cmd] : m_in_commands)
-						{
-							g_gui_widgets_i->goto_next_column();
-
-							int vk = in_cmd->get_key_bound();
-
-							add_keyscan_button(in_cmd, Vector2D(-1.0f, 25.0f));
-
-							g_gui_widgets_i->goto_next_column();
-
-							auto toggle_var = in_cmd->get_toggle_var();
-							CUIMenuWidgets::the().add_checkbox(std::format("##{}_0", name), toggle_var);
-
-							g_gui_widgets_i->goto_next_column();
-							
-							auto always_enabled_var = in_cmd->get_always_enabled_var();
-							CUIMenuWidgets::the().add_checkbox(std::format("##{}_1", name), always_enabled_var);
-
-							g_gui_widgets_i->goto_next_column();
-
-							g_gui_widgets_i->add_text(name);
-						}
-
-						g_gui_widgets_i->end_columns();
-					}
-				});
-
-			g_gui_widgets_i->pop_stylevar();
-			g_gui_widgets_i->pop_stylevar();
-		});
-
-#if 0
-	if (g_gui_widgets_i->add_floating_button("?", last_cursor_pos, { window_size.x - 23.0f - button_size.x - 3.0f - button_size.x, 30.0f },
-											 button_size, false, BUTTONFLAG_CenterLabel))
-	{
-		COxWareUI::the().schedule_popup(
-			"InCommands help", { 450, 400 },
-			[]()
-			{
-				g_gui_widgets_i->add_separtor_with_text("What is it");
-			});
-	}
-#endif
 }

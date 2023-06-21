@@ -80,7 +80,7 @@ bool CUIMenuWidgets::add_checkbox_with_incommand_keypress_button(const std::stri
 		auto cursor_pos = g_gui_widgets_i->get_cursor_pos();
 		g_gui_widgets_i->set_cursor_pos({ cursor_pos.x + g_gui_widgets_i->get_content_region_avail().x - button_size.x, cursor_pos.y });
 
-		g_in_commands_i->add_keyscan_button(in_cmd, button_size);
+		CUIInCommandKeyBinding::the().add_keyscan_button(in_cmd, button_size);
 
 		g_gui_widgets_i->add_spacing();
 	}

@@ -452,9 +452,20 @@ void CUIMenu::tab_world()
 					g_gui_widgets_i->push_disabled();
 				}
 
-				CUIMenuWidgets::the().add_checkbox("Enemy", &remove_players_enemy);
-				CUIMenuWidgets::the().add_checkbox("T", &remove_players_t);
-				CUIMenuWidgets::the().add_checkbox("CT", &remove_players_ct);
+				if (g_gui_widgets_i->begin_columns("player_removals", 2))
+				{
+					g_gui_widgets_i->goto_next_column();
+
+					CUIMenuWidgets::the().add_checkbox("Enemy", &remove_players_enemy);
+					CUIMenuWidgets::the().add_checkbox("Teammates", &remove_players_teammates);
+
+					g_gui_widgets_i->goto_next_column();
+
+					CUIMenuWidgets::the().add_checkbox("Ts", &remove_players_t);
+					CUIMenuWidgets::the().add_checkbox("CTs", &remove_players_ct);
+
+					g_gui_widgets_i->end_columns();
+				}
 
 				if (remove_players_all.get_value())
 				{

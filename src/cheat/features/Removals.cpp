@@ -45,6 +45,7 @@ VarBoolean remove_players_all("remove_players_all", "Removes every player.", fal
 VarBoolean remove_players_t("remove_players_t", "Removes Ts.", false);
 VarBoolean remove_players_ct("remove_players_ct", "Removes CTs.", false);
 VarBoolean remove_players_enemy("remove_players_enemy", "Removes enemy players.", false);
+VarBoolean remove_players_teammates("remove_players_teammates", "Removes teammate players.", false);
 
 bool CRemovals::remove_player(int id)
 {
@@ -60,11 +61,21 @@ bool CRemovals::remove_player(int id)
 	}
 
 	auto local = CEntityMgr::the().get_local_player();
-	if (local && remove_players_enemy.get_value())
+	if (local)
 	{
-		if (player->get_team() != local->get_team())
+		if (remove_players_enemy.get_value())
 		{
-			return true;
+			if (player->get_team() != local->get_team())
+			{
+				return true;
+			}
+		}
+		else if (remove_players_teammates.get_value())
+		{
+			if (player->get_team() == local->get_team())
+			{
+				return true;
+			}
 		}
 	}
 

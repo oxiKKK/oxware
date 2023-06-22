@@ -28,6 +28,15 @@
 
 #include "precompiled.h"
 
+BaseCommand toggle_panic(
+	"toggle_panic", "Disables/Enables every visual feature",
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		// this is kinda lazy, but whatever - use antiscreen for this.
+		CAntiScreen::the().set_disable_visuals(!CAntiScreen::the().hide_visuals());
+	}
+);
+
 void CFeatureManager::initialize()
 {
 	CConsole::the().info("Initializing Feature Manager...");

@@ -53,6 +53,8 @@ bool CHLCommandsDetourMgr::install_hooks()
 	// let's install and detour individual hooks.
 	if (!in_speed_down_fn().install_svc(in_speed_down_f, "+speed", L"hw.dll")) return false;
 	if (!in_speed_up_fn().install_svc(in_speed_up_f, "-speed", L"hw.dll")) return false;
+	if (!screenshot_fn().install_svc(screenshot_f, "screenshot", L"hw.dll")) return false;
+	if (!snapshot_fn().install_svc(snapshot_f, "snapshot", L"hw.dll")) return false;
 
 	return true;
 }
@@ -62,6 +64,8 @@ void CHLCommandsDetourMgr::uninstall_hooks()
 	// now, uninstall the detour from each function.
 	in_speed_down_fn().uninstall();
 	in_speed_up_fn().uninstall();
+	screenshot_fn().uninstall();
+	snapshot_fn().uninstall();
 }
 
 //---------------------------------------------------------------------------------
@@ -76,4 +80,24 @@ void CHLCommandsDetourMgr::in_speed_up_f()
 {
 	CHLCommandsDetourMgr::the().in_speed = false;
 	CHLCommandsDetourMgr::the().in_speed_up_fn().call();
+}
+
+void CHLCommandsDetourMgr::screenshot_f()
+{
+	//if (CAntiScreen::the().someone_requested_screenshot(ANTISCREEN_Screenshot))
+	//{
+	//	return;
+	//}
+
+	CHLCommandsDetourMgr::the().screenshot_fn().call();
+}
+
+void CHLCommandsDetourMgr::snapshot_f()
+{
+	//if (CAntiScreen::the().someone_requested_screenshot(ANTISCREEN_Snapshot))
+	//{
+	//	return;
+	//}
+
+	CHLCommandsDetourMgr::the().snapshot_fn().call();
 }

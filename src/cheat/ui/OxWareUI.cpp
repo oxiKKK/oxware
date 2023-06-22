@@ -223,6 +223,11 @@ void COxWareUI::initialize(HWND wnd)
 
 void COxWareUI::run_ui()
 {
+	if (CAntiScreen::the().hide_visuals())
+	{
+		return;
+	}
+
 	m_is_any_interactible_rendering_context_active = false;
 	m_contexts_to_be_rendered.clear();
 

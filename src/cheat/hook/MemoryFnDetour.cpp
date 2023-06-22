@@ -32,6 +32,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 {
 	// let's install and detour individual hooks.
 	glBegin().install();
+	glReadPixels().install();
 	wglSwapBuffers().install();
 	if (CoXWARE::the().get_build_number() <= 4554) // TODO: figure out how far does this go, to which version
 	{
@@ -85,6 +86,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 
 	// now, uninstall the detour from each function.
 	glBegin().uninstall();
+	glReadPixels().uninstall();
 	wglSwapBuffers().uninstall();
 	if (CoXWARE::the().get_build_number() <= 4554) // TODO: figure out how far does this go, to which version
 	{
@@ -146,13 +148,66 @@ bool wglSwapBuffers_FnDetour_t::install()
 	return detour_using_exported_name((uintptr_t*)wglSwapBuffers, "wglSwapBuffers");
 }
 
-BOOL wglSwapBuffers_FnDetour_t::wglSwapBuffers(HDC hdc)
+BOOL APIENTRY wglSwapBuffers_FnDetour_t::wglSwapBuffers(HDC hdc)
 {
 	OX_PROFILE_SCOPE("swapbuffers");
 
 	COxWareUI::the().swapbuffers_detour(hdc);
 
 	return CMemoryFnDetourMgr::the().wglSwapBuffers().call(hdc);
+}
+
+//---------------------------------------------------------------------------------
+
+bool glBegin_FnDetour_t::install()
+{
+	initialize("glBegin", L"opengl32.dll");
+	return detour_using_exported_name((uintptr_t*)glBegin, "glBegin");
+}
+
+void APIENTRY glBegin_FnDetour_t::glBegin(GLenum mode)
+{
+	// Note: That detouring functions such as glBegin can be really slow, because of how often they're called.
+
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		if (mode == GL_POLYGON)
+		{
+			CWorldVisuals::the().update_gl_begin();
+		}
+	}
+
+	CMemoryFnDetourMgr::the().glBegin().call(mode);
+}
+
+//---------------------------------------------------------------------------------
+
+bool glReadPixels_FnDetour_t::install()
+{
+	initialize("glReadPixels", L"opengl32.dll");
+	return detour_using_exported_name((uintptr_t*)glReadPixels, "glReadPixels");
+}
+
+void APIENTRY glReadPixels_FnDetour_t::glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid* pixels)
+{
+	CConsole::the().info(__FUNCTION__);
+
+	if (!antiscreen_enable.get_value())
+	{
+		CMemoryFnDetourMgr::the().glReadPixels().call(x, y, width, height, format, type, pixels);
+		return;
+	}
+
+	if (CAntiScreen::the().glreadpixels_called_by_antiscreen())
+	{
+		// this function was called by antiscreen code, retreive the real pixels.
+		CMemoryFnDetourMgr::the().glReadPixels().call(x, y, width, height, format, type, pixels);
+	}
+	else
+	{
+		// return artifical pixels
+		CAntiScreen::the().detour_pixels((uint8_t*)pixels);
+	}
 }
 
 //---------------------------------------------------------------------------------
@@ -367,9 +422,16 @@ bool MYgluPerspective_FnDetour_t::install()
 
 void MYgluPerspective_FnDetour_t::MYgluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
 {
-	GLdouble our_zFar = CForceEnableDisabled::the().force_max_viewable_renderdistance();
-	if (our_zFar == -1.0)
-		our_zFar = zFar;
+	GLdouble our_zFar = zFar;
+
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		our_zFar = CForceEnableDisabled::the().force_max_viewable_renderdistance();
+		if (our_zFar == -1.0)
+		{
+			our_zFar = zFar;
+		}
+	}
 
 	CMemoryFnDetourMgr::the().MYgluPerspective().call(fovy, aspect, zNear, our_zFar);
 }
@@ -404,10 +466,13 @@ void V_CalcRefdef_FnDetour_t::V_CalcRefdef(hl::ref_params_t *pparams)
 {
 	CMemoryFnDetourMgr::the().V_CalcRefdef().call(pparams);
 
-	CThirdPerson::the().update(pparams);
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		CThirdPerson::the().update(pparams);
 
-	// no-recoil
-	//pparams->viewangles = pparams->cl_viewangles + pparams->punchangle;
+		// no-recoil
+		//pparams->viewangles = pparams->cl_viewangles + pparams->punchangle;
+	}
 }
  
 //---------------------------------------------------------------------------------
@@ -443,9 +508,12 @@ int HUD_Redraw_FnDetour_t::HUD_Redraw(float time, int intermission)
 {
 	OX_PROFILE_SCOPE("clientdll_hud_redraw");
 	
-	CRemovals::the().remove_hud_modifier();
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		CRemovals::the().remove_hud_modifier();
 
-	CSpriteMgr::the().update();
+		CSpriteMgr::the().update();
+	}
 
 	return CMemoryFnDetourMgr::the().HUD_Redraw().call(time, intermission);
 }
@@ -465,21 +533,27 @@ void R_GLStudioDrawPoints_FnDetour_t::R_GLStudioDrawPoints()
 		return;
 	}
 
-	// function responsible for the actual rendering of the studio model
-	OX_PROFILE_SCOPE("studio_drawpoints");
-
-	CModelChams::the().render_playerhead_hitbox();
-
-	if (CModelChams::the().studio_draw_skeleton())
+	if (!CAntiScreen::the().hide_visuals())
 	{
-		return;
-	}
+		// function responsible for the actual rendering of the studio model
+		OX_PROFILE_SCOPE("studio_drawpoints");
 
-	CModelChams::the().executeall_studio_pre();
+		CModelChams::the().render_playerhead_hitbox();
+
+		if (CModelChams::the().studio_draw_skeleton())
+		{
+			return;
+		}
+
+		CModelChams::the().executeall_studio_pre();
+	}
 
 	CMemoryFnDetourMgr::the().R_GLStudioDrawPoints().call();
 
-	CModelChams::the().executeall_studio_post();
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		CModelChams::the().executeall_studio_post();
+	}
 }
 
 //---------------------------------------------------------------------------------
@@ -501,7 +575,10 @@ void R_LightLambert_FnDetour_t::R_LightLambert(float** light, float *normal, flo
 
 	CMemoryFnDetourMgr::the().R_LightLambert().call(light, normal, src, lambert);
 
-	CModelChams::the().executeall_color(lambert);
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		CModelChams::the().executeall_color(lambert);
+	}
 }
 
 //---------------------------------------------------------------------------------
@@ -518,7 +595,10 @@ int V_FadeAlpha_FnDetour_t::V_FadeAlpha()
 
 	int alpha = CMemoryFnDetourMgr::the().V_FadeAlpha().call();
 
-	CFlashbangFadeModifier::the().update(alpha);
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		CFlashbangFadeModifier::the().update(alpha);
+	}
 
 	return alpha;
 }
@@ -533,9 +613,12 @@ bool V_ApplyShake_FnDetour_t::install()
 
 void V_ApplyShake_FnDetour_t::V_ApplyShake(float* origin, float* angles, float factor)
 {
-	if (CRemovals::the().remove_screenshake())
+	if (!CAntiScreen::the().hide_visuals())
 	{
-		return; // bye bye
+		if (CRemovals::the().remove_screenshake())
+		{
+			return; // bye bye
+		}
 	}
 
 	CMemoryFnDetourMgr::the().V_ApplyShake().call(origin, angles, factor);
@@ -573,14 +656,17 @@ bool R_DrawViewModel_FnDetour_t::install()
 
 void R_DrawViewModel_FnDetour_t::R_DrawViewModel()
 {
-	if (CRemovals::the().remove_viewmodel())
+	if (!CAntiScreen::the().hide_visuals())
 	{
-		return;
+		if (CRemovals::the().remove_viewmodel())
+		{
+			return;
+		}
+
+		CViewmodelOffset::the().update();
+
+		CModelChams::the().force_default_models();
 	}
-
-	CViewmodelOffset::the().update();
-
-	CModelChams::the().force_default_models();
 	
 	CMemoryFnDetourMgr::the().R_DrawViewModel().call();
 }
@@ -682,7 +768,10 @@ void SCR_CalcRefdef_FnDetour_t::SCR_CalcRefdef()
 {
 	// fov gets capped inside this function.
 
-	CFieldOfViewChanger::the().scale_fov();
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		CFieldOfViewChanger::the().scale_fov();
+	}
 
 	CMemoryFnDetourMgr::the().SCR_CalcRefdef().call();
 }
@@ -697,12 +786,17 @@ bool SCR_UpdateScreen_FnDetour_t::install()
 
 void SCR_UpdateScreen_FnDetour_t::SCR_UpdateScreen()
 {
-	if (CFrameSkipper::the().skip_current_frame())
-	{
-		return;
-	}
+	CAntiScreen::the().update();
 
-	CEntityMgr::the().update_screen();
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		if (CFrameSkipper::the().skip_current_frame())
+		{
+			return;
+		}
+
+		CEntityMgr::the().update_screen();
+	}
 
 	CMemoryFnDetourMgr::the().SCR_UpdateScreen().call();
 }
@@ -722,7 +816,10 @@ void SPR_Set_FnDetour_t::SPR_Set(hl::HSPRITE_t hSprite, int r, int g, int b)
 	// there isn't any way around this (how to change all sprites color), because this function
 	// directly calls glColorf().
 
-	CSpriteMgr::the().handle_color_change(hSprite, r, g, b);
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		CSpriteMgr::the().handle_color_change(hSprite, r, g, b);
+	}
 
 	CMemoryFnDetourMgr::the().SPR_Set().call(hSprite, r, g, b);
 }
@@ -760,10 +857,13 @@ bool CHudAmmo__DrawCrosshair_FnDetour_t::install()
 
 int __thiscall CHudAmmo__DrawCrosshair_FnDetour_t::CHudAmmo__DrawCrosshair(void* ecx, float flTime, int weaponid)
 {
-	if (crosshair_enable.get_value())
+	if (!CAntiScreen::the().hide_visuals())
 	{
-		CVanillaCrosshair::the().draw();
-		return 1;
+		if (crosshair_enable.get_value())
+		{
+			CVanillaCrosshair::the().draw();
+			return 1;
+		}
 	}
 
 	return CMemoryFnDetourMgr::the().CHudAmmo__DrawCrosshair().call(ecx, flTime, weaponid);
@@ -784,46 +884,47 @@ int R_StudioDrawPlayer_FnDetour_t::R_StudioDrawPlayer(int flags, hl::entity_stat
 		return CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
 	}
 
-	if (CRemovals::the().remove_player(pplayer->number))
+	if (!CAntiScreen::the().hide_visuals())
 	{
-		return 0;
-	}
-
-	if (mdlchams_player_skeleton.get_value())
-	{
-		// disable p_* models when using skeletal chams. This model gets merged into the playermodel, hence createing unecessary
-		// bones then we then render and that stays in the way.
-		pplayer->weaponmodel = 0;
-	}
-
-	if (mdlchams_disable_animations.get_value())
-	{
-		pplayer->gaitsequence = 1;
-	}
-
-	// draw first so we don't clip through original model
-	if (mdlchams_render_real_playermodel.get_value())
-	{
-		static hl::cvar_t* cl_minmodels = nullptr;
-		if (!cl_minmodels)
+		if (CRemovals::the().remove_player(pplayer->number))
 		{
-			cl_minmodels = CGoldSrcCommandMgr::the().get_cvar("cl_minmodels");
+			return 0;
 		}
 
-		cl_minmodels->value = 1;
+		if (mdlchams_player_skeleton.get_value())
+		{
+			// disable p_* models when using skeletal chams. This model gets merged into the playermodel, hence createing unecessary
+			// bones then we then render and that stays in the way.
+			pplayer->weaponmodel = 0;
+		}
 
-		CModelChams::the().toggle_rendering_real_playermodel();
+		if (mdlchams_disable_animations.get_value())
+		{
+			pplayer->gaitsequence = 1;
+		}
 
-		CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
+		// draw first so we don't clip through original model
+		if (mdlchams_render_real_playermodel.get_value())
+		{
+			static hl::cvar_t* cl_minmodels = nullptr;
+			if (!cl_minmodels)
+			{
+				cl_minmodels = CGoldSrcCommandMgr::the().get_cvar("cl_minmodels");
+			}
 
-		CModelChams::the().toggle_rendering_real_playermodel();
+			cl_minmodels->value = 1;
 
-		cl_minmodels->value = 0;
+			CModelChams::the().toggle_rendering_real_playermodel();
+
+			CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
+
+			CModelChams::the().toggle_rendering_real_playermodel();
+
+			cl_minmodels->value = 0;
+		}
 	}
 
-	int ret = CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
-
-	return ret;
+	return CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
 }
 
 //---------------------------------------------------------------------------------
@@ -859,7 +960,10 @@ void SCR_DrawFPS_FnDetour_t::SCR_DrawFPS()
 
 	// this is in fact a good place to render custom engine stuff from
 
-	CEngineRendering::the().repaint();
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		CEngineRendering::the().repaint();
+	}
 
 	CMemoryFnDetourMgr::the().SCR_DrawFPS().call();
 }
@@ -957,9 +1061,12 @@ bool CHudSniperScope__Draw_FnDetour_t::install()
 
 int __thiscall CHudSniperScope__Draw_FnDetour_t::CHudSniperScope__Draw(void* ecx, float flTime)
 {
-	if (CRemovals::the().remove_sniper_scope())
+	if (!CAntiScreen::the().hide_visuals())
 	{
-		return 1;
+		if (CRemovals::the().remove_sniper_scope())
+		{
+			return 1;
+		}
 	}
 
 	return CMemoryFnDetourMgr::the().CHudSniperScope__Draw().call(ecx, flTime);
@@ -975,11 +1082,9 @@ bool CL_IsThirdPerson_FnDetour_t::install()
 
 int CL_IsThirdPerson_FnDetour_t::CL_IsThirdPerson()
 {
-	return thirdperson_dist.get_value() != 0;
-
-	if (thirdperson_dist.get_value() != 0)
+	if (!CAntiScreen::the().hide_visuals())
 	{
-		return 1;
+		return thirdperson_dist.get_value() != 0;
 	}
 
 	return CMemoryFnDetourMgr::the().CL_IsThirdPerson().call();
@@ -1005,26 +1110,6 @@ void CL_ProcessEntityUpdate_FnDetour_t::CL_ProcessEntityUpdate(hl::cl_entity_t* 
 	CMemoryFnDetourMgr::the().CL_ProcessEntityUpdate().call(ent);
 
 	CEntityMgr::the().entity_update(ent);
-}
-
-//---------------------------------------------------------------------------------
-
-bool glBegin_FnDetour_t::install()
-{
-	initialize("glBegin", L"opengl32.dll");
-	return detour_using_exported_name((uintptr_t*)glBegin, "glBegin");
-}
-
-void glBegin_FnDetour_t::glBegin(GLenum mode)
-{
-	// Note: That detouring functions such as glBegin can be really slow, because of how often they're called.
-
-	if (mode == GL_POLYGON)
-	{
-		CWorldVisuals::the().update_gl_begin();
-	}
-
-	CMemoryFnDetourMgr::the().glBegin().call(mode);
 }
 
 //---------------------------------------------------------------------------------

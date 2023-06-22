@@ -53,6 +53,8 @@ public:
 		m_game_exiting_or_restarting = game_exiting_or_restarting;
 	}
 
+	inline bool is_fully_initialized() const { return m_fully_initialized; }
+
 	inline uintptr_t get_cheat_dll_base_address() const { return g_cheat_dll_base; }
 
 	auto get_injection_technique() const { return m_ifp->m_ipc_block_ptr->m_technique; }
@@ -101,6 +103,8 @@ private:
 	bool m_unloading_cheat = false;
 
 	bool m_shutted_down = false;
+
+	bool m_fully_initialized = false;
 
 	// this is set when the cheat is unloaded from another thread, i.e. remotely from the detoured function, for example.
 	// this allows the remote function itself to tell the loader that we're unloading, instead of it being told after the

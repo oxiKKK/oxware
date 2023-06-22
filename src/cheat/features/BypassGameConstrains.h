@@ -56,6 +56,28 @@ private:
 	float prev_dm;
 
 	std::vector<std::string> m_saved_sponly_cvars;
+
+	// renderer cvars
+	void save_renderer_cvars();
+	void restore_renderer_cvars();
+
+	float prev_r_lightmap;
+	float prev_gl_clear;
+	float prev_r_novis;
+	float prev_r_fullbright;
+	float prev_snd_show;
+	float prev_chase_active;
+	float prev_gl_monolights;
+	float prev_gl_wireframe;
+	float prev_r_dynamic;
+	float prev_gl_alphamin;
+	float prev_gl_max_size;
+	float prev_gl_polyoffset;
+	float prev_r_drawentities;
+	bool m_just_disabled_renderer_cvars = false;
+
+	// sp-only cvars
+	bool m_just_disabled_sponly_cvars = false;
 };
 
 #endif // FORCEENABLEDISABLED_H

@@ -108,6 +108,7 @@ bool CoXWARE::initialize_phase2()
 #endif
 
 	CConsole::the().info("Cheat module fully initialized.");
+	m_fully_initialized = true;
 	return true;
 }
 

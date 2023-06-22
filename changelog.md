@@ -145,7 +145,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 
 ## Additions and improvements
 
-- 
+- Implemented Anti-Screen.
 
 ## Bugfixes
 

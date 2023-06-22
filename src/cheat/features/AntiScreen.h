@@ -26,67 +26,47 @@
 *	IN THE SOFTWARE.
 */
 
-#ifndef HLCOMMANDDETOUR_H
-#define HLCOMMANDDETOUR_H
+#ifndef ANTISCREEN_H
+#define ANTISCREEN_H
 #pragma once
 
-using hl_cmd_fn = void(__cdecl*)();
+extern VarBoolean antiscreen_enable;
+extern VarInteger antiscreen_time;
 
-struct HLCmd_FnDetour_t final : public GenericMemoryFnDetour_cdecl<>
+class CAntiScreen
 {
 public:
-	bool install_svc(hl_cmd_fn pfn, const char* cmd_name, const wchar_t* module_name)
-	{
-		m_pfn = pfn;
-		m_cmd_name = cmd_name;
-
-		initialize(cmd_name, module_name);
-
-		return install();
-	}
+	DECL_BASIC_CLASS(CAntiScreen);
 
 public:
-	//
-	// testing
-	//
+	void update();
 
-	virtual void add_to_test() override
+	inline bool hide_visuals() const { return m_disable_visual_features; }
+
+	// used only inside glreadpixels
+	inline bool glreadpixels_called_by_antiscreen() { return m_antiscreen_reading_pixels; }
+
+	void detour_pixels(uint8_t* pixels);
+
+	void set_disable_visuals(bool disable)
 	{
-		CHookTests::the().add_for_testing("HLCmd_FnDetour", this);
+		m_disable_visual_features = disable;
+		m_forced_disable_visuals = disable;
 	}
 
 private:
-	bool install();
+	void grab_clean_pixels();
 
-	hl_cmd_fn m_pfn;
+	bool m_disable_visual_features = false;
+	bool m_forced_disable_visuals = false;
 
-	std::string m_cmd_name;
+	// true when we call glReadPixels from AntiScreen code. this way we can distinguish the caller.
+	bool m_antiscreen_reading_pixels;
+
+	int m_nth_frame = 0;
+	uint32_t m_time_last_took = 0;
+
+	std::vector<uint8_t> m_clean_screen_pixel_buffer; // a clean screen pixel buffer.
 };
 
-//---------------------------------------------------------------------------------
-
-class CHLCommandsDetourMgr
-{
-public:
-	DECL_BASIC_CLASS(CHLCommandsDetourMgr)
-
-public:
-	bool install_hooks();
-	void uninstall_hooks();
-
-	// detoured commands
-	inline auto& in_speed_down_fn() { static HLCmd_FnDetour_t fnhook; return fnhook; }
-	inline auto& in_speed_up_fn() { static HLCmd_FnDetour_t fnhook; return fnhook; }
-	inline auto& screenshot_fn() { static HLCmd_FnDetour_t fnhook; return fnhook; }
-	inline auto& snapshot_fn() { static HLCmd_FnDetour_t fnhook; return fnhook; }
-
-	bool in_speed = false;
-
-private:
-	static void in_speed_down_f();
-	static void in_speed_up_f();
-	static void screenshot_f();
-	static void snapshot_f();
-};
-
-#endif // HLCOMMANDDETOUR_H
+#endif // ANTISCREEN_H

@@ -59,12 +59,60 @@ GLdouble CForceEnableDisabled::force_max_viewable_renderdistance()
 VarBoolean bypass_constrain_renderer_cvars("bypass_constrain_renderer_cvars", "Re-enables setting cvars such as gl_wireframe, chase_active, or gl_clear in singleplayer (and mp).", false);
 bool CForceEnableDisabled::disable_renderer_cvar_constrain()
 {
-	return bypass_constrain_renderer_cvars.get_value() != 0;
+	if (!bypass_constrain_renderer_cvars.get_value())
+	{
+		return false;
+	}
+
+	if (CAntiScreen::the().hide_visuals())
+	{
+		if (!m_just_disabled_renderer_cvars)
+		{
+			// save settings and later restore
+			save_renderer_cvars();
+			m_just_disabled_renderer_cvars = true;
+		}
+
+		return false;
+	}
+	else
+	{
+		if (m_just_disabled_renderer_cvars)
+		{
+			restore_renderer_cvars();
+			m_just_disabled_renderer_cvars = false;
+		}
+	}
+
+	return true;
 }
 
 VarBoolean bypass_constrain_sponly_cvars("bypass_constrain_sponly_cvars", "Makes singleplayer only cvars also possible to be set in multiplayer.", false);
 void CForceEnableDisabled::update_disable_sponly_cvars()
-{	
+{
+	static float last = bypass_constrain_sponly_cvars.get_value();
+	
+	if (CAntiScreen::the().hide_visuals())
+	{
+		if (!m_just_disabled_sponly_cvars)
+		{
+			if (bypass_constrain_sponly_cvars.get_value())
+			{
+				last = bypass_constrain_sponly_cvars.get_value();
+				bypass_constrain_sponly_cvars.set_value(0);
+				m_just_disabled_sponly_cvars = true;
+			}
+		}
+	}
+	else
+	{
+		if (m_just_disabled_sponly_cvars)
+		{
+			bypass_constrain_sponly_cvars.set_value(last);
+			m_just_disabled_sponly_cvars = false;
+		}
+	}
+
 	if (bypass_constrain_sponly_cvars.get_value() != 0)
 	{
 		if (m_saved_sponly_cvars.empty())
@@ -106,4 +154,39 @@ void CForceEnableDisabled::update_disable_sponly_cvars()
 			m_saved_sponly_cvars.clear();
 		}
 	}
+}
+
+void CForceEnableDisabled::save_renderer_cvars()
+{
+	prev_r_lightmap = CGoldSrcCommandMgr::the().get_cvar("r_lightmap")->value;
+	prev_gl_clear = CGoldSrcCommandMgr::the().get_cvar("gl_clear")->value;
+	prev_r_novis = CGoldSrcCommandMgr::the().get_cvar("r_novis")->value;
+	prev_r_fullbright = CGoldSrcCommandMgr::the().get_cvar("r_fullbright")->value;
+	prev_snd_show = CGoldSrcCommandMgr::the().get_cvar("snd_show")->value;
+	prev_chase_active = CGoldSrcCommandMgr::the().get_cvar("chase_active")->value;
+	prev_gl_monolights = CGoldSrcCommandMgr::the().get_cvar("gl_monolights")->value;
+	prev_gl_wireframe = CGoldSrcCommandMgr::the().get_cvar("gl_wireframe")->value;
+	prev_r_dynamic = CGoldSrcCommandMgr::the().get_cvar("r_dynamic")->value;
+	prev_gl_alphamin = CGoldSrcCommandMgr::the().get_cvar("gl_alphamin")->value;
+	prev_gl_max_size = CGoldSrcCommandMgr::the().get_cvar("gl_max_size")->value;
+	prev_gl_polyoffset = CGoldSrcCommandMgr::the().get_cvar("gl_polyoffset")->value;
+	prev_r_drawentities = CGoldSrcCommandMgr::the().get_cvar("r_drawentities")->value;
+}
+
+void CForceEnableDisabled::restore_renderer_cvars()
+{
+	CGoldSrcCommandMgr::the().get_cvar("r_lightmap")->value = prev_r_lightmap;
+	CGoldSrcCommandMgr::the().get_cvar("gl_clear")->value = prev_gl_clear;
+	CGoldSrcCommandMgr::the().get_cvar("r_novis")->value = prev_r_novis;
+	CGoldSrcCommandMgr::the().get_cvar("r_fullbright")->value = prev_r_fullbright;
+	CGoldSrcCommandMgr::the().get_cvar("snd_show")->value = prev_snd_show;
+	CGoldSrcCommandMgr::the().get_cvar("chase_active")->value = prev_chase_active;
+	CGoldSrcCommandMgr::the().get_cvar("gl_monolights")->value = prev_gl_monolights;
+	CGoldSrcCommandMgr::the().get_cvar("gl_wireframe")->value = prev_gl_wireframe;
+	CGoldSrcCommandMgr::the().get_cvar("r_dynamic")->value = prev_r_dynamic;
+	CGoldSrcCommandMgr::the().get_cvar("gl_alphamin")->value = prev_gl_alphamin;
+	CGoldSrcCommandMgr::the().get_cvar("gl_max_size")->value = prev_gl_max_size;
+	CGoldSrcCommandMgr::the().get_cvar("gl_polyoffset")->value = prev_gl_polyoffset;
+	CGoldSrcCommandMgr::the().get_cvar("r_drawentities")->value = prev_r_drawentities;
+
 }

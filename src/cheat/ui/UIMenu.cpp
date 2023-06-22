@@ -512,6 +512,18 @@ void CUIMenu::tab_world()
 					"You'll be notified every time server wants to start a demo inside the console.");
 			});
 
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+			"Anti screen", CMenuStyle::calc_child_size(90), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().feature_enabled_section(
+				&antiscreen_enable,
+				[]()
+				{
+					CUIMenuWidgets::the().add_slider("Frames to wait", "%0.0f second(s)", &antiscreen_time);
+				});
+			});
+
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
@@ -944,7 +956,7 @@ void CUIMenu::tab_exploits()
 				CUIMenuWidgets::the().add_description_text(
 					"Disables R_ForceCVars, which is responsible for preventing some renderer cvars to be set.",
 
-					"These cvars are:\n\nr_lightmap, gl_clear, r_novis, r_fullbright, snd_show, chase_active, v_lambert, gl_monolights, gl_wireframe, r_dynamic, gl_alphamin, gl_max_size, gl_polyoffset, r_drawentities, v_lightgamma.");
+					"These cvars are:\n\nr_lightmap, gl_clear, r_novis, r_fullbright, snd_show, chase_active, gl_monolights, gl_wireframe, r_dynamic, gl_alphamin, gl_max_size, gl_polyoffset, r_drawentities.");
 
 
 				CUIMenuWidgets::the().add_checkbox("Disable SP-Only cvars", &bypass_constrain_sponly_cvars,

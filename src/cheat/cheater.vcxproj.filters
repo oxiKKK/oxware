@@ -287,6 +287,9 @@
     <ClCompile Include="ui\UIInCommandBinding.cpp">
       <Filter>src\UI</Filter>
     </ClCompile>
+    <ClCompile Include="features\AntiScreen.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -520,6 +523,9 @@
     </ClInclude>
     <ClInclude Include="ui\UIInCommandBinding.h">
       <Filter>src\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="features\AntiScreen.h">
+      <Filter>src\features</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

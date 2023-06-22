@@ -2,6 +2,9 @@
 
 <img src="https://i.imgur.com/rMxVH3j.png" width="27%" height="27%"></img>
 
+[![C++](https://img.shields.io/badge/language-C%2B%2B-%23f34b7d.svg?style=plastic)](https://en.wikipedia.org/wiki/C%2B%2B)
+[![CS 1.6](https://img.shields.io/badge/game-CS1.6-yellow.svg?style=plastic)](https://store.steampowered.com/app/10/Counter-Strike) 
+[![License](https://img.shields.io/github/license/oxiKKK/oxware.svg?style=plastic)](LICENSE)
 
 Welcome to **oxWARE**! A free Counter-Strike 1.6 cheat built with love and passion, featuring over **50,000 lines of C++ code in more than 260 source files!**
 
@@ -42,9 +45,9 @@ Please, before proceeding, **read this README**!
 
 ## Usage
 
-The cheat is composed out of two parts: **the loader (oxware.exe)** and **the cheat module (cheater.dll)**. By using the loader you can inject the cheat module to the game. After injecting the cheat, you can use `INSERT key to open up the menu`. 
+The cheat is composed out of two parts: **the loader (oxware.exe)** and **the cheat module (cheater.dll)**. By using the loader you can inject the cheat module to the game. After injecting the cheat, you can use <kbd>INSERT</kbd> key to open up the menu`. 
 
-Both the cheat and loader have developer consoles built inside of them that you can access at any time. (inside the cheat it is the '~' key, below the escape key)
+Both the cheat and loader have developer consoles built inside of them that you can access at any time. (inside the cheat it is the <kbd>~</kbd> key, below the escape key)
 
 ## Cheat menu in-game
 

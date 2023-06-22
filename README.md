@@ -168,6 +168,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - Fancy custom cl_showfps rendering
 - FPS fixer for non-steam CS
 - Anti-screen
+- Aspect ratio changer
 - Anti demo recorder
 - Rechecker bypass, see [this video](https://youtu.be/Razs0s7sgno)
 - Instantaneous cheat unload (either via loader or cheat menu)

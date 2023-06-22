@@ -610,6 +610,18 @@ void CUIMenu::tab_render()
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
+			"Aspect ratio", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().feature_enabled_section(
+				&aspect_ratio_enable,
+				[]()
+				{
+					CUIMenuWidgets::the().add_slider("Aspect ratio", "%0.1f", &aspect_ratio_value);
+				});
+			});
+
+		CUIMenuWidgets::the().add_menu_child_collapsible(
 			"Studio renderer", CMenuStyle::calc_child_size(235), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{

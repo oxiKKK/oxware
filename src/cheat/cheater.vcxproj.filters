@@ -290,6 +290,9 @@
     <ClCompile Include="features\AntiScreen.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
+    <ClCompile Include="features\AspectRatioChanger.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -525,6 +528,9 @@
       <Filter>src\UI</Filter>
     </ClInclude>
     <ClInclude Include="features\AntiScreen.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="features\AspectRatioChanger.h">
       <Filter>src\features</Filter>
     </ClInclude>
   </ItemGroup>

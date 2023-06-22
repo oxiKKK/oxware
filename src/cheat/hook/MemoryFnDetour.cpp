@@ -190,7 +190,7 @@ bool glReadPixels_FnDetour_t::install()
 
 void APIENTRY glReadPixels_FnDetour_t::glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid* pixels)
 {
-	CConsole::the().info(__FUNCTION__);
+//	CConsole::the().dinfo(__FUNCTION__);
 
 	if (!antiscreen_enable.get_value())
 	{
@@ -423,6 +423,7 @@ bool MYgluPerspective_FnDetour_t::install()
 void MYgluPerspective_FnDetour_t::MYgluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
 {
 	GLdouble our_zFar = zFar;
+	GLdouble our_aspect = aspect;
 
 	if (!CAntiScreen::the().hide_visuals())
 	{
@@ -431,9 +432,15 @@ void MYgluPerspective_FnDetour_t::MYgluPerspective(GLdouble fovy, GLdouble aspec
 		{
 			our_zFar = zFar;
 		}
+
+		our_aspect = CAspectRatioChanger::the().scale_aspect();
+		if (our_aspect == -1.0f)
+		{
+			our_aspect = aspect;
+		}
 	}
 
-	CMemoryFnDetourMgr::the().MYgluPerspective().call(fovy, aspect, zNear, our_zFar);
+	CMemoryFnDetourMgr::the().MYgluPerspective().call(fovy, our_aspect, zNear, our_zFar);
 }
 
 //---------------------------------------------------------------------------------

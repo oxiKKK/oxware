@@ -28,56 +28,70 @@
 
 #include "precompiled.h"
 
-bool CMemoryHookCBaseStuff::install_hooks()
+int CCSWeapon::get_damage()
 {
-	if (!ClientWeapons().install()) return false;
-
-	return true;
+	return (is_silenced() || in_burst()) ? ;
 }
 
-//-----------------------------------------------------------------------------
-
-bool ClientWeapons_Hook::install()
+int CCSWeapon::get_wall_pierce()
 {
-	initialize("ClientWeapons", L"client.dll");
-	return install_using_bytepattern(1);
+	return 0;
 }
 
-void ClientWeapons_Hook::test_hook()
+bool CCSWeapon::is_rifle()
 {
-	auto p = get();
-
-	CHookTests::the().run_seh_protected_block(
-		m_name,
-		[&]()
-		{
-			auto wpns = *p;
-
-			bool ok = true;
-			for (int i = 1; i < MAX_WEAPONS - 1; i++)
-			{
-				auto wpn = wpns[i];
-				if (i == WEAPON_GLOCK)
-				{
-					ok &= (wpn == nullptr);
-					continue;
-				}
-
-				if (CGameUtil::the().is_fully_connected())
-				{
-					ok &= (wpn != nullptr);
-				}
-				else
-				{
-					ok &= (wpn == nullptr);
-				}
-
-				if (!ok)
-					break;
-			}
-
-			return ok;
-		});
+	return false;
 }
 
-//-----------------------------------------------------------------------------
+bool CCSWeapon::is_sniper()
+{
+	return false;
+}
+
+bool CCSWeapon::is_pistol()
+{
+	return false;
+}
+
+bool CCSWeapon::is_nonattack()
+{
+	return false;
+}
+
+bool CCSWeapon::is_knife()
+{
+	return false;
+}
+
+bool CCSWeapon::is_gun()
+{
+	return false;
+}
+
+bool CCSWeapon::is_nade()
+{
+	return false;
+}
+
+bool CCSWeapon::is_silenced()
+{
+	return false;
+}
+
+bool CCSWeapon::in_burst()
+{
+	return false;
+}
+
+bool CCSWeapon::can_attack()
+{
+	return false;
+}
+
+int CCSWeapon::get_accuracy_flags()
+{
+	return 0;
+}
+
+//------------------------------------------------------------------------------------------
+

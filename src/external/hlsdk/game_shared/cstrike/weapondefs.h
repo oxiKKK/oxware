@@ -298,36 +298,6 @@ struct AutoBuyInfoStruct
 
 #define MAX_ITEMS						5	// hard coded item types
 
-#define AK47_WEIGHT						25
-#define AUG_WEIGHT						25
-#define AWP_WEIGHT						30
-#define C4_WEIGHT						3
-#define DEAGLE_WEIGHT					7
-#define ELITE_WEIGHT					5
-#define FAMAS_WEIGHT					75
-#define FIVESEVEN_WEIGHT				5
-#define FLASHBANG_WEIGHT				1
-#define G3SG1_WEIGHT					20
-#define GALIL_WEIGHT					25
-#define GLOCK18_WEIGHT					5
-#define HEGRENADE_WEIGHT				2
-#define KNIFE_WEIGHT					0
-#define M249_WEIGHT						25
-#define M3_WEIGHT						0
-#define M4A1_WEIGHT						25
-#define MAC10_WEIGHT					25
-#define MP5NAVY_WEIGHT					25
-#define P228_WEIGHT						5
-#define P90_WEIGHT						26
-#define SCOUT_WEIGHT					30
-#define SG550_WEIGHT					20
-#define SG552_WEIGHT					25
-#define SMOKEGRENADE_WEIGHT				1
-#define TMP_WEIGHT						25
-#define UMP45_WEIGHT					25
-#define USP_WEIGHT						5
-#define XM1014_WEIGHT					20
-
 #define MAX_NORMAL_BATTERY				100
 
 #define WEAPON_NOCLIP					-1
@@ -401,13 +371,6 @@ struct AutoBuyInfoStruct
 #define WPNSLOT_KNIFE					3 // melee
 #define WPNSLOT_GRENADE					4 // throwables
 #define WPNSLOT_C4						5 // bomb
-
-#define WPNSTATE_USP_SILENCED			(1<<0)
-#define WPNSTATE_GLOCK18_BURST_MODE		(1<<1)
-#define WPNSTATE_M4A1_SILENCED			(1<<2)
-#define WPNSTATE_ELITE_LEFT				(1<<3)
-#define WPNSTATE_FAMAS_BURST_MODE		(1<<4)
-#define WPNSTATE_SHIELD_DRAWN			(1<<5)
 
 #define WEAPON_IS_ONTARGET				0x40
 

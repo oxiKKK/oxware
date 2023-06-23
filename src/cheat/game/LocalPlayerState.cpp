@@ -103,6 +103,11 @@ bool CLocalState::is_on_ground()
 	return m_player_flags & FL_ONGROUND;
 }
 
+float CLocalState::get_fov()
+{
+	return *CMemoryHookMgr::the().scr_fov_value().get();
+}
+
 bool CLocalState::is_on_ground_safe()
 {
 	// HACKHACK

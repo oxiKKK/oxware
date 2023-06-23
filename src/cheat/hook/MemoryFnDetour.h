@@ -517,6 +517,13 @@ struct CL_ProcessEntityUpdate_FnDetour_t final : public GenericMemoryFnDetour_cd
 	static void CL_ProcessEntityUpdate(hl::cl_entity_t *ent);
 };
 
+// void HUD_PostRunCmd(local_state_t* from, local_state_t* to, usercmd_t* cmd, int runfuncs, double time, unsigned int random_seed)
+struct HUD_PostRunCmd_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, hl::local_state_t*, hl::local_state_t*, hl::usercmd_t*, int, double, unsigned int>
+{
+	bool install();
+	static void HUD_PostRunCmd(hl::local_state_t* from, hl::local_state_t* to, hl::usercmd_t* cmd, int runfuncs, double time, unsigned int random_seed);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -573,6 +580,7 @@ public:
 	inline auto& CHudSniperScope__Draw() { static CHudSniperScope__Draw_FnDetour_t fnhook; return fnhook; }
 	inline auto& CL_IsThirdPerson() { static CL_IsThirdPerson_FnDetour_t fnhook; return fnhook; }
 	inline auto& CL_ProcessEntityUpdate() { static CL_ProcessEntityUpdate_FnDetour_t fnhook; return fnhook; }
+	inline auto& HUD_PostRunCmd() { static HUD_PostRunCmd_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

@@ -132,6 +132,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - Skeletal chams 💀
 - Playermodel head hitbox rendering, see [this image](https://i.imgur.com/bYzp8KD.png). 🟩
 - Server command filter (svc_stufftext filter)
+- Automation - auto reload, shoot, and zoom.
 - Ability to view "real" hit-able playermodel and its head hitbox. See [this image](https://i.imgur.com/weWGM5C.png) and [this youtube video](https://youtu.be/xMd9m3McNvo)
 - ESP
 	- Player

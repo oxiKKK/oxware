@@ -75,6 +75,7 @@ public:
 	bool m_bAlreadyCounted;
 };
 
+class ItemInfo;
 // Items that the player has in their inventory that they can use
 class CCSPlayerItem;
 class CBasePlayerItem : public CBaseAnimating

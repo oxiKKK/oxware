@@ -61,6 +61,8 @@ public:
 	bool is_ducking();
 	bool is_on_ground();
 
+	float get_fov();
+
 	// sometimes, when playing on a local server with latency, the server playermove code doesn't set
 	// the FL_ONGROUND flag I assume? so we better also check for ground distance.
 	bool is_on_ground_safe();

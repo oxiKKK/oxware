@@ -203,6 +203,7 @@
     <ClCompile Include="features\AntiDemoRecorder.cpp" />
     <ClCompile Include="features\AntiScreen.cpp" />
     <ClCompile Include="features\AspectRatioChanger.cpp" />
+    <ClCompile Include="features\Automation.cpp" />
     <ClCompile Include="features\IngameScreenRendering.cpp" />
     <ClCompile Include="features\movement\AirStuck.cpp" />
     <ClCompile Include="features\movement\AutoJOF.cpp" />
@@ -242,6 +243,7 @@
     <ClCompile Include="game\model\SpriteModelData.cpp" />
     <ClCompile Include="game\model\StudioModelData.cpp" />
     <ClCompile Include="game\SpriteManager.cpp" />
+    <ClCompile Include="game\weapons\Weapons.cpp" />
     <ClCompile Include="hook\client_dll\MemoryHookCBaseStuff.cpp" />
     <ClCompile Include="hook\HLCommandDetour.cpp" />
     <ClCompile Include="hook\HLInterfaceHook.cpp" />
@@ -301,6 +303,7 @@
     <ClInclude Include="features\AntiDemoRecorder.h" />
     <ClInclude Include="features\AntiScreen.h" />
     <ClInclude Include="features\AspectRatioChanger.h" />
+    <ClInclude Include="features\Automation.h" />
     <ClInclude Include="features\IngameScreenRendering.h" />
     <ClInclude Include="features\movement\AirStuck.h" />
     <ClInclude Include="features\movement\AutoJOF.h" />
@@ -339,6 +342,8 @@
     <ClInclude Include="game\model\SpriteModelData.h" />
     <ClInclude Include="game\model\StudioModelData.h" />
     <ClInclude Include="game\SpriteManager.h" />
+    <ClInclude Include="game\weapons\weapondefs.h" />
+    <ClInclude Include="game\weapons\Weapons.h" />
     <ClInclude Include="hook\client_dll\MemoryHookCBaseStuff.h" />
     <ClInclude Include="hook\HLCommandDetour.h" />
     <ClInclude Include="hook\HLInterfaceHook.h" />

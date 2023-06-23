@@ -147,6 +147,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 
 - Implemented Anti-Screen.
 - Implemented aspect ratio changer.
+- Added auto zoom, reload, and shoot.
 
 ## Bugfixes
 

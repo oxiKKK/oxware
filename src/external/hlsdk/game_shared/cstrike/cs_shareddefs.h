@@ -15,6 +15,8 @@
 #pragma once
 #endif
 
+#define MAX_WEAPONS 32
+
 // CS-specific menus
 #define MENU_TERRORIST				26
 #define MENU_CT						27

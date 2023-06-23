@@ -535,6 +535,15 @@ void CUIMenu::tab_world()
 				});
 			});
 
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+			"Automation", CMenuStyle::calc_child_size(120), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().add_checkbox("Auto reload", &auto_reload);
+				CUIMenuWidgets::the().add_checkbox("Auto pistol", &auto_pistol);
+				CUIMenuWidgets::the().add_checkbox("Auto zoom", &auto_zoom);
+			});
+
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(

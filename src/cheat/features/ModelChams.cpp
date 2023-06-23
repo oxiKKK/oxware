@@ -446,14 +446,14 @@ void CModelChams::force_default_models()
 	auto cl = CMemoryHookMgr::the().cl().get();
 	auto vm = &cl->viewent;
 
-	auto wpn = CGameUtil::the().get_current_weapon();
-	if (wpn)
+	auto current_weapon = CWeapons::the().get_current_weapon();
+	if (current_weapon)
 	{
-		std::string wpn_name = CGameUtil::the().get_modelname_from_weapon(wpn->m_iId);
+		std::string model_name = current_weapon->m_model_name;
 
-		if (!wpn_name.empty())
+		if (!model_name.empty())
 		{
-			vm->model = CMemoryHookMgr::the().cl_enginefuncs()->pfnCL_LoadModel(wpn_name.c_str(), NULL);
+			vm->model = CMemoryHookMgr::the().cl_enginefuncs()->pfnCL_LoadModel(model_name.c_str(), NULL);
 		}
 	}
 }

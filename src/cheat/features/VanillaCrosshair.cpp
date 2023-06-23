@@ -77,20 +77,20 @@ float CVanillaCrosshair::get_weapon_max_speed_for_crosshair(int weapon_id)
 {
 	switch (weapon_id)
 	{
-		case hl::WEAPON_AUG:
-		case hl::WEAPON_M4A1:
-		case hl::WEAPON_FAMAS:
-		case hl::WEAPON_SG550:
-		case hl::WEAPON_GALIL:
-		case hl::WEAPON_AK47:
-		case hl::WEAPON_M249:
-		case hl::WEAPON_SG552:
+		case WEAPON_AUG:
+		case WEAPON_M4A1:
+		case WEAPON_FAMAS:
+		case WEAPON_SG550:
+		case WEAPON_GALIL:
+		case WEAPON_AK47:
+		case WEAPON_M249:
+		case WEAPON_SG552:
 		{
-			return 140.f;
+			return 140.0f;
 		}
-		case hl::WEAPON_P90:
+		case WEAPON_P90:
 		{
-			return 170.f;
+			return 170.0f;
 		}
 	}
 
@@ -137,7 +137,7 @@ int CVanillaCrosshair::scaled_base(int screen_width)
 
 void CVanillaCrosshair::draw()
 {
-	auto current_weapon = CGameUtil::the().get_current_weapon();
+	auto current_weapon = CWeapons::the().get_current_weapon();
 	if (!current_weapon)
 	{
 		return;
@@ -158,28 +158,28 @@ void CVanillaCrosshair::draw()
 
 	int gap = 0, delta_gap = 0;
 
-	gap = g_gap_size_by_weapon_index[current_weapon->m_iId][0];
-	delta_gap = g_gap_size_by_weapon_index[current_weapon->m_iId][1];
+	gap = g_gap_size_by_weapon_index[current_weapon->m_weapon_id][0];
+	delta_gap = g_gap_size_by_weapon_index[current_weapon->m_weapon_id][1];
 
 	bool use_vanilla_gap = (crosshair_gap.get_value() == 0);
 
 	// apply settings on the gap
 	gap = use_vanilla_gap ? gap : crosshair_gap.get_value();
 
-	int accuracy_flags = CGameUtil::the().get_weapon_accuracy_flags(current_weapon->m_iId, current_weapon->m_iWeaponState);
+	EWeaponAccuracyFlags accuracy_flags = current_weapon->calc_wpn_accuracy_flags();
 
 	// dynamic crosshair, based on movement, playermove flags, weapon velocity, etc.
-	if (accuracy_flags != ACCURACY_NONE && crosshair_dynamic.get_value() != 0)
+	if (accuracy_flags != WPNACCFLAG_NONE && crosshair_dynamic.get_value() != 0)
 	{
 		int player_flags = CLocalState::the().get_player_flags();
 
-		if ((player_flags & FL_ONGROUND) || !(accuracy_flags & ACCURACY_AIR))
+		if ((player_flags & FL_ONGROUND) || !FBitSet(accuracy_flags, WPNACCFLAG_AIR))
 		{
-			if ((player_flags & FL_DUCKING) && accuracy_flags & ACCURACY_DUCK)
+			if ((player_flags & FL_DUCKING) && FBitSet(accuracy_flags, WPNACCFLAG_DUCK))
 			{
 				gap = (int)((float)gap * 0.5f);
 			}
-			else if (CLocalState::the().get_local_velocity_2d() > get_weapon_max_speed_for_crosshair(current_weapon->m_iId) && (accuracy_flags & ACCURACY_SPEED))
+			else if (CLocalState::the().get_local_velocity_2d() > get_weapon_max_speed_for_crosshair(current_weapon->m_weapon_id) && FBitSet(accuracy_flags, WPNACCFLAG_SPEED))
 			{
 				gap = (int)((float)gap * 1.5f);
 			}
@@ -189,12 +189,12 @@ void CVanillaCrosshair::draw()
 			gap = (int)((float)gap * 2.0f);
 		}
 
-		if (accuracy_flags & ACCURACY_MULTIPLY_BY_14)
+		if (FBitSet(accuracy_flags, WPNACCFLAG_MULTIPLY_BY_14))
 		{
 			gap = (int)((float)gap * 1.4f);
 		}
 
-		if (accuracy_flags & ACCURACY_MULTIPLY_BY_14_2)
+		if (FBitSet(accuracy_flags, WPNACCFLAG_MULTIPLY_BY_14_2))
 		{
 			gap = (int)((float)gap * 1.4f);
 		}

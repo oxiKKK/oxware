@@ -76,6 +76,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	CHudSniperScope__Draw().install();
 	CL_IsThirdPerson().install();
 	CL_ProcessEntityUpdate().install();
+	HUD_PostRunCmd().install();
 
 	return true;
 }
@@ -136,6 +137,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	CHudSniperScope__Draw().uninstall();
 	CL_IsThirdPerson().uninstall();
 	CL_ProcessEntityUpdate().uninstall();
+	HUD_PostRunCmd().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -343,6 +345,8 @@ void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::
 			}
 
 			CNonSteamFpsFixer::the().fix_fps();
+
+			CAutomation::the().update();
 
 			CMovement::the().update_clientmove(frametime, cmd);
 		}
@@ -1117,6 +1121,22 @@ void CL_ProcessEntityUpdate_FnDetour_t::CL_ProcessEntityUpdate(hl::cl_entity_t* 
 	CMemoryFnDetourMgr::the().CL_ProcessEntityUpdate().call(ent);
 
 	CEntityMgr::the().entity_update(ent);
+}
+
+//---------------------------------------------------------------------------------
+
+bool HUD_PostRunCmd_FnDetour_t::install()
+{
+	initialize("HUD_PostRunCmd", L"hw.dll");
+	return detour_using_memory_address((uintptr_t*)HUD_PostRunCmd, (uintptr_t*)CMemoryHookMgr::the().cl_funcs()->pfnHUD_PostRunCmd);
+}
+
+void HUD_PostRunCmd_FnDetour_t::HUD_PostRunCmd(hl::local_state_t* from, hl::local_state_t* to, hl::usercmd_t* cmd, int runfuncs, 
+											   double time, unsigned int random_seed)
+{
+	CMemoryFnDetourMgr::the().HUD_PostRunCmd().call(from, to, cmd, runfuncs, time, random_seed);
+
+	CWeapons::the().update(to, cmd);
 }
 
 //---------------------------------------------------------------------------------

@@ -80,12 +80,6 @@ public:
 	float compute_distance_to_ground(const Vector& origin, float trace_distance = 4096.0f);
 	float compute_edge_distance(const Vector& origin, float edge_trace_distance = MAXIMAL_DESIRED_EDGE_DIST);
 
-	// check if nullptr!
-	hl::CBasePlayerWeapon* get_current_weapon();
-	std::string get_modelname_from_weapon(int wpnidx);
-
-	int get_weapon_accuracy_flags(int weapon_id, int weapon_flags);
-
 	// replica of CL_RecordHUDCommand
 	void record_hud_command(const char* cmdname);
 

@@ -210,7 +210,6 @@ namespace hl
 // game_shared
 #include <hlsdk/game_shared/shareddefs.h>
 #include <hlsdk/game_shared/cstrike/cs_shareddefs.h>
-#include <hlsdk/game_shared/cstrike/weapondefs.h>
 
 // cstrike
 #include <hlsdk/dlls/enginecallback.h>
@@ -253,6 +252,8 @@ namespace hl
 // game
 #include "game/model/StudioModelData.h"
 #include "game/model/SpriteModelData.h"
+#include "game/weapons/weapondefs.h"
+#include "game/weapons/Weapons.h"
 #include "game/GenericMdl.h"
 #include "game/GenericEnt.h"
 #include "game/GenericPlayer.h"
@@ -285,6 +286,7 @@ namespace hl
 #include "features/WorldVisuals.h"
 #include "features/AntiScreen.h"
 #include "features/AspectRatioChanger.h"
+#include "features/Automation.h"
 #include "features/movement/BunnyHop.h"
 #include "features/movement/AirStuck.h"
 #include "features/movement/GroundStrafe.h"

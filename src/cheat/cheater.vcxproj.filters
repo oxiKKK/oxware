@@ -41,6 +41,9 @@
     <Filter Include="src\features\movement">
       <UniqueIdentifier>{7d77aac3-7222-486b-bbb0-37da7873bb3a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\game\weapons">
+      <UniqueIdentifier>{a82f7b52-4f7a-4159-8c08-76a29b3c65f7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -293,6 +296,12 @@
     <ClCompile Include="features\AspectRatioChanger.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
+    <ClCompile Include="features\Automation.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="game\weapons\Weapons.cpp">
+      <Filter>src\game\weapons</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -532,6 +541,15 @@
     </ClInclude>
     <ClInclude Include="features\AspectRatioChanger.h">
       <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="features\Automation.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="game\weapons\Weapons.h">
+      <Filter>src\game\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="game\weapons\weapondefs.h">
+      <Filter>src\game\weapons</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

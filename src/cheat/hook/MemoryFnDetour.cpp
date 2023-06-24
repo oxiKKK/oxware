@@ -77,6 +77,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	CL_IsThirdPerson().install();
 	CL_ProcessEntityUpdate().install();
 	HUD_PostRunCmd().install();
+	HUD_CreateEntities().install();
 
 	return true;
 }
@@ -138,6 +139,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	CL_IsThirdPerson().uninstall();
 	CL_ProcessEntityUpdate().uninstall();
 	HUD_PostRunCmd().uninstall();
+	HUD_CreateEntities().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -1120,7 +1122,7 @@ void CL_ProcessEntityUpdate_FnDetour_t::CL_ProcessEntityUpdate(hl::cl_entity_t* 
 
 	CMemoryFnDetourMgr::the().CL_ProcessEntityUpdate().call(ent);
 
-	CEntityMgr::the().entity_update(ent);
+	CEntityMgr::the().entity_state_update(ent);
 }
 
 //---------------------------------------------------------------------------------
@@ -1137,6 +1139,27 @@ void HUD_PostRunCmd_FnDetour_t::HUD_PostRunCmd(hl::local_state_t* from, hl::loca
 	CMemoryFnDetourMgr::the().HUD_PostRunCmd().call(from, to, cmd, runfuncs, time, random_seed);
 
 	CWeapons::the().update(to, cmd);
+}
+
+//---------------------------------------------------------------------------------
+
+bool HUD_CreateEntities_FnDetour_t::install()
+{
+	initialize("HUD_CreateEntities", L"hw.dll");
+	return detour_using_memory_address((uintptr_t*)HUD_CreateEntities, (uintptr_t*)CMemoryHookMgr::the().cl_funcs()->pfnHUD_CreateEntities);
+}
+
+void HUD_CreateEntities_FnDetour_t::HUD_CreateEntities()
+{
+	// Function called inside CL_EmitEntitiesA().
+
+	CMemoryFnDetourMgr::the().HUD_CreateEntities().call();
+
+	auto cl = CMemoryHookMgr::the().cl().get();
+	for (int i = 0; i < cl->maxclients; i++)
+	{
+		CEntityMgr::the().player_info_update(i);
+	}
 }
 
 //---------------------------------------------------------------------------------

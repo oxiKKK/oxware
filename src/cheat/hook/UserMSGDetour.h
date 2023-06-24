@@ -98,6 +98,7 @@ public:
 
 	inline auto& HideWeapon_fn() { static UserMSG_FnDetour_t fnhook; return fnhook; }
 	inline auto& MOTD_fn() { static UserMSG_FnDetour_t fnhook; return fnhook; }
+	inline auto& BombDrop_fn() { static UserMSG_FnDetour_t fnhook; return fnhook; }
 
 private:
 	//
@@ -106,6 +107,7 @@ private:
 
 	static int HideWeapon_f(const char* pszName, int iSize, void* pbuf);
 	static int MOTD_f(const char* pszName, int iSize, void* pbuf);
+	static int BombDrop_f(const char* pszName, int iSize, void* pbuf);
 };
 
 #endif // USERMSGDETOUR_H

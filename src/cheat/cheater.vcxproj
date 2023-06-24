@@ -286,6 +286,7 @@
     <ClCompile Include="util\GoldSrcMungificationAlgorigthms.cpp" />
     <ClCompile Include="util\HLNetMessageIO.cpp" />
     <ClCompile Include="util\MathUtil.cpp" />
+    <ClCompile Include="util\parsemsg.cpp" />
     <ClCompile Include="util\vanilla_halflife_dir_file_database.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
@@ -375,6 +376,7 @@
     <ClInclude Include="util\GoldSrcMungificationAlgorigthms.h" />
     <ClInclude Include="util\HLNetMessageIO.h" />
     <ClInclude Include="util\MathUtil.h" />
+    <ClInclude Include="util\parsemsg.h" />
     <ClInclude Include="util\vanilla_halflife_dir_file_database.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

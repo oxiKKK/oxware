@@ -110,11 +110,14 @@ void CCSWeapon::update(hl::local_state_t* state, hl::usercmd_t* cmd)
 	m_local_state = state;
 	m_cmd = cmd;
 	m_weapon_data = &state->weapondata[state->client.m_iId];
-	m_cs_weapon = (*CMemoryHookCBaseStuff::the().ClientWeapons().get())[state->client.m_iId];
-
-	if (m_cs_weapon != nullptr)
+	if (CMemoryHookCBaseStuff::the().ClientWeapons().is_installed())
 	{
-		calc_spread();
+		m_cs_weapon = (*CMemoryHookCBaseStuff::the().ClientWeapons().get())[state->client.m_iId];
+
+		if (m_cs_weapon != nullptr)
+		{
+			calc_spread();
+		}
 	}
 }
 

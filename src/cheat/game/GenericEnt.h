@@ -30,10 +30,10 @@
 #define GENERICENT_H
 #pragma once
 
-class CGenericEnt
+class CGenericEntity
 {
 public:
-	CGenericEnt() :
+	CGenericEntity() :
 		m_ent(nullptr)
 	{
 	}

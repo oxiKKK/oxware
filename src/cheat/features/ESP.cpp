@@ -31,18 +31,21 @@
 VarBoolean esp_enable("esp_enable", "Toggles esp", false);
 VarBoolean esp_background("esp_background", "Enables background on the box", true);
 VarInteger esp_box_type("esp_box_type", "Type of the esp box (box, corners, etc.)", 1, 0, 1);
-VarBoolean esp_only_enemy_team("esp_only_enemy_team", "Esp only on enemy team", false);
+VarBoolean esp_box_outline("esp_box_outline", "Enables box outline", true);
 
 VarBoolean esp_entity_enable("esp_entity_enable", "Toggles entity esp", false);
 
 VarBoolean esp_player_enable("esp_player_enable", "Toggles player esp", false);
 VarBoolean esp_player_name("esp_name", "Toggles player name esp", false); 
+VarBoolean esp_player_enemy("esp_player_enemy", "Player esp for enemy", false); 
+VarBoolean esp_player_teammates("esp_player_teammates", "Player esp for teammates", false); 
 
 VarBoolean esp_sound_enable("esp_sound_enable", "Toggles sound esp", false);
 VarFloat esp_sound_interval("esp_sound_interval", "Time of which the esp node is alive", 1.0f, 0.5f, 5.0f);
 VarBoolean esp_sound_filter_local("esp_sound_filter_local", "Doesn't apply sound esp on local player", true);
 VarBoolean esp_sound_resolver("esp_sound_resolver", "Tries to resolve entity indexes when anti-cheat is used", true);
 VarInteger esp_sound_resolver_distace("esp_sound_resolver_distace", "How far you want to resolve to", 64, 20, 100);
+VarInteger esp_sound_type("esp_sound_type", "Sound ESP type", 0, 0, 1);
 
 void CESP::initialize_gui()
 {
@@ -78,89 +81,16 @@ void CESP::on_render()
 	{
 		render_sound();
 	}
+
+	// experimental
+	//render_bomb_info();
 }
 
 void CESP::render_players()
 {
 	for (auto& [index, player] : CEntityMgr::the().m_known_players)
 	{
-		// check if the player is valid
-		if (!player.is_valid() || !player.is_alive() || player.is_out_of_update_for(1.0f) || player.is_local_player())
-		{
-			continue;
-		}
-
-		auto& model = player.associated_model();
-
-		// check if model is valid
-		if (!model.is_valid())
-		{
-			continue;
-		}
-
-		// check for player team
-		if (esp_only_enemy_team.get_value() && !CGameUtil::the().is_player_on_enemy_team(index))
-		{
-			continue;
-		}
-
-		auto cl_ent = player.cl_entity();
-
-		// filter out invalid origins
-		if (cl_ent->origin.IsZero())
-		{
-			continue;
-		}
-
-		auto plr_info = player.get_playerinfo();
-
-		Vector2D box_top2d, box_bot2d;
-		Vector box_top3d = cl_ent->origin + Vector(0.0f, 0.0f, player.get_bounding_box_max().z); // add a little bit of height
-		Vector box_bot3d = cl_ent->origin + Vector(0.0f, 0.0f, player.get_bounding_box_min().z);
-		if (CGameUtil::the().world_to_screen(box_top3d, box_top2d) &&
-			CGameUtil::the().world_to_screen(box_bot3d, box_bot2d))
-		{
-			//box_top2d.x += 240;
-			//box_bot2d.x += 240;
-
-			float box_tall_half = box_bot2d.y - box_top2d.y;
-			float box_wide_half = box_tall_half / (4.6f/* * (player.is_ducking() ? 2 : 1)*/); // tweaked ration to perfection
-
- 			Vector2D box_topleft = { box_top2d[0] - box_wide_half, box_top2d[1] };
-			Vector2D box_topright = { box_top2d[0] + box_wide_half, box_top2d[1] };
-			Vector2D box_botleft = { box_bot2d[0] - box_wide_half, box_bot2d[1] };
-			Vector2D box_botright = { box_bot2d[0] + box_wide_half, box_bot2d[1] };
-
-			auto team_color = player.get_color_based_on_team();
-
-			render_box_for_four_points(box_topleft, box_topright, box_botright, box_botleft, team_color, box_tall_half);
-
-			//
-			// render text
-			//
-
-			if (esp_player_name.get_value())
-			{
-				auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Bold);
-
-				const char* label_text = player.get_playerinfo()->name;
-				if (!label_text)
-				{
-					label_text = "none";
-				}
-				auto label_size = g_gui_fontmgr_i->calc_font_text_size(text_font, label_text);
-
-				float label_padding = 1.0f + 1.0f; // 1 for the box outline thickness
-				Vector2D label_topleft = { box_botright.x - (box_wide_half + label_size.x / 2), box_botright.y + label_padding };
-
-				g_gui_window_rendering_i->render_text_with_background(
-					g_gui_window_rendering_i->get_current_drawlist(),
-					text_font,
-					label_topleft,
-					CColor(255, 255, 255, 255),
-					label_text);
-			}
-		}
+		render_player_esp(index, player);
 	}
 }
 
@@ -168,76 +98,7 @@ void CESP::render_entities()
 {
 	for (auto& [index, entity] : CEntityMgr::the().m_known_entities)
 	{
-		// see if entity is valid
-		if (!entity.is_valid() || entity.is_out_of_update_for(1.0f))
-		{
-			continue;
-		}
-
-		auto& model = entity.associated_model();
-
-		// see if model is valid
-		if (!model.is_valid())
-		{
-			continue;
-		}
-
-		auto cl_ent = entity.cl_entity();
-
-		// filter out invalid origins
-		if (cl_ent->origin.IsZero())
-		{
-			continue;
-		}
-
-		auto bbox_min = entity.get_bounding_box_min();
-		auto bbox_max = entity.get_bounding_box_max();
-
-		// correct bounding boxes
-		if (bbox_min.IsZero()) bbox_min.z = -5.0f;
-		if (bbox_max.IsZero()) bbox_max.z = 5.0f;
-
-		Vector2D box_top2d, box_bot2d;
-		Vector box_top3d = cl_ent->origin + Vector(0.0f, 0.0f, bbox_max.z); // add a little bit of height
-		Vector box_bot3d = cl_ent->origin + Vector(0.0f, 0.0f, bbox_min.z);
-		if (CGameUtil::the().world_to_screen(box_top3d, box_top2d) &&
-			CGameUtil::the().world_to_screen(box_bot3d, box_bot2d))
-		{
-			float box_tall_half = box_bot2d.y - box_top2d.y;
-			float box_wide_half = box_tall_half;
-
-			Vector2D box_topleft = { box_top2d[0] - box_wide_half, box_top2d[1] };
-			Vector2D box_topright = { box_top2d[0] + box_wide_half, box_top2d[1] };
-			Vector2D box_botleft = { box_bot2d[0] - box_wide_half, box_bot2d[1] };
-			Vector2D box_botright = { box_bot2d[0] + box_wide_half, box_bot2d[1] };
-
-			// pinkish color
-			auto color = CColor(199, 21, 133, 230);
-
-			render_box_for_four_points(box_topleft, box_topright, box_botright, box_botleft, color, box_tall_half);
-
-			//
-			// render text
-			//
-
-			const char* label_text = model.hl_model()->name;
-			if (!label_text)
-			{
-				label_text = "none";
-			}
-			auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Bold);
-			auto label_size = g_gui_fontmgr_i->calc_font_text_size(text_font, label_text);
-
-			float label_padding = 1.0f + 1.0f; // 1 for the box outline thickness
-			Vector2D label_topleft = { box_botright.x - (box_wide_half + label_size.x / 2), box_botright.y + label_padding };
-
-			g_gui_window_rendering_i->render_text_with_background(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				text_font,
-				label_topleft,
-				CColor(255, 255, 255, 255),
-				label_text);
-		}
+		render_entity_esp(index, entity);
 	}
 }
 
@@ -249,56 +110,332 @@ void CESP::render_sound()
 
 	for (const auto& step : CSoundEsp::the().m_stepsounds)
 	{
-		if (esp_sound_filter_local.get_value() && CGameUtil::the().is_local_player(step.entid))
-		{
-			continue;
-		}
-
-		if (esp_only_enemy_team.get_value() && !CGameUtil::the().is_player_on_enemy_team(step.entid))
-		{
-			continue;
-		}
-
-		Vector2D screen;
-		if (CGameUtil::the().world_to_screen(step.origin, screen))
-		{
-			uint32_t life_dur = step.get_life_duration_ms();
-			if (life_dur == 0)
-			{
-				// assert there's no division by 0
-				life_dur = 1.0f / time_limit;
-			}
-
-			float current_ratio = (life_dur / time_limit); // get 0-1 ratio
-			int animated_alpha = (int)(255.0f - current_ratio * 255.0f);
-			float animated_scale = 5.0f + (current_ratio * 10.0f);
-			float animated_rouding = 1.0f + (current_ratio * 20.0f);
-
-			CColor step_color = CColor(230, 230, 230);
-
-			if (CGameUtil::the().is_player_index(step.entid))
-			{
-				auto player = CEntityMgr::the().get_player_by_id(step.entid);
-
-				if (player && player->is_valid())
-				{
-					step_color = player->get_color_based_on_team();
-				}
-			}
-
-			g_gui_window_rendering_i->render_box_outline(
-				g_gui_window_rendering_i->get_current_drawlist(), 
-				screen - Vector2D(animated_scale, animated_scale), 
-				screen + Vector2D(animated_scale, animated_scale), 
-				CColor(), 
-				animated_rouding, 
-				CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f), 1.5f);
-		}
+		render_sound_esp(step, time_limit);
 	}
 }
 
-void CESP::render_box_for_four_points(const Vector2D& top_left, const Vector2D& top_right, const Vector2D& bottom_right, 
-									  const Vector2D& bottom_left, const CColor& color, float box_tall_half)
+void CESP::render_bomb_info()
+{
+	auto& bomb_info = CEntityMgr::the().get_bomb_info();
+
+	if (bomb_info.m_flag == BOMB_FLAG_DROPPED)
+	{
+		render_dropped_bomb_esp(bomb_info);
+	}
+	else if (bomb_info.m_flag == BOMB_FLAG_PLANTED)
+	{
+		render_planted_bomb_esp(bomb_info);
+	}
+}
+
+bool CESP::render_player_esp(int index, const CGenericPlayer& player)
+{
+	// check if the player is valid
+	if (!player.is_valid() || !player.is_alive() || player.is_out_of_update_for(1.0f) || player.is_local_player())
+	{
+		return false;
+	}
+
+	auto cl_ent = player.cl_entity();
+	if (cl_ent->origin.IsZero())
+	{
+		return false;
+	}
+
+#if 0
+	auto& model = entity.associated_model();
+
+	// see if model is valid
+	if (!model.is_valid())
+	{
+		return false;
+	}
+#endif
+
+	bool enemy = CGameUtil::the().is_player_on_enemy_team(index);
+
+	// check for player team
+	if (!esp_player_enemy.get_value() && enemy)
+	{
+		return false;
+	}
+
+	if (!esp_player_teammates.get_value() && !enemy)
+	{
+		return false;
+	}
+
+	ESPBoxMetrics metrics;
+	if (origin_to_2d_box(cl_ent->origin, player.get_bounding_box_min(), player.get_bounding_box_max(), 1.0f / 4.6f, metrics))
+	{
+		render_esp_box(metrics, player.get_color_based_on_team());
+
+		//
+		// player name
+		//
+
+		if (esp_player_name.get_value())
+		{
+			const char* label_text = player.get_playerinfo()->name;
+			if (!label_text)
+			{
+				label_text = "none";
+			}
+
+			render_esp_label(metrics, label_text);
+		}
+	}
+
+	return true;
+}
+
+bool CESP::render_entity_esp(int index, const CGenericEntity& entity)
+{
+	// see if entity is valid
+	if (!entity.is_valid() || entity.is_out_of_update_for(1.0f))
+	{
+		return false;
+	}
+
+	auto cl_ent = entity.cl_entity();
+
+	ESPBoxMetrics metrics;
+	if (origin_to_2d_box(cl_ent->origin, entity.get_bounding_box_min(), entity.get_bounding_box_max(), 1.0f, metrics))
+	{
+		render_esp_box(metrics, CColor(199, 21, 133, 230), 2.5f);
+
+		//
+		// render text
+		//
+
+		const char* label_text = "none";
+
+		auto& model = entity.associated_model();
+		if (model.is_valid())
+		{
+			auto hl_model = model.hl_model();
+			if (hl_model->name)
+			{
+				label_text = hl_model->name;
+			}
+		}
+
+		render_esp_label(metrics, label_text);
+	}
+
+	return true;
+}
+
+bool CESP::render_sound_esp(const PlayerStepSound& step, uint32_t time_limit)
+{
+	if (esp_sound_filter_local.get_value() && CGameUtil::the().is_local_player(step.entid))
+	{
+		return false;
+	}
+
+	bool enemy = CGameUtil::the().is_player_on_enemy_team(step.entid);
+
+	// check for player team
+	if (!esp_player_enemy.get_value() && enemy)
+	{
+		return false;
+	}
+
+	if (!esp_player_teammates.get_value() && !enemy)
+	{
+		return false;
+	}
+
+	if (step.origin.IsZero())
+	{
+		return false;
+	}
+
+	uint32_t life_dur = step.get_life_duration_ms();
+	if (life_dur == 0)
+	{
+		// assert there's no division by 0
+		life_dur = 1.0f;
+	}
+
+	float current_ratio = ((float)life_dur / time_limit); // get 0-1 ratio
+	int animated_alpha = (int)(255.0f - current_ratio * 255.0f);
+	float animated_scale = 1.0f + (current_ratio * 10.0f);
+	float animated_rouding = 1.0f + (current_ratio * 20.0f);
+
+	CColor step_color = CColor(230, 230, 230);
+
+	if (CGameUtil::the().is_player_index(step.entid))
+	{
+		auto player = CEntityMgr::the().get_player_by_id(step.entid);
+
+		if (player && player->is_valid())
+		{
+			step_color = player->get_color_based_on_team();
+		}
+	}
+
+	int type = esp_sound_type.get_value();
+
+	Vector ground_origin = step.origin - Vector(0, 0, 36.0f);
+
+	Vector2D screen;
+	if (CGameUtil::the().world_to_screen(ground_origin, screen))
+	{
+		switch (type)
+		{
+			case 0: // 2d
+			{
+				render_circle_with_outline(
+					screen, animated_scale * 2.0f, 16,
+					CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f),
+					1.5f);
+
+				break;
+			}
+		}
+	}
+
+	// cases rendered outside of the worldtoscreen function
+	switch (type)
+	{
+		case 1: // 3d
+		{
+			render_space_rotated_circle_with_outline(
+				ground_origin, animated_scale * 2.5f, 32,
+				CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f),
+				1.5f);
+
+			break;
+		}
+	}
+
+	//
+	// render player esp on stepsound origin
+	//
+
+	auto player = CEntityMgr::the().get_player_by_id(step.entid);
+	if (!player)
+	{
+		return false;
+	}
+
+	// only if the player is out of bounds
+	if (!player->is_out_of_update_for(1.0f))
+	{
+		return true;
+	}
+
+	ESPBoxMetrics metrics;
+	if (origin_to_2d_box(step.origin, player->get_default_bounding_box_min(), player->get_default_bounding_box_max(), 1.0f / 4.6f, metrics))
+	{
+		render_esp_box(metrics, player->get_color_based_on_team());
+
+		//
+		// player name
+		//
+
+		if (esp_player_name.get_value())
+		{
+			const char* label_text = player->get_playerinfo()->name;
+			if (!label_text)
+			{
+				label_text = "none";
+			}
+
+			render_esp_label(metrics, label_text);
+		}
+	}
+
+	return true;
+}
+
+bool CESP::render_dropped_bomb_esp(const BombInfo& bomb_info)
+{
+	CConsole::the().info("{}", bomb_info.m_origin);
+
+	ESPBoxMetrics metrics;
+	if (origin_to_2d_box(bomb_info.m_origin, DROPPED_BOMB_BBOX_MIN, DROPPED_BOMB_BBOX_MAX, 1.0f, metrics))
+	{
+		auto brownish = CColor(216, 161, 117, 230);
+		render_esp_box(metrics, brownish);
+	}
+
+	return true;
+}
+
+bool CESP::render_planted_bomb_esp(const BombInfo& bomb_info)
+{
+	ESPBoxMetrics metrics;
+	if (origin_to_2d_box(bomb_info.m_origin, DROPPED_BOMB_BBOX_MIN, DROPPED_BOMB_BBOX_MAX, 1.0f, metrics))
+	{
+		auto yellow = CColor(210, 230, 0, 230);
+		render_esp_box(metrics, yellow);
+	}
+
+	return true;
+}
+
+//------------------------------------------------------------------------------------------------
+
+bool CESP::origin_to_2d_box(const Vector& origin, const Vector& min, const Vector& max, float box_aspect, ESPBoxMetrics& metrics)
+{
+	// filter out invalid origins
+	if (origin.IsZero())
+	{
+		return false;
+	}
+
+	auto bbox_min = min;
+	auto bbox_max = max;
+
+	// correct bounding boxes
+	if (bbox_min.IsZero()) bbox_min.z = -5.0f;
+	if (bbox_max.IsZero()) bbox_max.z = 5.0f;
+
+	Vector box_top3d = origin + Vector(0.0f, 0.0f, bbox_max.z); // add a little bit of height
+	Vector box_bot3d = origin + Vector(0.0f, 0.0f, bbox_min.z);
+
+	Vector2D box_top2d, box_bot2d;
+	if (!CGameUtil::the().world_to_screen(box_top3d, box_top2d) || !CGameUtil::the().world_to_screen(box_bot3d, box_bot2d))
+	{
+		return false;
+	}
+
+	metrics.box_tall_half = box_bot2d.y - box_top2d.y;
+	metrics.box_wide_half = metrics.box_tall_half * box_aspect;
+
+	metrics.box_topleft = { box_top2d[0] - metrics.box_wide_half, box_top2d[1] };
+	metrics.box_topright = { box_top2d[0] + metrics.box_wide_half, box_top2d[1] };
+	metrics.box_botleft = { box_bot2d[0] - metrics.box_wide_half, box_bot2d[1] };
+	metrics.box_botright = { box_bot2d[0] + metrics.box_wide_half, box_bot2d[1] };
+
+	return true;
+}
+
+void CESP::render_esp_box(const ESPBoxMetrics& metrics, const CColor& color, float corner_ratio)
+{
+	render_box_for_four_points(metrics.box_topleft, metrics.box_topright, metrics.box_botright, metrics.box_botleft, color, metrics.box_tall_half, corner_ratio);
+}
+
+void CESP::render_esp_label(const ESPBoxMetrics& metrics, const std::string& label)
+{
+	auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.smallest(1.1f), FDC_Bold);
+	auto label_size = g_gui_fontmgr_i->calc_font_text_size(text_font, label.c_str());
+
+	float label_padding = 1.0f + 1.0f; // 1 for the box outline thickness
+	Vector2D label_bottom_centered = { metrics.box_botright.x - (metrics.box_wide_half + label_size.x / 2), metrics.box_botright.y + label_padding };
+
+	g_gui_window_rendering_i->render_text_with_background(
+		g_gui_window_rendering_i->get_current_drawlist(),
+		text_font,
+		label_bottom_centered,
+		CColor(255, 255, 255, 255),
+		label.c_str());
+}
+
+void CESP::render_box_for_four_points(const Vector2D& top_left, const Vector2D& top_right, const Vector2D& bottom_right,
+									  const Vector2D& bottom_left, const CColor& color, float box_tall_half, float corner_ratio)
 {
 	//
 	// render 4 corners using lines. this fixes visual deformation of the box when faced on the far side of fisheye effect.
@@ -308,88 +445,33 @@ void CESP::render_box_for_four_points(const Vector2D& top_left, const Vector2D& 
 	{
 		case 0: // normal
 		{
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				top_left, top_right,
-				color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				top_right, bottom_right,
-				color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				bottom_right, bottom_left,
-				color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				bottom_left, top_left,
-				color);
+			render_line_with_outline(top_left, top_right, color);
+			render_line_with_outline(top_right, bottom_right, color);
+			render_line_with_outline(bottom_right, bottom_left, color);
+			render_line_with_outline(bottom_left, top_left, color);
 
 			break;
 		}
 		case 1: // corner
 		{
-			float length = box_tall_half * 0.1; // px
+			float length = box_tall_half * 0.1 * corner_ratio; // px
 			length = std::clamp(length, 1.0f, 50.0f);
 
-			//
 			// top left
-			//
+			render_line_with_outline(top_left + Vector2D(0.0f, length), top_left, color);
+			render_line_with_outline(top_left, top_left + Vector2D(length, 0.0f), color);
 
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				top_left + Vector2D(0.0f, length), top_left,
-				color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				top_left, top_left + Vector2D(length, 0.0f),
-				color);
-
-			//
 			// top right
-			//
+			render_line_with_outline(top_right - Vector2D(length, 0.0f), top_right, color);
+			render_line_with_outline(top_right, top_right + Vector2D(0.0f, length), color);
 
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				top_right - Vector2D(length, 0.0f), top_right,
-				color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				top_right, top_right + Vector2D(0.0f, length),
-				color);
-
-			//
 			// bottom right
-			//
+			render_line_with_outline(bottom_right - Vector2D(length, 0.0f), bottom_right, color);
+			render_line_with_outline(bottom_right, bottom_right - Vector2D(0.0f, length), color);
 
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				bottom_right - Vector2D(length, 0.0f), bottom_right,
-				color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				bottom_right, bottom_right - Vector2D(0.0f, length),
-				color);
-
-			//
 			// bottom left
-			//
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				bottom_left + Vector2D(length, 0.0f), bottom_left,
-				color);
-
-			g_gui_window_rendering_i->render_line(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				bottom_left, bottom_left - Vector2D(0.0f, length),
-				color);
+			render_line_with_outline(bottom_left + Vector2D(length, 0.0f), bottom_left, color);
+			render_line_with_outline(bottom_left, bottom_left - Vector2D(0.0f, length), color);
 
 			break;
 		}
@@ -410,10 +492,61 @@ void CESP::render_box_for_four_points(const Vector2D& top_left, const Vector2D& 
 	}
 }
 
+void CESP::render_line_with_outline(const Vector2D& from, const Vector2D& to, const CColor& color, float thicc)
+{
+	if (esp_box_outline.get_value())
+	{
+		auto c = s_outline_color; // to preserve the alpha, in case it changes
+		c.a = color.a;
+		g_gui_window_rendering_i->render_line(g_gui_window_rendering_i->get_current_drawlist(), from, to, c, thicc + 0.5f);
+	}
+	g_gui_window_rendering_i->render_line(g_gui_window_rendering_i->get_current_drawlist(), from, to, color, thicc);
+}
+
+void CESP::render_circle_with_outline(const Vector2D& center, float radius, int num_segments, const CColor& color, float thicc)
+{
+	if (esp_box_outline.get_value())
+	{
+		auto c = s_outline_color; // to preserve the alpha, in case it changes
+		c.a = color.a;
+		g_gui_window_rendering_i->render_circle(g_gui_window_rendering_i->get_current_drawlist(), center, radius, num_segments, c, thicc + 0.5f);
+	}
+	g_gui_window_rendering_i->render_circle(g_gui_window_rendering_i->get_current_drawlist(), center, radius, num_segments, color, thicc);
+}
+
+void CESP::render_space_rotated_circle_with_outline(const Vector& origin, float radius, int num_segments, const CColor& color, float thicc)
+{
+	const float stepp = std::numbers::pi * 2.0f / num_segments;
+
+	for (float angle = 0; angle < (std::numbers::pi * 2.0f); angle += stepp)
+	{
+		Vector vStart(radius * cosf(angle) + origin.x, radius * sinf(angle) + origin.y, origin.z);
+		Vector vEnd(radius * cosf(angle + stepp) + origin.x, radius * sinf(angle + stepp) + origin.y, origin.z);
+
+		Vector2D vScreenFrom, vScreenTo;
+		if (CGameUtil::the().world_to_screen(vStart, vScreenFrom) && CGameUtil::the().world_to_screen(vEnd, vScreenTo))
+		{
+			//auto c = s_outline_color; // to preserve the alpha, in case it changes
+			//c.a = color.a;
+			//render_line_with_outline(ImVec2(vScreenFrom.x + 1.f, vScreenFrom.y + 1.f),
+			//						 ImVec2(vScreenTo.x + 1.f, vScreenTo.y + 1.f),
+			//						 c, thicc);
+			render_line_with_outline(ImVec2(vScreenFrom.x, vScreenFrom.y),
+									 ImVec2(vScreenTo.x, vScreenTo.y),
+									 color, thicc);
+		}
+	}
+}
+
 //---------------------------------------------------------------------------------------
 
 void CSoundEsp::register_player_step(const Vector& sound_origin, int entid)
 {
+	if (sound_origin.IsZero())
+	{
+		CConsole::the().warning("Got null origin for sound generated by: {} entity", entid);
+	}
+
 	if (esp_sound_resolver.get_value())
 	{
 		resolve_sound_entid(sound_origin, entid);

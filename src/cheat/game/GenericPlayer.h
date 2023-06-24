@@ -30,12 +30,15 @@
 #define GENERICPLAYER_H
 #pragma once
 
-class CGenericPlayer : public CGenericEnt
+class CGenericPlayer : public CGenericEntity
 {
 public:
 	virtual void update(hl::cl_entity_t* ent);
 
-	virtual bool is_valid() const { return CGenericEnt::is_valid() && m_extra_playerinfo && m_playerinfo; }
+	// apart from entity state updates, the engine can also send fg
+	virtual void update_player_info(int index);
+
+	virtual bool is_valid() const { return CGenericEntity::is_valid() && m_extra_playerinfo && m_playerinfo; }
 
 	// getters
 	hl::extra_player_info_t* get_extrainfo() const { return m_extra_playerinfo; }
@@ -43,7 +46,7 @@ public:
 
 	virtual bool is_alive() const;
 
-	CColor get_color_based_on_team();
+	CColor get_color_based_on_team() const;
 
 	hl::TeamName get_team() const { return m_extra_playerinfo ? (hl::TeamName)m_extra_playerinfo->teamnumber : hl::UNASSIGNED; }
 
@@ -54,6 +57,9 @@ public:
 
 	// returns "eye position"
 	Vector get_eye_pos() const { return m_ent->origin + CMemoryHookMgr::the().cl().get()->viewheight; }
+
+	Vector get_default_bounding_box_min() const { return Vector(-16.0f, -16.0f, -18.0f); }
+	Vector get_default_bounding_box_max() const { return Vector(16.0f, 16.0f, 18.0f); }
 
 private:
 	hl::extra_player_info_t* m_extra_playerinfo = nullptr;

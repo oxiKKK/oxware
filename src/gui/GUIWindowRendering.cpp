@@ -57,6 +57,8 @@ public:
 
 	void render_quad(ImDrawList* current, const Vector2D& top_left, const Vector2D& top_right, const Vector2D& bottom_right,
 					 const Vector2D& bottom_left, const CColor& color);
+
+	void render_circle(ImDrawList* current, const Vector2D& center, float radius, int num_segments, const CColor& color, float thicc = 1.0f);
 };
 
 CGUIWindowRendering g_gui_window_rendering;
@@ -85,7 +87,7 @@ void CGUIWindowRendering::render_text(ImDrawList* current, ImFont* font, const V
 
 void CGUIWindowRendering::render_line(ImDrawList* current, const Vector2D& from, const Vector2D& to, const CColor& color, float thicc)
 {
-	current->AddLine(from, to, color.as_u32());
+	current->AddLine(from, to, color.as_u32(), thicc);
 }
 
 void CGUIWindowRendering::render_text_with_background(ImDrawList* current, ImFont* font, const Vector2D& at, const CColor& color, const std::string& what)
@@ -127,4 +129,9 @@ void CGUIWindowRendering::render_quad(ImDrawList* current, const Vector2D& top_l
 									  const Vector2D& bottom_right, const Vector2D& bottom_left, const CColor& color)
 {
 	current->AddQuadFilled(top_left, top_right, bottom_right, bottom_left, color.as_u32());
+}
+
+void CGUIWindowRendering::render_circle(ImDrawList* current, const Vector2D& center, float radius, int num_segments, const CColor& color, float thicc)
+{
+	current->AddCircle(center, radius, color.as_u32(), num_segments, thicc);
 }

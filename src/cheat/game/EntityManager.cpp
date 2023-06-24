@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-void CEntityMgr::entity_update(hl::cl_entity_t* ent)
+void CEntityMgr::entity_state_update(hl::cl_entity_t* ent)
 {	
 	if (ent->player)
 	{
@@ -37,6 +37,16 @@ void CEntityMgr::entity_update(hl::cl_entity_t* ent)
 	else
 	{
 		m_known_entities[ent->index].update(ent);
+	}
+}
+
+void CEntityMgr::player_info_update(int index)
+{
+	auto& player = m_known_players[index];
+
+	if (player.is_alive())
+	{
+		m_known_players[index].update_player_info(index);
 	}
 }
 
@@ -70,10 +80,18 @@ void CEntityMgr::init()
 	CConsole::the().info("  {} for entities.", m_known_entities.bucket_count());
 }
 
+void CEntityMgr::update_bomb_info(const Vector& origin, uint8_t flags)
+{
+	m_bomb_info.m_origin = origin;
+	m_bomb_info.m_flag = (EBombInfoFlags)flags;
+	m_bomb_info.m_update_timestamp = GetTickCount();
+}
+
 void CEntityMgr::erase()
 {
 	CConsole::the().info("Erasing entity list...");
 	
 	m_known_players.clear();
 	m_known_entities.clear();
+	m_bomb_info = {};
 }

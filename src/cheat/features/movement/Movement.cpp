@@ -152,6 +152,7 @@ void CMovement::render_debug(hl::usercmd_t* cmd)
 	CEngineFontRendering::the().render_debug("Fall velocity: {:0.3f} u/s", fall_vel);
 	CEngineFontRendering::the().render_debug("Velocity 2D: {:0.3f} u/s", vel_2d);
 	CEngineFontRendering::the().render_debug("Velocity 3D: {} u/s", vel_vec);
+	CEngineFontRendering::the().render_debug("Origin: {}", pmove->origin);
 	CEngineFontRendering::the().render_debug("Is surfing: {}", is_surfing);
 	CEngineFontRendering::the().render_debug("Water level: {}", pmove->waterlevel);
 	CEngineFontRendering::the().render_debug("Water type: {}", pmove->watertype);

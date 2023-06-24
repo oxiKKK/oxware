@@ -248,6 +248,7 @@ namespace hl
 #include "util/GoldSrcMungificationAlgorigthms.h"
 #include "util/EngineRendering.h"
 #include "util/GoldSrcCommandManager.h"
+#include "util/parsemsg.h"
 
 // game
 #include "game/model/StudioModelData.h"

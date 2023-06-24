@@ -50,6 +50,8 @@ public:
 
 	virtual void render_quad(ImDrawList* current, const Vector2D& top_left, const Vector2D& top_right, const Vector2D& bottom_right, 
 							 const Vector2D& bottom_left, const CColor& color) = 0;
+
+	virtual void render_circle(ImDrawList* current, const Vector2D& center, float radius, int num_segments, const CColor& color, float thicc = 1.0f) = 0;
 };
 
 extern IGUIWindowRendering* g_gui_window_rendering_i;

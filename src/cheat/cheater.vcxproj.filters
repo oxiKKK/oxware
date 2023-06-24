@@ -302,6 +302,9 @@
     <ClCompile Include="game\weapons\Weapons.cpp">
       <Filter>src\game\weapons</Filter>
     </ClCompile>
+    <ClCompile Include="util\parsemsg.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -550,6 +553,9 @@
     </ClInclude>
     <ClInclude Include="game\weapons\weapondefs.h">
       <Filter>src\game\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="util\parsemsg.h">
+      <Filter>src\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

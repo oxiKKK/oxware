@@ -28,14 +28,14 @@
 
 #include "precompiled.h"
 
-void CGenericEnt::update(hl::cl_entity_t* ent)
+void CGenericEntity::update(hl::cl_entity_t* ent)
 {
 	m_ent = ent;
 
 	m_model.update(m_ent->model);
 }
 
-bool CGenericEnt::is_out_of_update_for(float interval) const
+bool CGenericEntity::is_out_of_update_for(float interval) const
 {
 	float t2 = (float)CMemoryHookMgr::the().cl().get()->time;
 	float t1 = m_ent->curstate.msg_time;

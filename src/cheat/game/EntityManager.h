@@ -30,13 +30,40 @@
 #define ENTITYMANAGER_H
 #pragma once
 
+enum EBombInfoFlags
+{
+	BOMB_FLAG_DROPPED = 0, // if the bomb was dropped due to voluntary dropping or death/disconnect
+	BOMB_FLAG_PLANTED = 1, // if the bomb has been planted will also trigger the round timer to hide will also show where the dropped bomb on the Terrorist team's radar.
+};
+
+class BombInfo
+{
+public:
+	Vector m_origin;
+	EBombInfoFlags m_flag;
+
+	uint32_t m_update_timestamp;
+
+	inline bool is_out_of_update_for(uint32_t ms) const
+	{
+		uint32_t now = GetTickCount();
+		return std::abs((int)now - (int)m_update_timestamp) > ms;
+	}
+
+	inline bool is_valid() const
+	{
+		return m_origin.IsZero() == false && !is_out_of_update_for(1000);
+	}
+};
+
 class CEntityMgr
 {
 public:
 	DECL_BASIC_CLASS(CEntityMgr);
 
 public:
-	void entity_update(hl::cl_entity_t* ent);
+	void entity_state_update(hl::cl_entity_t* ent);
+	void player_info_update(int index);
 
 	void update_screen();
 
@@ -53,7 +80,7 @@ public:
 		}
 		catch (/*const std::out_of_range& err*/...)
 		{
-			CConsole::the().error("Failed to get local player: {}", local_index);
+			CConsole::the().derror("Failed to get local player: {}", local_index);
 			return nullptr;
 		}
 	}
@@ -66,13 +93,23 @@ public:
 		}
 		catch (/*const std::out_of_range& err*/...)
 		{
-			CConsole::the().error("Failed to get player: {}", index);
+			CConsole::the().derror("Failed to get player: {}", index);
 			return nullptr;
 		}
 	}
 
-	std::unordered_map<int, CGenericEnt> m_known_entities;
+	std::unordered_map<int, CGenericEntity> m_known_entities;
 	std::unordered_map<int, CGenericPlayer> m_known_players;
+
+	// bomb info
+	void update_bomb_info(const Vector& origin, uint8_t flags);
+	inline const BombInfo& get_bomb_info() const
+	{
+		return m_bomb_info;
+	}
+
+private:
+	BombInfo m_bomb_info;
 };
 
 #endif // ENTITYMANAGER_H

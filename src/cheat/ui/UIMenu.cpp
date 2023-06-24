@@ -779,7 +779,7 @@ void CUIMenu::tab_screen()
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"ESP", CMenuStyle::calc_child_size(270), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"ESP", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(
@@ -789,9 +789,18 @@ void CUIMenu::tab_screen()
 					g_gui_widgets_i->add_spacing();
 
 					CUIMenuWidgets::the().add_checkbox("Box background", &esp_background);
+					CUIMenuWidgets::the().add_checkbox("Box outline", &esp_box_outline);
 					CUIMenuWidgets::the().add_listbox("Box type", &esp_box_type, { "Normal", "Corners" });
 
-					CUIMenuWidgets::the().add_checkbox("Only enemy team", &esp_only_enemy_team);
+					if (g_gui_widgets_i->begin_columns("esp_player", 2))
+					{
+						g_gui_widgets_i->goto_next_column();
+						CUIMenuWidgets::the().add_checkbox("Enemy", &esp_player_enemy);
+						g_gui_widgets_i->goto_next_column();
+						CUIMenuWidgets::the().add_checkbox("Teammates", &esp_player_teammates);
+
+						g_gui_widgets_i->end_columns();
+					}
 
 					g_gui_widgets_i->begin_tab("esp_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
@@ -822,6 +831,8 @@ void CUIMenu::tab_screen()
 							CUIMenuWidgets::the().add_checkbox("Enable ##sound", &esp_sound_enable);
 							CUIMenuWidgets::the().add_slider("Display life", "%0.1f seconds", &esp_sound_interval);
 							CUIMenuWidgets::the().add_checkbox("Filter local", &esp_sound_filter_local);
+							CUIMenuWidgets::the().add_listbox("Type ##hidden", &esp_sound_type, { "2D", "3D" });
+							
 							CUIMenuWidgets::the().feature_enabled_section(
 							&esp_sound_resolver,
 							[]()

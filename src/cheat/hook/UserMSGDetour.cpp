@@ -32,6 +32,7 @@ bool CUserMSGDetourMgr::install_hooks()
 {
 	if (!HideWeapon_fn().install_usermsg(HideWeapon_f, "HideWeapon")) return false;
 	if (!MOTD_fn().install_usermsg(MOTD_f, "MOTD")) return false;
+//	if (!BombDrop_fn().install_usermsg(BombDrop_f, "BombDrop")) return false;
 
 	return true;
 }
@@ -47,6 +48,7 @@ void CUserMSGDetourMgr::uninstall_hooks()
 
 	HideWeapon_fn().uninstall();
 	MOTD_fn().uninstall();
+//	BombDrop_fn().uninstall();
 }
 
 //---------------------------------------------------------------------------------
@@ -65,4 +67,20 @@ int CUserMSGDetourMgr::MOTD_f(const char* pszName, int iSize, void* pbuf)
 	}
 
 	return CUserMSGDetourMgr::the().MOTD_fn().call_usermsg(iSize, pbuf);
+}
+
+int CUserMSGDetourMgr::BombDrop_f(const char* pszName, int iSize, void* pbuf)
+{
+	BEGIN_READ(pbuf, iSize);
+
+	Vector origin;
+	origin.x = READ_COORD();
+	origin.y = READ_COORD();
+	origin.z = READ_COORD();
+	
+	uint8_t flags = READ_BYTE();
+
+	CEntityMgr::the().update_bomb_info(origin, flags);
+
+	return CUserMSGDetourMgr::the().BombDrop_fn().call_usermsg(iSize, pbuf);
 }

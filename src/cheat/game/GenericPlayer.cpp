@@ -30,7 +30,7 @@
 
 void CGenericPlayer::update(hl::cl_entity_t* ent)
 {
-	CGenericEnt::update(ent);
+	CGenericEntity::update(ent);
 
 	if (CoXWARE::the().get_build_number() < 8684)
 	{
@@ -40,8 +40,11 @@ void CGenericPlayer::update(hl::cl_entity_t* ent)
 	{
 		m_extra_playerinfo = (hl::extra_player_info_t*)&(CMemoryHookMgr::the().g_PlayerExtraInfo().get()[m_ent->index]);
 	}
+}
 
-	m_playerinfo = &CMemoryHookMgr::the().cl().get()->players[m_ent->index - 1]; // cl.players is zero based, so -1 because cl_entity_t::index is 1 based.
+void CGenericPlayer::update_player_info(int index)
+{
+	m_playerinfo = &CMemoryHookMgr::the().cl().get()->players[index];
 }
 
 bool CGenericPlayer::is_alive() const
@@ -52,7 +55,7 @@ bool CGenericPlayer::is_alive() const
 	return m_extra_playerinfo->dead == false;
 }
 
-CColor CGenericPlayer::get_color_based_on_team()
+CColor CGenericPlayer::get_color_based_on_team() const
 {
 	if (CGameUtil::the().is_local_player(m_ent->index))
 	{

@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-void CMath::angle_vectors(const Vector & angles, Vector & forward, Vector & right, Vector & up)
+void CMath::angle_vectors(const Vector& angles, Vector* forward, Vector* right, Vector* up)
 {
 	float angle;
 	float sr, sp, sy, cr, cp, cy;
@@ -45,22 +45,77 @@ void CMath::angle_vectors(const Vector & angles, Vector & forward, Vector & righ
 
 	if (forward)
 	{
-		forward[0] = cp * cy;
-		forward[1] = cp * sy;
-		forward[2] = -sp;
+		forward->x = cp * cy;
+		forward->y = cp * sy;
+		forward->z = -sp;
 	}
 	if (right)
 	{
-		right[0] = (-1 * sr * sp * cy + -1 * cr * -sy);
-		right[1] = (-1 * sr * sp * sy + -1 * cr * cy);
-		right[2] = -1 * sr * cp;
+		right->x = (-1 * sr * sp * cy + -1 * cr * -sy);
+		right->y = (-1 * sr * sp * sy + -1 * cr * cy);
+		right->z = -1 * sr * cp;
 	}
 	if (up)
 	{
-		up[0] = (cr * sp * cy + -sr * -sy);
-		up[1] = (cr * sp * sy + -sr * cy);
-		up[2] = cr * cp;
+		up->x = (cr * sp * cy + -sr * -sy);
+		up->y = (cr * sp * sy + -sr * cy);
+		up->z = cr * cp;
 	}
+}
+
+void CMath::vector_angles(const Vector& forward, Vector& angles)
+{
+	float	tmp, yaw, pitch;
+
+	if (forward[1] == 0 && forward[0] == 0)
+	{
+		yaw = 0;
+		if (forward[2] > 0)
+			pitch = 90;
+		else
+			pitch = 270;
+	}
+	else
+	{
+		yaw = (atan2(forward[1], forward[0]) * 180 / M_PI);
+		if (yaw < 0)
+			yaw += 360;
+
+		tmp = sqrt(forward[0] * forward[0] + forward[1] * forward[1]);
+		pitch = (atan2(forward[2], tmp) * 180 / M_PI);
+		if (pitch < 0)
+			pitch += 360;
+	}
+
+	angles[0] = pitch;
+	angles[1] = yaw;
+	angles[2] = 0;
+}
+
+float CMath::approach_angle(float target, float value, float speed)
+{
+	target = angle_mod(target);
+	value = angle_mod(target);
+
+	float delta = target - value;
+
+	// Speed is assumed to be positive
+	if (speed < 0)
+		speed = -speed;
+
+	if (delta < -180)
+		delta += 360;///
+	else if (delta > 180)
+		delta -= 360;
+
+	if (delta > speed)
+		value += speed;
+	else if (delta < -speed)
+		value -= speed;
+	else
+		value = target;
+
+	return value;
 }
 
 void CMath::vector_transform(const Vector& vector, const float(*transformation_matrix)[4], Vector& transformed)
@@ -68,4 +123,33 @@ void CMath::vector_transform(const Vector& vector, const float(*transformation_m
 	transformed[0] = DotProduct(vector, transformation_matrix[0]) + transformation_matrix[0][3];
 	transformed[1] = DotProduct(vector, transformation_matrix[1]) + transformation_matrix[1][3];
 	transformed[2] = DotProduct(vector, transformation_matrix[2]) + transformation_matrix[2][3];
+}
+
+float CMath::vec2yaw(const Vector& dir)
+{
+	if (dir.IsZero2D())
+	{
+		return 0.0f;
+	}
+
+	float flIdealYaw = atan2(dir.y, dir.x) * 180.0f / M_PI;
+	if (flIdealYaw < 0.0f)
+	{
+		flIdealYaw += 360.0f; // normalize
+	}
+	return flIdealYaw;
+}
+
+float CMath::angle_mod(float a)
+{
+	if (a < 0)
+	{
+		a = a + 360 * ((int)(a / 360) + 1);
+	}
+	else if (a >= 360)
+	{
+		a = a - 360 * ((int)(a / 360));
+	}
+	// a = (360.0/65536) * ((int)(a*(65536/360.0)) & 65535);
+	return a;
 }

@@ -237,6 +237,10 @@ void CoXWARE::shutdown()
 
 	CIngameScreenRendering::the().shutdown();
 
+	CEnvironmentalEffects::the().shutdown();
+
+	CEngineSoundPlayer::the().stop_all_ambient_sounds();
+
 	COxWareUI::the().destroy();
 
 	CGoldSrcCommandMgr::the().shutdown();
@@ -471,6 +475,7 @@ void CoXWARE::shutdown_hook_managers()
 {
 	// we uninstall hooks only that ch ange memory.
 	CSecurityModuleHook::the().uninstall_hooks();
+	CMemoryHookMgr::the().uninstall_hooks();
 	CMemoryFnDetourMgr::the().uninstall_hooks();
 	CSVCFuncDetourMgr::the().uninstall_hooks();
 	CUserMSGDetourMgr::the().uninstall_hooks();

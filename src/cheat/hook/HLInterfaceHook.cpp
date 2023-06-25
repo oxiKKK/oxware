@@ -28,6 +28,13 @@
 
 #include "precompiled.h"
 
+// we have to instantiate this here and set its pointer later because some of the effect
+// constructors use this global variable.
+namespace hl
+{
+hl::IParticleMan* g_pParticleMan = nullptr;
+}
+
 bool CHLInterfaceHook::install_hooks()
 {
 	// install individual hooks
@@ -39,6 +46,10 @@ bool CHLInterfaceHook::install_hooks()
 	if (!install_single_hook(&m_IBaseUI, L"hw.dll", BASEUI_INTERFACE_VERSION)) return false;
 	if (!install_single_hook(&m_IClientVGUI, L"client.dll", CLIENTVGUI_INTERFACE_VERSION)) return false;
 	if (!install_single_hook(&m_IFileSystem, CoXWARE::the().get_engine_fs_module_name(), FILESYSTEM_INTERFACE_VERSION)) return false;
+	if (!install_single_hook(&m_IParticleMan, L"particleman.dll", PARTICLEMAN_INTERFACE_VERSION)) return false;
+
+	// set it for effects interface to function properly
+	hl::g_pParticleMan = m_IParticleMan;
 
 	return true;
 }

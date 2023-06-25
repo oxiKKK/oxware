@@ -531,6 +531,20 @@ struct HUD_CreateEntities_FnDetour_t final : public GenericMemoryFnDetour_cdecl<
 	static void HUD_CreateEntities();
 };
 
+// void HUD_DrawTransparentTriangles();
+struct HUD_DrawTransparentTriangles_FnDetour_t final : public GenericMemoryFnDetour_cdecl<>
+{
+	bool install();
+	static void HUD_DrawTransparentTriangles();
+};
+
+// void MakeSkyVec(float s, float t, int axis);
+struct MakeSkyVec_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, float, float, int>
+{
+	bool install();
+	static void MakeSkyVec(float s, float t, int axis);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -589,6 +603,8 @@ public:
 	inline auto& CL_ProcessEntityUpdate() { static CL_ProcessEntityUpdate_FnDetour_t fnhook; return fnhook; }
 	inline auto& HUD_PostRunCmd() { static HUD_PostRunCmd_FnDetour_t fnhook; return fnhook; }
 	inline auto& HUD_CreateEntities() { static HUD_CreateEntities_FnDetour_t fnhook; return fnhook; }
+	inline auto& HUD_DrawTransparentTriangles() { static HUD_DrawTransparentTriangles_FnDetour_t fnhook; return fnhook; }
+	inline auto& MakeSkyVec() { static MakeSkyVec_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

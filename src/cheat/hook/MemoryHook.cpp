@@ -61,6 +61,11 @@ bool CMemoryHookMgr::install_hooks()
 	return true;
 }
 
+void CMemoryHookMgr::uninstall_hooks()
+{
+	// here you can add hooks that needs to have their memory restored back (after you eventually modify it)
+}
+
 //-----------------------------------------------------------------------------
 
 hl::cl_enginefunc_t* CMemoryHookMgr::cl_enginefuncs()

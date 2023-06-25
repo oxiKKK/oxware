@@ -249,6 +249,7 @@ namespace hl
 #include "util/EngineRendering.h"
 #include "util/GoldSrcCommandManager.h"
 #include "util/parsemsg.h"
+#include "util/EngineSoundPlayer.h"
 
 // game
 #include "game/model/StudioModelData.h"
@@ -288,6 +289,7 @@ namespace hl
 #include "features/AntiScreen.h"
 #include "features/AspectRatioChanger.h"
 #include "features/Automation.h"
+#include "features/EnvironmentalEffects.h"
 #include "features/movement/BunnyHop.h"
 #include "features/movement/AirStuck.h"
 #include "features/movement/GroundStrafe.h"

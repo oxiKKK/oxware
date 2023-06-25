@@ -204,6 +204,7 @@
     <ClCompile Include="features\AntiScreen.cpp" />
     <ClCompile Include="features\AspectRatioChanger.cpp" />
     <ClCompile Include="features\Automation.cpp" />
+    <ClCompile Include="features\EnvironmentalEffects.cpp" />
     <ClCompile Include="features\IngameScreenRendering.cpp" />
     <ClCompile Include="features\movement\AirStuck.cpp" />
     <ClCompile Include="features\movement\AutoJOF.cpp" />
@@ -281,6 +282,7 @@
     <ClCompile Include="util\build_num.cpp" />
     <ClCompile Include="util\EngineInputManager.cpp" />
     <ClCompile Include="util\EngineRendering.cpp" />
+    <ClCompile Include="util\EngineSoundPlayer.cpp" />
     <ClCompile Include="util\GameUtil.cpp" />
     <ClCompile Include="util\GoldSrcCommandManager.cpp" />
     <ClCompile Include="util\GoldSrcMungificationAlgorigthms.cpp" />
@@ -305,6 +307,7 @@
     <ClInclude Include="features\AntiScreen.h" />
     <ClInclude Include="features\AspectRatioChanger.h" />
     <ClInclude Include="features\Automation.h" />
+    <ClInclude Include="features\EnvironmentalEffects.h" />
     <ClInclude Include="features\IngameScreenRendering.h" />
     <ClInclude Include="features\movement\AirStuck.h" />
     <ClInclude Include="features\movement\AutoJOF.h" />
@@ -371,6 +374,7 @@
     <ClInclude Include="util\build_num.h" />
     <ClInclude Include="util\EngineInputManager.h" />
     <ClInclude Include="util\EngineRendering.h" />
+    <ClInclude Include="util\EngineSoundPlayer.h" />
     <ClInclude Include="util\GameUtil.h" />
     <ClInclude Include="util\GoldSrcCommandManager.h" />
     <ClInclude Include="util\GoldSrcMungificationAlgorigthms.h" />

@@ -305,6 +305,12 @@
     <ClCompile Include="util\parsemsg.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
+    <ClCompile Include="features\EnvironmentalEffects.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="util\EngineSoundPlayer.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -555,6 +561,12 @@
       <Filter>src\game\weapons</Filter>
     </ClInclude>
     <ClInclude Include="util\parsemsg.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="features\EnvironmentalEffects.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="util\EngineSoundPlayer.h">
       <Filter>src\util</Filter>
     </ClInclude>
   </ItemGroup>

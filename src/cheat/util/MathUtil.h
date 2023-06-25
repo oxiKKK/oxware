@@ -42,7 +42,10 @@ public:
 	DECL_BASIC_CLASS(CMath);
 
 public:
-	void angle_vectors(const Vector& angles, Vector& forward, Vector& right, Vector& up);
+	void angle_vectors(const Vector& angles, Vector* forward, Vector* right, Vector* up);
+	void vector_angles(const Vector& forward, Vector& angles);
+
+	float approach_angle(float target, float value, float speed);
 
 	void vector_transform(const Vector& vector, const float(*transformation_matrix)[4], Vector& transformed);
 
@@ -63,6 +66,11 @@ public:
 	{
 		return x * x;
 	}
+
+	// turns a directional vector into a yaw value
+	// that points down that vector.
+	float vec2yaw(const Vector& dir);
+	float angle_mod(float a);
 
 };
 

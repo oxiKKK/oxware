@@ -148,6 +148,9 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Implemented Anti-Screen.
 - Implemented aspect ratio changer.
 - Added auto zoom, reload, and shoot.
+- Improved ESP.
+- Added environmental effects, see [this video](https://youtu.be/dsA--TX9MVU).
+- Improved world dimlight to affect sky as well.
 
 ## Bugfixes
 

@@ -78,6 +78,8 @@ bool CMemoryFnDetourMgr::install_hooks()
 	CL_ProcessEntityUpdate().install();
 	HUD_PostRunCmd().install();
 	HUD_CreateEntities().install();
+	HUD_DrawTransparentTriangles().install();
+	MakeSkyVec().install();
 
 	return true;
 }
@@ -140,6 +142,8 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	CL_ProcessEntityUpdate().uninstall();
 	HUD_PostRunCmd().uninstall();
 	HUD_CreateEntities().uninstall();
+	HUD_DrawTransparentTriangles().uninstall();
+	MakeSkyVec().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -175,9 +179,12 @@ void APIENTRY glBegin_FnDetour_t::glBegin(GLenum mode)
 
 	if (!CAntiScreen::the().hide_visuals())
 	{
-		if (mode == GL_POLYGON)
+		if (CGameUtil::the().is_fully_connected())
 		{
-			CWorldVisuals::the().update_gl_begin();
+			if (mode == GL_POLYGON)
+			{
+				CWorldVisuals::the().update_gl_begin();
+			}
 		}
 	}
 
@@ -352,6 +359,14 @@ void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::
 
 			CMovement::the().update_clientmove(frametime, cmd);
 		}
+
+#if 0 // force weather
+		if (CUserMSGDetourMgr::the().ReceiveW_fn().is_installed())
+		{
+			uint8_t value = 2;
+			CUserMSGDetourMgr::the().ReceiveW_fn().call("ReceiveW", sizeof(uint8_t), &value);
+		}
+#endif
 	}
 }
 
@@ -1160,6 +1175,53 @@ void HUD_CreateEntities_FnDetour_t::HUD_CreateEntities()
 	{
 		CEntityMgr::the().player_info_update(i);
 	}
+}
+
+//---------------------------------------------------------------------------------
+
+bool HUD_DrawTransparentTriangles_FnDetour_t::install()
+{
+	initialize("HUD_DrawTransparentTriangles", L"hw.dll");
+	return detour_using_memory_address((uintptr_t*)HUD_DrawTransparentTriangles, (uintptr_t*)CMemoryHookMgr::the().cl_funcs()->pfnHUD_DrawTransTris);
+}
+
+void HUD_DrawTransparentTriangles_FnDetour_t::HUD_DrawTransparentTriangles()
+{
+	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
+	{
+		return;
+	}
+
+	CMemoryFnDetourMgr::the().HUD_DrawTransparentTriangles().call();
+
+	auto iparticleman = CHLInterfaceHook::the().IParticleMan();
+	if (iparticleman)
+	{
+		CEnvironmentalEffects::the().render();
+	}
+}
+
+//---------------------------------------------------------------------------------
+
+bool MakeSkyVec_FnDetour_t::install()
+{
+	initialize("MakeSkyVec", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)MakeSkyVec);
+}
+
+void MakeSkyVec_FnDetour_t::MakeSkyVec(float s, float t, int axis)
+{
+	// function called when rendering skybox faces, right after qglColor3f().
+
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		if (CGameUtil::the().is_fully_connected())
+		{
+			CWorldVisuals::the().update_gl_begin();
+		}
+	}
+
+	CMemoryFnDetourMgr::the().MakeSkyVec().call(s, t, axis);
 }
 
 //---------------------------------------------------------------------------------

@@ -102,12 +102,12 @@ public:
 	// Controls state such as - silenced, famas burst mode, shield drawn
 	inline bool state_present(EWeaponState st) const
 	{
-		return FBitSet(m_weapon_data->m_iWeaponState, st);
+		return m_weapon_data ? FBitSet(m_weapon_data->m_iWeaponState, st) : false;
 	}
 
 	inline int get_current_clip() const
 	{
-		return m_weapon_data->m_iClip;
+		return m_weapon_data ? m_weapon_data->m_iClip : 0;
 	}
 
 	inline bool is_out_of_ammo() const

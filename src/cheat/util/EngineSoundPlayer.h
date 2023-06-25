@@ -26,36 +26,26 @@
 *	IN THE SOFTWARE.
 */
 
-#include "precompiled.h"
+#ifndef ENGINESOUNDPLAYER_H
+#define ENGINESOUNDPLAYER_H
+#pragma once
 
-VarBoolean viewmodel_offset_enable("viewmodel_offset_enable", "Enables shifted viewmodel", false);
-VarFloat viewmodel_offset_value("viewmodel_offset_value", "Shifts viewmodel back from the camera origin", 0.0f, -5.0f, 10.0f);
-
-void CViewmodelOffset::update()
+class CEngineSoundPlayer
 {
-	if (!viewmodel_offset_enable.get_value())
-	{
-		return;
-	}
+public:
+	DECL_BASIC_CLASS(CEngineSoundPlayer);
 
-	auto local = CEntityMgr::the().get_local_player();
-	if (!local || !local->is_valid())
-		return;
+public:
+	void play_engine_sound(int ent, const Vector& origin, int channel, const char* sample, float volume, float attenuation, int fFlags, int pitch);
 
-	auto& uptodate_state = local->cl_entity()->curstate;
+	// plays ambient sound just like ambient_generic
+	void play_ambient_sound_unique(int ent, const Vector& origin, const char* sample, float volume, EAmbientSoundSpawnFlags radius, bool repeat);
 
-	if (CGameUtil::the().is_spectator())
-	{
-		return;
-	}
+	void stop_sound(const std::string& sample);
+	void stop_all_ambient_sounds();
 
-	auto cl = CMemoryHookMgr::the().cl().get();
-	auto vm = &cl->viewent;
+private:
+	std::unordered_set<std::string> m_sounds;
+};
 
-	float offset = viewmodel_offset_value.get_value();
-
-	Vector forward;
-	CMath::the().angle_vectors(cl->viewangles, &forward, nullptr, nullptr);
-
-	vm->origin += forward * offset;
-}
+#endif // ENGINESOUNDPLAYER_H

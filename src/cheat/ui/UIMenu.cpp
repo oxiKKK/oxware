@@ -607,6 +607,61 @@ void CUIMenu::tab_world()
 				});
 			});
 
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+			"Environmental effects", CMenuStyle::calc_child_size(300), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().feature_enabled_section(
+				&env_enable,
+				[]()
+				{
+					CUIMenuWidgets::the().add_slider("Generate radius", "%0.0f units", &env_radius);
+
+					g_gui_widgets_i->add_separtor_with_text("Ground fog");
+					CUIMenuWidgets::the().feature_enabled_section(
+					&env_ground_fog,
+					[]()
+					{
+						CUIMenuWidgets::the().add_slider("Density", "%0.0f", &env_ground_fog_density);
+					});
+					
+					g_gui_widgets_i->begin_tab("env_effects", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
+
+					float tab_height = -1.0f;
+
+					g_gui_widgets_i->add_tab_item(
+						"Rain", false,
+						{ -1.0f, tab_height },
+						[]()
+						{
+							CUIMenuWidgets::the().feature_enabled_section(
+							&env_rain,
+							[]()
+							{
+								CUIMenuWidgets::the().add_slider("Density", "%0.1f", &env_rain_density);
+								CUIMenuWidgets::the().add_checkbox("Ambient sound", &env_rain_ambient);
+								CUIMenuWidgets::the().add_checkbox("Occasional Thunder", &env_rain_ambient_thunder);
+							});
+						});
+
+					g_gui_widgets_i->add_tab_item(
+						"Snow", false,
+						{ -1.0f, tab_height },
+						[]()
+						{
+							CUIMenuWidgets::the().feature_enabled_section(
+							&env_snow,
+							[]()
+							{
+								CUIMenuWidgets::the().add_slider("Density", "%0.1f", &env_snow_density);
+								CUIMenuWidgets::the().add_slider("Flake size", "%0.0fx", &env_snow_flake_size);
+							});
+						});
+
+					g_gui_widgets_i->end_tab();
+				});
+			});
+
 		g_gui_widgets_i->end_columns();
 	}
 }

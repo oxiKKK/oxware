@@ -46,6 +46,7 @@ public:
 	inline auto IBaseUI() const { return m_IBaseUI; }
 	inline auto IClientVGUI() const { return m_IClientVGUI; }
 	inline auto IFileSystem() const { return m_IFileSystem; }
+	inline auto IParticleMan() const { return m_IParticleMan; }
 
 private:
 	template<typename T>
@@ -60,6 +61,7 @@ private:
 	hl::IBaseUI* m_IBaseUI;
 	hl::IClientVGUI* m_IClientVGUI;
 	hl::IFileSystem* m_IFileSystem;
+	hl::IParticleMan* m_IParticleMan;
 };
 
 template<typename T>

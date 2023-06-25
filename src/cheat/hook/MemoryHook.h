@@ -250,6 +250,24 @@ inline bool GenericMemoryHook<T>::install_using_memory_address(uintptr_t* memory
 
 //-----------------------------------------------------------------------------
 
+template <typename T>
+class RestorableGenericMemoryHook : public GenericMemoryHook<T>
+{
+public:
+	void restore()
+	{
+		if (GenericMemoryHook<T>::m_address)
+		{
+			memcpy(GenericMemoryHook<T>::m_address, &m_saved, sizeof(T));
+		}
+	}
+
+private:
+	T m_saved;
+};
+
+//-----------------------------------------------------------------------------
+
 // HWND *pmainwindow;
 struct pmainwindow_MemoryHook final : public GenericMemoryHook<HWND*>
 {
@@ -409,6 +427,7 @@ public:
 
 public:
 	bool install_hooks();
+	void uninstall_hooks();
 
 	//
 	// individual hooks

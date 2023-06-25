@@ -1554,6 +1554,29 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
+	// Purpose: 
+	//-----------------------------------------------------------------------------
+	inline auto NormalizeInPlace() noexcept
+	{
+		T flLen = Length();
+
+		if (flLen == 0)
+		{
+			x = y = 0;
+			z = 1;
+			return flLen;
+		}
+
+		const T flInvertedLen = 1 / flLen;
+
+		x *= flInvertedLen;
+		y *= flInvertedLen;
+		z *= flInvertedLen;
+
+		return flLen;
+	}
+
+	//-----------------------------------------------------------------------------
 	// Purpose: Returns angle between other vector
 	//-----------------------------------------------------------------------------
 	inline auto AngleBetween(vector_3d& other) const noexcept

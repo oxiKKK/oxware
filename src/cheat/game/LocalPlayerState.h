@@ -76,6 +76,7 @@ public:
 	inline float get_fall_velocity() const { return m_pmove->flFallVelocity; }
 	inline float get_fall_velocity_abs() const { return abs(m_pmove->flFallVelocity); }
 	inline float get_maxspeed() const { return m_pmove->maxspeed; }
+	inline float get_gravity() const { return m_pmove->gravity != 0.0f ? (m_pmove->gravity * m_pmove->movevars->gravity) : m_pmove->movevars->gravity; }
 	inline float get_ground_angle() const { return m_ground_angle; }
 	inline float get_ground_dist() const { return m_ground_dist; }
 	inline float get_edge_dist() const { return m_edge_dist; }

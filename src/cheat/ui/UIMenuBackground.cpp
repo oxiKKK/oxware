@@ -114,8 +114,8 @@ void CUIMenuBackground::render_rain()
 	{
 		m_rain.push_back(
 		{
-			Vector2D(xorshf96() % (int)screen.x, -10.0f),
-			Vector2D(xorshf96() % 7, 1),
+			Vector2D((float)(xorshf96() % (int)screen.x), -10.0f),
+			Vector2D((float)(xorshf96() % 7), 1),
 			(float)(xorshf96() % ((115 - 30) + 1) + 30),
 			(xorshf96() % (1 - 0 + 1)) == 1
 		});
@@ -132,7 +132,7 @@ void CUIMenuBackground::render_rain()
 
 				if (it->direction)
 				{
-					it->relative_pos.x * -1.0f;
+					it->relative_pos.x *= -1.0f;
 				}
 			}
 

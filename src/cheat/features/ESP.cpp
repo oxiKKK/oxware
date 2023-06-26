@@ -255,7 +255,7 @@ bool CESP::render_sound_esp(const PlayerStepSound& step, uint32_t time_limit)
 	if (life_dur == 0)
 	{
 		// assert there's no division by 0
-		life_dur = 1.0f;
+		life_dur = 1;
 	}
 
 	float current_ratio = ((float)life_dur / time_limit); // get 0-1 ratio
@@ -484,7 +484,7 @@ void CESP::render_box_for_four_points(const Vector2D& top_left, const Vector2D& 
 	if (esp_background.get_value())
 	{
 		auto bg_color = color;
-		bg_color.a *= 0.2;
+		bg_color.a *= 0.2f;
 		g_gui_window_rendering_i->render_quad(
 			g_gui_window_rendering_i->get_current_drawlist(),
 			top_left, top_right, bottom_right, bottom_left,

@@ -169,10 +169,10 @@ void CClientMovementPacketPlot::on_render()
 	m_plot_base = { screen_pos.x, screen_size.y - 100 };
 
 	static float y_offset = 0.0f;
-	float data_entry_height_total = movement_plot_row_height.get_value();
+	float data_entry_height_total = (float)movement_plot_row_height.get_value();
 	float data_entry_width_total = 100.0f;
 
-	float plotting_data_scale = movement_plot_scale.get_value();
+	float plotting_data_scale = (float)movement_plot_scale.get_value();
 
 	m_max_x_data = (screen_size.x - data_entry_width_total) / plotting_data_scale;
 

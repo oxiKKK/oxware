@@ -44,7 +44,7 @@ void CAntiScreen::update()
 	}
 
 	int time_to_wait = antiscreen_time.get_value();
-	if (GetTickCount() - m_time_last_took > time_to_wait * 1000)
+	if (GetTickCount() - m_time_last_took > (uint32_t)time_to_wait * 1000)
 	{
 		static constexpr int n_frames_to_wait = 4;
 
@@ -92,7 +92,7 @@ void CAntiScreen::grab_clean_pixels()
 
 	// pixels + 3 color channels (RGB)
 	m_clean_screen_pixel_buffer.clear();
-	m_clean_screen_pixel_buffer.resize(screen_size_full.x * screen_size_full.y * 3);
+	m_clean_screen_pixel_buffer.resize(screen_size_full.x * screen_size_full.y * 3.0f);
 
 //	CConsole::the().dinfo("Grabbing clean pixels ({}x{})", (int)screen_size_full.x, (int)screen_size_full.y);
 

@@ -64,7 +64,7 @@ void CEngineSoundPlayer::stop_sound(const std::string& sample)
 		if (*it == sample)
 		{
 			remove = it;
-			play_engine_sound(0, Vector(0, 0, 0), CHAN_STATIC, it->c_str(), 0.0f, 0.0f, SND_STOP, 0.0f);
+			play_engine_sound(0, Vector(0, 0, 0), CHAN_STATIC, it->c_str(), 0.0f, 0.0f, SND_STOP, 0);
 		}
 	}
 
@@ -78,6 +78,6 @@ void CEngineSoundPlayer::stop_all_ambient_sounds()
 {
 	for (const auto& s : m_sounds)
 	{
-		play_engine_sound(0, Vector(0, 0, 0), CHAN_STATIC, s.c_str(), 0.0f, 0.0f, SND_STOP, 0.0f);
+		play_engine_sound(0, Vector(0, 0, 0), CHAN_STATIC, s.c_str(), 0.0f, 0.0f, SND_STOP, 0);
 	}
 }

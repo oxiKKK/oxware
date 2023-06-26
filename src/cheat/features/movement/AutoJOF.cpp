@@ -48,7 +48,7 @@ void CMovementAutoJOF::update(float frametime)
 
 	float vel_2d = CLocalState::the().get_local_velocity_2d();
 
-	float min_vel = movement_auto_jof_activation_vel_min.get_value();
+	float min_vel = (float)movement_auto_jof_activation_vel_min.get_value();
 	if (min_vel != 0 && vel_2d < min_vel)
 	{
 		return;

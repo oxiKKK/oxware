@@ -624,10 +624,14 @@ void CUIMenu::tab_world()
 					{
 						CUIMenuWidgets::the().add_slider("Density", "%0.0f", &env_ground_fog_density);
 					});
+
+					g_gui_widgets_i->add_spacing();
+					CUIMenuWidgets::the().add_slider("Wind speed", "%0.1fx", &env_wind_speed);
+					CUIMenuWidgets::the().add_slider("Fall speed", "%0.1fx", &env_particle_fallspeed);
 					
 					g_gui_widgets_i->begin_tab("env_effects", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-					float tab_height = -1.0f;
+					float tab_height = 100.0f;
 
 					g_gui_widgets_i->add_tab_item(
 						"Rain", false,

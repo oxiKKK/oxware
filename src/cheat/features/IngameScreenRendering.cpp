@@ -100,10 +100,10 @@ void CIngameScreenRendering::better_cl_showfps()
 	Vector2D pos = {};
 	switch (ingamescreen_better_cl_showfps_position.get_value())
 	{
-		case 0: pos = Vector2D(0, 0); break;			// top left
-		case 1: pos = Vector2D(w - lw, 0); break;		// top right
-		case 2: pos = Vector2D(w - lw, h - lh); break;	// bottom right
-		case 3: pos = Vector2D(0, h - lh); break;		// bottom left
+		case 0: pos = Vector2D(0, 0); break;								// top left
+		case 1: pos = Vector2D((float)(w - lw), 0); break;					// top right
+		case 2: pos = Vector2D((float)(w - lw), (float)(h - lh)); break;	// bottom right
+		case 3: pos = Vector2D(0, (float)(h - lh)); break;					// bottom left
 	}
 
 	console_font.render_text_colored(pos, ingamescreen_better_cl_showfps_background.get_value(),

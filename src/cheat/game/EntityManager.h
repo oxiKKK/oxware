@@ -47,7 +47,7 @@ public:
 	inline bool is_out_of_update_for(uint32_t ms) const
 	{
 		uint32_t now = GetTickCount();
-		return std::abs((int)now - (int)m_update_timestamp) > ms;
+		return now - m_update_timestamp > ms;
 	}
 
 	inline bool is_valid() const

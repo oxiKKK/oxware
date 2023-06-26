@@ -37,6 +37,9 @@ extern VarInteger env_radius;
 extern VarBoolean env_ground_fog;
 extern VarInteger env_ground_fog_density;
 
+extern VarFloat env_wind_speed;
+extern VarFloat env_particle_fallspeed;
+
 extern VarFloat env_rain_density;
 extern VarBoolean env_rain_ambient;
 extern VarBoolean env_rain_ambient_thunder;
@@ -67,7 +70,7 @@ public:
 	}
 
 private:
-	bool m_initialized = false;
+	bool m_initialized = false, m_shutting_down = false;
 
 	hl::model_t* m_snow_sprite;
 	hl::model_t* m_rain_sprite, *m_ripple, *m_water_splash;

@@ -37,6 +37,9 @@ VarInteger env_radius("env_radius", "Radius where to generate snow/rain/etc.", 3
 VarBoolean env_ground_fog("env_ground_fog", "Enables ground fog", false);
 VarInteger env_ground_fog_density("env_ground_fog_density", "Ground fog density", 1, 1, 14);
 
+VarFloat env_wind_speed("env_wind_speed", "Controls wind speed", 1.0f, 1.0f, 6.0f);
+VarFloat env_particle_fallspeed("env_particle_fallspeed", "Controls fallspeed of dropplets or snowflakes", 1.0f, 0.5f, 1.0f);
+
 VarFloat env_rain_density("env_rain_density", "Controls density of the rain", 2.0f, 1.0f, 4.0f);
 VarBoolean env_rain_ambient("env_rain_ambient", "Plays ambient raining sound", false);
 VarBoolean env_rain_ambient_thunder("env_rain_ambient_thunder", "Plays ambient thunder sound", false);
@@ -68,19 +71,34 @@ void CEnvironmentalEffects::initialize()
 
 void CEnvironmentalEffects::shutdown()
 {
-	// TODO: Without this the game crashes on unload however, also, after calling this, 
-	//		 every other live particle will die (e.g. a smoke)
-	auto iparticleman = CHLInterfaceHook::the().IParticleMan();
-	if (iparticleman)
+	m_shutting_down = true;
+	for (auto p : m_particles)
 	{
-		iparticleman->ResetParticles();
+		delete p;
+		p = nullptr;
 	}
 
+	// TODO: Without this the game crashes on unload however, also, after calling this, 
+	//		 every other live particle will die (e.g. a smoke)
+	//auto iparticleman = CHLInterfaceHook::the().IParticleMan();
+	//if (iparticleman)
+	//{
+	//	iparticleman->ResetParticles();
+	//}
+
+	m_particles.clear();
+
 	m_initialized = false;
+	m_shutting_down = false;
 }
 
 void CEnvironmentalEffects::render()
 {
+	if (m_shutting_down)
+	{
+		return;
+	}
+
 	//
 	// sound - has to run even if disabled (in order to disable sound when env_enable is off)
 	//
@@ -179,7 +197,7 @@ void CEnvironmentalEffects::render_rain()
 
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
 
-	m_weather_update_time = cl_enginefuncs->pfnGetClientTime() + (0.5 - ((float)env_rain_density.get_value() / 10.0f));
+	m_weather_update_time = cl_enginefuncs->pfnGetClientTime() + (0.5f - ((float)env_rain_density.get_value() / 10.0f));
 
 	Vector local_velocity = CLocalState::the().get_local_velocity_vec();
 	Vector local_origin = CLocalState::the().get_origin();
@@ -188,7 +206,7 @@ void CEnvironmentalEffects::render_rain()
 
 	iWindParticle = 0;
 
-	int density = env_rain_density.get_value() * 130;
+	int density = (int)(env_rain_density.get_value() * 140.0f);
 
 	for (j = 0; j < density; j++)
 	{
@@ -265,14 +283,14 @@ void CEnvironmentalEffects::render_snow()
 
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
 
-	m_weather_update_time = cl_enginefuncs->pfnGetClientTime() + (0.7 - ((float)env_rain_density.get_value() / 10.0f));
+	m_weather_update_time = cl_enginefuncs->pfnGetClientTime() + (0.7f - ((float)env_rain_density.get_value() / 10.0f));
 
 	Vector local_velocity = CLocalState::the().get_local_velocity_vec();
 	Vector local_origin = CLocalState::the().get_origin();
 	vDir = local_velocity;
 	flVel = vDir.NormalizeInPlace();
 
-	int density = env_snow_density.get_value() * 130;
+	int density = (int)(env_snow_density.get_value() * 130);
 
 	int iWindParticle = 0;
 	Vector vecWindOrigin;
@@ -360,11 +378,11 @@ void CEnvironmentalEffects::create_raindrop(const Vector& origin)
 
 	strcpy(pParticle->m_szClassname, "particle_rain");
 
-	pParticle->m_flStretchY = 40.0f;
+	pParticle->m_flStretchY = cl_enginefuncs->pfnRandomFloat(20.0f, 40.0f);
 
 	pParticle->m_vVelocity.x = m_wind_span.x * cl_enginefuncs->pfnRandomFloat(1.0f, 2.0f);
 	pParticle->m_vVelocity.y = m_wind_span.y * cl_enginefuncs->pfnRandomFloat(1.0f, 2.0f);
-	pParticle->m_vVelocity.z = cl_enginefuncs->pfnRandomFloat(-500.0f, -1800.0f);
+	pParticle->m_vVelocity.z = cl_enginefuncs->pfnRandomFloat(-500.0f, -1800.0f) * env_particle_fallspeed.get_value();
 
 	pParticle->m_iRendermode = hl::kRenderTransAlpha;
 	pParticle->m_flGravity = 0;
@@ -402,7 +420,7 @@ void CEnvironmentalEffects::create_snow_flake(const Vector& origin)
 
 	pParticle->m_vVelocity.x = m_wind_span.x / cl_enginefuncs->pfnRandomFloat(1.0, 2.0);
 	pParticle->m_vVelocity.y = m_wind_span.y / cl_enginefuncs->pfnRandomFloat(1.0, 2.0);
-	pParticle->m_vVelocity.z = cl_enginefuncs->pfnRandomFloat(-100.0, -200.0);
+	pParticle->m_vVelocity.z = cl_enginefuncs->pfnRandomFloat(-100.0, -200.0) * env_particle_fallspeed.get_value();
 
 	pParticle->SetCollisionFlags(TRI_COLLIDEWORLD);
 
@@ -436,11 +454,13 @@ void CEnvironmentalEffects::create_snow_flake(const Vector& origin)
 
 	pParticle->m_vColor.x = pParticle->m_vColor.y = pParticle->m_vColor.z = 128.0f;
 
-	pParticle->m_flDieTime = cl_enginefuncs->pfnGetClientTime() + 3.0;
+	pParticle->m_flDieTime = cl_enginefuncs->pfnGetClientTime() + 3.0f;
 
 	pParticle->m_bSpiral = cl_enginefuncs->pfnRandomLong(0, 1) != 0;
 
 	pParticle->m_flSpiralTime = cl_enginefuncs->pfnGetClientTime() + cl_enginefuncs->pfnRandomLong(2, 4);
+
+	m_particles.push_back(pParticle);
 }
 
 void CEnvironmentalEffects::create_wind_particle(const Vector& origin, float max_size)
@@ -483,7 +503,7 @@ void CEnvironmentalEffects::create_wind_particle(const Vector& origin, float max
 
 	pParticle->m_vAVelocity.z = cl_enginefuncs->pfnRandomFloat(-1.0, 1.0);
 
-	pParticle->m_flScaleSpeed = 0.4;
+	pParticle->m_flScaleSpeed = 0.4f;
 	pParticle->m_flDampingTime = 0;
 
 	pParticle->m_iFrame = 0;
@@ -513,11 +533,14 @@ void CEnvironmentalEffects::update_wind_variables()
 
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
 
+	static float last_speed = env_wind_speed.get_value();
+
 	// change direction of the rain if it's time
-	if (m_next_wind_change_time <= cl_enginefuncs->pfnGetClientTime())
+	if (m_next_wind_change_time <= cl_enginefuncs->pfnGetClientTime() || last_speed != env_wind_speed.get_value())
 	{
-		m_desired_wind_direction.x = cl_enginefuncs->pfnRandomFloat(-80.0f, 80.0f);
-		m_desired_wind_direction.y = cl_enginefuncs->pfnRandomFloat(-80.0f, 80.0f);
+		float speed = 80.0f * env_wind_speed.get_value();
+		m_desired_wind_direction.x = cl_enginefuncs->pfnRandomFloat(-speed, speed);
+		m_desired_wind_direction.y = cl_enginefuncs->pfnRandomFloat(-speed, speed);
 		m_desired_wind_direction.z = 0;
 
 		m_next_wind_change_time = cl_enginefuncs->pfnGetClientTime() + cl_enginefuncs->pfnRandomFloat(15.0f, 30.0f);
@@ -525,6 +548,8 @@ void CEnvironmentalEffects::update_wind_variables()
 		m_desired_wind_speed = m_desired_wind_direction.NormalizeInPlace();
 
 		m_ideal_wind_yaw = CMath::the().vec2yaw(m_desired_wind_direction);
+
+		last_speed = env_wind_speed.get_value();
 	}
 
 	vDir = m_wind_span;
@@ -617,7 +642,7 @@ void CPartRainDrop::Think(float time)
 
 	m_vAngles[YAW] = vViewAngles[YAW];
 	dotLength = DotProduct(m_vVelocity, right);
-	m_vAngles[ROLL] = atan(dotLength / m_vVelocity.z) * (180.0 / M_PI);
+	m_vAngles[ROLL] = atan(dotLength / m_vVelocity.z) * (float)(180.0f / M_PI);
 
 	if (m_flBrightness < 155.0f)
 	{
@@ -652,7 +677,7 @@ void CPartSnowFlake::Think(float time)
 	if (m_bSpiral && !m_bTouched)
 	{
 		flFrametime = time - CEnvironmentalEffects::the().get_old_time();
-		fastFreq = sin(flFrametime * 5.0 + (float)(int)this); // TODO: Hmmm, this is weird
+		fastFreq = sin(flFrametime * 5.0f + (float)(int)this); // TODO: Hmmm, this is weird
 
 		m_vOrigin = m_vOrigin + m_vVelocity * flFrametime;
 		m_vOrigin.x += (fastFreq * fastFreq) * 0.3f;
@@ -691,9 +716,9 @@ void CPartSnowFlake::Touch(Vector pos, Vector normal, int index)
 	m_flMass = 1.0;
 	m_flGravity = 0;
 
-	m_vColor.x = m_vColor.y = m_vColor.z = 128.0;
+	m_vColor.x = m_vColor.y = m_vColor.z = 128.0f;
 
-	m_flDieTime = cl_enginefuncs->pfnGetClientTime() + 0.5;
+	m_flDieTime = cl_enginefuncs->pfnGetClientTime() + 0.5f;
 
 	m_flTimeCreated = cl_enginefuncs->pfnGetClientTime();
 }
@@ -703,7 +728,6 @@ void CPartSnowFlake::Touch(Vector pos, Vector normal, int index)
 static hl::qboolean water_entry_point(hl::pmtrace_t* pTrace, const Vector& vecSrc, Vector& vecResult)
 {
 	Vector	result;
-	int		endlevel, midlevel, startlevel;
 	Vector	a, b, c;
 	Vector	vecDir;
 	float	fTolerance;
@@ -810,7 +834,7 @@ void CPartRainDrop::Touch(Vector pos, Vector normal, int index)
 
 		pSprite = CEnvironmentalEffects::the().get_splash_sprite();
 
-		pParticle->InitializeSprite(m_vOrigin + normal, Vector(90.0f, 0, 0), pSprite, cl_enginefuncs->pfnRandomLong(20, 25), 125.0f);
+		pParticle->InitializeSprite(m_vOrigin + normal, Vector(90.0f, 0, 0), pSprite, (float)cl_enginefuncs->pfnRandomLong(20, 25), 125.0f);
 
 		pParticle->m_iRendermode = kRenderTransAdd;
 
@@ -835,24 +859,24 @@ void CPartWind::Think(float flTime)
 {
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
 
-	if (m_flDieTime - flTime <= 3.0)
+	if (m_flDieTime - flTime <= 3.0f)
 	{
-		if (m_flBrightness > 0.0)
+		if (m_flBrightness > 0.0f)
 		{
-			m_flBrightness -= (flTime - m_flTimeCreated) * 0.4;
+			m_flBrightness -= (flTime - m_flTimeCreated) * 0.4f;
 		}
 
-		if (m_flBrightness < 0.0)
+		if (m_flBrightness < 0.0f)
 		{
-			m_flBrightness = 0;
+			m_flBrightness = 0.0f;
 			flTime = m_flDieTime = cl_enginefuncs->pfnGetClientTime();
 		}
 	}
 	else
 	{
-		if (m_flBrightness < 105.0)
+		if (m_flBrightness < 105.0f)
 		{
-			m_flBrightness += (flTime - m_flTimeCreated) * 5.0 + 4.0;
+			m_flBrightness += (flTime - m_flTimeCreated) * 5.0f + 4.0f;
 		}
 	}
 

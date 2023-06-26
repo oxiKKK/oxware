@@ -59,10 +59,10 @@ struct direction_data_t
 
 static direction_data_t s_direction_data[5] =
 {
-	{ DIR_FORWARD,	0.0f,			true	}, // 0°
-	{ DIR_RIGHT,	M_PI / 2.0f,	false	}, // 90°
-	{ DIR_BACK,		M_PI,			true	}, // 180°
-	{ DIR_LEFT,		-(M_PI / 2.0f),	false	}, // -90° or 270°
+	{ DIR_FORWARD,	0.0f,								true	}, // 0°
+	{ DIR_RIGHT,	std::numbers::pi_v<float> / 2.0f,	false	}, // 90°
+	{ DIR_BACK,		std::numbers::pi_v<float>,			true	}, // 180°
+	{ DIR_LEFT,		-(std::numbers::pi_v<float> / 2.0f),false	}, // -90° or 270°
 };
 
 void CMovementStrafeHack::update()
@@ -157,7 +157,7 @@ void CMovementStrafeHack::update()
 	// this should be something around ~436 * the boost. I assume that this is based out of the maximal possible vanilla maxspeed, 
 	// which is 260 with scout * the multiplier (that gets us to maxspeed), i.e. 310 u/s. When you combine this together with X&Y
 	// velocity vectors, you get ~438. (sqrt(310*310+310*310), i.e. sqrt((310*310)*2) or sqrt(2)*310)
-	float sm_factor = ((260.0f * BUNNYJUMP_MAX_SPEED_FACTOR) * std::numbers::sqrt2);
+	float sm_factor = ((260.0f * BUNNYJUMP_MAX_SPEED_FACTOR) * std::numbers::sqrt2_v<float>);
 	cmd->sidemove = sm_factor * (adif > 0 ? 1 : -1);
 
 	float angle;

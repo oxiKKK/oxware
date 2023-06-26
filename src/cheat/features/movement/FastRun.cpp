@@ -140,7 +140,7 @@ void CMovementFastRun::faster_run()
 	vel_yaw -= angle_to_add;
 	vel_yaw = cl->viewangles[YAW] - vel_yaw;
 
-	int fadif = vel_yaw;
+	int fadif = (int)vel_yaw;
 
 	fadif = (fadif + 360) % 360;
 	dir_rig = fadif <= 180;

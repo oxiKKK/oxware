@@ -143,7 +143,7 @@ public:
 	inline float next_secondary_attack_delay() const { return m_weapon_data ? m_weapon_data->m_flNextSecondaryAttack : 0.0f; }
 
 	inline float get_accuracy() const { return m_cs_weapon ? m_cs_weapon->m_flAccuracy : 0.0f; }
-	inline int get_shots_fired() const { return m_cs_weapon ? m_cs_weapon->m_iShotsFired : 0.0f; }
+	inline int get_shots_fired() const { return m_cs_weapon ? m_cs_weapon->m_iShotsFired : 0; }
 
 	float time_since_last_fired() const;
 

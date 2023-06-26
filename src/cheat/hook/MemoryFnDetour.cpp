@@ -158,6 +158,11 @@ bool wglSwapBuffers_FnDetour_t::install()
 
 BOOL APIENTRY wglSwapBuffers_FnDetour_t::wglSwapBuffers(HDC hdc)
 {
+	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
+	{
+		return 0;
+	}
+
 	OX_PROFILE_SCOPE("swapbuffers");
 
 	COxWareUI::the().swapbuffers_detour(hdc);
@@ -176,6 +181,11 @@ bool glBegin_FnDetour_t::install()
 void APIENTRY glBegin_FnDetour_t::glBegin(GLenum mode)
 {
 	// Note: That detouring functions such as glBegin can be really slow, because of how often they're called.
+
+	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
+	{
+		return;
+	}
 
 	if (!CAntiScreen::the().hide_visuals())
 	{

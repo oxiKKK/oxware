@@ -151,6 +151,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Improved ESP.
 - Added environmental effects, see [this video](https://youtu.be/dsA--TX9MVU).
 - Improved world dimlight to affect sky as well.
+- Added world fog.
 
 ## Bugfixes
 

@@ -80,6 +80,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	HUD_CreateEntities().install();
 	HUD_DrawTransparentTriangles().install();
 	MakeSkyVec().install();
+	HUD_Frame().install();
 
 	return true;
 }
@@ -144,6 +145,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	HUD_CreateEntities().uninstall();
 	HUD_DrawTransparentTriangles().uninstall();
 	MakeSkyVec().uninstall();
+	HUD_Frame().uninstall();
 
 	m_unloading_hooks_mutex = false;
 }
@@ -1232,6 +1234,23 @@ void MakeSkyVec_FnDetour_t::MakeSkyVec(float s, float t, int axis)
 	}
 
 	CMemoryFnDetourMgr::the().MakeSkyVec().call(s, t, axis);
+}
+
+//---------------------------------------------------------------------------------
+
+bool HUD_Frame_FnDetour_t::install()
+{
+	initialize("HUD_Frame", L"hw.dll");
+	return detour_using_memory_address((uintptr_t*)HUD_Frame, (uintptr_t*)CMemoryHookMgr::the().cl_funcs()->pfnHUD_Frame);
+}
+
+void HUD_Frame_FnDetour_t::HUD_Frame()
+{
+	// client dll frame function. Called after servercode inside _Host_Frame
+
+	CWorldVisuals::the().render_fog();
+
+	CMemoryFnDetourMgr::the().HUD_Frame().call();
 }
 
 //---------------------------------------------------------------------------------

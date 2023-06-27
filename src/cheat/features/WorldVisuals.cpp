@@ -32,6 +32,10 @@ VarBoolean world_visuals_enable("world_visuals_enable", "Enables world visuals",
 VarInteger world_visuals_dimlight("world_visuals_dimlight", "Brightness of the world", 255, 0, 255);
 VarBoolean world_visuals_rainbow("world_visuals_rainbow", "Rainbow world", false);
 
+VarBoolean world_visuals_fog("world_visuals_fog", "Enables in-game fog", false);
+VarColor world_visuals_fog_color("world_visuals_fog_color", "Fog color", CColor(128, 128, 128));
+VarFloat world_visuals_fog_density("world_visuals_fog_density", "Fog color", 5.0f, 1.0f, 30.0f);
+
 void CWorldVisuals::update_gl_begin()
 {
 	if (!world_visuals_enable.get_value())
@@ -60,4 +64,24 @@ void CWorldVisuals::update_gl_begin()
 	}
 
 	glColor4f(color.r, color.g, color.b, 1.0f);
+}
+
+void CWorldVisuals::render_fog()
+{
+	// it's under world visuals.
+	if (!world_visuals_enable.get_value() || !world_visuals_fog.get_value())
+	{
+		return;
+	}
+
+	CColor c = world_visuals_fog_color.get_value();
+	float color[3] = { c.r, c.g, c.b };
+
+	float dense = world_visuals_fog_density.get_value();
+
+	glEnable(GL_FOG);
+	glFogi(GL_FOG_MODE, GL_EXP);
+	glFogf(GL_FOG_DENSITY, dense / 10000.0f);
+	glHint(GL_FOG_HINT, GL_NICEST);
+	glFogfv(GL_FOG_COLOR, color);
 }

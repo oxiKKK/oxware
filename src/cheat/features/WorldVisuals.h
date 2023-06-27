@@ -34,6 +34,10 @@ extern VarBoolean world_visuals_enable;
 extern VarInteger world_visuals_dimlight;
 extern VarBoolean world_visuals_rainbow;
 
+extern VarBoolean world_visuals_fog;
+extern VarColor world_visuals_fog_color;
+extern VarFloat world_visuals_fog_density;
+
 class CWorldVisuals
 {
 public:
@@ -41,6 +45,8 @@ public:
 
 public:
 	void update_gl_begin();
+
+	void render_fog();
 };
 
 #endif // ANTIDEMORECORDER_H

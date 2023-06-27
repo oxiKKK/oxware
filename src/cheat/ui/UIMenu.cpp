@@ -594,16 +594,25 @@ void CUIMenu::tab_world()
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"World visuals", CMenuStyle::calc_child_size(120), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"World visuals", CMenuStyle::calc_child_size(220), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(
 				&world_visuals_enable,
 				[]()
 				{
-					CUIMenuWidgets::the().add_slider("Dimlight", "%0.0f %%", &world_visuals_dimlight);
+					CUIMenuWidgets::the().add_slider("Dimlight", "%0.0f %%", &world_visuals_dimlight, NULL, "off");
 
 					CUIMenuWidgets::the().add_checkbox("Rainbow world", &world_visuals_rainbow);
+
+					g_gui_widgets_i->add_separtor_with_text("World fog");
+
+					CUIMenuWidgets::the().feature_enabled_section(
+					&world_visuals_fog, &world_visuals_fog_color,
+					[]()
+					{
+						CUIMenuWidgets::the().add_slider("Density", "%0.1f", &world_visuals_fog_density);
+					});
 				});
 			});
 

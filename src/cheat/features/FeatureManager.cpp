@@ -141,5 +141,13 @@ void CFeatureManager::precache_features()
 	// anti demo recorder
 	add_new_feature(BaseFeature(&anti_demo_recorder_enable, "Anti demo recorder"));
 
+	// enveff
+	add_new_feature(BaseFeature(&env_enable, "Environmental effects"));
+
+	// world visuals
+	add_new_feature(BaseFeature(&world_visuals_enable, "World visuals"));
+	add_new_feature(BaseFeature(&world_visuals_fog, "World fog"));
+
+
 	CConsole::the().info("Precached all features.");
 }

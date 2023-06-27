@@ -34,7 +34,7 @@ VarBoolean world_visuals_rainbow("world_visuals_rainbow", "Rainbow world", false
 
 VarBoolean world_visuals_fog("world_visuals_fog", "Enables in-game fog", false);
 VarColor world_visuals_fog_color("world_visuals_fog_color", "Fog color", CColor(128, 128, 128));
-VarFloat world_visuals_fog_density("world_visuals_fog_density", "Fog color", 5.0f, 1.0f, 30.0f);
+VarFloat world_visuals_fog_density("world_visuals_fog_density", "Fog color", 5.0f, 1.0f, 60.0f);
 
 void CWorldVisuals::update_gl_begin()
 {

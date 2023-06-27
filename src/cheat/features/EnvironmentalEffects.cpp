@@ -40,16 +40,19 @@ VarInteger env_ground_fog_density("env_ground_fog_density", "Ground fog density"
 VarFloat env_wind_speed("env_wind_speed", "Controls wind speed", 1.0f, 1.0f, 6.0f);
 VarFloat env_particle_fallspeed("env_particle_fallspeed", "Controls fallspeed of dropplets or snowflakes", 1.0f, 0.5f, 1.0f);
 
-VarFloat env_rain_density("env_rain_density", "Controls density of the rain", 2.0f, 1.0f, 4.0f);
+VarFloat env_rain_density("env_rain_density", "Controls density of the rain", 2.0f, 1.0f, 8.0f);
 VarBoolean env_rain_ambient("env_rain_ambient", "Plays ambient raining sound", false);
 VarBoolean env_rain_ambient_thunder("env_rain_ambient_thunder", "Plays ambient thunder sound", false);
 
 VarBoolean env_snow("env_snow", "Enables snowing", false);
-VarFloat env_snow_density("env_snow_density", "Controls density of the snow", 2.0f, 1.0f, 4.0f);
+VarFloat env_snow_density("env_snow_density", "Controls density of the snow", 2.0f, 1.0f, 8.0f);
 VarInteger env_snow_flake_size("env_snow_flake_size", "Snow flake size", 1, 1, 10);
+VarFloat env_snow_flake_die_time("env_snow_flake_die_time", "Time when the flake starts to die after it hits ground", 0.5f, 0.5f, 5.0f);
 
 void CEnvironmentalEffects::initialize()
 {
+	begin_emulation();
+
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
 
 	m_weather_update_time = 0.0f;
@@ -65,21 +68,23 @@ void CEnvironmentalEffects::initialize()
 
 	m_rain_sound_played = false;
 
-	CConsole::the().info("In-Game environmental effects initialized");
+	if (m_initialized_for_the_first_time)
+	{
+		CConsole::the().info("In-Game environmental effects initialized");
+	}
+
 	m_initialized = true;
+
+	m_initialized_for_the_first_time = false;
 }
 
 void CEnvironmentalEffects::shutdown()
 {
 	m_shutting_down = true;
 
-	// TODO: Without this the game crashes on unload however, also, after calling this, 
-	//		 every other live particle will die (e.g. a smoke)
-	auto iparticleman = CHLInterfaceHook::the().IParticleMan();
-	if (iparticleman)
-	{
-		iparticleman->ResetParticles();
-	}
+	reset_particles();
+
+	CParticlemanMiniMemEmulation::the().restore_from_emulation();
 
 	m_initialized = false;
 	m_shutting_down = false;
@@ -123,6 +128,7 @@ void CEnvironmentalEffects::render()
 	}
 	else
 	{
+		begin_emulation();
 		as_lock = false;
 	}
 
@@ -166,6 +172,31 @@ void CEnvironmentalEffects::render()
 	m_old_time = cl_enginefuncs->pfnGetClientTime();
 }
 
+void CEnvironmentalEffects::reset_particles()
+{
+	// TODO: Without this the game crashes on unload however, also, after calling this, 
+	//		 every other live particle will die (e.g. a smoke)
+	auto iparticleman = CHLInterfaceHook::the().IParticleMan();
+	if (iparticleman)
+	{
+		iparticleman->ResetParticles();
+	}
+}
+
+void CEnvironmentalEffects::begin_emulation()
+{
+	if (m_failed_emulation)
+	{
+		return; // don't try again if we've failed.
+	}
+
+	if (!CParticlemanMiniMemEmulation::the().emulate())
+	{
+		CConsole::the().error("Failed to create particleman MiniMem emulator.");
+		m_failed_emulation = true;
+	}
+}
+
 void CEnvironmentalEffects::precache_sprites()
 {
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
@@ -199,7 +230,7 @@ void CEnvironmentalEffects::render_rain()
 
 	iWindParticle = 0;
 
-	int density = (int)(env_rain_density.get_value() * 140.0f);
+	int density = (int)(env_rain_density.get_value() * 240.0f);
 
 	for (j = 0; j < density; j++)
 	{
@@ -283,7 +314,7 @@ void CEnvironmentalEffects::render_snow()
 	vDir = local_velocity;
 	flVel = vDir.NormalizeInPlace();
 
-	int density = (int)(env_snow_density.get_value() * 130);
+	int density = (int)(env_snow_density.get_value() * 230);
 
 	int iWindParticle = 0;
 	Vector vecWindOrigin;
@@ -580,14 +611,14 @@ void CEnvironmentalEffects::play_ambient_rain_sound()
 	if (ambient_enabled && env_enabled && rain_enabled && !m_rain_sound_played)
 	{
 		CEngineSoundPlayer::the().play_ambient_sound_unique(0, Vector(0, 0, 0), "sound/ambience/rain.wav", 1.0f, AMBIENT_EVERYWHERE, true);
-		CConsole::the().info("played");
+//		CConsole::the().info("played");
 		m_rain_sound_played = true;
 	}
 
 	if ((!ambient_enabled || !env_enabled || !rain_enabled) && m_rain_sound_played)
 	{
 		CEngineSoundPlayer::the().stop_sound("sound/ambience/rain.wav");
-		CConsole::the().info("stopped");
+///		CConsole::the().info("stopped");
 		m_rain_sound_played = false;
 	}
 	
@@ -705,7 +736,7 @@ void CPartSnowFlake::Touch(Vector pos, Vector normal, int index)
 
 	m_vColor.x = m_vColor.y = m_vColor.z = 128.0f;
 
-	m_flDieTime = cl_enginefuncs->pfnGetClientTime() + 0.5f;
+	m_flDieTime = cl_enginefuncs->pfnGetClientTime() + env_snow_flake_die_time.get_value();
 
 	m_flTimeCreated = cl_enginefuncs->pfnGetClientTime();
 }

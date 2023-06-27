@@ -311,6 +311,9 @@
     <ClCompile Include="util\EngineSoundPlayer.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
+    <ClCompile Include="game\ParticleManMiniMemEmulation.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -568,6 +571,9 @@
     </ClInclude>
     <ClInclude Include="util\EngineSoundPlayer.h">
       <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="game\ParticleManMiniMemEmulation.h">
+      <Filter>src\game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

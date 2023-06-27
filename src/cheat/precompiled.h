@@ -264,6 +264,7 @@ namespace hl
 #include "game/LocalPlayerState.h"
 #include "game/ClientMovementPacket.h"
 #include "game/VideoModeUtil.h"
+#include "game/ParticlemanMiniMemEmulation.h"
 
 // features
 #include "features/FeatureManager.h"

@@ -668,6 +668,7 @@ void CUIMenu::tab_world()
 							{
 								CUIMenuWidgets::the().add_slider("Density", "%0.1f", &env_snow_density);
 								CUIMenuWidgets::the().add_slider("Flake size", "%0.0fx", &env_snow_flake_size);
+								CUIMenuWidgets::the().add_slider("Die time", "%0.1f seconds", &env_snow_flake_die_time);
 							});
 						});
 

@@ -47,6 +47,7 @@ extern VarBoolean env_rain_ambient_thunder;
 extern VarBoolean env_snow;
 extern VarFloat env_snow_density;
 extern VarInteger env_snow_flake_size;
+extern VarFloat env_snow_flake_die_time;
 
 class CEnvironmentalEffects
 {
@@ -66,6 +67,13 @@ public:
 
 private:
 	bool m_initialized = false, m_shutting_down = false;
+	bool m_failed_emulation = false;
+
+	bool m_initialized_for_the_first_time = true;
+
+	void reset_particles();
+
+	void begin_emulation();
 
 	hl::model_t* m_snow_sprite;
 	hl::model_t* m_rain_sprite, *m_ripple, *m_water_splash;

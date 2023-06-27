@@ -72,21 +72,14 @@ void CEnvironmentalEffects::initialize()
 void CEnvironmentalEffects::shutdown()
 {
 	m_shutting_down = true;
-	for (auto p : m_particles)
-	{
-		delete p;
-		p = nullptr;
-	}
 
 	// TODO: Without this the game crashes on unload however, also, after calling this, 
 	//		 every other live particle will die (e.g. a smoke)
-	//auto iparticleman = CHLInterfaceHook::the().IParticleMan();
-	//if (iparticleman)
-	//{
-	//	iparticleman->ResetParticles();
-	//}
-
-	m_particles.clear();
+	auto iparticleman = CHLInterfaceHook::the().IParticleMan();
+	if (iparticleman)
+	{
+		iparticleman->ResetParticles();
+	}
 
 	m_initialized = false;
 	m_shutting_down = false;
@@ -393,8 +386,6 @@ void CEnvironmentalEffects::create_raindrop(const Vector& origin)
 	pParticle->SetCullFlag((LIGHT_NONE | CULL_PVS | CULL_FRUSTUM_PLANE));
 
 	pParticle->m_flDieTime = cl_enginefuncs->pfnGetClientTime() + 1.0f;
-
-	m_particles.push_back(pParticle);
 }
 
 void CEnvironmentalEffects::create_snow_flake(const Vector& origin)
@@ -459,8 +450,6 @@ void CEnvironmentalEffects::create_snow_flake(const Vector& origin)
 	pParticle->m_bSpiral = cl_enginefuncs->pfnRandomLong(0, 1) != 0;
 
 	pParticle->m_flSpiralTime = cl_enginefuncs->pfnGetClientTime() + cl_enginefuncs->pfnRandomLong(2, 4);
-
-	m_particles.push_back(pParticle);
 }
 
 void CEnvironmentalEffects::create_wind_particle(const Vector& origin, float max_size)
@@ -519,8 +508,6 @@ void CEnvironmentalEffects::create_wind_particle(const Vector& origin, float max
 	pParticle->SetCullFlag(RENDER_FACEPLAYER | LIGHT_NONE | CULL_PVS | CULL_FRUSTUM_SPHERE);
 
 	pParticle->m_flDieTime = cl_enginefuncs->pfnGetClientTime() + cl_enginefuncs->pfnRandomFloat(5.0f, 8.0f);
-
-	m_particles.push_back(pParticle);
 }
 
 void CEnvironmentalEffects::update_wind_variables()
@@ -851,8 +838,6 @@ void CPartRainDrop::Touch(Vector pos, Vector normal, int index)
 
 		pParticle->m_flDieTime = cl_enginefuncs->pfnGetClientTime() + 0.3f;
 	}
-
-	CEnvironmentalEffects::the().add_new_particle(pParticle);
 }
 
 void CPartWind::Think(float flTime)

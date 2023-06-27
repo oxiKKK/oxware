@@ -64,11 +64,6 @@ public:
 	hl::model_t* get_ripple_sprite() { return m_ripple; }
 	hl::model_t* get_splash_sprite() { return m_water_splash; }
 
-	inline void add_new_particle(hl::CBaseParticle* part)
-	{
-		m_particles.push_back(part);
-	}
-
 private:
 	bool m_initialized = false, m_shutting_down = false;
 
@@ -107,8 +102,6 @@ private:
 	Vector m_desired_wind_direction, m_wind_span;
 	float m_desired_wind_speed;
 	float m_ideal_wind_yaw;
-
-	std::vector<hl::CBaseParticle*> m_particles;
 
 	void check_particle_life();
 };

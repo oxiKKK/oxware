@@ -33,19 +33,20 @@ Vector g_vecZero = Vector(0, 0, 0);
 VarBoolean env_enable("env_enable", "Enables environmental effects", false);
 
 VarBoolean env_rain("env_rain", "Enables raining", false);
-VarInteger env_radius("env_radius", "Radius where to generate snow/rain/etc.", 300, 200, 1000);
+VarInteger env_radius("env_radius", "Radius where to generate snow/rain/etc.", 500, 200, 1000);
 VarBoolean env_ground_fog("env_ground_fog", "Enables ground fog", false);
 VarInteger env_ground_fog_density("env_ground_fog_density", "Ground fog density", 1, 1, 14);
+VarFloat env_ground_fog_size("env_ground_fog_size", "Ground fog cloud size", 1.0f, 0.5f, 2.0f);
 
-VarFloat env_wind_speed("env_wind_speed", "Controls wind speed", 1.0f, 1.0f, 6.0f);
+VarFloat env_wind_speed("env_wind_speed", "Controls wind speed", 1.0f, 0.0f, 6.0f);
 VarFloat env_particle_fallspeed("env_particle_fallspeed", "Controls fallspeed of dropplets or snowflakes", 1.0f, 0.5f, 1.0f);
 
-VarFloat env_rain_density("env_rain_density", "Controls density of the rain", 2.0f, 1.0f, 8.0f);
+VarFloat env_rain_density("env_rain_density", "Controls density of the rain", 2.0f, 0.1f, 8.0f);
 VarBoolean env_rain_ambient("env_rain_ambient", "Plays ambient raining sound", false);
 VarBoolean env_rain_ambient_thunder("env_rain_ambient_thunder", "Plays ambient thunder sound", false);
 
 VarBoolean env_snow("env_snow", "Enables snowing", false);
-VarFloat env_snow_density("env_snow_density", "Controls density of the snow", 2.0f, 1.0f, 8.0f);
+VarFloat env_snow_density("env_snow_density", "Controls density of the snow", 2.0f, 0.1f, 8.0f);
 VarInteger env_snow_flake_size("env_snow_flake_size", "Snow flake size", 1, 1, 10);
 VarFloat env_snow_flake_die_time("env_snow_flake_die_time", "Time when the flake starts to die after it hits ground", 0.5f, 0.5f, 5.0f);
 
@@ -54,8 +55,6 @@ void CEnvironmentalEffects::initialize()
 	begin_emulation();
 
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
-
-	m_weather_update_time = 0.0f;
 
 	// sounds
 	m_rain_sound_played = false;
@@ -155,18 +154,14 @@ void CEnvironmentalEffects::render()
 	// rendering
 	//
 	
-	// update only when it's time, to not flood the game
-	if (m_weather_update_time <= cl_enginefuncs->pfnGetClientTime())
+	if (env_rain.get_value())
 	{
-		if (env_rain.get_value())
-		{
-			render_rain();
-		}
+		render_rain();
+	}
 
-		if (env_snow.get_value())
-		{
-			render_snow();
-		}
+	if (env_snow.get_value())
+	{
+		render_snow();
 	}
 
 	m_old_time = cl_enginefuncs->pfnGetClientTime();
@@ -221,8 +216,6 @@ void CEnvironmentalEffects::render_rain()
 
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
 
-	m_weather_update_time = cl_enginefuncs->pfnGetClientTime() + (0.5f - ((float)env_rain_density.get_value() / 10.0f));
-
 	Vector local_velocity = CLocalState::the().get_local_velocity_vec();
 	Vector local_origin = CLocalState::the().get_origin();
 	vDir = local_velocity;
@@ -230,7 +223,7 @@ void CEnvironmentalEffects::render_rain()
 
 	iWindParticle = 0;
 
-	int density = (int)(env_rain_density.get_value() * 240.0f);
+	int density = (int)(env_rain_density.get_value() * 100.0f + (env_radius.get_value() / 75));
 
 	for (j = 0; j < density; j++)
 	{
@@ -307,14 +300,12 @@ void CEnvironmentalEffects::render_snow()
 
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
 
-	m_weather_update_time = cl_enginefuncs->pfnGetClientTime() + (0.7f - ((float)env_rain_density.get_value() / 10.0f));
-
 	Vector local_velocity = CLocalState::the().get_local_velocity_vec();
 	Vector local_origin = CLocalState::the().get_origin();
 	vDir = local_velocity;
 	flVel = vDir.NormalizeInPlace();
 
-	int density = (int)(env_snow_density.get_value() * 230);
+	int density = (int)(env_snow_density.get_value() * 90 + (env_radius.get_value() / 75));
 
 	int iWindParticle = 0;
 	Vector vecWindOrigin;
@@ -502,7 +493,8 @@ void CEnvironmentalEffects::create_wind_particle(const Vector& origin, float max
 	vOrigin = origin;
 	vOrigin.z += 10.0;
 
-	pParticle->InitializeSprite(vOrigin, g_vecZero, m_wind_particle_sprite, cl_enginefuncs->pfnRandomFloat(50.0, max_size), 1.0);
+	float size = cl_enginefuncs->pfnRandomFloat(50.0, max_size) * env_ground_fog_size.get_value();
+	pParticle->InitializeSprite(vOrigin, g_vecZero, m_wind_particle_sprite, size, 1.0);
 
 	pParticle->m_iNumFrames = m_wind_particle_sprite->numframes;
 

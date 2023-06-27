@@ -36,6 +36,7 @@ extern VarBoolean env_rain;
 extern VarInteger env_radius;
 extern VarBoolean env_ground_fog;
 extern VarInteger env_ground_fog_density;
+extern VarFloat env_ground_fog_size;
 
 extern VarFloat env_wind_speed;
 extern VarFloat env_particle_fallspeed;
@@ -82,7 +83,7 @@ private:
 	Vector m_weather_origin;
 
 	// to keep track of timings
-	float m_old_time, m_weather_update_time;
+	float m_old_time;
 
 	void precache_sprites();
 

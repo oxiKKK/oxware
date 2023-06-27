@@ -632,8 +632,10 @@ void CUIMenu::tab_world()
 					[]()
 					{
 						CUIMenuWidgets::the().add_slider("Density", "%0.0f", &env_ground_fog_density);
+						CUIMenuWidgets::the().add_slider("Size", "%0.1fx", &env_ground_fog_size);
 					});
 
+					g_gui_widgets_i->add_separtor_with_text("Other");
 					g_gui_widgets_i->add_spacing();
 					CUIMenuWidgets::the().add_slider("Wind speed", "%0.1fx", &env_wind_speed);
 					CUIMenuWidgets::the().add_slider("Fall speed", "%0.1fx", &env_particle_fallspeed);

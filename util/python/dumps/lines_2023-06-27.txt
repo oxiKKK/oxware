@@ -1,0 +1,20 @@
+//
+// File generated automatically by cntlines.py script
+// Generated at: 2023-06-27.
+// Version: 1.0
+//
+
+-----------------------------------------
+total lines: 58415 in 283 files.
+
+Top 10 files by line count:
+0: C:\dev\projects\OXWARE\oxware\util\python\..\..\src\cheat\util\vanilla_halflife_dir_file_database.cpp: 5107 lines
+1: C:\dev\projects\OXWARE\oxware\util\python\..\..\src\gui\GUIWidgets.cpp: 2429 lines
+2: C:\dev\projects\OXWARE\oxware\util\python\..\..\src\cheat\ui\UIMenu.cpp: 2027 lines
+3: C:\dev\projects\OXWARE\oxware\util\python\..\..\src\public\vector.h: 1623 lines
+4: C:\dev\projects\OXWARE\oxware\util\python\..\..\src\cheat\hook\MemoryFnDetour.cpp: 1256 lines
+5: C:\dev\projects\OXWARE\oxware\util\python\..\..\src\cheat\hook\SecurityModuleHook.cpp: 1042 lines
+6: C:\dev\projects\OXWARE\oxware\util\python\..\..\src\cheat\features\EnvironmentalEffects.cpp: 902 lines
+7: C:\dev\projects\OXWARE\oxware\util\python\..\..\src\public\DeveloperConsole.cpp: 838 lines
+8: C:\dev\projects\OXWARE\oxware\util\python\..\..\src\util\BindManager.cpp: 835 lines
+9: C:\dev\projects\OXWARE\oxware\util\python\..\..\src\cheat\util\GameUtil.cpp: 713 lines

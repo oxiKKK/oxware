@@ -118,4 +118,34 @@ private:
 	bool m_game_exiting_or_restarting = false;
 };
 
+// helper class to sleep the engine whenever we want
+// sometimes, when unloading a cheat, engine can call a function that we hook in a middle of
+// that function being unloaded, this is totally random and results in a crash.
+// this class assures that we first wait for the engine to hang, hence not call any functions
+// at all, and after that we unload the cheat.
+//
+// this also requires the function where the engine hangs to be unloaded as last function.
+class CEngineSynchronization
+{
+public:
+	DECL_BASIC_CLASS(CEngineSynchronization);
+
+public:
+	// hang our code until engine acknowledges
+	void put_engine_in_sleep();
+
+	void resume_engine();
+
+	// run inside engine frame function
+	void engine_frame();
+
+private:
+	bool m_engine_is_sleeping = false;
+
+	bool m_engine_should_sleep = false;
+
+	// the timestamp we started waiting for the engine until it goes to sleep
+	uint32_t m_start_time;
+};
+
 #endif // OXWARE_H

@@ -96,6 +96,7 @@
 #include <deque>
 #include <numbers>
 #include <thread>
+#include <memory_resource>
 
 //-------------------------------------------------------------------
 //
@@ -265,6 +266,7 @@ namespace hl
 #include "game/ClientMovementPacket.h"
 #include "game/VideoModeUtil.h"
 #include "game/ParticlemanMiniMemEmulation.h"
+#include "game/GameEvents.h"
 
 // features
 #include "features/FeatureManager.h"

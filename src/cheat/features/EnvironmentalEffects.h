@@ -58,6 +58,7 @@ public:
 public:
 	void initialize();
 	void shutdown();
+	void restart(); // does reinitialization
 
 	void render();
 
@@ -89,6 +90,7 @@ private:
 
 	void render_rain();
 	void render_snow();
+	void render_ground_fog();
 
 	void play_ambient_rain_sound();
 
@@ -111,8 +113,6 @@ private:
 	Vector m_desired_wind_direction, m_wind_span;
 	float m_desired_wind_speed;
 	float m_ideal_wind_yaw;
-
-	void check_particle_life();
 };
 
 #endif // ENVIRONMENTALEFFECTS_H

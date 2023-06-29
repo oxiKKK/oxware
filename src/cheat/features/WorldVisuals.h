@@ -32,6 +32,8 @@
 
 extern VarBoolean world_visuals_enable;
 extern VarInteger world_visuals_dimlight;
+extern VarBoolean world_visuals_dimlight_sky;
+extern VarBoolean world_visuals_dimlight_world;
 extern VarBoolean world_visuals_rainbow;
 
 extern VarBoolean world_visuals_fog;
@@ -44,7 +46,7 @@ public:
 	DECL_BASIC_CLASS(CWorldVisuals);
 
 public:
-	void update_gl_begin();
+	void dim();
 
 	void render_fog();
 };

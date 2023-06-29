@@ -41,10 +41,6 @@ private:
 	static long m_memory_block_size;
 	static long m_max_blocks;
 	static long m_memory_pool_size;
-	static CMiniMemEmulator *m_instance;
-
-	int m_total_parts;
-	int m_parts_drawn;
 
 	hl::visibleparticles_t* m_allocated_visible_particles;
 
@@ -54,6 +50,9 @@ private:
 public:
 	CMiniMemEmulator(long memory_pool_size, long max_block_size);
 	virtual ~CMiniMemEmulator();
+
+	int m_total_parts;
+	int m_parts_drawn;
 
 	// return a pointer to usable block of memory.
 	char* new_block();
@@ -72,8 +71,6 @@ public:
 	long max_block_size();
 
 	int apply_force(Vector vOrigin, Vector vDirection, float flRadius, float flStrength);
-
-	void shutdown();
 };
 
 static_assert(sizeof(CMiniMemEmulator) == sizeof(hl::CMiniMem));
@@ -97,7 +94,7 @@ static_assert(sizeof(CMiniMemEmulator) == sizeof(hl::CMiniMem));
 //
 
 // CMiniMem* CMiniMem::_instance;
-struct CMiniMem___instance_MemoryHook final : public RestorableGenericMemoryHook<hl::CMiniMem*>
+struct CMiniMem___instance_MemoryHook final : public GenericMemoryHook<hl::CMiniMem*>
 {
 	bool install() override;
 	void test_hook() override;
@@ -173,6 +170,9 @@ public:
 
 	// if emulating for the first time
 	bool m_first_time = true;
+
+private:
+	inline static CMiniMemEmulator* m_instance;
 };
 
 #endif // PARTICLEMANMINIMEMEMULATION_H

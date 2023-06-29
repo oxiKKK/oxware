@@ -236,6 +236,7 @@
     <ClCompile Include="features\WorldVisuals.cpp" />
     <ClCompile Include="game\ClientMovementPacket.cpp" />
     <ClCompile Include="game\EntityManager.cpp" />
+    <ClCompile Include="game\GameEvents.cpp" />
     <ClCompile Include="game\GenericEnt.cpp" />
     <ClCompile Include="game\GenericMdl.cpp" />
     <ClCompile Include="game\GenericPlayer.cpp" />
@@ -339,6 +340,7 @@
     <ClInclude Include="features\WorldVisuals.h" />
     <ClInclude Include="game\ClientMovementPacket.h" />
     <ClInclude Include="game\EntityManager.h" />
+    <ClInclude Include="game\GameEvents.h" />
     <ClInclude Include="game\GenericEnt.h" />
     <ClInclude Include="game\GenericMdl.h" />
     <ClInclude Include="game\GenericPlayer.h" />

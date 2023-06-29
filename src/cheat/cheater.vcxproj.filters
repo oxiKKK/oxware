@@ -314,6 +314,9 @@
     <ClCompile Include="game\ParticleManMiniMemEmulation.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
+    <ClCompile Include="game\GameEvents.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -573,6 +576,9 @@
       <Filter>src\util</Filter>
     </ClInclude>
     <ClInclude Include="game\ParticleManMiniMemEmulation.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\GameEvents.h">
       <Filter>src\game</Filter>
     </ClInclude>
   </ItemGroup>

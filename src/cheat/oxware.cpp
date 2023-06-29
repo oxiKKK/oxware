@@ -228,6 +228,12 @@ void CoXWARE::shutdown()
 {
 	CConsole::the().info("Shutting down cheat module subsystems...");
 
+	// save unload
+	if (!m_dont_write_unloading_code)
+	{
+		CEngineSynchronization::the().put_engine_in_sleep();
+	}
+
 	if (g_config_mgr_i)
 	{
 		g_config_mgr_i->shutdown();
@@ -248,6 +254,12 @@ void CoXWARE::shutdown()
 	shutdown_hook_managers();
 
 	unload_dependencies();
+
+	// this isn't really needed, since _Host_Frame is already unloaded, but whatever..
+	if (!m_dont_write_unloading_code)
+	{
+		CEngineSynchronization::the().resume_engine();
+	}
 
 	m_shutted_down = true;
 }
@@ -548,4 +560,66 @@ bool CoXWARE::validate_engine_build()
 
 	CConsole::the().info("Your build number is {}.", m_gs_build_number);
 	return true;
+}
+
+//---------------------------------------------------------------------
+
+void CEngineSynchronization::put_engine_in_sleep()
+{
+	m_engine_should_sleep = true;
+
+	CConsole::the().info("Putting engine to sleep, waiting for it to ack...");
+
+	// time since engine starts a new frame, we need to handle a case where we're in some kind
+	// of deadlock or something. in that case we'd hang forever.
+	// let's say wait at max 20 seconds... 20 seconds long frame should be enough.. :^)
+	static constexpr uint32_t k_time_to_acknowledge_sleep = 20 * 1000; 
+	m_start_time = GetTickCount();
+	while (m_engine_is_sleeping == false)
+	{
+		// do nothing until engine acks
+
+		std::this_thread::sleep_for(30ms);
+
+		if (GetTickCount() - m_start_time > k_time_to_acknowledge_sleep)
+		{
+			// time's up... break anyway
+			CConsole::the().error("Engine failed to start a new frame in {} seconds...", k_time_to_acknowledge_sleep);
+			break;
+		}
+	}
+
+	CConsole::the().info("Engine went to sleep. Continuing...");
+	CConsole::the().info("Took {} ms to put engine to sleep.", GetTickCount() - m_start_time);
+
+	// ok, engine is now sleeping, continue.
+	// DONT FORGET TO RESUME ENGINE FROM SLEEPING!
+}
+
+void CEngineSynchronization::resume_engine()
+{
+	CConsole::the().info("Resuming engine from sleep...");
+	m_engine_should_sleep = false;
+}
+
+void CEngineSynchronization::engine_frame()
+{
+	if (m_engine_should_sleep)
+	{
+		CConsole::the().info("Engine frame: Putting engine to sleep");
+	}
+
+	while (m_engine_should_sleep)
+	{
+		// hang till we let engine be free again
+
+		m_engine_is_sleeping = true;
+	}
+
+	if (m_engine_is_sleeping)
+	{
+		CConsole::the().info("Engine frame: Engine exited from sleep.");
+	}
+
+	m_engine_is_sleeping = false;
 }

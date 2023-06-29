@@ -58,7 +58,6 @@ hl::VectorOfMemoryBlocks CMiniMemEmulator::m_memory_pool;
 long CMiniMemEmulator::m_memory_block_size = 0;
 long CMiniMemEmulator::m_max_blocks = 0;
 long CMiniMemEmulator::m_memory_pool_size = 0;
-CMiniMemEmulator* CMiniMemEmulator::m_instance = NULL;
 
 static hl::MemList g_free_mem, g_active_mem;
 
@@ -72,10 +71,8 @@ CMiniMemEmulator::CMiniMemEmulator(long memory_pool_size, long max_block_size)
 	for (int i = 0; i < m_max_blocks; i++)
 	{
 		hl::MemoryBlock* pNewBlock = new hl::MemoryBlock(m_memory_block_size);
-		pNewBlock->next = pNewBlock->prev = NULL;
-
-		g_free_mem.Push(pNewBlock);
 		m_memory_pool.push_back(pNewBlock);
+		g_free_mem.Push(pNewBlock);
 	}
 
 	m_allocated_visible_particles = new hl::visibleparticles_t[m_max_blocks];
@@ -94,14 +91,8 @@ CMiniMemEmulator::~CMiniMemEmulator()
 
 	m_memory_pool.clear();
 
-	delete m_allocated_visible_particles;
+	delete[] m_allocated_visible_particles;
 	m_allocated_visible_particles = NULL;
-}
-
-void CMiniMemEmulator::shutdown()
-{
-	delete m_instance;
-	m_instance = NULL;
 }
 
 char* CMiniMemEmulator::alloc_free_block()
@@ -189,7 +180,6 @@ void CMiniMemEmulator::process_all()
 	hl::cl_entity_t*	localEntity;
 
 	time = CMemoryHookMgr::the().cl_enginefuncs()->pfnGetClientTime();
-	currentBlock = g_active_mem.Front();
 
 	m_total_parts = m_parts_drawn = 0;
 
@@ -197,6 +187,7 @@ void CMiniMemEmulator::process_all()
 
 	float* g_flOldTime = CParticlemanMiniMemEmulation::the().g_flOldTime().get();
 
+	currentBlock = g_active_mem.Front();
 	while (currentBlock)
 	{
 		nextBlock = currentBlock->next; // can get deleted, so save into a variable
@@ -341,6 +332,8 @@ void CMiniMemEmulator::reset()
 	g_active_mem.Reset();
 	g_free_mem.Reset();
 
+	m_parts_drawn = m_total_parts = 0;
+
 	for (hl::MemoryBlockIterator i = m_memory_pool.begin(); i != m_memory_pool.end(); i++)
 	{
 		g_free_mem.Push(*i);
@@ -370,12 +363,6 @@ bool CParticlemanMiniMemEmulation::emulate()
 	if (!CMiniMem__Reset().install()) return false;
 	if (!CMiniMem__PercentUsed().install()) return false;
 
-	// redirect the original instance to our own. This takes care of all of the CMiniMem members, 
-	// such as m_iTotalParticles or m_iParticlesDrawn, and therefore that automatically takes care
-	// or member functions: GetTotalParticles() and GetDrawnParticles(), because they return this data.
-	// Hence, we don't need to detour them.
-	*CMiniMem___instance().get() = (hl::CMiniMem*)instance();
-
 	m_emulated = true;
 	return true;
 }
@@ -393,7 +380,9 @@ void CParticlemanMiniMemEmulation::restore_from_emulation()
 		CConsole::the().info("Removing particleman MiniMem emulation...");
 	}
 
-	CMiniMem___instance().restore();
+	// free memory
+	delete m_instance;
+	m_instance = nullptr;
 
 	CMiniMem__newBlock().uninstall();
 	CMiniMem__ProcessAll().uninstall();
@@ -410,13 +399,12 @@ void CParticlemanMiniMemEmulation::restore_from_emulation()
 CMiniMemEmulator* CParticlemanMiniMemEmulation::instance()
 {
 	// create a singleton instance
-	static CMiniMemEmulator* instance = nullptr;
-	if (!instance)
+	if (!m_instance)
 	{
-		instance = new CMiniMemEmulator(NEW_PART_MEM, sizeof(hl::CCoreTriangleEffect));
+		m_instance = new CMiniMemEmulator(NEW_PART_MEM, sizeof(hl::CCoreTriangleEffect) * 2); // this should be enough for any cstrike particle.
 	}
 
-	return instance;
+	return m_instance;
 }
 
 //--------------------------------------------------------------------------------
@@ -481,6 +469,13 @@ bool CMiniMem__ProcessAll_FnDetour_t::install()
 void CMiniMem__ProcessAll_FnDetour_t::CMiniMem__ProcessAll()
 {
 	CParticlemanMiniMemEmulation::the().instance()->process_all();
+
+	// redirect the original instance to our own. This takes care of all of the CMiniMem members, 
+	// such as m_iTotalParticles or m_iParticlesDrawn, and therefore that automatically takes care
+	// or member functions: GetTotalParticles() and GetDrawnParticles(), because they return this data.
+	// Hence, we don't need to detour them.
+	(*CParticlemanMiniMemEmulation::the().CMiniMem___instance().get())->m_iParticlesDrawn = CParticlemanMiniMemEmulation::the().instance()->m_parts_drawn;
+	(*CParticlemanMiniMemEmulation::the().CMiniMem___instance().get())->m_iTotalParticles = CParticlemanMiniMemEmulation::the().instance()->m_total_parts;
 }
 
 //--------------------------------------------------------------------------------

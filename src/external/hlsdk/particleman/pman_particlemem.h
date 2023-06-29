@@ -150,7 +150,6 @@ private:
     static long m_lMemoryPoolSize;
 public: // HACKHACK: oxware: we need to access this in order to modify the pointer >:D
     static CMiniMem *_instance;
-private:
 	int m_iTotalParticles;
     int m_iParticlesDrawn;
 

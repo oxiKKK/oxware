@@ -45,7 +45,6 @@ bool CMemoryFnDetourMgr::install_hooks()
 	Key_Event().install();
 	Host_Noclip_f().install();
 	ClientDLL_CreateMove().install();
-	_Host_Frame().install();
 	CL_ReallocateDynamicData().install();
 	CL_DeallocateDynamicData().install();
 	MYgluPerspective().install();
@@ -82,6 +81,8 @@ bool CMemoryFnDetourMgr::install_hooks()
 	MakeSkyVec().install();
 	HUD_Frame().install();
 
+	_Host_Frame().install();
+
 	return true;
 }
 
@@ -104,7 +105,6 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	Key_Event().uninstall();
 	Host_Noclip_f().uninstall();
 	ClientDLL_CreateMove().uninstall();
-	_Host_Frame().uninstall();
 	CL_ReallocateDynamicData().uninstall();
 	CL_DeallocateDynamicData().uninstall();
 	MYgluPerspective().uninstall();
@@ -147,6 +147,9 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	MakeSkyVec().uninstall();
 	HUD_Frame().uninstall();
 
+	// must be unloaded at last, because of synchronizated cheat unload. see CEngineSynchronization for more info.
+	_Host_Frame().uninstall();
+
 	m_unloading_hooks_mutex = false;
 }
 
@@ -160,11 +163,6 @@ bool wglSwapBuffers_FnDetour_t::install()
 
 BOOL APIENTRY wglSwapBuffers_FnDetour_t::wglSwapBuffers(HDC hdc)
 {
-	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
-	{
-		return 0;
-	}
-
 	OX_PROFILE_SCOPE("swapbuffers");
 
 	COxWareUI::the().swapbuffers_detour(hdc);
@@ -184,18 +182,13 @@ void APIENTRY glBegin_FnDetour_t::glBegin(GLenum mode)
 {
 	// Note: That detouring functions such as glBegin can be really slow, because of how often they're called.
 
-	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
-	{
-		return;
-	}
-
 	if (!CAntiScreen::the().hide_visuals())
 	{
 		if (CGameUtil::the().is_fully_connected())
 		{
-			if (mode == GL_POLYGON)
+			if (world_visuals_dimlight_world.get_value() && mode == GL_POLYGON)
 			{
-				CWorldVisuals::the().update_gl_begin();
+				CWorldVisuals::the().dim();
 			}
 		}
 	}
@@ -340,7 +333,7 @@ void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::
 	}
 
 	CMemoryFnDetourMgr::the().ClientDLL_CreateMove().call(frametime, cmd, active);
-	
+
 	if (active)
 	{
 		// update if we're alive, connected, etc..
@@ -396,6 +389,17 @@ void _Host_Frame_FnDetour_t::_Host_Frame(float time)
 	{
 		return;
 	}
+
+	// see for connection change
+	static bool was_connected = false;
+	bool is_connected = (CMemoryHookMgr::the().cls()->state == hl::ca_active);
+	if (was_connected != is_connected)
+	{
+		CGameEvents::the().on_connect();
+		was_connected = is_connected;
+	}
+
+	CEngineSynchronization::the().engine_frame();
 
 	// GoldSrc engine frame function. There goes all code that has to work with ingame things.
 	OX_PROFILE_SCOPE("engine_frame");
@@ -568,11 +572,6 @@ bool R_GLStudioDrawPoints_FnDetour_t::install()
 
 void R_GLStudioDrawPoints_FnDetour_t::R_GLStudioDrawPoints()
 {
-	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
-	{
-		return;
-	}
-
 	if (!CAntiScreen::the().hide_visuals())
 	{
 		// function responsible for the actual rendering of the studio model
@@ -606,11 +605,6 @@ bool R_LightLambert_FnDetour_t::install()
 
 void R_LightLambert_FnDetour_t::R_LightLambert(float** light, float *normal, float *src, float *lambert)
 {
-	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
-	{
-		return;
-	}
-
 	// function called inside R_GLStudioDrawPoints() for modifying the color of the rendered model.
 
 	CMemoryFnDetourMgr::the().R_LightLambert().call(light, normal, src, lambert);
@@ -919,11 +913,6 @@ bool R_StudioDrawPlayer_FnDetour_t::install()
 
 int R_StudioDrawPlayer_FnDetour_t::R_StudioDrawPlayer(int flags, hl::entity_state_t* pplayer)
 {
-	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
-	{
-		return CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, pplayer);
-	}
-
 	if (!CAntiScreen::the().hide_visuals())
 	{
 		if (CRemovals::the().remove_player(pplayer->number))
@@ -993,11 +982,6 @@ bool SCR_DrawFPS_FnDetour_t::install()
 
 void SCR_DrawFPS_FnDetour_t::SCR_DrawFPS()
 {
-	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
-	{
-		return;
-	}
-
 	// this is in fact a good place to render custom engine stuff from
 
 	if (!CAntiScreen::the().hide_visuals())
@@ -1140,11 +1124,6 @@ bool CL_ProcessEntityUpdate_FnDetour_t::install()
 
 void CL_ProcessEntityUpdate_FnDetour_t::CL_ProcessEntityUpdate(hl::cl_entity_t* ent)
 {
-	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
-	{
-		return;
-	}
-
 	// called after packet entities are resolved
 
 	CMemoryFnDetourMgr::the().CL_ProcessEntityUpdate().call(ent);
@@ -1199,11 +1178,6 @@ bool HUD_DrawTransparentTriangles_FnDetour_t::install()
 
 void HUD_DrawTransparentTriangles_FnDetour_t::HUD_DrawTransparentTriangles()
 {
-	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
-	{
-		return;
-	}
-
 	CMemoryFnDetourMgr::the().HUD_DrawTransparentTriangles().call();
 
 	auto iparticleman = CHLInterfaceHook::the().IParticleMan();
@@ -1227,9 +1201,9 @@ void MakeSkyVec_FnDetour_t::MakeSkyVec(float s, float t, int axis)
 
 	if (!CAntiScreen::the().hide_visuals())
 	{
-		if (CGameUtil::the().is_fully_connected())
+		if (world_visuals_dimlight_sky.get_value() && CGameUtil::the().is_fully_connected())
 		{
-			CWorldVisuals::the().update_gl_begin();
+			CWorldVisuals::the().dim();
 		}
 	}
 

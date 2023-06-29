@@ -109,12 +109,12 @@ void CInCommands::update_activation_conditions()
 	if (CGameUtil::the().is_fully_connected())
 	{
 		m_activation_conditions_for_this_frame |= IN_ACTCOND_Connected;
-	}
 
-	auto local = CEntityMgr::the().get_local_player();
-	if (local && local->is_valid() && local->is_alive())
-	{
-		m_activation_conditions_for_this_frame |= IN_ACTCOND_Alive;
+		auto local = CEntityMgr::the().get_local_player();
+		if (local && local->is_valid() && local->is_alive())
+		{
+			m_activation_conditions_for_this_frame |= IN_ACTCOND_Alive;
+		}
 	}
 }
 

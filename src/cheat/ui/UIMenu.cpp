@@ -601,6 +601,15 @@ void CUIMenu::tab_world()
 				&world_visuals_enable,
 				[]()
 				{
+					if (g_gui_widgets_i->begin_columns("world_visuals", 2))
+					{
+						g_gui_widgets_i->goto_next_column();
+						CUIMenuWidgets::the().add_checkbox("On sky", &world_visuals_dimlight_sky);
+						g_gui_widgets_i->goto_next_column();
+						CUIMenuWidgets::the().add_checkbox("On world", &world_visuals_dimlight_world);
+
+						g_gui_widgets_i->end_columns();
+					}
 					CUIMenuWidgets::the().add_slider("Dimlight", "%0.0f %%", &world_visuals_dimlight, NULL, "off");
 
 					CUIMenuWidgets::the().add_checkbox("Rainbow world", &world_visuals_rainbow);

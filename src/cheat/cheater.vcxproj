@@ -285,6 +285,7 @@
     <ClCompile Include="util\EngineInputManager.cpp" />
     <ClCompile Include="util\EngineRendering.cpp" />
     <ClCompile Include="util\EngineSoundPlayer.cpp" />
+    <ClCompile Include="util\EngineSpeedControl.cpp" />
     <ClCompile Include="util\GameUtil.cpp" />
     <ClCompile Include="util\GoldSrcCommandManager.cpp" />
     <ClCompile Include="util\GoldSrcMungificationAlgorigthms.cpp" />
@@ -379,6 +380,7 @@
     <ClInclude Include="util\EngineInputManager.h" />
     <ClInclude Include="util\EngineRendering.h" />
     <ClInclude Include="util\EngineSoundPlayer.h" />
+    <ClInclude Include="util\EngineSpeedControl.h" />
     <ClInclude Include="util\GameUtil.h" />
     <ClInclude Include="util\GoldSrcCommandManager.h" />
     <ClInclude Include="util\GoldSrcMungificationAlgorigthms.h" />

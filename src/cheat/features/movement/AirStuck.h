@@ -30,8 +30,8 @@
 #define AIRSTUCK_H
 #pragma once
 
-extern VarBoolean movement_air_stuck_enable;
-extern VarInteger movement_air_stuck_intensity;
+extern VarFloat movement_air_stuck_intensity;
+extern VarInteger movement_air_stuck_type;
 
 class CMovementAirStuck
 {

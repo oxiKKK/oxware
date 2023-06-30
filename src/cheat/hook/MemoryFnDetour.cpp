@@ -353,12 +353,9 @@ void CL_CreateMove_FnDetour_t::CL_CreateMove(float frametime, hl::usercmd_t *cmd
 
 		if (!CGameUtil::the().is_spectator())
 		{
-			// reset this crap back to it's original state.
-			// TODO: Find a better way of doing this kind of speedhack, i think that modifying the multiplier 
-			//       in CL_Move and CL_RunUsercmd would create the same effect...
-			CGameUtil::the().classic_cs16_cheating_scene_speedhack(1.0);
-
 			CClientMovementPacket::the().update_clientmove(cmd);
+
+			CEngineSpeedControl::the().update();
 
 			if (COxWareUI::the().should_disable_ingame_input())
 			{

@@ -317,6 +317,9 @@
     <ClCompile Include="game\GameEvents.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
+    <ClCompile Include="util\EngineSpeedControl.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -580,6 +583,9 @@
     </ClInclude>
     <ClInclude Include="game\GameEvents.h">
       <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="util\EngineSpeedControl.h">
+      <Filter>src\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

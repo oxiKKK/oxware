@@ -73,7 +73,6 @@ void CMovementEdgeBug::update(float frametime)
 	//
 
 	float intensity = movement_eb_intensity.get_value();
-	CGameUtil::the().classic_cs16_cheating_scene_speedhack(35.0f * intensity);
-	CConsole::the().info("hit");
+	CEngineSpeedControl::the().classic_cs16_cheating_scene_speedhack(35.0f * intensity);
 }
 

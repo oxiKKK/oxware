@@ -544,6 +544,36 @@ void CUIMenu::tab_world()
 				CUIMenuWidgets::the().add_checkbox("Auto zoom", &auto_zoom);
 			});
 
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+			"Speed control", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().feature_enabled_section(
+				&speed_control_enable,
+				[]()
+				{
+					if (g_gui_widgets_i->begin_columns("speed_control", 2))
+					{
+						g_gui_widgets_i->goto_next_column();
+						CUIMenuWidgets::the().add_checkbox("Invert", &speed_control_invert);
+
+						g_gui_widgets_i->goto_next_column();
+						CUIMenuWidgets::the().add_checkbox("Negative", &speed_control_negative);
+
+						g_gui_widgets_i->end_columns();
+					}
+
+					g_gui_widgets_i->add_text("Engine");
+					CUIMenuWidgets::the().add_slider_nolabel("Amount", "%0.1f", &speed_control_amount_engine, "off");
+
+					g_gui_widgets_i->add_text("Server");
+					CUIMenuWidgets::the().add_slider_nolabel("Amount##1", "%0.0f", &speed_control_amount_server, "off");
+
+					g_gui_widgets_i->add_text("Net");
+					CUIMenuWidgets::the().add_slider_nolabel("Amount##2", "%0.01f", &speed_control_amount_net, "off");
+				});
+			});
+
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
@@ -1184,14 +1214,17 @@ void CUIMenu::tab_movement()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Air stuck", CMenuStyle::calc_child_size(90), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Air stuck", CMenuStyle::calc_child_size(150), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section_incommands(
 				&CMovement::the().airstuck,
 				[]()
 				{
-					CUIMenuWidgets::the().add_slider("Intensity", "%0.0f", &movement_air_stuck_intensity, "froze");
+					g_gui_widgets_i->add_text("Intensity");
+					CUIMenuWidgets::the().add_slider_nolabel("Intensity", "%0.2f", &movement_air_stuck_intensity, "froze");
+
+					CUIMenuWidgets::the().add_listbox("Type", &movement_air_stuck_type, { "Server speedhack", "Engine speedhack" });
 				});
 			});
 
@@ -1227,7 +1260,7 @@ void CUIMenu::tab_movement()
 					&movement_gs_mode_noslowdown,
 					[]()
 					{
-						CUIMenuWidgets::the().add_listbox("Method##nsdn", &movement_gs_mode_noslowdown_method, { "Server speedhack", "Engine speedhack" });
+						CUIMenuWidgets::the().add_listbox("Method##nsdn", &movement_gs_mode_noslowdown_method, { "Server speedhack", "Engine speedhack", });
 
 						g_gui_widgets_i->add_spacing();
 

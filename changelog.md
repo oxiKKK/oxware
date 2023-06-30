@@ -153,6 +153,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Improved world dimlight to affect sky as well.
 - Added world fog.
 - Added support for 3266 CS! 🥳
+- Improved AirStuck.
 
 ## Bugfixes
 

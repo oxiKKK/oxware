@@ -131,11 +131,11 @@ public:
 	// class that derives from this has to override these.
 	virtual void set_from_string(const std::string& new_value)
 	{
-		assert(0 && "You have to override this function from your class! (" __FUNCTION__ ")");
+		assert(0 && "You have to override this function from your class! (set_from_string)");
 	}
 	virtual void set_from_string(const std::string& new_value, bool& ok)
 	{
-		assert(0 && "You have to override this function from your class! (" __FUNCTION__ ")(2)");
+		assert(0 && "You have to override this function from your class! (set_from_string)(2)");
 	}
 
 	struct less
@@ -303,6 +303,25 @@ public:
 			m_value = v;
 			m_value_string = new_value;
 			clamp_value_if_needed();
+		}
+	}
+
+	void clamp_value_if_needed() override
+	{
+		if (!m_has_bounds)
+		{
+			return;
+		}
+
+		if (m_value < m_min)
+		{
+			m_value = m_min;
+			m_value_string = T_to_string(m_min);
+		}
+		else if (m_value > m_max)
+		{
+			m_value = m_max;
+			m_value_string = T_to_string(m_max);
 		}
 	}
 

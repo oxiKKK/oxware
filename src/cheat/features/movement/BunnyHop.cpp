@@ -297,12 +297,12 @@ void CMovementBunnyHop::nsdn_speedhack()
 		case BHOPNSDN_ServerSpeed:
 		{
 			int speed = std::max((10 - (factor - 1)), 0);
-			CClientMovementPacket::the().svside_movement_speed_factor(speed);
+			CEngineSpeedControl::the().server_speedhack(speed);
 			break;
 		}
 		case BHOPNSDN_EngineSpeed:
 		{
-			CGameUtil::the().classic_cs16_cheating_scene_speedhack(((double)(10 - (factor - 1)) / 4.0) / 10.0);
+			CEngineSpeedControl::the().classic_cs16_cheating_scene_speedhack(((double)(10 - (factor - 1)) / 4.0) / 10.0);
 			break;
 		}
 	}

@@ -253,6 +253,7 @@ namespace hl
 #include "util/GoldSrcCommandManager.h"
 #include "util/parsemsg.h"
 #include "util/EngineSoundPlayer.h"
+#include "util/EngineSpeedControl.h"
 
 // game
 #include "game/model/StudioModelData.h"

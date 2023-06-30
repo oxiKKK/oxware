@@ -28,10 +28,23 @@
 
 #include "precompiled.h"
 
-VarInteger movement_air_stuck_intensity("movement_air_stuck_intensity", "Determines how \"froze\" you will be", 0, 0, 5);
+VarFloat movement_air_stuck_intensity("movement_air_stuck_intensity", "Determines how \"froze\" you will be", 0.0f, 0.0f, 2.5f);
+VarInteger movement_air_stuck_type("movement_air_stuck_type", "Type of the speedhack that will be used", 0, 0, 1);
 
 void CMovementAirStuck::update()
 {
 	// override previous value.
-	CClientMovementPacket::the().svside_movement_speed_factor(movement_air_stuck_intensity.get_value(), true);
+	switch (movement_air_stuck_type.get_value())
+	{
+		case 0: // server
+		{
+			CClientMovementPacket::the().svside_movement_speed_factor((int)(std::floor(movement_air_stuck_intensity.get_value())), true);
+			break;
+		}
+		case 1: // engine
+		{
+			CEngineSpeedControl::the().classic_cs16_cheating_scene_speedhack(movement_air_stuck_intensity.get_value());
+			break;
+		}
+	}
 }

@@ -101,9 +101,6 @@ public:
 	// replica of CL_RecordHUDCommand
 	void record_hud_command(const char* cmdname);
 
-	// see the function definition for more information :-)
-	void classic_cs16_cheating_scene_speedhack(double new_speed);
-
 	// equivalent to Cmd_TokenizeString()
 	std::vector<std::string> tokenize_goldsrc_command(const char* text);
 

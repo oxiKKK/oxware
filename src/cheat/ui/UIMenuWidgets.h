@@ -63,6 +63,8 @@ public:
 	// additions for incommands, since they use different checkbox widget
 	void feature_enabled_section_incommands(BaseInCommand* in_cmd, const std::function<void()>& callback, const std::string& title = "Enable", bool see_if_enabled = true);
 
+	void section_unavailable_for_builds(int build_num_start, int build_num_end, const std::string& avalable, const std::function<void()>& callback);
+
 private:
 	void handle_widget_hover(BaseVariable* var);
 

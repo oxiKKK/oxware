@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{ca63dc75-9cae-4c66-9408-64f4fe08281e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{dda144dd-29c0-4ee9-add0-e30e68e319d0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="precompiled.cpp" />
+    <ClCompile Include="blob_algorithm.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="decrypt.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="gsdecrypt.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="pe_builder.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\Console.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="precompiled.h" />
+    <ClInclude Include="blob_algorithm.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="decrypt.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="pe_builder.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Console.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\gsdecrypt\gsdecrypt.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

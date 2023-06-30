@@ -99,6 +99,9 @@ public:
 	virtual void push_disabled() = 0;
 	virtual void pop_disabled() = 0;
 
+	virtual void begin_group() = 0;
+	virtual void end_group() = 0;
+
 	virtual void push_stylevar(ImGuiStyleVar idx, float val) = 0;
 	virtual void push_stylevar(ImGuiStyleVar idx, const Vector2D& val) = 0;
 	virtual void pop_stylevar(size_t amount = 1) = 0;
@@ -168,6 +171,7 @@ public:
 
 	virtual void add_readmore_on_hover_widget(const char* text) = 0;
 	virtual void add_readmore_on_hover_widget_ex(const std::function<void()>& callback) = 0;
+	virtual void dialog_on_hover_widget(const std::function<void()>& callback) = 0;
 
 	virtual void add_progress_bar(const std::string& id, const Vector2D& size, float current, float max) = 0;
 

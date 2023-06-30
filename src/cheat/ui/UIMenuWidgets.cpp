@@ -354,6 +354,36 @@ void CUIMenuWidgets::feature_enabled_section_incommands(BaseInCommand* in_cmd, c
 	}
 }
 
+void CUIMenuWidgets::section_unavailable_for_builds(int build_num_start, int build_num_end, const std::string& avalable, const std::function<void()>& callback)
+{
+	int current_bn = CoXWARE::the().get_build_number();
+
+	bool disabled = current_bn >= build_num_start && current_bn <= build_num_end;
+
+	if (disabled)
+	{
+		g_gui_widgets_i->begin_group();
+
+		g_gui_widgets_i->push_disabled();
+	}
+
+	callback();
+
+	if (disabled)
+	{
+		g_gui_widgets_i->pop_disabled();
+
+		g_gui_widgets_i->end_group();
+
+		g_gui_widgets_i->dialog_on_hover_widget(
+			[&]()
+			{
+				g_gui_widgets_i->add_text(
+					std::format("Feature unavailable on current engine build.\nOnly avalable for {}, and your build is {}.", avalable, current_bn));
+			});
+	}
+}
+
 void CUIMenuWidgets::handle_widget_hover(BaseVariable* var)
 {
 	if (g_gui_widgets_i->is_last_widget_hovered())

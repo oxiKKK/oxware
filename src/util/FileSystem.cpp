@@ -330,18 +330,38 @@ void CFileSystem::iterate_through_files(const FilePath_t& directory, bool recurs
 
 FilePath_t CFileSystem::locate_halflife_dir()
 {
-	const char* path = g_registry_i->read_string(REG_STEAM, "SteamPath");
-	if (!path)
+	uintptr_t base;
+	PLDR_DATA_TABLE_ENTRY ldr_data;
+
+	ldr_data = g_libloader_i->get_target_loaded_dll_data_table_entry(L"hl.exe");
+	if (ldr_data == NULL)
 	{
-		assert(0);
-		return {};
+		ldr_data = g_libloader_i->get_target_loaded_dll_data_table_entry(L"cstrike.exe");
 	}
 
-	// TODO: Parse 'libraryfolders.vdf' inside 'steamapps/'. There are directories to 
-	//		 more steamapps/ directories, if any.
-
 	FilePath_t halflife_dir;
-	halflife_dir = FilePath_t(path + std::string("/steamapps/common/Half-Life/"));
+
+	if (ldr_data)
+	{
+		halflife_dir = CStringTools::the().unicode_to_utf8(ldr_data->FullDllName.Buffer);
+		halflife_dir = halflife_dir.parent_path();
+	}
+	else
+	{
+		// locate it using steam
+		const char* path = g_registry_i->read_string(REG_STEAM, "SteamPath");
+		if (!path)
+		{
+			assert(0);
+			return {};
+		}
+
+		// TODO: Parse 'libraryfolders.vdf' inside 'steamapps/'. There are directories to 
+		//		 more steamapps/ directories, if any.
+
+		halflife_dir = FilePath_t(path + std::string("\\steamapps\\common\\Half-Life\\"));
+	}
+
 	return halflife_dir;
 }
 

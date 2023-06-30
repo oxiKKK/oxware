@@ -94,7 +94,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -124,7 +124,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -154,7 +154,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

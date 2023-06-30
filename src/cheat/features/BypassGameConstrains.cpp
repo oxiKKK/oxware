@@ -171,6 +171,7 @@ void CForceEnableDisabled::save_renderer_cvars()
 	prev_gl_max_size = CGoldSrcCommandMgr::the().get_cvar("gl_max_size")->value;
 	prev_gl_polyoffset = CGoldSrcCommandMgr::the().get_cvar("gl_polyoffset")->value;
 	prev_r_drawentities = CGoldSrcCommandMgr::the().get_cvar("r_drawentities")->value;
+	prev_lightgamma = CGoldSrcCommandMgr::the().get_cvar("lightgamma")->value;
 }
 
 void CForceEnableDisabled::restore_renderer_cvars()
@@ -188,5 +189,5 @@ void CForceEnableDisabled::restore_renderer_cvars()
 	CGoldSrcCommandMgr::the().get_cvar("gl_max_size")->value = prev_gl_max_size;
 	CGoldSrcCommandMgr::the().get_cvar("gl_polyoffset")->value = prev_gl_polyoffset;
 	CGoldSrcCommandMgr::the().get_cvar("r_drawentities")->value = prev_r_drawentities;
-
+	CGoldSrcCommandMgr::the().get_cvar("lightgamma")->value = prev_lightgamma;
 }

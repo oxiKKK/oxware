@@ -105,6 +105,7 @@ CBytePatternBank::CBytePatternBank()
 	// If you add a new build, you need to register it here!!!
 	m_supported_builds.insert(8684);
 	m_supported_builds.insert(4554);
+	m_supported_builds.insert(3266);
 }
 
 CBytePatternBank::~CBytePatternBank()
@@ -176,8 +177,9 @@ void CBytePatternBank::decide_on_build_container()
 		// we have the exact build available, choose it
 		switch (m_current_build)
 		{
-			case 8684: m_active_bytepattern_container = &bytepattern_conainter_8684; break;
-			case 4554: m_active_bytepattern_container = &bytepattern_conainter_4554; break;
+			case 8684: m_active_bytepattern_container = &bytepattern_container_8684; break;
+			case 4554: m_active_bytepattern_container = &bytepattern_container_4554; break;
+			case 3266: m_active_bytepattern_container = &bytepattern_container_3266; break;
 		}
 	}
 	else

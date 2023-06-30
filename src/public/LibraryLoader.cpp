@@ -57,11 +57,15 @@ public:
 	bool register_manualmapped_module(const wchar_t* module_name, uintptr_t base_address);
 	void remove_manualmapped_module(const wchar_t* module_name);
 
+	bool register_encrypted_module(const wchar_t* module_name, reconstructed_blob_module_info_t blob_info);
+	void remove_encrypted_module(const wchar_t* module_name);
+
 	void* find_proc_in_target_library(const wchar_t* library_name, const char* proc_name);
 	void* find_proc_in_target_library(uintptr_t library_base_addr, const char* proc_name);
 	void* find_proc_in_target_library(uintptr_t library_base_addr, uint16_t ordinal);
 
 	uintptr_t get_target_loaded_dll_base_address(const wchar_t* library_name);
+	PLDR_DATA_TABLE_ENTRY get_target_loaded_dll_data_table_entry(const wchar_t* library_name);
 
 	std::pair<uintptr_t, uintptr_t> get_loaded_dll_address_space(const wchar_t* library_name, EAddressSpaceSearch settings = SPACE_FULL);
 
@@ -91,7 +95,7 @@ private:
 	void* find_proc_in_target_manualmapped_library(uintptr_t library_base_addr, const char* proc_name);
 	void* find_proc_in_target_manualmapped_library(uintptr_t library_base_addr, uint16_t ordinal);
 
-	void for_each_exported_name(uintptr_t library_base_addr, const std::function<void(uintptr_t address, const std::string& name, uint16_t ordinal, PIMAGE_DATA_DIRECTORY idd)>& callback);
+	void for_each_exported_name(uintptr_t library_base_addr, const std::function<void(uintptr_t rva, const std::string& name, uint16_t ordinal, PIMAGE_DATA_DIRECTORY idd)>& callback);
 
 	void* handle_forwarded_export_entry(const std::string& forwarded_name);
 
@@ -177,6 +181,52 @@ private:
 		return nullptr;
 	}
 
+	//
+	// encrypted modules
+	//
+
+	// since encrypted modules aren't normally visible (e.g. they're not in PEB), we
+	// have to detect if the module is encrypted and then decrypt it and load into our memory.
+	struct encrypted_module_information_t
+	{
+		std::wstring					 m_module_name = {};
+		reconstructed_blob_module_info_t m_reconstructed;
+
+		inline bool operator==(const wchar_t* name) const { return !wcsicmp(m_module_name.c_str(), name); };
+		inline bool operator!=(const wchar_t* name) const { return wcsicmp(m_module_name.c_str(), name); };
+	};
+	std::vector<encrypted_module_information_t> m_encrypted_modules_info;
+
+	inline bool is_module_encrypted(const wchar_t* library_name)
+	{
+		return find_encrypted_module(library_name) != nullptr;
+	}
+
+	inline bool is_module_encrypted(uintptr_t library_base_address)
+	{
+		return find_encrypted_module(library_base_address) != nullptr;
+	}
+
+	inline encrypted_module_information_t* find_encrypted_module(const wchar_t* library_name)
+	{
+		for (auto& m : m_encrypted_modules_info)
+		{
+			if (m.m_module_name == library_name)
+				return &m;
+		}
+		return nullptr;
+	}
+
+	inline encrypted_module_information_t* find_encrypted_module(uintptr_t library_base_address)
+	{
+		for (auto& m : m_encrypted_modules_info)
+		{
+			if (m.m_reconstructed.opt().ImageBase == library_base_address)
+				return &m;
+		}
+		return nullptr;
+	}
+
 	bool m_initialized = false;
 };
 
@@ -254,13 +304,13 @@ bool CLibraryLoader::register_manualmapped_module(const wchar_t* module_name, ui
 	m.m_module_name = module_name;
 	m.m_base_address = base_address;
 
-	for_each_exported_name(m.m_base_address, [&](uintptr_t address, const std::string& name, uint16_t ordinal, PIMAGE_DATA_DIRECTORY idd)
+	for_each_exported_name(m.m_base_address, [&](uintptr_t rva, const std::string& name, uint16_t ordinal, PIMAGE_DATA_DIRECTORY idd)
 	{
 		manualmapped_module_information_t::module_export_t e;
 
 		e.m_procname = name;
 		e.m_ordinal = ordinal;
-		e.m_address = base_address + address;
+		e.m_address = base_address + rva;
 		m.m_exports.emplace_back(e);
 	});
 
@@ -272,6 +322,22 @@ bool CLibraryLoader::register_manualmapped_module(const wchar_t* module_name, ui
 void CLibraryLoader::remove_manualmapped_module(const wchar_t* module_name)
 {
 	m_mapped_info.erase(std::remove(m_mapped_info.begin(), m_mapped_info.end(), module_name), m_mapped_info.end());
+}
+
+bool CLibraryLoader::register_encrypted_module(const wchar_t* module_name, reconstructed_blob_module_info_t blob_info)
+{
+	encrypted_module_information_t m;
+	m.m_module_name = module_name;
+	m.m_reconstructed = blob_info;
+
+	m_encrypted_modules_info.emplace_back(m);
+
+	return true;
+}
+
+void CLibraryLoader::remove_encrypted_module(const wchar_t * module_name)
+{
+	m_encrypted_modules_info.erase(std::remove(m_encrypted_modules_info.begin(), m_encrypted_modules_info.end(), module_name), m_encrypted_modules_info.end());
 }
 
 void* CLibraryLoader::find_proc_in_target_library(const wchar_t* library_name, const char* proc_name)
@@ -290,7 +356,7 @@ void* CLibraryLoader::find_proc_in_target_library(const wchar_t* library_name, c
 void* CLibraryLoader::find_proc_in_target_library(uintptr_t library_base_addr, const char* proc_name)
 {
 	void* pfn_routine = nullptr;
-	for_each_exported_name(library_base_addr, [&](uintptr_t address, const std::string& name, uint16_t ordinal, PIMAGE_DATA_DIRECTORY idd)
+	for_each_exported_name(library_base_addr, [&](uintptr_t rva, const std::string& name, uint16_t ordinal, PIMAGE_DATA_DIRECTORY idd)
 	{
 		if (!stricmp(name.c_str(), proc_name))
 		{
@@ -299,17 +365,17 @@ void* CLibraryLoader::find_proc_in_target_library(uintptr_t library_base_addr, c
 			// each exported function has its own ordinal, which we can access it through.
 			//
 
-			bool is_forwarded = (address >= idd->VirtualAddress) &&
-				(address < idd->VirtualAddress + idd->Size);
+			bool is_forwarded = (rva >= idd->VirtualAddress) &&
+				(rva < idd->VirtualAddress + idd->Size);
 
 			if (!is_forwarded)
 			{
-				pfn_routine = reinterpret_cast<uintptr_t*>((uint8_t*)library_base_addr + address); // Note: Without the ordinal base!
+				pfn_routine = reinterpret_cast<uintptr_t*>((uint8_t*)library_base_addr + rva); // Note: Without the ordinal base!
 				return;
 			}
 			else
 			{
-				std::string forwarded_name = reinterpret_cast<const char*>((uint8_t*)library_base_addr + address);
+				std::string forwarded_name = reinterpret_cast<const char*>((uint8_t*)library_base_addr + rva);
 				pfn_routine = handle_forwarded_export_entry(forwarded_name);
 				return;
 			}
@@ -328,7 +394,7 @@ void* CLibraryLoader::find_proc_in_target_library(uintptr_t library_base_addr, c
 void* CLibraryLoader::find_proc_in_target_library(uintptr_t library_base_addr, uint16_t ordinal)
 {
 	void* pfn_routine = nullptr;
-	for_each_exported_name(library_base_addr, [&](uintptr_t address, const std::string& name, uint16_t ord, PIMAGE_DATA_DIRECTORY idd)
+	for_each_exported_name(library_base_addr, [&](uintptr_t rva, const std::string& name, uint16_t ord, PIMAGE_DATA_DIRECTORY idd)
 	{
 		if (ord == ordinal)
 		{
@@ -337,17 +403,17 @@ void* CLibraryLoader::find_proc_in_target_library(uintptr_t library_base_addr, u
 			// each exported function has its own ordinal, which we can access it through.
 			//
 
-			bool is_forwarded = (address >= idd->VirtualAddress) &&
-				(address < idd->VirtualAddress + idd->Size);
+			bool is_forwarded = (rva >= idd->VirtualAddress) &&
+				(rva < idd->VirtualAddress + idd->Size);
 
 			if (!is_forwarded)
 			{
-				pfn_routine = reinterpret_cast<uintptr_t*>((uint8_t*)library_base_addr + address); // Note: Without the ordinal base!
+				pfn_routine = reinterpret_cast<uintptr_t*>((uint8_t*)library_base_addr + rva); // Note: Without the ordinal base!
 				return;
 			}
 			else
 			{
-				std::string forwarded_name = reinterpret_cast<const char*>((uint8_t*)library_base_addr + address);
+				std::string forwarded_name = reinterpret_cast<const char*>((uint8_t*)library_base_addr + rva);
 				pfn_routine = handle_forwarded_export_entry(forwarded_name);
 				return;
 			}
@@ -364,6 +430,32 @@ void* CLibraryLoader::find_proc_in_target_library(uintptr_t library_base_addr, u
 }
 
 uintptr_t CLibraryLoader::get_target_loaded_dll_base_address(const wchar_t* library_name)
+{
+	auto returned_entry = get_target_loaded_dll_data_table_entry(library_name);
+
+	if (returned_entry != NULL)
+	{
+		return (uintptr_t)returned_entry->DllBase;
+	}
+
+	// let's see our manual mapped modules, too
+	auto mmapped = find_manualmapped_module(library_name);
+	if (mmapped)
+	{
+		return mmapped->m_base_address;
+	}
+
+	// not manual mapped? let's see if encrypted
+	auto encrypted = find_encrypted_module(library_name);
+	if (encrypted)
+	{
+		return encrypted->m_reconstructed.opt().ImageBase;
+	}
+
+	return NULL; // :/
+}
+
+PLDR_DATA_TABLE_ENTRY CLibraryLoader::get_target_loaded_dll_data_table_entry(const wchar_t * library_name)
 {
 	auto peb = NtCurrentTeb()->ProcessEnvironmentBlock;
 
@@ -391,52 +483,64 @@ uintptr_t CLibraryLoader::get_target_loaded_dll_base_address(const wchar_t* libr
 		front_link = front_link->Flink;
 	} while (front_link != topmost_entry);
 
-	if (returned_entry != NULL)
-	{
-		return (uintptr_t)returned_entry->DllBase;
-	}
-
-	// let's see our manual mapped modules, too
-	auto module = find_manualmapped_module(library_name);
-	if (module)
-	{
-		return module->m_base_address;
-	}
-
-	return NULL; // :/
+	return returned_entry;
 }
 
 std::pair<uintptr_t, uintptr_t> CLibraryLoader::get_loaded_dll_address_space(const wchar_t* library_name, EAddressSpaceSearch settings)
 {
-	uintptr_t start = get_target_loaded_dll_base_address(library_name);
-	if (!start)
+	auto encrypted = find_encrypted_module(library_name);
+	if (encrypted != nullptr)
 	{
-		return {};
-	}
+		uintptr_t start = encrypted->m_reconstructed.opt().ImageBase;
 
-	// Every module has a DOS header at the beginning of its address space.
-	auto dos = reinterpret_cast<PIMAGE_DOS_HEADER>(start);
-	if (!dos)
-		return {};
-
-	// NT header is located via the e_lfanew member inside DOS.
-	auto nt_hdrs = reinterpret_cast<PIMAGE_NT_HEADERS>((uint8_t*)start + dos->e_lfanew);
-	if (!nt_hdrs)
-		return {};
-
-	switch (settings)
-	{
-		default:
-		case SPACE_FULL:
+		switch (settings)
 		{
-			uintptr_t end = start + nt_hdrs->OptionalHeader.SizeOfImage;
-			return std::make_pair(start, end);
+			default:
+			case SPACE_FULL:
+			{
+				uintptr_t end = start + encrypted->m_reconstructed.opt().SizeOfImage;
+				return std::make_pair(start, end);
+			}
+			case SPACE_CODE:
+			{
+				start = start + encrypted->m_reconstructed.opt().BaseOfCode;
+				uintptr_t end = start + encrypted->m_reconstructed.opt().SizeOfCode;
+				return std::make_pair(start, end);
+			}
 		}
-		case SPACE_CODE:
+	}
+	else
+	{
+		uintptr_t start = get_target_loaded_dll_base_address(library_name);
+		if (!start)
 		{
-			start = start + nt_hdrs->OptionalHeader.BaseOfCode;
-			uintptr_t end = start + nt_hdrs->OptionalHeader.SizeOfCode;
-			return std::make_pair(start, end);
+			return {};
+		}
+
+		// Every module has a DOS header at the beginning of its address space.
+		auto dos = reinterpret_cast<PIMAGE_DOS_HEADER>(start);
+		if (!dos)
+			return {};
+
+		// NT header is located via the e_lfanew member inside DOS.
+		auto nt_hdrs = reinterpret_cast<PIMAGE_NT_HEADERS>((uint8_t*)start + dos->e_lfanew);
+		if (!nt_hdrs)
+			return {};
+
+		switch (settings)
+		{
+			default:
+			case SPACE_FULL:
+			{
+				uintptr_t end = start + nt_hdrs->OptionalHeader.SizeOfImage;
+				return std::make_pair(start, end);
+			}
+			case SPACE_CODE:
+			{
+				start = start + nt_hdrs->OptionalHeader.BaseOfCode;
+				uintptr_t end = start + nt_hdrs->OptionalHeader.SizeOfCode;
+				return std::make_pair(start, end);
+			}
 		}
 	}
 }
@@ -617,36 +721,49 @@ void* CLibraryLoader::find_proc_in_target_manualmapped_library(uintptr_t library
 }
 
 void CLibraryLoader::for_each_exported_name(uintptr_t library_base_addr,
-											const std::function<void(uintptr_t address, const std::string& name, uint16_t ordinal, PIMAGE_DATA_DIRECTORY idd)>& callback)
+											const std::function<void(uintptr_t rva, const std::string& name, uint16_t ordinal, PIMAGE_DATA_DIRECTORY idd)>& callback)
 {
-	// Every module has a DOS header at the beginning of its address space.
-	auto dos = reinterpret_cast<PIMAGE_DOS_HEADER>(library_base_addr);
-	if (!dos)
-		return;
-
-	// NT header is located via the e_lfanew member inside DOS.
-	auto nt_hdrs = reinterpret_cast<PIMAGE_NT_HEADERS>((uint8_t*)library_base_addr + dos->e_lfanew);
-	if (!nt_hdrs)
-		return;
-
-	// Get the data directory for exports from optional header located inside NT header.
-	auto exports_data_directory = &nt_hdrs->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
-	if (!exports_data_directory->Size || !exports_data_directory->VirtualAddress)
-		return;
-
-	// Individual export addresses we need are located in this data structure.
-	auto exports_directory = reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>((uint8_t*)library_base_addr + exports_data_directory->VirtualAddress);
-	if (!exports_directory)
-		return;
-
-	auto function_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)library_base_addr + exports_directory->AddressOfFunctions);
-	auto name_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)library_base_addr + exports_directory->AddressOfNames);
-	auto ordinal_table_base = reinterpret_cast<uint16_t*>((uint8_t*)library_base_addr + exports_directory->AddressOfNameOrdinals);
-
-	for (size_t i = 0; i < exports_directory->NumberOfNames; i++)
+	auto encrypted = find_encrypted_module(library_base_addr);
+	if (encrypted != nullptr)
 	{
-		auto export_procname = reinterpret_cast<const char*>((uint8_t*)library_base_addr + name_table_base[i]);
-		callback(function_table_base[ordinal_table_base[i]], export_procname, ordinal_table_base[i], exports_data_directory);
+		auto idd = &encrypted->m_reconstructed.opt().DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+		uintptr_t base = encrypted->m_reconstructed.opt().ImageBase;
+		for (auto& ex : encrypted->m_reconstructed.m_exports)
+		{
+			callback(ex.va - base, ex.fn_name, ex.ordinal, (PIMAGE_DATA_DIRECTORY)idd);
+		}
+	}
+	else
+	{
+		// Every module has a DOS header at the beginning of its address space.
+		auto dos = reinterpret_cast<PIMAGE_DOS_HEADER>(library_base_addr);
+		if (!dos)
+			return;
+
+		// NT header is located via the e_lfanew member inside DOS.
+		auto nt_hdrs = reinterpret_cast<PIMAGE_NT_HEADERS>((uint8_t*)library_base_addr + dos->e_lfanew);
+		if (!nt_hdrs)
+			return;
+
+		// Get the data directory for exports from optional header located inside NT header.
+		auto exports_data_directory = &nt_hdrs->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+		if (!exports_data_directory->Size || !exports_data_directory->VirtualAddress)
+			return;
+
+		// Individual export addresses we need are located in this data structure.
+		auto exports_directory = reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>((uint8_t*)library_base_addr + exports_data_directory->VirtualAddress);
+		if (!exports_directory)
+			return;
+
+		auto function_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)library_base_addr + exports_directory->AddressOfFunctions);
+		auto name_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)library_base_addr + exports_directory->AddressOfNames);
+		auto ordinal_table_base = reinterpret_cast<uint16_t*>((uint8_t*)library_base_addr + exports_directory->AddressOfNameOrdinals);
+
+		for (size_t i = 0; i < exports_directory->NumberOfNames; i++)
+		{
+			auto export_procname = reinterpret_cast<const char*>((uint8_t*)library_base_addr + name_table_base[i]);
+			callback(function_table_base[ordinal_table_base[i]], export_procname, ordinal_table_base[i], exports_data_directory);
+		}
 	}
 }
 

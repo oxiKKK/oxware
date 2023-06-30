@@ -35,6 +35,8 @@
 
 #include "ifilesystem.h"
 
+#include <gsdecrypt/gsdecrypt.h>
+
 enum EAddressSpaceSearch
 {
 	SPACE_FULL,
@@ -49,10 +51,14 @@ public:
 	virtual bool register_manualmapped_module(const wchar_t* module_name, uintptr_t base_address) = 0;
 	virtual void remove_manualmapped_module(const wchar_t* module_name) = 0;
 
+	virtual bool register_encrypted_module(const wchar_t* module_name, reconstructed_blob_module_info_t blob_info) = 0;
+	virtual void remove_encrypted_module(const wchar_t* module_name) = 0;
+
 	virtual void* find_proc_in_target_library(const wchar_t* library_name, const char* proc_name) = 0;
 	virtual void* find_proc_in_target_library(uintptr_t library_base_addr, const char* proc_name) = 0;
 
 	virtual uintptr_t get_target_loaded_dll_base_address(const wchar_t* library_name) = 0;
+	virtual PLDR_DATA_TABLE_ENTRY get_target_loaded_dll_data_table_entry(const wchar_t* library_name) = 0;
 
 	virtual std::pair<uintptr_t, uintptr_t> get_loaded_dll_address_space(const wchar_t* library_name, EAddressSpaceSearch settings = SPACE_FULL) = 0;
 

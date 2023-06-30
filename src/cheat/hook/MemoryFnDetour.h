@@ -292,11 +292,11 @@ struct Host_Noclip_f_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void>
 	static void Host_Noclip_f();
 };
 
-// void __cdecl ClientDLL_CreateMove(float frametime, usercmd_t *cmd, int active)
-struct ClientDLL_CreateMove_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, float, hl::usercmd_t*, int>
+// void __cdecl CL_CreateMove(float frametime, usercmd_t *cmd, int active)
+struct CL_CreateMove_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, float, hl::usercmd_t*, int>
 {
 	bool install();
-	static void ClientDLL_CreateMove(float frametime, hl::usercmd_t *cmd, int active);
+	static void CL_CreateMove(float frametime, hl::usercmd_t *cmd, int active);
 };
 
 // void _Host_Frame(float time)
@@ -576,7 +576,7 @@ public:
 	inline auto& VGui_CallEngineSurfaceAppHandler4554() { static VGui_CallEngineSurfaceAppHandler4554_FnDetour_t fnhook; return fnhook; }
 	inline auto& Key_Event() { static Key_Event_FnDetour_t fnhook; return fnhook; }
 	inline auto& Host_Noclip_f() { static Host_Noclip_f_FnDetour_t fnhook; return fnhook; }
-	inline auto& ClientDLL_CreateMove() { static ClientDLL_CreateMove_FnDetour_t fnhook; return fnhook; }
+	inline auto& CL_CreateMove() { static CL_CreateMove_FnDetour_t fnhook; return fnhook; }
 	inline auto& _Host_Frame() { static _Host_Frame_FnDetour_t fnhook; return fnhook; }
 	inline auto& CL_ReallocateDynamicData() { static CL_ReallocateDynamicData_FnDetour_t fnhook; return fnhook; }
 	inline auto& CL_DeallocateDynamicData() { static CL_DeallocateDynamicData_FnDetour_t fnhook; return fnhook; }

@@ -51,8 +51,8 @@ public:
 protected:
 	inline void initialize(const char* name, const wchar_t* module_name)
 	{
-		m_name = name;
 		m_module_name = module_name;
+		m_name = name;
 
 #ifdef OX_ENABLE_HOOK_TESTING
 		add_to_test();
@@ -176,7 +176,7 @@ inline bool GenericMemoryHook<T>::install_using_bytepattern(size_t dereference_c
 	}
 
 	CBytePattern p = g_bytepattern_bank_i->get_pattern(m_name);
-	CConsole::the().info("{}", p.pattern_as_string());
+	CConsole::the().dinfo("{}", p.pattern_as_string()); // print pattern
 	if (p.empty())
 	{
 		on_hook_install_fail("Couldn't find byte pattern for current hook inside the bank!!!");

@@ -91,6 +91,9 @@ private:
 	bool is_hardware();
 	bool validate_engine_build();
 
+	// check for valve blob encryption
+	bool check_for_encrypted_modules();
+
 	// updating main frame function inside of the cheat every time is expensive.
 	inline static size_t k_main_frame_update_interval_ms = 500;
 	bool can_update_frame() const { return (GetTickCount() - m_main_frame_update_ms) > k_main_frame_update_interval_ms; }
@@ -116,6 +119,10 @@ private:
 	bool m_at_least_once_focused = false;
 
 	bool m_game_exiting_or_restarting = false;
+
+	std::vector<std::vector<std::uint8_t>> m_encrypted_module_buffers;
+	// true if running version of GoldSrc that has encrypted modules.
+	bool m_is_running_encrypted_game = false;
 };
 
 // helper class to sleep the engine whenever we want

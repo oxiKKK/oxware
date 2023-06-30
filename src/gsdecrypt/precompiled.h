@@ -26,58 +26,44 @@
 *	IN THE SOFTWARE.
 */
 
-#ifndef FORCEENABLEDISABLED_H
-#define FORCEENABLEDISABLED_H
+#ifndef PRECOMPILED_H
+#define PRECOMPILED_H
 #pragma once
 
-extern VarBoolean bypass_constrain_renderdist_enable;
-extern VarInteger bypass_constrain_renderdist_value;
-extern VarBoolean bypass_constrain_noclip;
-extern VarBoolean bypass_constrain_renderer_cvars;
-extern VarBoolean bypass_constrain_sponly_cvars;
+//-------------------------------------------------------------------
+//
+// Public headers
+// 
+//-------------------------------------------------------------------
+#include <platform.h>
+#include <commondefs.h>
 
-class CForceEnableDisabled
-{
-public:
-	DECL_BASIC_CLASS(CForceEnableDisabled);
+#include <gsdecrypt/gsdecrypt.h>
+#include <gsdecrypt/blob.h>
 
-public:
-	void force_enable_noclip_pre();
-	void force_enable_noclip_post();
+//-------------------------------------------------------------------
+//
+// Shared
+// 
+//-------------------------------------------------------------------
+#include "Console.h"
 
-	GLdouble force_max_viewable_renderdistance();
+//-------------------------------------------------------------------
+//
+// C++ standard
+// 
+//-------------------------------------------------------------------
+#include <format>
+#include <shellapi.h>
+#include <fstream>
 
-	bool disable_renderer_cvar_constrain();
-	void update_disable_sponly_cvars();
+//-------------------------------------------------------------------
+//
+// Current project
+// 
+//-------------------------------------------------------------------
+#include "decrypt.h"
+#include "pe_builder.h"
+#include "blob_algorithm.h"
 
-private:
-	// helper for noclip
-	float prev_dm;
-
-	std::vector<std::string> m_saved_sponly_cvars;
-
-	// renderer cvars
-	void save_renderer_cvars();
-	void restore_renderer_cvars();
-
-	float prev_r_lightmap;
-	float prev_gl_clear;
-	float prev_r_novis;
-	float prev_r_fullbright;
-	float prev_snd_show;
-	float prev_chase_active;
-	float prev_gl_monolights;
-	float prev_gl_wireframe;
-	float prev_r_dynamic;
-	float prev_gl_alphamin;
-	float prev_gl_max_size;
-	float prev_gl_polyoffset;
-	float prev_r_drawentities;
-	float prev_lightgamma;
-	bool m_just_disabled_renderer_cvars = false;
-
-	// sp-only cvars
-	bool m_just_disabled_sponly_cvars = false;
-};
-
-#endif // FORCEENABLEDISABLED_H
+#endif // PRECOMPILED_H

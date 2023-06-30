@@ -84,6 +84,9 @@ public:
 	void push_disabled();
 	void pop_disabled();
 
+	void begin_group();
+	void end_group();
+
 	void push_stylevar(ImGuiStyleVar idx, float val);
 	void push_stylevar(ImGuiStyleVar idx, const Vector2D& val);
 	void pop_stylevar(size_t amount = 1);
@@ -153,6 +156,7 @@ public:
 
 	void add_readmore_on_hover_widget(const char* text);
 	void add_readmore_on_hover_widget_ex(const std::function<void()>& callback);
+	void dialog_on_hover_widget(const std::function<void()>& callback);
 
 	void add_progress_bar(const std::string& id, const Vector2D& size, float current, float max);
 
@@ -534,6 +538,16 @@ void CGUIWidgets::push_disabled()
 void CGUIWidgets::pop_disabled()
 {
 	EndDisabled();
+}
+
+void CGUIWidgets::begin_group()
+{
+	BeginGroup();
+}
+
+void CGUIWidgets::end_group()
+{
+	EndGroup();
 }
 
 void CGUIWidgets::push_stylevar(ImGuiStyleVar idx, float val)
@@ -1073,6 +1087,24 @@ void CGUIWidgets::add_readmore_on_hover_widget_ex(const std::function<void()>& c
 {
 	push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular));
 	add_text("Read more...", TEXTPROP_None);
+	if (IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+	{
+		set_next_window_rounding(4.0f, ImDrawFlags_RoundCornersAll);
+		BeginTooltip();
+		PushTextWrapPos(GetFontSize() * 25.0f);
+		if (callback)
+		{
+			callback();
+		}
+		PopTextWrapPos();
+		EndTooltip();
+	}
+	pop_font();
+}
+
+void CGUIWidgets::dialog_on_hover_widget(const std::function<void()>& callback)
+{
+	push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular));
 	if (IsItemHovered(ImGuiHoveredFlags_DelayNormal))
 	{
 		set_next_window_rounding(4.0f, ImDrawFlags_RoundCornersAll);

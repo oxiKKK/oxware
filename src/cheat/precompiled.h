@@ -71,6 +71,8 @@
 
 #include <DependencyLoader.h>
 
+#include <gsdecrypt/gsdecrypt.h>
+
 //-------------------------------------------------------------------
 //
 // Shared

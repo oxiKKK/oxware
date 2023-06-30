@@ -1074,13 +1074,17 @@ void CUIMenu::tab_exploits()
 				CUIMenuWidgets::the().add_checkbox("Enable", &bypass_constrain_renderdist_enable);
 				CUIMenuWidgets::the().add_slider("Render distance", "%0.0f units", &bypass_constrain_renderdist_value);
 
-				CUIMenuWidgets::the().add_checkbox("Re-enable renderer cvars", &bypass_constrain_renderer_cvars);
+				CUIMenuWidgets::the().section_unavailable_for_builds(
+					0, 3266, "> 3266",
+					[]()
+					{
+						CUIMenuWidgets::the().add_checkbox("Re-enable renderer cvars", &bypass_constrain_renderer_cvars);
 
-				CUIMenuWidgets::the().add_description_text(
-					"Disables R_ForceCVars, which is responsible for preventing some renderer cvars to be set.",
+						CUIMenuWidgets::the().add_description_text(
+							"Disables R_ForceCVars, which is responsible for preventing some renderer cvars to be set.",
 
-					"These cvars are:\n\nr_lightmap, gl_clear, r_novis, r_fullbright, snd_show, chase_active, gl_monolights, gl_wireframe, r_dynamic, gl_alphamin, gl_max_size, gl_polyoffset, r_drawentities.");
-
+							"These cvars are:\n\nr_lightmap, gl_clear, r_novis, r_fullbright, snd_show, chase_active, gl_monolights, gl_wireframe, r_dynamic, gl_alphamin, gl_max_size, gl_polyoffset, r_drawentities.");
+					});
 
 				CUIMenuWidgets::the().add_checkbox("Disable SP-Only cvars", &bypass_constrain_sponly_cvars,
 												   "Some cvars can be only set in singleplayer. Set this to be able to control these cvars also in MP. "

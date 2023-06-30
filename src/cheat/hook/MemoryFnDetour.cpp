@@ -30,11 +30,15 @@
 
 bool CMemoryFnDetourMgr::install_hooks()
 {
+	_Host_Frame().install();
+
+	CEngineSynchronization::the().put_engine_in_sleep();
+
 	// let's install and detour individual hooks.
 	glBegin().install();
 	glReadPixels().install();
 	wglSwapBuffers().install();
-	if (CoXWARE::the().get_build_number() <= 4554) // TODO: figure out how far does this go, to which version
+	if (CoXWARE::the().get_build_number() < FIRST_SDL_BUILD)
 	{
 		VGui_CallEngineSurfaceAppHandler4554().install();
 	}
@@ -44,11 +48,14 @@ bool CMemoryFnDetourMgr::install_hooks()
 	}
 	Key_Event().install();
 	Host_Noclip_f().install();
-	ClientDLL_CreateMove().install();
+	CL_CreateMove().install();
 	CL_ReallocateDynamicData().install();
 	CL_DeallocateDynamicData().install();
 	MYgluPerspective().install();
-	R_ForceCVars().install();
+	if (CoXWARE::the().get_build_number() >= 4554)
+	{
+		R_ForceCVars().install(); // there isn't such function, e.g. in 3266
+	}
 	V_CalcRefdef().install();
 	//EV_HLDM_FireBullets().install();
 	HUD_Redraw().install();
@@ -81,7 +88,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	MakeSkyVec().install();
 	HUD_Frame().install();
 
-	_Host_Frame().install();
+	CEngineSynchronization::the().resume_engine();
 
 	return true;
 }
@@ -94,7 +101,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	glBegin().uninstall();
 	glReadPixels().uninstall();
 	wglSwapBuffers().uninstall();
-	if (CoXWARE::the().get_build_number() <= 4554) // TODO: figure out how far does this go, to which version
+	if (CoXWARE::the().get_build_number() < FIRST_SDL_BUILD)
 	{
 		VGui_CallEngineSurfaceAppHandler4554().uninstall();
 	}
@@ -104,11 +111,14 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	}
 	Key_Event().uninstall();
 	Host_Noclip_f().uninstall();
-	ClientDLL_CreateMove().uninstall();
+	CL_CreateMove().uninstall();
 	CL_ReallocateDynamicData().uninstall();
 	CL_DeallocateDynamicData().uninstall();
 	MYgluPerspective().uninstall();
-	R_ForceCVars().uninstall();
+	if (CoXWARE::the().get_build_number() >= 4554)
+	{
+		R_ForceCVars().uninstall(); // there isn't such function, e.g. in 3266
+	}
 	V_CalcRefdef().uninstall();
 	//EV_HLDM_FireBullets().uninstall();
 	HUD_Redraw().uninstall();
@@ -319,20 +329,20 @@ void Host_Noclip_f_FnDetour_t::Host_Noclip_f()
 
 //---------------------------------------------------------------------------------
 
-bool ClientDLL_CreateMove_FnDetour_t::install()
+bool CL_CreateMove_FnDetour_t::install()
 {
-	initialize("ClientDLL_CreateMove", L"hw.dll");
-	return detour_using_bytepattern((uintptr_t*)ClientDLL_CreateMove);
+	initialize("CL_CreateMove", L"hw.dll");
+	return detour_using_memory_address((uintptr_t*)CL_CreateMove, (uintptr_t*)CMemoryHookMgr::the().cl_funcs()->pfnHUD_CL_CreateMove);
 }
 
-void ClientDLL_CreateMove_FnDetour_t::ClientDLL_CreateMove(float frametime, hl::usercmd_t *cmd, int active)
+void CL_CreateMove_FnDetour_t::CL_CreateMove(float frametime, hl::usercmd_t *cmd, int active)
 {
 	if (active)
 	{
 		CLocalState::the().update_pre_clientmove(frametime, cmd);
 	}
 
-	CMemoryFnDetourMgr::the().ClientDLL_CreateMove().call(frametime, cmd, active);
+	CMemoryFnDetourMgr::the().CL_CreateMove().call(frametime, cmd, active);
 
 	if (active)
 	{
@@ -385,11 +395,6 @@ bool _Host_Frame_FnDetour_t::install()
 
 void _Host_Frame_FnDetour_t::_Host_Frame(float time)
 {
-	if (CMemoryFnDetourMgr::the().exit_if_uninstalling())
-	{
-		return;
-	}
-
 	// see for connection change
 	static bool was_connected = false;
 	bool is_connected = (CMemoryHookMgr::the().cls()->state == hl::ca_active);

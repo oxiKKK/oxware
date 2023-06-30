@@ -163,6 +163,12 @@ bool CoXWARE::initialize()
 
 	check_for_clientside_protectors();
 
+	// check for encrypted modules, we need to encrypt them before we proceed. if we fail, we have to exit.
+	if (!check_for_encrypted_modules())
+	{
+		return false;
+	}
+
 	// see for the renderer - before hooks! (because of hw.dll may missing, and we need it inside hook managers.)
 	if (!is_hardware())
 	{
@@ -219,7 +225,10 @@ bool CoXWARE::initialize()
 		}
 	}
 
-	initialize_phase2();
+	if (!initialize_phase2())
+	{
+		return false;
+	}
 
 	return true;
 }
@@ -260,6 +269,8 @@ void CoXWARE::shutdown()
 	{
 		CEngineSynchronization::the().resume_engine();
 	}
+
+	m_encrypted_module_buffers.clear();
 
 	m_shutted_down = true;
 }
@@ -562,10 +573,69 @@ bool CoXWARE::validate_engine_build()
 	return true;
 }
 
+bool CoXWARE::check_for_encrypted_modules()
+{
+	// modules that we need to decrypt, in order for the hooks to work..
+	static const std::string s_possibly_encrypted_modules[] =
+	{
+		"hw.dll", "cstrike\\cl_dlls\\client.dll"
+	};
+
+	// see if these dlls are encrypted and add them into the list
+	for (const auto& file : s_possibly_encrypted_modules)
+	{
+		std::filesystem::path full_path = g_filesystem_i->locate_halflife_dir() / file;
+		std::string s_full_path = CStringTools::the().unicode_to_utf8(full_path.wstring());
+
+		if (CGSDecrypt::the().is_dll_encrypted(s_full_path))
+		{
+			m_is_running_encrypted_game = true;
+
+			CConsole::the().info("{} is encrypted.", file);
+
+			std::wstring w_filename = full_path.filename().wstring();
+			
+			std::ostringstream os;
+
+			reconstructed_blob_module_info_t info;
+			if (CGSDecrypt::the().decrypt_dll(s_full_path, info))
+			{
+				std::vector<uint8_t> bytes;
+
+				const std::string& str = os.str();
+
+				bytes.insert(bytes.end(), str.begin(), str.end());
+
+				m_encrypted_module_buffers.push_back(bytes);
+
+				g_libloader_i->register_encrypted_module(w_filename.c_str(), info);
+			}
+			else
+			{
+				CInjectedDllIPCLayerClient::the().report_error("Fatal error, couldn't decrypt encrypted DLL: {}. "
+															   "See console for more information.", full_path);
+				return false;
+			}
+		}
+		else
+		{
+			CConsole::the().info("{} is not encrypted.", file);
+		}
+	}
+
+	return true;
+}
+
 //---------------------------------------------------------------------
 
 void CEngineSynchronization::put_engine_in_sleep()
 {
+	if (!CMemoryFnDetourMgr::the()._Host_Frame().is_installed())
+	{
+		CConsole::the().warning("Cannot put engine in sleep, because _Host_Frame detour isn't installed.");
+		return;
+	}
+
 	m_engine_should_sleep = true;
 
 	CConsole::the().info("Putting engine to sleep, waiting for it to ack...");
@@ -575,11 +645,17 @@ void CEngineSynchronization::put_engine_in_sleep()
 	// let's say wait at max 20 seconds... 20 seconds long frame should be enough.. :^)
 	static constexpr uint32_t k_time_to_acknowledge_sleep = 20 * 1000; 
 	m_start_time = GetTickCount();
+	int n = 0;
 	while (m_engine_is_sleeping == false)
 	{
 		// do nothing until engine acks
 
-		std::this_thread::sleep_for(30ms);
+		std::this_thread::sleep_for(10ms);
+
+		if (!m_engine_is_sleeping && n % 20 == 0)
+		{
+			CConsole::the().info("Waiting for engine...{}x", n++);
+		}
 
 		if (GetTickCount() - m_start_time > k_time_to_acknowledge_sleep)
 		{

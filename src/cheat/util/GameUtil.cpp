@@ -130,8 +130,10 @@ bool CGameUtil::is_player_index(int index)
 bool CGameUtil::is_player_on_enemy_team(int index)
 {
 	auto local = CEntityMgr::the().get_local_player();
-	if (!local || !local->is_valid())
+	if (!local)
+	{
 		return false;
+	}
 
 	return CEntityMgr::the().m_known_players[index].get_team() != local->get_team();
 }
@@ -164,6 +166,8 @@ appid_translation_t g_appid_translation_table[] =
 
 unsigned int CGameUtil::get_current_app_id()
 {
+	// TODO: This may not work on custom launchers.
+
 	auto cmdline = GetCommandLineA();
 
 	// the -game launch option always gets appended, even if we don't specify it.
@@ -212,8 +216,8 @@ int CGameUtil::get_build_number()
 
 bool CGameUtil::is_spectator()
 {
-	auto local = CEntityMgr::the().get_local_player();
-	if (!local || !local->is_valid())
+	auto local = CLocalState::the().local_player();
+	if (!local)
 		return false;
 
 	auto& uptodate_state = local->cl_entity()->curstate;

@@ -94,6 +94,11 @@ public:
 
 	inline Vector2D get_viewangle_delta() const { return m_vieangle_delta; }
 
+	inline auto get_current_frame() const { return m_current_frame; }
+
+	// only set when local player object is valid and alive.
+	inline auto local_player() const { return m_local_player; }
+
 private:
 	hl::frame_t* m_current_frame = nullptr;
 
@@ -113,6 +118,8 @@ private:
 
 	Vector2D m_vieangle_delta;
 	Vector m_last_viewangles; // used to calc the delta
+
+	CGenericPlayer* m_local_player;
 };
 
 #endif // LOCALPLAYERSTATE_H

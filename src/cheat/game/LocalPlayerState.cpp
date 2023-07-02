@@ -61,6 +61,13 @@ void CLocalState::update_clientmove(float frametime, hl::usercmd_t* cmd)
 	m_ground_dist = CGameUtil::the().compute_distance_to_ground(m_pmove->origin);
 	m_edge_dist = CGameUtil::the().compute_edge_distance(m_pmove->origin);
 	m_is_surfing = m_ground_angle > 45.0f && m_ground_dist < 30.0f;
+
+	m_local_player = CEntityMgr::the().get_local_player();
+	if (m_local_player && (!m_local_player->is_valid() || !m_local_player->is_alive()))
+	{
+		// reset, we don't want it then
+		m_local_player = nullptr;
+	}
 }
 
 hl::clientdata_t* CLocalState::get_current_frame_clientdata()

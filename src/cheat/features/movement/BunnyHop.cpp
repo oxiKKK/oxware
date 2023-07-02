@@ -37,7 +37,7 @@ VarInteger movement_bhop_mode_noslowdown_method("movement_bhop_mode_noslowdown_m
 VarInteger movement_bhop_mode_noslowdown_factor("movement_bhop_mode_noslowdown_factor", "How much to no-slowdown", 1, 1, 10);
 VarInteger movement_bhop_legit_ground_dist_min("movement_bhop_legit_ground_dist_min", "Minimal ground distance where to start jumping", 10, 5, 50);
 VarInteger movement_bhop_legit_ground_dist_max("movement_bhop_legit_ground_dist_max", "Maximal ground distance where to start jumping", 25, 5, 50);
-VarInteger movement_bhop_legit_efficiency("movement_bhop_legit_efficiency", "Efficiency settings of the bunnyhop", 1, 0, 2);
+VarInteger movement_bhop_legit_efficiency("movement_bhop_legit_efficiency", "Efficiency settings of the bunnyhop", 0, 0, 2);
 VarInteger movement_bhop_legit_scroll_density("movement_bhop_legit_scroll_density", "How dense will the resulting scroll pattern be", 2, 1, 5);
 
 void CMovementBunnyHop::update(float frametime)

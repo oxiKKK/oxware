@@ -92,7 +92,30 @@ void CLoaderUI::render_tab_main()
 
 		if (g_gui_widgets_i->add_button("Start cheat", { -1, window_size.y / 2 - 20 }, !m_allow_to_load_again, BUTTONFLAG_CenterLabel))
 		{
-			CMainLoader::the().get_injector()->inject_to_target_process("hl.exe", MODULE_CHEAT);
+			static const char* s_exe_names[] = { "cs.exe", "hl.exe", "cstrike.exe" };
+
+			// try different names
+			bool success = false;
+			for (int i = 0; i < OX_ARRAYSIZE(s_exe_names); i++)
+			{
+				if (CMainLoader::the().get_injector()->inject_to_target_process(s_exe_names[i], MODULE_CHEAT))
+				{
+					success = true;
+					break;
+				}
+			}
+
+			if (!success)
+			{
+				std::string processes;
+				for (int i = 0; i < OX_ARRAYSIZE(s_exe_names); i++)
+				{
+					std::string nl = ((i != (OX_ARRAYSIZE(s_exe_names) - 1)) ? "\n" : "");
+					processes += s_exe_names[i] + nl;
+				}
+
+				CMessageBox::display_error("Failed to find the game. Tried:\n{}", processes);
+			}
 		}
 
 		injected_object = CMainLoader::the().get_injector()->get_injected_dll(MODULE_CHEAT);

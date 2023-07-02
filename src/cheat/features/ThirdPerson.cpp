@@ -40,8 +40,8 @@ void CThirdPerson::update(hl::ref_params_t* pparams)
 		return;
 	}
 
-	auto local = CEntityMgr::the().get_local_player();
-	if (!local || !local->is_alive())
+	auto local = CLocalState::the().local_player();
+	if (!local)
 	{
 		return;
 	}

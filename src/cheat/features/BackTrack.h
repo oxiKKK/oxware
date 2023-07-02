@@ -26,37 +26,33 @@
 *	IN THE SOFTWARE.
 */
 
-#ifndef MOVEMENT_H
-#define MOVEMENT_H
+#ifndef BACKTRACK_H
+#define BACKTRACK_H
 #pragma once
 
-extern VarBoolean debug_render_info_movement_bhop;
-extern VarBoolean debug_render_info_movement_strafe;
-extern VarBoolean debug_render_info_movement_strafe_helper;
+extern VarBoolean backtrack_enable;
+extern VarInteger backtrack_team;
 
-class CMovement
+class CBacktrack
 {
 public:
-	DECL_BASIC_CLASS(CMovement);
+	DECL_BASIC_CLASS(CBacktrack);
 
 public:
-	void update_clientmove(float frametime, hl::usercmd_t *cmd);
-
-	static InCommand bunnyhop;			// CMovementBunnyHop
-	static InCommand airstuck;			// CMovementAirStuck
-	static InCommand gs;				// CMovementGroundStrafe
-	static InCommand eb;				// CMovementEdgeBug
-	static InCommand strafe;			// CMovementStrafeHack
-	static InCommand strafe_helper;		// CMovementStrafeHelper
-	static InCommand fastrun;			// CMovementFastRun
-	static InCommand auto_jof;			// CMovementAutoJOF
+	void update();
 
 private:
+	bool find_interpolation_updates(hl::cl_entity_t* ent, float targettime, hl::position_history_t** ph0, hl::position_history_t** ph1);
 
-	void run_incommands(float frametime, hl::usercmd_t *cmd);
-	void run_debug(hl::usercmd_t *cmd);
+	float bind_interpolation_fraction(float frac);
 
-	void feed_plot(float frametime, hl::usercmd_t *cmd);
+	float calc_update_interval_ms(float updaterate);
+	float calc_true_latency(float updaterate, float max_unlag, float ft, float client_latency, float update_interval_ms);
+	float calc_interpolation_amount(float ex_interp, float update_interval_ms, float lerp_msec);
+	float get_raw_client_latency(hl::frame_t* frame);
+
+	// simulate interpolated origin & angles
+	bool backtrack_entity(hl::cl_entity_t* ent, float lerp_msec, Vector& simorg, Vector& simang);
 };
 
-#endif // MOVEMENT_H
+#endif // BACKTRACK_H

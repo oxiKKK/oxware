@@ -110,8 +110,8 @@ void CInCommands::update_activation_conditions()
 	{
 		m_activation_conditions_for_this_frame |= IN_ACTCOND_Connected;
 
-		auto local = CEntityMgr::the().get_local_player();
-		if (local && local->is_valid() && local->is_alive())
+		auto local = CLocalState::the().local_player();
+		if (local)
 		{
 			m_activation_conditions_for_this_frame |= IN_ACTCOND_Alive;
 		}

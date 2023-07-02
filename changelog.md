@@ -154,6 +154,10 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Added world fog.
 - Added support for 3266 CS! 🥳
 - Improved AirStuck.
+- Improved chams, see [this video](https://youtu.be/OwkkhIzMJ7k).
+- Added backtrack, see [this video](https://youtu.be/G-ZjjsUHHlg).
+- Added fake latency.
+- Added speed control.
 
 ## Bugfixes
 

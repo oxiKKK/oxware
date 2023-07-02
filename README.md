@@ -6,7 +6,7 @@
 [![CS 1.6](https://img.shields.io/badge/game-CS1.6-yellow.svg?style=plastic)](https://store.steampowered.com/app/10/Counter-Strike) 
 [![License](https://img.shields.io/github/license/oxiKKK/oxware.svg?style=plastic)](LICENSE)
 
-Welcome to **oxWARE**! A free Counter-Strike 1.6 cheat built with love and passion, featuring **60,347 lines of C++ code in 296 source files!**
+Welcome to **oxWARE**! A free Counter-Strike 1.6 cheat built with love and passion, featuring **61,664 lines of C++ code in 304 source files!**
 
 This cheat is still in <b>alpha stage</b> of development!<br>
 I will be contributing to it in the near future as much as possible, adding new features et cetera.<br>
@@ -173,8 +173,11 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 	- Fast run & fast walk
 	- Auto JOF
 - Fancy custom cl_showfps rendering
+- Backtrack, see [this video](https://youtu.be/G-ZjjsUHHlg).
+- Fake latency
 - FPS fixer for non-steam CS
 - Anti-screen
+- Speed control
 - Aspect ratio changer
 - Anti demo recorder
 - Rechecker bypass, see [this video](https://youtu.be/Razs0s7sgno)

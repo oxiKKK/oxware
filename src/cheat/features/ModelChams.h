@@ -31,42 +31,67 @@
 #pragma once
 
 extern VarBoolean mdlchams_enable;
+
 extern VarBoolean mdlchams_flatshaded;
 extern VarBoolean mdlchams_blend;
+
 extern VarBoolean mdlchams_rainbow;
 extern VarInteger mdlchams_rainbow_speed;
+
 extern VarBoolean mdlchams_viewmodel_enable;
 extern VarColor mdlchams_viewmodel_color;
 extern VarInteger mdlchams_viewmodel_type;
+extern VarInteger mdlchams_viewmodel_shadelight;
+extern VarInteger mdlchams_viewmodel_ambientlight;
+
 extern VarBoolean mdlchams_players_t_enable;
 extern VarColor mdlchams_players_t_color;
 extern VarInteger mdlchams_players_t_type;
+extern VarInteger mdlchams_players_t_shadelight;
+extern VarInteger mdlchams_players_t_ambientlight;
+
 extern VarBoolean mdlchams_players_ct_enable;
 extern VarColor mdlchams_players_ct_color;
 extern VarInteger mdlchams_players_ct_type;
+extern VarInteger mdlchams_players_ct_shadelight;
+extern VarInteger mdlchams_players_ct_ambientlight;
+
+extern VarBoolean mdlchams_players_backtrack_enable;
+extern VarColor mdlchams_players_backtrack_color;
+extern VarInteger mdlchams_players_backtrack_type;
+extern VarInteger mdlchams_players_backtrack_shadelight;
+extern VarInteger mdlchams_players_backtrack_ambientlight;
+
 extern VarBoolean mdlchams_player_skeleton;
+
 extern VarBoolean mdlchams_head_box_enable;
 extern VarColor mdlchams_head_box_color;
-extern VarBoolean mdlchams_render_real_playermodel;
-extern VarBoolean mdlchams_disable_animations;
-extern VarBoolean mdlchams_force_default_viewmodel;
 
-// indicator when we're drawing real playermodel inside iuser1
-#define IUSER1_REAL_PLAYERMODEL 0xDEAD
+extern VarBoolean mdlchams_render_real_playermodel;
+
+extern VarBoolean mdlchams_disable_animations;
+
+extern VarBoolean mdlchams_force_default_viewmodel;
 
 enum EModelChamsType
 {
 	CHAMS_Flat,
 	CHAMS_FlatTercial,
+	CHAMS_FlatLightened,
+	CHAMS_Texture,
+	CHAMS_Wireframe,
 };
 
 class ChammedModel
 {
 public:
-	ChammedModel(VarBoolean* is_enabled, VarColor* color, VarInteger* type, const std::function<bool()>& should_render) :
+	ChammedModel(VarBoolean* is_enabled, VarColor* color, VarInteger* type, VarInteger* shade, VarInteger* ambient,
+				 const std::function<bool(hl::cl_entity_t* current_ent)>& should_render) :
 		m_is_enabled(is_enabled), 
 		m_color(color), 
 		m_type(type), 
+		m_shade(shade),
+		m_ambient(ambient),
 		m_should_render(should_render)
 	{
 	}
@@ -75,22 +100,35 @@ public:
 
 	bool is_enabled() const { return m_is_enabled && m_is_enabled->get_value() != false; }
 
-	bool should_render() const { return m_should_render(); }
+	bool should_render(hl::cl_entity_t* current_ent) const { return m_should_render(current_ent); }
 
 	EModelChamsType get_type() const { return (EModelChamsType)m_type->get_value(); }
 
 	virtual void process_studio_pre();
 	virtual void process_studio_post();
+	virtual void process_studio_lighting(hl::alight_t* plighting);
 	
-	virtual void process_color(float* lambert);
+	virtual void process_color(GLfloat* r, GLfloat* g, GLfloat* b, GLfloat* a);
 
 private:
 	VarBoolean* m_is_enabled = nullptr;
 	VarColor* m_color = nullptr;
 
+	VarInteger* m_shade= nullptr, *m_ambient = nullptr;
+
 	VarInteger* m_type = nullptr;
 
-	std::function<bool()> m_should_render;
+	std::function<bool(hl::cl_entity_t* current_ent)> m_should_render;
+};
+
+enum EChammedModel
+{
+	CHAMS_VIEWMODEL,
+	CHAMS_PLAYERS_CT,
+	CHAMS_PLAYERS_T,
+	CHAMS_BACKTRACK,
+
+	CHAMS_COUNT
 };
 
 class CModelChams
@@ -99,12 +137,10 @@ public:
 	DECL_BASIC_CLASS(CModelChams);
 
 public:
-	void initialize();
-
 	void executeall_studio_pre();
 	void executeall_studio_post();
-
-	void executeall_color(float* lambert);
+	void executeall_studio_lighting(hl::alight_t* plighting);
+	void executeall_color(GLfloat* r, GLfloat* g, GLfloat* b, GLfloat* a);
 
 	// replacement for R_GLStudioDrawPoints()
 	bool studio_draw_skeleton();
@@ -120,15 +156,19 @@ public:
 
 	void toggle_rendering_real_playermodel() { m_rendering_real_playermodel ^= 1; }
 
-private:
-	void intitialize_chammed_model(ChammedModel* model, VarBoolean* is_enabled, VarColor* color, VarInteger* type, const std::function<bool()>& should_render);
+	bool is_drawing_studio_model() const { return m_studio_draw_points_lock; }
 
+private:
 	ChammedModel m_viewmodel;
 	ChammedModel m_players_t, m_players_ct;
+	ChammedModel m_players_backtrack;
 
-	std::vector<ChammedModel*> m_chammed_models;
+	static std::array<ChammedModel, CHAMS_COUNT> m_chammed_models;
 
 	bool m_rendering_real_playermodel = false;
+
+	// set to true of we're execuging R_StudioDrawPoints code right now
+	bool m_studio_draw_points_lock = false;
 };
 
 #endif // MODELCHAMS_H

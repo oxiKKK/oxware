@@ -244,22 +244,25 @@ struct GenericMemoryFnDetour_fastcall : public GenericMemoryFnDetour<uintptr_t>
 struct wglSwapBuffers_FnDetour_t final : public GenericMemoryFnDetour_stdcall<BOOL, HDC>
 {
 	bool install();
-
 	static BOOL APIENTRY wglSwapBuffers(HDC hdc);
 };
 
 struct glBegin_FnDetour_t final : public GenericMemoryFnDetour_stdcall<void, GLenum>
 {
 	bool install();
-
 	static void APIENTRY glBegin(GLenum mode);
 };
 
 struct glReadPixels_FnDetour_t final : public GenericMemoryFnDetour_stdcall<void, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, GLvoid*>
 {
 	bool install();
-
 	static void APIENTRY glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid* pixels);
+};
+
+struct glColor4f_FnDetour_t final : public GenericMemoryFnDetour_stdcall<void, GLfloat, GLfloat, GLfloat, GLfloat>
+{
+	bool install();
+	static void APIENTRY glColor4f(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
 };
 
 // void __cdecl VGui_CallEngineSurfaceAppHandler(void *event, void *userData)
@@ -552,6 +555,20 @@ struct HUD_Frame_FnDetour_t final : public GenericMemoryFnDetour_cdecl<>
 	static void HUD_Frame();
 };
 
+// void R_DrawEntitiesOnList();
+struct R_DrawEntitiesOnList_FnDetour_t final : public GenericMemoryFnDetour_cdecl<>
+{
+	bool install();
+	static void R_DrawEntitiesOnList();
+};
+
+// void R_StudioSetupLighting(alight_t* plighting);
+struct R_StudioSetupLighting_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, hl::alight_t*>
+{
+	bool install();
+	static void R_StudioSetupLighting(hl::alight_t* plighting);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -572,6 +589,7 @@ public:
 	inline auto& wglSwapBuffers() { static wglSwapBuffers_FnDetour_t fnhook; return fnhook; }
 	inline auto& glBegin() { static glBegin_FnDetour_t fnhook; return fnhook; }
 	inline auto& glReadPixels() { static glReadPixels_FnDetour_t fnhook; return fnhook; }
+	inline auto& glColor4f() { static glColor4f_FnDetour_t fnhook; return fnhook; }
 	inline auto& VGui_CallEngineSurfaceAppHandler() { static VGui_CallEngineSurfaceAppHandler_FnDetour_t fnhook; return fnhook; }
 	inline auto& VGui_CallEngineSurfaceAppHandler4554() { static VGui_CallEngineSurfaceAppHandler4554_FnDetour_t fnhook; return fnhook; }
 	inline auto& Key_Event() { static Key_Event_FnDetour_t fnhook; return fnhook; }
@@ -613,6 +631,8 @@ public:
 	inline auto& HUD_DrawTransparentTriangles() { static HUD_DrawTransparentTriangles_FnDetour_t fnhook; return fnhook; }
 	inline auto& MakeSkyVec() { static MakeSkyVec_FnDetour_t fnhook; return fnhook; }
 	inline auto& HUD_Frame() { static HUD_Frame_FnDetour_t fnhook; return fnhook; }
+	inline auto& R_DrawEntitiesOnList() { static R_DrawEntitiesOnList_FnDetour_t fnhook; return fnhook; }
+	inline auto& R_StudioSetupLighting() { static R_StudioSetupLighting_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

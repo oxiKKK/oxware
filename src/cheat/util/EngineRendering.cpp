@@ -126,6 +126,75 @@ void CEngineFontRendering::render_debug_impl(const std::string& text)
 	}
 }
 
+void CEngineFontRendering::render_information()
+{
+	CEngineFontRendering::the().render_debug("--- Miscellaneous ---");
+	
+	float gnd_dist = CLocalState::the().get_ground_dist();
+	float edge_dist = CLocalState::the().get_edge_dist();
+	float gnd_angle = CLocalState::the().get_ground_angle();
+	bool is_surfing = CLocalState::the().is_surfing();
+	float fall_vel = CLocalState::the().get_fall_velocity();
+	float vel_2d = CLocalState::the().get_local_velocity_2d();
+	Vector vel_vec = CLocalState::the().get_local_velocity_vec();
+	auto local = CLocalState::the().local_player();
+
+	auto pmove = *CMemoryHookMgr::the().pmove().get();
+	auto cl = CMemoryHookMgr::the().cl().get();
+	auto frame = CLocalState::the().get_current_frame();
+	auto cmd = CClientMovementPacket::the().get_cmd();
+
+	float velocity = CLocalState::the().get_local_velocity_2d();
+	static float last_velocity = velocity;
+
+	static float rolling_accel = 0.0f;
+
+	rolling_accel = 0.9f * rolling_accel + (1.0f - 0.9f) * (velocity - last_velocity);
+	last_velocity = velocity;
+
+	float movespeed = sqrt((cmd->forwardmove * cmd->forwardmove) + (cmd->sidemove * cmd->sidemove) + (cmd->upmove * cmd->upmove));
+
+	CEngineFontRendering::the().render_debug("Acceleration: {:0.3f} u/frame", rolling_accel);
+	CEngineFontRendering::the().render_debug("Ground distance: {:0.3f} units", gnd_dist);
+	CEngineFontRendering::the().render_debug("Edge distance: {:0.3f} units", edge_dist);
+	CEngineFontRendering::the().render_debug("Ground angle: {:0.1f} a", gnd_angle);
+	CEngineFontRendering::the().render_debug("Fall velocity: {:0.3f} u/s", fall_vel);
+	CEngineFontRendering::the().render_debug("Velocity 2D: {:0.3f} u/s", vel_2d);
+	CEngineFontRendering::the().render_debug("Velocity 3D: {} u/s", vel_vec);
+	CEngineFontRendering::the().render_debug("Origin: {}", pmove->origin);
+	CEngineFontRendering::the().render_debug("Is surfing: {}", is_surfing);
+	if (local)
+	{
+		CEngineFontRendering::the().render_debug("Is alive: {}", true);
+	}
+	else
+	{
+		CEngineFontRendering::the().render_debug("Is alive: {}", false);
+	}
+	CEngineFontRendering::the().render_debug("Water level: {}", pmove->waterlevel);
+	CEngineFontRendering::the().render_debug("Water type: {}", pmove->watertype);
+	CEngineFontRendering::the().render_debug("Water jump time: {}", pmove->waterjumptime);
+	CEngineFontRendering::the().render_debug("Forwardmove: {}", cmd->forwardmove);
+	CEngineFontRendering::the().render_debug("Sidemove: {}", cmd->sidemove);
+	CEngineFontRendering::the().render_debug("Maxspeed: {}", pmove->maxspeed);
+	CEngineFontRendering::the().render_debug("Movespeed: {}", movespeed);
+	CEngineFontRendering::the().render_debug("Movetype: {}", pmove->movetype);
+	CEngineFontRendering::the().render_debug("Viewangles: {}", cmd->viewangles);
+	CEngineFontRendering::the().render_debug("prediction_error: {}", cl->prediction_error.Length());
+	CEngineFontRendering::the().render_debug("Yaw: {} a", cmd->viewangles[YAW]);
+	CEngineFontRendering::the().render_debug("usehull: {}", pmove->usehull);
+
+	auto va_delta = CLocalState::the().get_viewangle_delta();
+	CEngineFontRendering::the().render_debug("VA delta: {}", va_delta);
+	CEngineFontRendering::the().render_debug("light level: {}", cmd->lightlevel);
+
+	CEngineFontRendering::the().render_debug("--- Network ---");
+	static double stable_latency = 0.0, stable_fakel = 0.0;
+	stable_latency = 0.9f * stable_latency + (1.0f - 0.9f) * (frame->latency);
+	stable_fakel = 0.9f * stable_fakel + (1.0f - 0.9f) * (CNetchanSequenceHistory::the().get_desired_fake_latency());
+	CEngineFontRendering::the().render_debug("latency: {:0.3f} s / fake: {:0.3f} ms", stable_latency * 1000.0, stable_fakel * 1000);
+}
+
 void CEngineFontRendering::debug_repaint()
 {
 	if (debug_render_info.get_value())

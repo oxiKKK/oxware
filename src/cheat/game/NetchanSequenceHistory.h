@@ -26,37 +26,45 @@
 *	IN THE SOFTWARE.
 */
 
-#ifndef MOVEMENT_H
-#define MOVEMENT_H
+#ifndef NETCHANSEQUENCEHISTORY_H
+#define NETCHANSEQUENCEHISTORY_H
 #pragma once
 
-extern VarBoolean debug_render_info_movement_bhop;
-extern VarBoolean debug_render_info_movement_strafe;
-extern VarBoolean debug_render_info_movement_strafe_helper;
+extern VarBoolean fake_latency;
+extern VarInteger fake_latency_amount;
 
-class CMovement
+// sequence record
+struct netseq_t
 {
-public:
-	DECL_BASIC_CLASS(CMovement);
-
-public:
-	void update_clientmove(float frametime, hl::usercmd_t *cmd);
-
-	static InCommand bunnyhop;			// CMovementBunnyHop
-	static InCommand airstuck;			// CMovementAirStuck
-	static InCommand gs;				// CMovementGroundStrafe
-	static InCommand eb;				// CMovementEdgeBug
-	static InCommand strafe;			// CMovementStrafeHack
-	static InCommand strafe_helper;		// CMovementStrafeHelper
-	static InCommand fastrun;			// CMovementFastRun
-	static InCommand auto_jof;			// CMovementAutoJOF
-
-private:
-
-	void run_incommands(float frametime, hl::usercmd_t *cmd);
-	void run_debug(hl::usercmd_t *cmd);
-
-	void feed_plot(float frametime, hl::usercmd_t *cmd);
+	int		seq;		// sequence number
+	float	timestamp;	// sequence arrival time
 };
 
-#endif // MOVEMENT_H
+class CNetchanSequenceHistory
+{
+public:
+	DECL_BASIC_CLASS(CNetchanSequenceHistory);
+
+public:
+	void update();
+	void flush();
+
+	// in seconds
+	inline float get_desired_fake_latency() const { return m_desired_fake_latency; }
+
+private:
+	void generate_fake_latency();
+
+	std::optional<netseq_t> find_sequence_entry();
+
+private:
+	std::deque<netseq_t> m_sequences;
+
+	int m_last_incoming;
+	
+	float m_desired_fake_latency;
+
+	inline static constexpr int k_max_sequences = 1000; // 1 s to the past
+};
+
+#endif // NETCHANSEQUENCEHISTORY_H

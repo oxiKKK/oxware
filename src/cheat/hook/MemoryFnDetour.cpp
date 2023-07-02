@@ -32,12 +32,15 @@ bool CMemoryFnDetourMgr::install_hooks()
 {
 	_Host_Frame().install();
 
+	// just to be absolutely safe that the engine doesn't call a function in a middle of us deouring it.
+	// Yes, this happened to me once. It's a pure miracle when it happens, but it happens..
 	CEngineSynchronization::the().put_engine_in_sleep();
 
 	// let's install and detour individual hooks.
 	glBegin().install();
 	glReadPixels().install();
 	wglSwapBuffers().install();
+	glColor4f().install();
 	if (CoXWARE::the().get_build_number() < FIRST_SDL_BUILD)
 	{
 		VGui_CallEngineSurfaceAppHandler4554().install();
@@ -87,6 +90,8 @@ bool CMemoryFnDetourMgr::install_hooks()
 	HUD_DrawTransparentTriangles().install();
 	MakeSkyVec().install();
 	HUD_Frame().install();
+	R_DrawEntitiesOnList().install();
+	R_StudioSetupLighting().install();
 
 	CEngineSynchronization::the().resume_engine();
 
@@ -101,6 +106,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	glBegin().uninstall();
 	glReadPixels().uninstall();
 	wglSwapBuffers().uninstall();
+	glColor4f().uninstall();
 	if (CoXWARE::the().get_build_number() < FIRST_SDL_BUILD)
 	{
 		VGui_CallEngineSurfaceAppHandler4554().uninstall();
@@ -156,6 +162,8 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	HUD_DrawTransparentTriangles().uninstall();
 	MakeSkyVec().uninstall();
 	HUD_Frame().uninstall();
+	R_DrawEntitiesOnList().uninstall();
+	R_StudioSetupLighting().uninstall();
 
 	// must be unloaded at last, because of synchronizated cheat unload. see CEngineSynchronization for more info.
 	_Host_Frame().uninstall();
@@ -234,6 +242,21 @@ void APIENTRY glReadPixels_FnDetour_t::glReadPixels(GLint x, GLint y, GLsizei wi
 		// return artifical pixels
 		CAntiScreen::the().detour_pixels((uint8_t*)pixels);
 	}
+}
+
+//---------------------------------------------------------------------------------
+
+bool glColor4f_FnDetour_t::install()
+{
+	initialize("glColor4f", L"opengl32.dll");
+	return detour_using_exported_name((uintptr_t*)glColor4f, "glColor4f");
+}
+
+void glColor4f_FnDetour_t::glColor4f(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
+{
+	CModelChams::the().executeall_color(&r, &g, &b, &a);
+
+	CMemoryFnDetourMgr::the().glColor4f().call(r, g, b, a);
 }
 
 //---------------------------------------------------------------------------------
@@ -337,6 +360,9 @@ bool CL_CreateMove_FnDetour_t::install()
 
 void CL_CreateMove_FnDetour_t::CL_CreateMove(float frametime, hl::usercmd_t *cmd, int active)
 {
+	// function for creating client move. This is basically called at the beginning of the frame,
+	// hence the amount of functions we call here. Ouch.
+
 	if (active)
 	{
 		CLocalState::the().update_pre_clientmove(frametime, cmd);
@@ -353,6 +379,8 @@ void CL_CreateMove_FnDetour_t::CL_CreateMove(float frametime, hl::usercmd_t *cmd
 
 		if (!CGameUtil::the().is_spectator())
 		{
+			CNetchanSequenceHistory::the().update();
+
 			CClientMovementPacket::the().update_clientmove(cmd);
 
 			CEngineSpeedControl::the().update();
@@ -369,6 +397,8 @@ void CL_CreateMove_FnDetour_t::CL_CreateMove(float frametime, hl::usercmd_t *cmd
 
 			CAutomation::the().update();
 
+			CBacktrack::the().update();
+
 			CMovement::the().update_clientmove(frametime, cmd);
 		}
 
@@ -379,6 +409,11 @@ void CL_CreateMove_FnDetour_t::CL_CreateMove(float frametime, hl::usercmd_t *cmd
 			CUserMSGDetourMgr::the().ReceiveW_fn().call("ReceiveW", sizeof(uint8_t), &value);
 		}
 #endif
+
+		if (debug_render_info.get_value())
+		{
+			CEngineFontRendering::the().render_information();
+		}
 	}
 }
 
@@ -538,7 +573,7 @@ void EV_HLDM_FireBullets_FnDetour_t::EV_HLDM_FireBullets(int idx, float* forward
 	CMemoryFnDetourMgr::the().EV_HLDM_FireBullets().call(idx, forward, right, up, cShots, vecSrc, vecDirShooting, vecSpread, flDistance,
 														 iBulletType, iTracerFreq, tracerCount, iPenetration);
 
-	//Vector vec_start = /*CGameUtil::the().is_local_player(idx) ? CEntityMgr::the().get_local_player().get_eye_pos() :*/ vecSrc;
+	//Vector vec_start = /*CGameUtil::the().is_local_player(idx) ? CLocalState::the().local_player().get_eye_pos() :*/ vecSrc;
 
 }
 
@@ -611,10 +646,10 @@ void R_LightLambert_FnDetour_t::R_LightLambert(float** light, float *normal, flo
 
 	CMemoryFnDetourMgr::the().R_LightLambert().call(light, normal, src, lambert);
 
-	if (!CAntiScreen::the().hide_visuals())
-	{
-		CModelChams::the().executeall_color(lambert);
-	}
+	//if (!CAntiScreen::the().hide_visuals())
+	//{
+	//	CModelChams::the().executeall_color(lambert);
+	//}
 }
 
 //---------------------------------------------------------------------------------
@@ -1227,6 +1262,59 @@ void HUD_Frame_FnDetour_t::HUD_Frame()
 	CWorldVisuals::the().render_fog();
 
 	CMemoryFnDetourMgr::the().HUD_Frame().call();
+}
+
+//---------------------------------------------------------------------------------
+
+bool R_DrawEntitiesOnList_FnDetour_t::install()
+{
+	initialize("R_DrawEntitiesOnList", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)R_DrawEntitiesOnList);
+}
+
+void R_DrawEntitiesOnList_FnDetour_t::R_DrawEntitiesOnList()
+{
+	// function to process all visents and beams
+	
+	// this should be handled inside the chams code, but whatever, 
+	// at least we will not populate the visent list inside the engine by calling following function...
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		auto local = CLocalState::the().local_player();
+		if (local)
+		{
+			// quickly add it into the list of visents before we draw them.
+			CFakePlayerRenderer::the().create_entities();
+		}
+	}
+	
+	CMemoryFnDetourMgr::the().R_DrawEntitiesOnList().call();
+}
+
+//---------------------------------------------------------------------------------
+
+bool R_StudioSetupLighting_FnDetour_t::install()
+{
+	initialize("R_StudioSetupLighting", L"hw.dll");
+	return detour_using_memory_address((uintptr_t*)R_StudioSetupLighting, (uintptr_t*)CMemoryHookMgr::the().engine_studio_api().get()->StudioSetupLighting);
+}
+
+void R_StudioSetupLighting_FnDetour_t::R_StudioSetupLighting(hl::alight_t* plighting)
+{
+	// function takes care of studiomodel lighting (ambient / shadelight)
+
+//	CConsole::the().info("ambient: {}, shade: {}", plighting->ambientlight, plighting->shadelight);
+
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		CModelChams::the().executeall_studio_lighting(plighting);
+	}
+
+//	plighting->color[0] = 0;
+//	plighting->color[1] = 0;
+//	plighting->color[2] = 0.9f;
+
+	CMemoryFnDetourMgr::the().R_StudioSetupLighting().call(plighting);
 }
 
 //---------------------------------------------------------------------------------

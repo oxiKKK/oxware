@@ -30,22 +30,39 @@
 
 VarBoolean mdlchams_enable("mdlchams_enable", "Enables model chams", false);
 
+// properties
 VarBoolean mdlchams_flatshaded("mdlchams_flatshaded", "Enables flat-shaded chams", false);
 VarBoolean mdlchams_blend("mdlchams_blend", "Enables chams blend", false);
 VarBoolean mdlchams_rainbow("mdlchams_rainbow", "Enables rainbow chams colors", false);
 VarInteger mdlchams_rainbow_speed("mdlchams_rainbow_speed", "Speed of the rainbow color changer", 1, 1, 5);
 
+// viewmodel
 VarBoolean mdlchams_viewmodel_enable("mdlchams_viewmodel_enable", "Enables viewmodel chams", false);
 VarColor mdlchams_viewmodel_color("mdlchams_viewmodel_color", "Viewmodel chams color", CColor(230, 0, 170, 255));
-VarInteger mdlchams_viewmodel_type("mdlchams_viewmodel_type", "Viewmodel chams type", CHAMS_Flat, CHAMS_Flat, CHAMS_FlatTercial);
+VarInteger mdlchams_viewmodel_type("mdlchams_viewmodel_type", "Viewmodel chams type", CHAMS_Flat, CHAMS_Flat, CHAMS_Wireframe);
+VarInteger mdlchams_viewmodel_shadelight("mdlchams_viewmodel_shadelight", "Controls shadelight on viewmodel", 177, 0, 255);
+VarInteger mdlchams_viewmodel_ambientlight("mdlchams_viewmodel_ambientlight", "Controls ambientlight on viewmodel", 20, 0, 255);
 
+// t
 VarBoolean mdlchams_players_t_enable("mdlchams_players_t_enable", "Enables players T chams", false);
 VarColor mdlchams_players_t_color("mdlchams_players_t_color", "Players chams T color", CColor(230, 50, 50, 255));
-VarInteger mdlchams_players_t_type("mdlchams_players_t_type", "Players chams T type", CHAMS_Flat, CHAMS_Flat, CHAMS_FlatTercial);
+VarInteger mdlchams_players_t_type("mdlchams_players_t_type", "Players chams T type", CHAMS_Flat, CHAMS_Flat, CHAMS_Wireframe);
+VarInteger mdlchams_players_t_shadelight("mdlchams_players_t_shadelight", "Controls shadelight on Ts", 177, 0, 255);
+VarInteger mdlchams_players_t_ambientlight("mdlchams_players_t_ambientlight", "Controls ambientlight on Ts", 20, 0, 255);
 
+// ct
 VarBoolean mdlchams_players_ct_enable("mdlchams_players_ct_enable", "Enables players CT chams", false);
 VarColor mdlchams_players_ct_color("mdlchams_players_ct_color", "Players chams CT color", CColor(50, 50, 230, 255));
-VarInteger mdlchams_players_ct_type("mdlchams_players_ct_type", "Players chams CT type", CHAMS_Flat, CHAMS_Flat, CHAMS_FlatTercial);
+VarInteger mdlchams_players_ct_type("mdlchams_players_ct_type", "Players chams CT type", CHAMS_Flat, CHAMS_Flat, CHAMS_Wireframe);
+VarInteger mdlchams_players_ct_shadelight("mdlchams_players_ct_shadelight", "Controls shadelight on CTs", 177, 0, 255);
+VarInteger mdlchams_players_ct_ambientlight("mdlchams_players_ct_ambientlight", "Controls ambientlight on CTs", 20, 0, 255);
+
+// backtrack
+VarBoolean mdlchams_players_backtrack_enable("mdlchams_players_backtrack_enable", "Enables players backtrack chams", false);
+VarColor mdlchams_players_backtrack_color("mdlchams_players_backtrack_color", "Players chams backtrack color", CColor(210, 0, 250, 255));
+VarInteger mdlchams_players_backtrack_type("mdlchams_players_backtrack_type", "Players chams backtrack type", CHAMS_Flat, CHAMS_Flat, CHAMS_Wireframe);
+VarInteger mdlchams_players_backtrack_shadelight("mdlchams_players_backtrack_shadelight", "Controls shadelight on backtracked players", 177, 0, 255);
+VarInteger mdlchams_players_backtrack_ambientlight("mdlchams_players_backtrack_ambientlight", "Controls ambientlight on backtracked players", 20, 0, 255);
 
 VarBoolean mdlchams_player_skeleton("mdlchams_player_skeleton", "Disables playermodels but instead renders their skeleton", false);
 
@@ -57,59 +74,68 @@ VarBoolean mdlchams_disable_animations("mdlchams_disable_animations", "Disables 
 
 VarBoolean mdlchams_force_default_viewmodel("mdlchams_force_default_viewmodel", "Enforces default viewmodel", false);
 
-void CModelChams::initialize()
-{
-	m_chammed_models.reserve(6);
-
-	intitialize_chammed_model(
-		&m_viewmodel, &mdlchams_viewmodel_enable, &mdlchams_viewmodel_color, &mdlchams_viewmodel_type, 
-		[]() -> bool
+std::array<ChammedModel, CHAMS_COUNT> CModelChams::m_chammed_models =
+{ {
+	// CHAMS_VIEWMODEL
+	ChammedModel(
+		&mdlchams_viewmodel_enable, &mdlchams_viewmodel_color, &mdlchams_viewmodel_type, &mdlchams_viewmodel_shadelight, &mdlchams_viewmodel_ambientlight,
+		[](hl::cl_entity_t* current_ent) 
 		{
-			auto current_ent = CMemoryHookMgr::the().engine_studio_api().get()->GetCurrentEntity();
-
 			return current_ent == &CMemoryHookMgr::the().cl().get()->viewent;
-		});
+		}),
 
-	intitialize_chammed_model(
-		&m_players_t, &mdlchams_players_t_enable, &mdlchams_players_t_color, &mdlchams_players_t_type,
-		[]() -> bool
+	// CHAMS_PLAYERS_CT
+	ChammedModel(
+		&mdlchams_players_ct_enable, &mdlchams_players_ct_color, &mdlchams_players_ct_type, &mdlchams_players_ct_shadelight, &mdlchams_players_ct_ambientlight,
+		[](hl::cl_entity_t* current_ent) 
 		{
-			auto current_ent = CMemoryHookMgr::the().engine_studio_api().get()->GetCurrentEntity();
 			if (current_ent->player)
 			{
 				auto& player = CEntityMgr::the().m_known_players[current_ent->index];
-				return player.get_team() == hl::TERRORIST;
+				return player.get_team() == hl::CT && current_ent->curstate.iuser4 == ENT_ID_NONE;
 			}
-
 			return false;
-		});
+		}),
 
-	intitialize_chammed_model(
-		&m_players_ct, &mdlchams_players_ct_enable, &mdlchams_players_ct_color, &mdlchams_players_ct_type,
-		[]() -> bool
+	// CHAMS_PLAYERS_T
+	ChammedModel(
+		&mdlchams_players_t_enable, &mdlchams_players_t_color, &mdlchams_players_t_type, &mdlchams_players_t_shadelight, &mdlchams_players_t_ambientlight,
+		[](hl::cl_entity_t* current_ent) 
 		{
-			auto current_ent = CMemoryHookMgr::the().engine_studio_api().get()->GetCurrentEntity();
 			if (current_ent->player)
 			{
 				auto& player = CEntityMgr::the().m_known_players[current_ent->index];
-				return player.get_team() == hl::CT;
+				return player.get_team() == hl::TERRORIST && current_ent->curstate.iuser4 == ENT_ID_NONE;
 			}
-
 			return false;
-		});
-}
+		}),
+
+	// CHAMS_BACKTRACK
+	ChammedModel(
+		&mdlchams_players_backtrack_enable, &mdlchams_players_backtrack_color, &mdlchams_players_backtrack_type, &mdlchams_players_backtrack_shadelight, &mdlchams_players_backtrack_ambientlight,
+		[](hl::cl_entity_t* current_ent) 
+		{
+			return current_ent->player && current_ent->curstate.iuser4 == ENT_ID_BACKTRACK;
+		}),
+} };
 
 void CModelChams::executeall_studio_pre()
 {
 	OX_PROFILE_SCOPE("studio_points_pre");
+
+	m_studio_draw_points_lock = true;
+	
+	auto engine_studio_api = CMemoryHookMgr::the().engine_studio_api().get();
+	auto current_ent = engine_studio_api->GetCurrentEntity();
 	
 	if (mdlchams_enable.get_value())
 	{
-		for (auto chams : m_chammed_models)
+		for (auto& chams : m_chammed_models)
 		{
-			if (chams->is_enabled() && chams->should_render())
+			if (chams.is_enabled() && chams.should_render(current_ent))
 			{
-				chams->process_studio_pre();
+				chams.process_studio_pre();
+				break;
 			}
 		}
 	}
@@ -117,7 +143,6 @@ void CModelChams::executeall_studio_pre()
 	{
 		if (mdlchams_render_real_playermodel.get_value() && !m_rendering_real_playermodel)
 		{
-			auto current_ent = CMemoryHookMgr::the().engine_studio_api().get()->GetCurrentEntity();
 			if (current_ent->player)
 			{
 				glBlendFunc(GL_ONE, GL_ONE);
@@ -132,13 +157,17 @@ void CModelChams::executeall_studio_post()
 {
 	OX_PROFILE_SCOPE("studio_points_post");
 	
+	auto engine_studio_api = CMemoryHookMgr::the().engine_studio_api().get();
+	auto current_ent = engine_studio_api->GetCurrentEntity();
+
 	if (mdlchams_enable.get_value())
 	{
-		for (auto chams : m_chammed_models)
+		for (auto& chams : m_chammed_models)
 		{
-			if (chams->is_enabled() && chams->should_render())
+			if (chams.is_enabled() && chams.should_render(current_ent))
 			{
-				chams->process_studio_post();
+				chams.process_studio_post();
+				break;
 			}
 		}
 	}
@@ -146,7 +175,6 @@ void CModelChams::executeall_studio_post()
 	{
 		if (mdlchams_render_real_playermodel.get_value() && !m_rendering_real_playermodel)
 		{
-			auto current_ent = CMemoryHookMgr::the().engine_studio_api().get()->GetCurrentEntity();
 			if (current_ent->player)
 			{
 				glDisable(GL_BLEND);
@@ -154,9 +182,31 @@ void CModelChams::executeall_studio_post()
 			}
 		}
 	}
+
+	m_studio_draw_points_lock = false;
 }
 
-void CModelChams::executeall_color(float* lambert)
+void CModelChams::executeall_studio_lighting(hl::alight_t* plighting)
+{
+	OX_PROFILE_SCOPE("studio_lighting");
+	
+	auto engine_studio_api = CMemoryHookMgr::the().engine_studio_api().get();
+	auto current_ent = engine_studio_api->GetCurrentEntity();
+
+	if (mdlchams_enable.get_value())
+	{
+		for (auto& chams : m_chammed_models)
+		{
+			if (chams.is_enabled() && chams.should_render(current_ent))
+			{
+				chams.process_studio_lighting(plighting);
+				break;
+			}
+		}
+	}
+}
+
+void CModelChams::executeall_color(GLfloat* r, GLfloat* g, GLfloat* b, GLfloat* a)
 {
 	OX_PROFILE_SCOPE("modelchams_color");
 	
@@ -165,11 +215,18 @@ void CModelChams::executeall_color(float* lambert)
 		return;
 	}
 
-	for (auto chams : m_chammed_models)
+	auto current_ent = CMemoryHookMgr::the().engine_studio_api().get()->GetCurrentEntity();
+	if (!current_ent)
 	{
-		if (chams->is_enabled() && chams->should_render())
+		// since this is called inside glColor4f, this can be nullptr.
+		return;
+	}
+
+	for (auto& chams : m_chammed_models)
+	{
+		if (chams.is_enabled() && chams.should_render(current_ent))
 		{
-			chams->process_color(lambert);
+			chams.process_color(r, g, b, a);
 		}
 	}
 }
@@ -364,12 +421,6 @@ hl::studiohdr_t* CModelChams::get_currently_rendered_model_header()
 	return nullptr;
 }
 
-void CModelChams::intitialize_chammed_model(ChammedModel* model, VarBoolean* is_enabled, VarColor* color, VarInteger* type, const std::function<bool()>& should_render)
-{
-	*model = ChammedModel(is_enabled, color, type, should_render);
-	m_chammed_models.push_back(model);
-}
-
 //---------------------------------------------------------------------------------
 
 void ChammedModel::process_studio_pre()
@@ -386,7 +437,29 @@ void ChammedModel::process_studio_pre()
 		glDepthMask(GL_FALSE);
 	}
 
-	glDisable(GL_TEXTURE_2D);
+	switch (m_type->get_value())
+	{
+		case CHAMS_Flat:
+		case CHAMS_FlatTercial:
+		case CHAMS_FlatLightened:
+		{
+			glDisable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			break;
+		}
+		case CHAMS_Wireframe:
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); 
+			glDisable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			break;
+		}
+		case CHAMS_Texture:
+		{
+			glEnable(GL_TEXTURE_2D);
+			break;
+		}
+	}
 }
 
 void ChammedModel::process_studio_post()
@@ -397,11 +470,40 @@ void ChammedModel::process_studio_post()
 		glDepthMask(GL_TRUE);
 	}
 
-	glEnable(GL_TEXTURE_2D);
+	switch (m_type->get_value())
+	{
+		case CHAMS_Flat:
+		case CHAMS_FlatTercial:
+		case CHAMS_FlatLightened:
+		{
+			glEnable(GL_TEXTURE_2D);
+			break;
+		}
+		case CHAMS_Wireframe:
+		{
+			glEnable(GL_TEXTURE_2D);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			break;
+		}
+		case CHAMS_Texture:
+		{
+			break;
+		}
+	}
 }
 
-void ChammedModel::process_color(float* lambert)
+void ChammedModel::process_color(GLfloat* r, GLfloat* g, GLfloat* b, GLfloat* a)
 {
+	if (!CModelChams::the().is_drawing_studio_model())
+	{
+		return;
+	}
+
+	if (CAntiScreen::the().hide_visuals())
+	{
+		return;
+	}
+
 	auto color = m_color->get_value();
 	
 	if (mdlchams_rainbow.get_value())
@@ -418,21 +520,47 @@ void ChammedModel::process_color(float* lambert)
 	switch (get_type())
 	{
 		case CHAMS_Flat:
+		case CHAMS_Texture:
+		case CHAMS_Wireframe:
 		{
-			lambert[0] = color.r;
-			lambert[1] = color.g;
-			lambert[2] = color.b;
+			*r = color.r;
+			*g = color.g;
+			*b = color.b;
 			
 			break;
 		}
 		case CHAMS_FlatTercial:
 		{
-			lambert[0] = color.r * lambert[0];
-			lambert[1] = color.g * lambert[1];
-			lambert[2] = color.b * lambert[2];
+			*r = color.r * *r;
+			*g = color.g * *g;
+			*b = color.b * *b;
 
 			break;
 		}
+		case CHAMS_FlatLightened:
+		{
+			*r = color.r / (*r == 0.0f ? 0.01f : *r);
+			*g = color.g / (*g == 0.0f ? 0.01f : *g);
+			*b = color.b / (*b == 0.0f ? 0.01f : *b);
+
+			break;
+		}
+	}
+}
+
+void ChammedModel::process_studio_lighting(hl::alight_t* plighting)
+{
+	int shade = m_shade->get_value();
+	int ambient = m_ambient->get_value();
+
+	if (shade != 0)
+	{
+		plighting->shadelight = shade;
+	}
+
+	if (ambient != 0)
+	{
+		plighting->ambientlight = ambient;
 	}
 }
 

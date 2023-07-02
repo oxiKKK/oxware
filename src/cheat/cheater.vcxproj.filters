@@ -320,6 +320,15 @@
     <ClCompile Include="util\EngineSpeedControl.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
+    <ClCompile Include="features\BackTrack.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="util\FakePlayerRenderer.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="game\NetchanSequenceHistory.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -586,6 +595,15 @@
     </ClInclude>
     <ClInclude Include="util\EngineSpeedControl.h">
       <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="features\BackTrack.h">
+      <Filter>src\features</Filter>
+    </ClInclude>
+    <ClInclude Include="util\FakePlayerRenderer.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="game\NetchanSequenceHistory.h">
+      <Filter>src\game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

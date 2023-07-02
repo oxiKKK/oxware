@@ -92,6 +92,9 @@ public:
 		render_debug_impl(std::vformat(_Fmt.get(), std::make_format_args(_Args...)));
 	}
 
+	// call this in CL_CreateMove
+	void render_information();
+
 private:
 	void render_debug_impl(const std::string& text);
 

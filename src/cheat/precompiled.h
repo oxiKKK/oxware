@@ -254,6 +254,7 @@ namespace hl
 #include "util/parsemsg.h"
 #include "util/EngineSoundPlayer.h"
 #include "util/EngineSpeedControl.h"
+#include "util/FakePlayerRenderer.h"
 
 // game
 #include "game/model/StudioModelData.h"
@@ -270,6 +271,7 @@ namespace hl
 #include "game/VideoModeUtil.h"
 #include "game/ParticlemanMiniMemEmulation.h"
 #include "game/GameEvents.h"
+#include "game/NetchanSequenceHistory.h"
 
 // features
 #include "features/FeatureManager.h"
@@ -296,6 +298,7 @@ namespace hl
 #include "features/AspectRatioChanger.h"
 #include "features/Automation.h"
 #include "features/EnvironmentalEffects.h"
+#include "features/BackTrack.h"
 #include "features/movement/BunnyHop.h"
 #include "features/movement/AirStuck.h"
 #include "features/movement/GroundStrafe.h"

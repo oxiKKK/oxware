@@ -204,6 +204,7 @@
     <ClCompile Include="features\AntiScreen.cpp" />
     <ClCompile Include="features\AspectRatioChanger.cpp" />
     <ClCompile Include="features\Automation.cpp" />
+    <ClCompile Include="features\BackTrack.cpp" />
     <ClCompile Include="features\EnvironmentalEffects.cpp" />
     <ClCompile Include="features\IngameScreenRendering.cpp" />
     <ClCompile Include="features\movement\AirStuck.cpp" />
@@ -240,6 +241,7 @@
     <ClCompile Include="game\GenericEnt.cpp" />
     <ClCompile Include="game\GenericMdl.cpp" />
     <ClCompile Include="game\GenericPlayer.cpp" />
+    <ClCompile Include="game\NetchanSequenceHistory.cpp" />
     <ClCompile Include="game\ParticleManMiniMemEmulation.cpp" />
     <ClCompile Include="game\VideoModeUtil.cpp" />
     <ClCompile Include="game\LocalPlayerState.cpp" />
@@ -290,6 +292,7 @@
     <ClCompile Include="util\GoldSrcCommandManager.cpp" />
     <ClCompile Include="util\GoldSrcMungificationAlgorigthms.cpp" />
     <ClCompile Include="util\HLNetMessageIO.cpp" />
+    <ClCompile Include="util\FakePlayerRenderer.cpp" />
     <ClCompile Include="util\MathUtil.cpp" />
     <ClCompile Include="util\parsemsg.cpp" />
     <ClCompile Include="util\vanilla_halflife_dir_file_database.cpp">
@@ -310,6 +313,7 @@
     <ClInclude Include="features\AntiScreen.h" />
     <ClInclude Include="features\AspectRatioChanger.h" />
     <ClInclude Include="features\Automation.h" />
+    <ClInclude Include="features\BackTrack.h" />
     <ClInclude Include="features\EnvironmentalEffects.h" />
     <ClInclude Include="features\IngameScreenRendering.h" />
     <ClInclude Include="features\movement\AirStuck.h" />
@@ -345,6 +349,7 @@
     <ClInclude Include="game\GenericEnt.h" />
     <ClInclude Include="game\GenericMdl.h" />
     <ClInclude Include="game\GenericPlayer.h" />
+    <ClInclude Include="game\NetchanSequenceHistory.h" />
     <ClInclude Include="game\ParticleManMiniMemEmulation.h" />
     <ClInclude Include="game\VideoModeUtil.h" />
     <ClInclude Include="game\LocalPlayerState.h" />
@@ -385,6 +390,7 @@
     <ClInclude Include="util\GoldSrcCommandManager.h" />
     <ClInclude Include="util\GoldSrcMungificationAlgorigthms.h" />
     <ClInclude Include="util\HLNetMessageIO.h" />
+    <ClInclude Include="util\FakePlayerRenderer.h" />
     <ClInclude Include="util\MathUtil.h" />
     <ClInclude Include="util\parsemsg.h" />
     <ClInclude Include="util\vanilla_halflife_dir_file_database.h" />

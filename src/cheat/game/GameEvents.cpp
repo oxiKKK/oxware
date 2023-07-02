@@ -33,4 +33,6 @@ void CGameEvents::on_connect()
 	CConsole::the().dinfo(__FUNCTION__);
 
 	CEnvironmentalEffects::the().restart();
+
+	CNetchanSequenceHistory::the().flush();
 }

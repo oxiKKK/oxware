@@ -62,7 +62,7 @@ protected:
 	// generic handlers for finding the hook inside memory
 	virtual bool install_using_bytepattern(size_t dereference_count, const std::function<void(uintptr_t** address)>& modify_address = NULL);
 	virtual bool install_using_exported_name(const char* export_name);
-	virtual bool install_using_memory_address(uintptr_t* memory_address);
+	virtual bool install_using_memory_address(uintptr_t* memory_address, size_t dereference_count = 0, const std::function<void(uintptr_t** address)>& modify_address = NULL);
 
 private:
 	//
@@ -224,14 +224,12 @@ inline bool GenericMemoryHook<T>::install_using_exported_name(const char* export
 		return false;
 	}
 
-	CConsole::the().info("Found {} at 0x{:08X}", m_name, (uintptr_t)m_address);
-
 	on_hook_install_success();
 	return true;
 }
 
 template<typename T>
-inline bool GenericMemoryHook<T>::install_using_memory_address(uintptr_t* memory_address)
+inline bool GenericMemoryHook<T>::install_using_memory_address(uintptr_t* memory_address, size_t dereference_count, const std::function<void(uintptr_t** address)>& modify_address)
 {
 	on_hook_install_begin("memory address");
 
@@ -242,7 +240,16 @@ inline bool GenericMemoryHook<T>::install_using_memory_address(uintptr_t* memory
 		return false;
 	}
 
-	CConsole::the().info("Found {} at {}", m_name, (uintptr_t)m_address);
+	// dereference it to get the base address of it
+	for (size_t i = 0; i < dereference_count; i++)
+	{
+		m_address = *reinterpret_cast<uintptr_t**>(m_address);
+	}
+
+	if (modify_address)
+	{
+		modify_address(&m_address);
+	}
 
 	on_hook_install_success();
 	return true;

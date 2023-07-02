@@ -65,6 +65,9 @@ struct position_history_t
 	vec3_t	angles;
 };
 
+#define HISTORY_MAX		64  // Must be power of 2
+#define HISTORY_MASK	( HISTORY_MAX - 1 )
+
 #include "entity_state.h"
 
 // An entity is an active object that is composed out of several
@@ -81,7 +84,7 @@ struct cl_entity_t
 	entity_state_t			curstate;	// The state information from the last message received from server
 
 	int						current_position;		// Last received history update index, starting from one
-	position_history_t		ph[MAX_POSITION_HIST];	// History of position and angle updates for this player
+	position_history_t		ph[HISTORY_MAX];	// History of position and angle updates for this player
 
 	mouth_t					mouth;		// For synchronizing mouth movements.
 

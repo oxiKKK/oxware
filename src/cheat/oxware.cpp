@@ -101,8 +101,6 @@ bool CoXWARE::initialize_phase2()
 	
 	CFeatureManager::the().initialize();
 
-	CModelChams::the().initialize();
-
 #ifdef OX_ENABLE_CODE_PROFILE
 	g_code_perf_profiler_i->register_profile_report(&g_module_profile_report);
 #endif

@@ -104,10 +104,6 @@
 #define MAX_SFX_BITS				10
 #define	MAX_SFX						(10 << MAX_SFX_BITS)
 
-// History records. This is used for entity interpolation
-#define MAX_POSITION_HIST		(1 << 6) // 64
-#define POSITION_HIST_MASK		(MAX_POSITION_HIST - 1)
-
 //
 // Texture information
 //

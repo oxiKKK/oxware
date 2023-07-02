@@ -577,7 +577,7 @@ void CUIMenu::tab_world()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Viewmodel offset", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Viewmodel offset", CMenuStyle::calc_child_size(85), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(
@@ -585,6 +585,18 @@ void CUIMenu::tab_world()
 				[]()
 				{
 					CUIMenuWidgets::the().add_slider("Amount", "%0.1f", &viewmodel_offset_value);
+				});
+			});
+
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+			"Backtrack", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().feature_enabled_section(
+				&backtrack_enable,
+				[]()
+				{
+					CUIMenuWidgets::the().add_listbox("Team", &backtrack_team, { "Ts", "CTs", "Teammates", "Enemy", "Both" });
 				});
 			});
 
@@ -796,17 +808,18 @@ void CUIMenu::tab_render()
 				{
 					g_gui_widgets_i->begin_tab("model_chams_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-					float tab_height = 80.0f;
+					float tab_height = 140.0f;
 
 					g_gui_widgets_i->add_tab_item(
 						"VM", false,
 						{ -1.0f, tab_height },
 						[]()
 						{
-							g_gui_widgets_i->add_padding({ 0, 5.0f });
 							g_gui_widgets_i->add_separtor_with_text("Viewmodel");
 							CUIMenuWidgets::the().add_checkbox_with_color("Enable ##VM", &mdlchams_viewmodel_enable, &mdlchams_viewmodel_color);
-							CUIMenuWidgets::the().add_listbox("Type ##VM", &mdlchams_viewmodel_type, { "Flat", "Shaded" });
+							CUIMenuWidgets::the().add_slider("Shadelight", "%0.0f", &mdlchams_viewmodel_shadelight, "off");
+							CUIMenuWidgets::the().add_slider("Ambientlight", "%0.0f", &mdlchams_viewmodel_ambientlight, "off");
+							CUIMenuWidgets::the().add_listbox("Type", &mdlchams_viewmodel_type, { "Flat", "Shaded", "Lightened", "Texture", "Wireframe" });
 						});
 
 					g_gui_widgets_i->add_tab_item(
@@ -814,10 +827,11 @@ void CUIMenu::tab_render()
 						{ -1.0f, tab_height },
 						[]()
 						{
-							g_gui_widgets_i->add_padding({ 0, 5.0f });
 							g_gui_widgets_i->add_separtor_with_text("Terrorists");
 							CUIMenuWidgets::the().add_checkbox_with_color("Enable ##T", &mdlchams_players_t_enable, &mdlchams_players_t_color);
-							CUIMenuWidgets::the().add_listbox("Type ##T", &mdlchams_players_t_type, { "Flat", "Shaded" });
+							CUIMenuWidgets::the().add_slider("Shadelight", "%0.0f", &mdlchams_players_t_shadelight, "off");
+							CUIMenuWidgets::the().add_slider("Ambientlight", "%0.0f", &mdlchams_players_t_ambientlight, "off");
+							CUIMenuWidgets::the().add_listbox("Type", &mdlchams_players_t_type, { "Flat", "Shaded", "Lightened", "Texture", "Wireframe"  });
 						});
 
 					g_gui_widgets_i->add_tab_item(
@@ -825,15 +839,28 @@ void CUIMenu::tab_render()
 						{ -1.0f, tab_height },
 						[]()
 						{
-							g_gui_widgets_i->add_padding({ 0, 5.0f });
 							g_gui_widgets_i->add_separtor_with_text("Counter-Terrorists");
 							CUIMenuWidgets::the().add_checkbox_with_color("Enable ##CT", &mdlchams_players_ct_enable, &mdlchams_players_ct_color);
-							CUIMenuWidgets::the().add_listbox("Type ##CT", &mdlchams_players_ct_type, { "Flat", "Shaded" });
+							CUIMenuWidgets::the().add_slider("Shadelight", "%0.0f", &mdlchams_players_ct_shadelight, "off");
+							CUIMenuWidgets::the().add_slider("Ambientlight", "%0.0f", &mdlchams_players_ct_ambientlight, "off");
+							CUIMenuWidgets::the().add_listbox("Type", &mdlchams_players_ct_type, { "Flat", "Shaded", "Lightened", "Texture", "Wireframe"  });
+						});
+
+					g_gui_widgets_i->add_tab_item(
+						"Backtrack", false,
+						{ -1.0f, tab_height },
+						[]()
+						{
+							g_gui_widgets_i->add_separtor_with_text("Backtrack");
+
+							CUIMenuWidgets::the().add_checkbox_with_color("Enable", &mdlchams_players_backtrack_enable, &mdlchams_players_backtrack_color);
+							CUIMenuWidgets::the().add_slider("Shadelight", "%0.0f", &mdlchams_players_backtrack_shadelight, "off");
+							CUIMenuWidgets::the().add_slider("Ambientlight", "%0.0f", &mdlchams_players_backtrack_ambientlight, "off");
+							CUIMenuWidgets::the().add_listbox("Type", &mdlchams_players_backtrack_type, { "Flat", "Shaded", "Lightened", "Texture", "Wireframe" });
 						});
 
 					g_gui_widgets_i->end_tab();
 
-					g_gui_widgets_i->add_padding({ 0, 5.0f });
 					g_gui_widgets_i->add_separtor_with_text("Properties");
 					CUIMenuWidgets::the().add_checkbox("Flat-shaded", &mdlchams_flatshaded);
 					CUIMenuWidgets::the().add_checkbox("Blend", &mdlchams_blend);
@@ -1000,97 +1027,6 @@ void CUIMenu::tab_visuals4()
 
 void CUIMenu::tab_exploits()
 {
-	CUIMenuWidgets::the().add_menu_child_collapsible(
-		"Server command filter", CMenuStyle::child_full_width(210.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			if (g_gui_widgets_i->begin_columns("server_cmd_filter", 3))
-			{
-				g_gui_widgets_i->setup_column_fixed_width(100);
-				g_gui_widgets_i->setup_column_fixed_width(150);
-
-				g_gui_widgets_i->goto_next_column();
-
-				CUIMenuWidgets::the().add_checkbox("Enable", &cmdfilter_enable);
-				CUIMenuWidgets::the().add_checkbox("Filter all", &cmdfilter_filter_all);
-
-				g_gui_widgets_i->goto_next_column();
-
-				CUIMenuWidgets::the().add_checkbox("Print blocked cmds", &cmdfilter_print_blocked);
-
-				g_gui_widgets_i->goto_next_column();
-
-				CUIMenuWidgets::the().add_checkbox("Print every cmds", &cmdfilter_print_every);
-
-				g_gui_widgets_i->end_columns();
-			}
-
-			CUIMenuWidgets::the().add_description_text_ex(
-				"This filter allows you to block commands that are send to you from the server."
-				" You can add a list of commands separated by a comma \";\" that you want to block, such as:\n"
-				"\"fps_max; bind; exit\" and such.",
-
-				[&]()
-				{
-					g_gui_widgets_i->add_text(
-						"How does it work", 
-						TEXTPROP_Wrapped,
-						g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText, FDC_Regular));
-
-					g_gui_widgets_i->add_text(
-						"For example, often the server sends command to you such as \"fps_max 100; developer 0\" etc."
-						" Therefore, you can add the command that you don't want to have executed by the server here."
-						" In theory, this is the same as cl_filterstuffcmd however, more customizable.", 
-						TEXTPROP_Wrapped);
-				}
-			);
-
-			g_gui_widgets_i->add_table(
-				"cmdfilter_table", 2,
-				ImGuiTableFlags_HeaderTextOnly,
-				[&]()
-				{
-					static auto column_flags = ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_NoResize;
-					g_gui_widgets_i->table_setup_column_fixed_width("Commands to be filtered", 350.0f, column_flags);
-				},
-				[&]()
-				{
-					g_gui_widgets_i->table_next_column();
-
-					static char cmd_buffer[1024];
-					static bool at_init = false;
-					if (!at_init)
-					{
-						strcpy_s(cmd_buffer, cmdfilter_filtered_commands.get_value_string());
-						at_init = true;
-					}
-
-					bool reclaim_focus_key = false;
-					if (g_gui_widgets_i->add_text_input_ex("Commands to be filtered", cmd_buffer, sizeof(cmd_buffer),
-														   Vector2D(-1.0f, 0.0f)))
-					{
-						reclaim_focus_key = true;
-					};
-
-					// Auto-focus on window apparition
-					g_gui_widgets_i->set_item_default_focus();
-					if (reclaim_focus_key)
-					{
-						g_gui_widgets_i->set_keyboard_focus_here(-1); // Auto focus previous widget
-					}
-
-					g_gui_widgets_i->table_next_column();
-
-					if (g_gui_widgets_i->add_button("Apply", { -1.0f, 25.0f }, false, BUTTONFLAG_CenterLabel))
-					{
-						if (cmd_buffer[0])
-						{
-							cmdfilter_filtered_commands.set_value(cmd_buffer);
-						}
-					}
-				});
-		});
-
 	if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
 	{
 		g_gui_widgets_i->goto_next_column();
@@ -1165,8 +1101,111 @@ void CUIMenu::tab_exploits()
 				});
 			});
 
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+			"Fake latency", CMenuStyle::calc_child_size(85), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[]()
+			{
+				CUIMenuWidgets::the().feature_enabled_section(
+				&fake_latency,
+				[]()
+				{
+					CUIMenuWidgets::the().add_slider("Amount", "%0.0f ms", &fake_latency_amount);
+				});
+			});
+
 		g_gui_widgets_i->end_columns();
 	}
+
+	CUIMenuWidgets::the().add_menu_child_collapsible(
+		"Server command filter", CMenuStyle::child_full_width(210.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			if (g_gui_widgets_i->begin_columns("server_cmd_filter", 3))
+			{
+				g_gui_widgets_i->setup_column_fixed_width(100);
+				g_gui_widgets_i->setup_column_fixed_width(150);
+
+				g_gui_widgets_i->goto_next_column();
+
+				CUIMenuWidgets::the().add_checkbox("Enable", &cmdfilter_enable);
+				CUIMenuWidgets::the().add_checkbox("Filter all", &cmdfilter_filter_all);
+
+				g_gui_widgets_i->goto_next_column();
+
+				CUIMenuWidgets::the().add_checkbox("Print blocked cmds", &cmdfilter_print_blocked);
+
+				g_gui_widgets_i->goto_next_column();
+
+				CUIMenuWidgets::the().add_checkbox("Print every cmds", &cmdfilter_print_every);
+
+				g_gui_widgets_i->end_columns();
+			}
+
+			CUIMenuWidgets::the().add_description_text_ex(
+				"This filter allows you to block commands that are send to you from the server."
+				" You can add a list of commands separated by a comma \";\" that you want to block, such as:\n"
+				"\"fps_max; bind; exit\" and such.",
+
+				[&]()
+				{
+					g_gui_widgets_i->add_text(
+						"How does it work",
+						TEXTPROP_Wrapped,
+						g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText, FDC_Regular));
+
+					g_gui_widgets_i->add_text(
+						"For example, often the server sends command to you such as \"fps_max 100; developer 0\" etc."
+						" Therefore, you can add the command that you don't want to have executed by the server here."
+						" In theory, this is the same as cl_filterstuffcmd however, more customizable.",
+						TEXTPROP_Wrapped);
+				}
+			);
+
+			g_gui_widgets_i->add_table(
+				"cmdfilter_table", 2,
+				ImGuiTableFlags_HeaderTextOnly,
+				[&]()
+				{
+					static auto column_flags = ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_NoResize;
+					g_gui_widgets_i->table_setup_column_fixed_width("Commands to be filtered", 350.0f, column_flags);
+				},
+				[&]()
+				{
+					g_gui_widgets_i->table_next_column();
+
+					static char cmd_buffer[1024];
+					static bool at_init = false;
+					if (!at_init)
+					{
+						strcpy_s(cmd_buffer, cmdfilter_filtered_commands.get_value_string());
+						at_init = true;
+					}
+
+					bool reclaim_focus_key = false;
+					if (g_gui_widgets_i->add_text_input_ex("Commands to be filtered", cmd_buffer, sizeof(cmd_buffer),
+														   Vector2D(-1.0f, 0.0f)))
+					{
+						reclaim_focus_key = true;
+					};
+
+					// Auto-focus on window apparition
+					g_gui_widgets_i->set_item_default_focus();
+					if (reclaim_focus_key)
+					{
+						g_gui_widgets_i->set_keyboard_focus_here(-1); // Auto focus previous widget
+					}
+
+					g_gui_widgets_i->table_next_column();
+
+					if (g_gui_widgets_i->add_button("Apply", { -1.0f, 25.0f }, false, BUTTONFLAG_CenterLabel))
+					{
+						if (cmd_buffer[0])
+						{
+							cmdfilter_filtered_commands.set_value(cmd_buffer);
+						}
+					}
+				});
+		});
 
 	CUIMenuWidgets::the().add_menu_child_collapsible(
 		"Lie to the server", CMenuStyle::child_full_width(400.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
@@ -1992,15 +2031,10 @@ void CUIMenu::tab_others()
 							{
 								g_gui_widgets_i->add_spacing();
 								g_gui_widgets_i->add_separtor_with_text("Movement");
-								CUIMenuWidgets::the().feature_enabled_section(
-								&debug_render_info_movement,
-								[]()
-								{
-									g_gui_widgets_i->add_spacing();
-									CUIMenuWidgets::the().add_checkbox("Bhop", &debug_render_info_movement_bhop);
-									CUIMenuWidgets::the().add_checkbox("Strafe hack", &debug_render_info_movement_strafe);
-									CUIMenuWidgets::the().add_checkbox("Strafe helper", &debug_render_info_movement_strafe_helper);
-								}, "Enable##movement");
+								g_gui_widgets_i->add_spacing();
+								CUIMenuWidgets::the().add_checkbox("Bhop", &debug_render_info_movement_bhop);
+								CUIMenuWidgets::the().add_checkbox("Strafe hack", &debug_render_info_movement_strafe);
+								CUIMenuWidgets::the().add_checkbox("Strafe helper", &debug_render_info_movement_strafe_helper);
 							});
 						});
 

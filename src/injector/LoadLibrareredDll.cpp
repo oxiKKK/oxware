@@ -72,11 +72,11 @@ bool CLoadLibrareredDll::start_injection()
 	{
 		if (is_injecting_to_current_process())
 		{
-			CMessageBox::display_error("Failed to inject '{}' into current process.", m_dll_filepath.string());
+			CConsole::the().error("Failed to inject '{}' into current process.", m_dll_filepath.string());
 		}
 		else
 		{
-			CMessageBox::display_error("Failed to inject '{}' into a target process '{}'.", m_dll_filepath.string(), m_exe_name);
+			CConsole::the().error("Failed to inject '{}' into a target process '{}'.", m_dll_filepath.string(), m_exe_name);
 		}
 		return false;
 	}

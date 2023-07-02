@@ -381,8 +381,8 @@ void CSpriteMgr::render_current_weapon_sprite() const
 
 void CSpriteMgr::render_velocity() const
 {
-	auto local = CEntityMgr::the().get_local_player();
-	if (!local || !local->is_valid() || !local->is_alive())
+	auto local = CLocalState::the().local_player();
+	if (!local)
 		return;
 
 	float velocity = CLocalState::the().get_local_velocity_2d();

@@ -85,7 +85,7 @@ bool CManualMappedDll::start_injection()
 
 	if (!map_dll_to())
 	{
-		CMessageBox::display_error("Failed to inject '{}' into a target process '{}'.", m_dll_filepath.string(), m_exe_name);
+		CConsole::the().error("Failed to inject '{}' into a target process '{}'.", m_dll_filepath.string(), m_exe_name);
 		return false;
 	}
 

@@ -125,6 +125,11 @@ void CMath::vector_transform(const Vector& vector, const float(*transformation_m
 	transformed[2] = DotProduct(vector, transformation_matrix[2]) + transformation_matrix[2][3];
 }
 
+void CMath::vector_ma(const Vector& vector, float scale, const Vector& vector1, Vector& vector_out)
+{
+	vector_out = vector + scale * vector1;
+}
+
 float CMath::vec2yaw(const Vector& dir)
 {
 	if (dir.IsZero2D())
@@ -152,4 +157,47 @@ float CMath::angle_mod(float a)
 	}
 	// a = (360.0/65536) * ((int)(a*(65536/360.0)) & 65535);
 	return a;
+}
+
+void CMath::normalize_angles(float * angles)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		if (angles[i] > 180.f)
+			angles[i] -= 360.f;
+		else if (angles[i] < -180.f)
+			angles[i] += 360.f;
+	}
+}
+
+// Interpolate Euler angles.
+// FIXME:  Use Quaternions to avoid discontinuities
+// Frac is 0.0 to 1.0 ( i.e., should probably be clamped, but doesn't have to be )
+void CMath::interp_angles(float* start, float* end, float* output, float frac)
+{
+	float ang1, ang2;
+	float d;
+
+	normalize_angles(start);
+	normalize_angles(end);
+
+	for (int i = 0; i < 3; i++)
+	{
+		ang1 = start[i];
+		ang2 = end[i];
+
+		d = ang2 - ang1;
+		if (d > 180.0f)
+		{
+			d -= 360.0f;
+		}
+		else if (d < -180.0f)
+		{
+			d += 360.0f;
+		}
+
+		output[i] = ang1 + d * frac;
+	}
+
+	normalize_angles(output);
 }

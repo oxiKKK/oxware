@@ -48,6 +48,7 @@ public:
 	float approach_angle(float target, float value, float speed);
 
 	void vector_transform(const Vector& vector, const float(*transformation_matrix)[4], Vector& transformed);
+	void vector_ma(const Vector& vector, float scale, const Vector& vector1, Vector& vector_out);
 
 	template<typename T>
 	inline constexpr T deg2rad(T x)
@@ -72,6 +73,8 @@ public:
 	float vec2yaw(const Vector& dir);
 	float angle_mod(float a);
 
+	void normalize_angles(float* angles);
+	void interp_angles(float* start, float* end, float* output, float frac);
 };
 
 #endif // MATHUTIL_H

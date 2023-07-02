@@ -60,7 +60,7 @@ bool CRemovals::remove_player(int id)
 		return false;
 	}
 
-	auto local = CEntityMgr::the().get_local_player();
+	auto local = CLocalState::the().local_player();
 	if (local)
 	{
 		if (remove_players_enemy.get_value())

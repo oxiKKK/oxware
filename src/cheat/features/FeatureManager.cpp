@@ -148,6 +148,14 @@ void CFeatureManager::precache_features()
 	add_new_feature(BaseFeature(&world_visuals_enable, "World visuals"));
 	add_new_feature(BaseFeature(&world_visuals_fog, "World fog"));
 
+	// backtrack
+	add_new_feature(BaseFeature(&backtrack_enable, "Backtrack"));
+
+	// speed control
+	add_new_feature(BaseFeature(&speed_control_enable, "Speed control"));
+
+	// fake latency
+	add_new_feature(BaseFeature(&fake_latency, "Fake latency"));
 
 	CConsole::the().info("Precached all features.");
 }

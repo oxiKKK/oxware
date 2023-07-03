@@ -740,7 +740,7 @@ void CUIMenu::tab_render()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Field of view", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Field of view", CMenuStyle::calc_child_size(85), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(
@@ -752,7 +752,7 @@ void CUIMenu::tab_render()
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Aspect ratio", CMenuStyle::calc_child_size(100), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Aspect ratio", CMenuStyle::calc_child_size(85), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(
@@ -1032,7 +1032,7 @@ void CUIMenu::tab_exploits()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Bypass game constrains", CMenuStyle::calc_child_size(325), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Bypass game constrains", CMenuStyle::calc_child_size(290), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().add_checkbox("Re-enable noclip", &bypass_constrain_noclip, "Makes it possible to re-enable noclip in singleplayer. sv_cheats must be enabled.");
@@ -1060,7 +1060,7 @@ void CUIMenu::tab_exploits()
 		g_gui_widgets_i->goto_next_column();
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Frame skip", CMenuStyle::calc_child_size(175), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Frame skip", CMenuStyle::calc_child_size(155), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(
@@ -1082,7 +1082,7 @@ void CUIMenu::tab_exploits()
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
-			"Consistency bypass", CMenuStyle::calc_child_size(150), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"Consistency bypass", CMenuStyle::calc_child_size(135), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
 				CUIMenuWidgets::the().feature_enabled_section(

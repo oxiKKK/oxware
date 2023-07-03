@@ -44,6 +44,24 @@
     <Filter Include="src\game\weapons">
       <UniqueIdentifier>{a82f7b52-4f7a-4159-8c08-76a29b3c65f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\features\world">
+      <UniqueIdentifier>{2fa0e3ce-22dc-4ae0-bd84-26a19a4c50c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\features\render">
+      <UniqueIdentifier>{b380bbc9-37c7-45d9-831c-554c3ba0a5ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\features\screen">
+      <UniqueIdentifier>{e69eaea9-ce64-49fa-be94-8afa6e21bd28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\features\exploits">
+      <UniqueIdentifier>{df6ba73d-f720-4ffd-9705-16c0fdf188d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\hooking\function hooks">
+      <UniqueIdentifier>{9b8cac96-7568-4b44-8984-9e448d499820}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\util\engine">
+      <UniqueIdentifier>{f4349ca2-c8c0-4a8b-80d1-cd67effbc0ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -92,19 +110,10 @@
     <ClCompile Include="hook\HLInterfaceHook.cpp">
       <Filter>src\hooking</Filter>
     </ClCompile>
-    <ClCompile Include="hook\MemoryFnDetour.cpp">
-      <Filter>src\hooking</Filter>
-    </ClCompile>
-    <ClCompile Include="hook\MemoryFnHook.cpp">
-      <Filter>src\hooking</Filter>
-    </ClCompile>
     <ClCompile Include="hook\MemoryHook.cpp">
       <Filter>src\hooking</Filter>
     </ClCompile>
     <ClCompile Include="features\FeatureManager.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="features\FieldOfViewChanger.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="hook\client_dll\MemoryHookCBaseStuff.cpp">
@@ -122,9 +131,6 @@
     <ClCompile Include="game\GenericMdl.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
-    <ClCompile Include="features\ESP.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
     <ClCompile Include="ui\UIBackgroundRendering.cpp">
       <Filter>src\UI\rendering contexts</Filter>
     </ClCompile>
@@ -134,40 +140,10 @@
     <ClCompile Include="game\model\SpriteModelData.cpp">
       <Filter>src\game\model</Filter>
     </ClCompile>
-    <ClCompile Include="features\BypassGameConstrains.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="features\FlashbangFadeModifier.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="features\ModelChams.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="features\Removals.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="hook\SVCFuncDetour.cpp">
-      <Filter>src\hooking</Filter>
-    </ClCompile>
-    <ClCompile Include="features\ViewmodelOffset.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="features\ServerLiar.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="features\SmokeVisuals.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
     <ClCompile Include="..\public\BaseVariable.cpp">
       <Filter>public</Filter>
     </ClCompile>
     <ClCompile Include="features\BulletTrace.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="hook\UserMSGDetour.cpp">
-      <Filter>src\hooking</Filter>
-    </ClCompile>
-    <ClCompile Include="features\FrameSkipper.cpp">
       <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="..\public\code_performace_profile.cpp">
@@ -179,46 +155,16 @@
     <ClCompile Include="game\SpriteManager.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
-    <ClCompile Include="features\VanillaCrosshair.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="features\StuffCMDFilter.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
     <ClCompile Include="hook\HookTests.cpp">
       <Filter>src\hooking\tests</Filter>
     </ClCompile>
-    <ClCompile Include="features\ResourceConsistencyBypass.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="features\IngameScreenRendering.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="util\EngineInputManager.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
-    <ClCompile Include="util\EngineRendering.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
     <ClCompile Include="util\GameUtil.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
-    <ClCompile Include="util\GoldSrcMungificationAlgorigthms.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
-    <ClCompile Include="util\HLNetMessageIO.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
     <ClCompile Include="util\MathUtil.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
     <ClCompile Include="util\vanilla_halflife_dir_file_database.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
-    <ClCompile Include="util\build_num.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
-    <ClCompile Include="util\GoldSrcCommandManager.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
     <ClCompile Include="game\LocalPlayerState.cpp">
@@ -263,26 +209,11 @@
     <ClCompile Include="features\movement\FastRun.cpp">
       <Filter>src\features\movement</Filter>
     </ClCompile>
-    <ClCompile Include="hook\HLCommandDetour.cpp">
-      <Filter>src\hooking</Filter>
-    </ClCompile>
     <ClCompile Include="features\movement\AutoJOF.cpp">
       <Filter>src\features\movement</Filter>
     </ClCompile>
-    <ClCompile Include="features\ThirdPerson.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
     <ClCompile Include="hook\SecurityModuleHook.cpp">
       <Filter>src\hooking</Filter>
-    </ClCompile>
-    <ClCompile Include="features\NonSteamFpsFixer.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="features\AntiDemoRecorder.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="features\WorldVisuals.cpp">
-      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="game\VideoModeUtil.cpp">
       <Filter>src\game</Filter>
@@ -290,26 +221,8 @@
     <ClCompile Include="ui\UIInCommandBinding.cpp">
       <Filter>src\UI</Filter>
     </ClCompile>
-    <ClCompile Include="features\AntiScreen.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="features\AspectRatioChanger.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="features\Automation.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
     <ClCompile Include="game\weapons\Weapons.cpp">
       <Filter>src\game\weapons</Filter>
-    </ClCompile>
-    <ClCompile Include="util\parsemsg.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
-    <ClCompile Include="features\EnvironmentalEffects.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="util\EngineSoundPlayer.cpp">
-      <Filter>src\util</Filter>
     </ClCompile>
     <ClCompile Include="game\ParticleManMiniMemEmulation.cpp">
       <Filter>src\game</Filter>
@@ -317,17 +230,122 @@
     <ClCompile Include="game\GameEvents.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
-    <ClCompile Include="util\EngineSpeedControl.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
-    <ClCompile Include="features\BackTrack.cpp">
-      <Filter>src\features</Filter>
-    </ClCompile>
-    <ClCompile Include="util\FakePlayerRenderer.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
     <ClCompile Include="game\NetchanSequenceHistory.cpp">
       <Filter>src\game</Filter>
+    </ClCompile>
+    <ClCompile Include="features\Removals.cpp">
+      <Filter>src\features\world</Filter>
+    </ClCompile>
+    <ClCompile Include="features\ViewmodelOffset.cpp">
+      <Filter>src\features\world</Filter>
+    </ClCompile>
+    <ClCompile Include="features\BackTrack.cpp">
+      <Filter>src\features\world</Filter>
+    </ClCompile>
+    <ClCompile Include="features\WorldVisuals.cpp">
+      <Filter>src\features\world</Filter>
+    </ClCompile>
+    <ClCompile Include="features\SmokeVisuals.cpp">
+      <Filter>src\features\world</Filter>
+    </ClCompile>
+    <ClCompile Include="features\ThirdPerson.cpp">
+      <Filter>src\features\world</Filter>
+    </ClCompile>
+    <ClCompile Include="features\NonSteamFpsFixer.cpp">
+      <Filter>src\features\world</Filter>
+    </ClCompile>
+    <ClCompile Include="features\AntiScreen.cpp">
+      <Filter>src\features\world</Filter>
+    </ClCompile>
+    <ClCompile Include="features\AntiDemoRecorder.cpp">
+      <Filter>src\features\world</Filter>
+    </ClCompile>
+    <ClCompile Include="features\Automation.cpp">
+      <Filter>src\features\world</Filter>
+    </ClCompile>
+    <ClCompile Include="features\EnvironmentalEffects.cpp">
+      <Filter>src\features\world</Filter>
+    </ClCompile>
+    <ClCompile Include="features\FieldOfViewChanger.cpp">
+      <Filter>src\features\render</Filter>
+    </ClCompile>
+    <ClCompile Include="features\AspectRatioChanger.cpp">
+      <Filter>src\features\render</Filter>
+    </ClCompile>
+    <ClCompile Include="features\ModelChams.cpp">
+      <Filter>src\features\render</Filter>
+    </ClCompile>
+    <ClCompile Include="features\FlashbangFadeModifier.cpp">
+      <Filter>src\features\screen</Filter>
+    </ClCompile>
+    <ClCompile Include="features\ESP.cpp">
+      <Filter>src\features\screen</Filter>
+    </ClCompile>
+    <ClCompile Include="features\VanillaCrosshair.cpp">
+      <Filter>src\features\screen</Filter>
+    </ClCompile>
+    <ClCompile Include="features\IngameScreenRendering.cpp">
+      <Filter>src\features\screen</Filter>
+    </ClCompile>
+    <ClCompile Include="features\BypassGameConstrains.cpp">
+      <Filter>src\features\exploits</Filter>
+    </ClCompile>
+    <ClCompile Include="features\FrameSkipper.cpp">
+      <Filter>src\features\exploits</Filter>
+    </ClCompile>
+    <ClCompile Include="features\ResourceConsistencyBypass.cpp">
+      <Filter>src\features\exploits</Filter>
+    </ClCompile>
+    <ClCompile Include="features\ServerLiar.cpp">
+      <Filter>src\features\exploits</Filter>
+    </ClCompile>
+    <ClCompile Include="features\StuffCMDFilter.cpp">
+      <Filter>src\features\exploits</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\MemoryFnDetour.cpp">
+      <Filter>src\hooking\function hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\MemoryFnHook.cpp">
+      <Filter>src\hooking\function hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\SVCFuncDetour.cpp">
+      <Filter>src\hooking\function hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\UserMSGDetour.cpp">
+      <Filter>src\hooking\function hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\HLCommandDetour.cpp">
+      <Filter>src\hooking\function hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="util\EngineInputManager.cpp">
+      <Filter>src\util\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="util\EngineRendering.cpp">
+      <Filter>src\util\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="util\EngineSoundPlayer.cpp">
+      <Filter>src\util\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="util\EngineSpeedControl.cpp">
+      <Filter>src\util\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="util\GoldSrcCommandManager.cpp">
+      <Filter>src\util\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="util\GoldSrcMungificationAlgorigthms.cpp">
+      <Filter>src\util\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="util\HLNetMessageIO.cpp">
+      <Filter>src\util\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="util\build_num.cpp">
+      <Filter>src\util\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="util\FakePlayerRenderer.cpp">
+      <Filter>src\util\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="util\parsemsg.cpp">
+      <Filter>src\util\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -368,19 +386,10 @@
     <ClInclude Include="hook\HLInterfaceHook.h">
       <Filter>src\hooking</Filter>
     </ClInclude>
-    <ClInclude Include="hook\MemoryFnDetour.h">
-      <Filter>src\hooking</Filter>
-    </ClInclude>
-    <ClInclude Include="hook\MemoryFnHook.h">
-      <Filter>src\hooking</Filter>
-    </ClInclude>
     <ClInclude Include="hook\MemoryHook.h">
       <Filter>src\hooking</Filter>
     </ClInclude>
     <ClInclude Include="features\FeatureManager.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="features\FieldOfViewChanger.h">
       <Filter>src\features</Filter>
     </ClInclude>
     <ClInclude Include="hook\client_dll\MemoryHookCBaseStuff.h">
@@ -398,9 +407,6 @@
     <ClInclude Include="game\GenericMdl.h">
       <Filter>src\game</Filter>
     </ClInclude>
-    <ClInclude Include="features\ESP.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
     <ClInclude Include="ui\UIBackgroundRendering.h">
       <Filter>src\UI\rendering contexts</Filter>
     </ClInclude>
@@ -410,40 +416,10 @@
     <ClInclude Include="game\model\SpriteModelData.h">
       <Filter>src\game\model</Filter>
     </ClInclude>
-    <ClInclude Include="features\BypassGameConstrains.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="features\FlashbangFadeModifier.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="features\ModelChams.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="features\Removals.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="hook\SVCFuncDetour.h">
-      <Filter>src\hooking</Filter>
-    </ClInclude>
-    <ClInclude Include="features\ViewmodelOffset.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="features\ServerLiar.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="features\SmokeVisuals.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\BaseVariable.h">
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="features\BulletTrace.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="hook\UserMSGDetour.h">
-      <Filter>src\hooking</Filter>
-    </ClInclude>
-    <ClInclude Include="features\FrameSkipper.h">
       <Filter>src\features</Filter>
     </ClInclude>
     <ClInclude Include="..\public\code_performace_profile.h">
@@ -458,46 +434,16 @@
     <ClInclude Include="custom_format_cheat.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="features\VanillaCrosshair.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="features\StuffCMDFilter.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
     <ClInclude Include="hook\HookTests.h">
       <Filter>src\hooking\tests</Filter>
     </ClInclude>
-    <ClInclude Include="features\ResourceConsistencyBypass.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="features\IngameScreenRendering.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="util\build_num.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
-    <ClInclude Include="util\EngineInputManager.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
-    <ClInclude Include="util\EngineRendering.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
     <ClInclude Include="util\GameUtil.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
-    <ClInclude Include="util\GoldSrcMungificationAlgorigthms.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
-    <ClInclude Include="util\HLNetMessageIO.h">
       <Filter>src\util</Filter>
     </ClInclude>
     <ClInclude Include="util\MathUtil.h">
       <Filter>src\util</Filter>
     </ClInclude>
     <ClInclude Include="util\vanilla_halflife_dir_file_database.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
-    <ClInclude Include="util\GoldSrcCommandManager.h">
       <Filter>src\util</Filter>
     </ClInclude>
     <ClInclude Include="game\LocalPlayerState.h">
@@ -536,26 +482,11 @@
     <ClInclude Include="features\movement\FastRun.h">
       <Filter>src\features\movement</Filter>
     </ClInclude>
-    <ClInclude Include="hook\HLCommandDetour.h">
-      <Filter>src\hooking</Filter>
-    </ClInclude>
     <ClInclude Include="features\movement\AutoJOF.h">
       <Filter>src\features\movement</Filter>
     </ClInclude>
-    <ClInclude Include="features\ThirdPerson.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
     <ClInclude Include="hook\SecurityModuleHook.h">
       <Filter>src\hooking</Filter>
-    </ClInclude>
-    <ClInclude Include="features\NonSteamFpsFixer.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="features\AntiDemoRecorder.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="features\WorldVisuals.h">
-      <Filter>src\features</Filter>
     </ClInclude>
     <ClInclude Include="game\VideoModeUtil.h">
       <Filter>src\game</Filter>
@@ -563,29 +494,11 @@
     <ClInclude Include="ui\UIInCommandBinding.h">
       <Filter>src\UI</Filter>
     </ClInclude>
-    <ClInclude Include="features\AntiScreen.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="features\AspectRatioChanger.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="features\Automation.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
     <ClInclude Include="game\weapons\Weapons.h">
       <Filter>src\game\weapons</Filter>
     </ClInclude>
     <ClInclude Include="game\weapons\weapondefs.h">
       <Filter>src\game\weapons</Filter>
-    </ClInclude>
-    <ClInclude Include="util\parsemsg.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
-    <ClInclude Include="features\EnvironmentalEffects.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="util\EngineSoundPlayer.h">
-      <Filter>src\util</Filter>
     </ClInclude>
     <ClInclude Include="game\ParticleManMiniMemEmulation.h">
       <Filter>src\game</Filter>
@@ -593,17 +506,122 @@
     <ClInclude Include="game\GameEvents.h">
       <Filter>src\game</Filter>
     </ClInclude>
-    <ClInclude Include="util\EngineSpeedControl.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
-    <ClInclude Include="features\BackTrack.h">
-      <Filter>src\features</Filter>
-    </ClInclude>
-    <ClInclude Include="util\FakePlayerRenderer.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
     <ClInclude Include="game\NetchanSequenceHistory.h">
       <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="features\Removals.h">
+      <Filter>src\features\world</Filter>
+    </ClInclude>
+    <ClInclude Include="features\ViewmodelOffset.h">
+      <Filter>src\features\world</Filter>
+    </ClInclude>
+    <ClInclude Include="features\BackTrack.h">
+      <Filter>src\features\world</Filter>
+    </ClInclude>
+    <ClInclude Include="features\WorldVisuals.h">
+      <Filter>src\features\world</Filter>
+    </ClInclude>
+    <ClInclude Include="features\SmokeVisuals.h">
+      <Filter>src\features\world</Filter>
+    </ClInclude>
+    <ClInclude Include="features\ThirdPerson.h">
+      <Filter>src\features\world</Filter>
+    </ClInclude>
+    <ClInclude Include="features\NonSteamFpsFixer.h">
+      <Filter>src\features\world</Filter>
+    </ClInclude>
+    <ClInclude Include="features\AntiScreen.h">
+      <Filter>src\features\world</Filter>
+    </ClInclude>
+    <ClInclude Include="features\AntiDemoRecorder.h">
+      <Filter>src\features\world</Filter>
+    </ClInclude>
+    <ClInclude Include="features\Automation.h">
+      <Filter>src\features\world</Filter>
+    </ClInclude>
+    <ClInclude Include="features\EnvironmentalEffects.h">
+      <Filter>src\features\world</Filter>
+    </ClInclude>
+    <ClInclude Include="features\FieldOfViewChanger.h">
+      <Filter>src\features\render</Filter>
+    </ClInclude>
+    <ClInclude Include="features\AspectRatioChanger.h">
+      <Filter>src\features\render</Filter>
+    </ClInclude>
+    <ClInclude Include="features\ModelChams.h">
+      <Filter>src\features\render</Filter>
+    </ClInclude>
+    <ClInclude Include="features\FlashbangFadeModifier.h">
+      <Filter>src\features\screen</Filter>
+    </ClInclude>
+    <ClInclude Include="features\ESP.h">
+      <Filter>src\features\screen</Filter>
+    </ClInclude>
+    <ClInclude Include="features\VanillaCrosshair.h">
+      <Filter>src\features\screen</Filter>
+    </ClInclude>
+    <ClInclude Include="features\IngameScreenRendering.h">
+      <Filter>src\features\screen</Filter>
+    </ClInclude>
+    <ClInclude Include="features\BypassGameConstrains.h">
+      <Filter>src\features\exploits</Filter>
+    </ClInclude>
+    <ClInclude Include="features\FrameSkipper.h">
+      <Filter>src\features\exploits</Filter>
+    </ClInclude>
+    <ClInclude Include="features\ResourceConsistencyBypass.h">
+      <Filter>src\features\exploits</Filter>
+    </ClInclude>
+    <ClInclude Include="features\ServerLiar.h">
+      <Filter>src\features\exploits</Filter>
+    </ClInclude>
+    <ClInclude Include="features\StuffCMDFilter.h">
+      <Filter>src\features\exploits</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\MemoryFnDetour.h">
+      <Filter>src\hooking\function hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\MemoryFnHook.h">
+      <Filter>src\hooking\function hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\SVCFuncDetour.h">
+      <Filter>src\hooking\function hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\UserMSGDetour.h">
+      <Filter>src\hooking\function hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\HLCommandDetour.h">
+      <Filter>src\hooking\function hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="util\EngineInputManager.h">
+      <Filter>src\util\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="util\EngineRendering.h">
+      <Filter>src\util\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="util\EngineSoundPlayer.h">
+      <Filter>src\util\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="util\EngineSpeedControl.h">
+      <Filter>src\util\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="util\HLNetMessageIO.h">
+      <Filter>src\util\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="util\GoldSrcCommandManager.h">
+      <Filter>src\util\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="util\GoldSrcMungificationAlgorigthms.h">
+      <Filter>src\util\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="util\build_num.h">
+      <Filter>src\util\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="util\FakePlayerRenderer.h">
+      <Filter>src\util\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="util\parsemsg.h">
+      <Filter>src\util\engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

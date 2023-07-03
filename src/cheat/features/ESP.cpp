@@ -269,9 +269,9 @@ bool CESP::render_sound_esp(const PlayerStepSound& step, uint32_t time_limit)
 	{
 		auto player = CEntityMgr::the().get_player_by_id(step.entid);
 
-		if (player && player->is_valid())
+		if (player && (*player)->is_valid())
 		{
-			step_color = player->get_color_based_on_team();
+			step_color = (*player)->get_color_based_on_team();
 		}
 	}
 
@@ -321,15 +321,15 @@ bool CESP::render_sound_esp(const PlayerStepSound& step, uint32_t time_limit)
 	}
 
 	// only if the player is out of bounds
-	if (!player->is_out_of_update_for(1.0f))
+	if (!(*player)->is_out_of_update_for(1.0f))
 	{
 		return true;
 	}
 
 	ESPBoxMetrics metrics;
-	if (origin_to_2d_box(step.origin, player->get_default_bounding_box_min(), player->get_default_bounding_box_max(), 1.0f / 4.6f, metrics))
+	if (origin_to_2d_box(step.origin, (*player)->get_default_bounding_box_min(), (*player)->get_default_bounding_box_max(), 1.0f / 4.6f, metrics))
 	{
-		render_esp_box(metrics, player->get_color_based_on_team());
+		render_esp_box(metrics, (*player)->get_color_based_on_team());
 
 		//
 		// player name
@@ -337,7 +337,7 @@ bool CESP::render_sound_esp(const PlayerStepSound& step, uint32_t time_limit)
 
 		if (esp_player_name.get_value())
 		{
-			const char* label_text = player->get_playerinfo()->name;
+			const char* label_text = (*player)->get_playerinfo()->name;
 			if (!label_text)
 			{
 				label_text = "none";

@@ -70,33 +70,9 @@ public:
 	void erase();
 	void init();
 
-	CGenericPlayer* get_local_player()
-	{
-		int local_index = CMemoryHookMgr::the().cl().get()->playernum + 1;
-
-		try
-		{
-			return &m_known_players.at(local_index);
-		}
-		catch (/*const std::out_of_range& err*/...)
-		{
-			CConsole::the().derror("Failed to get local player: {}", local_index);
-			return nullptr;
-		}
-	}
-
-	CGenericPlayer* get_player_by_id(int index)
-	{
-		try
-		{
-			return &m_known_players.at(index);
-		}
-		catch (/*const std::out_of_range& err*/...)
-		{
-			CConsole::the().derror("Failed to get player: {}", index);
-			return nullptr;
-		}
-	}
+	// getters
+	std::optional<CGenericPlayer*> get_local_player();
+	std::optional<CGenericPlayer*> get_player_by_id(int index);
 
 	std::unordered_map<int, CGenericEntity> m_known_entities;
 	std::unordered_map<int, CGenericPlayer> m_known_players;

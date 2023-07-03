@@ -135,7 +135,13 @@ bool CGameUtil::is_player_on_enemy_team(int index)
 		return false;
 	}
 
-	return CEntityMgr::the().m_known_players[index].get_team() != local->get_team();
+	auto player = CEntityMgr::the().get_player_by_id(index);
+	if (!player)
+	{
+		return false;
+	}
+
+	return player.value()->get_team() != player.value()->get_team();
 }
 
 bool CGameUtil::is_local_player(int index)

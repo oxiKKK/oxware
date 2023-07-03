@@ -29,7 +29,7 @@
 #include "precompiled.h"
 
 void CEntityMgr::entity_state_update(hl::cl_entity_t* ent)
-{	
+{
 	if (ent->player)
 	{
 		m_known_players[ent->index].update(ent);
@@ -42,17 +42,26 @@ void CEntityMgr::entity_state_update(hl::cl_entity_t* ent)
 
 void CEntityMgr::player_info_update(int index)
 {
-	auto& player = m_known_players[index];
-
-	if (player.is_alive())
+	// see if the player is actually connected on a server
+	auto cl = CMemoryHookMgr::the().cl().get();
+	auto& player_info = cl->players[index];
+	if (!player_info.name[0])
 	{
-		m_known_players[index].update_player_info(index);
+		return;
 	}
+
+	// can create a "new" player here with only player info present
+	// NOTE: this index is 0-based and keys inside known_players are 1-based...!
+	auto& player = m_known_players[index + 1];
+
+	player.update_player_info(index, &player_info);
 }
 
 void CEntityMgr::update_screen()
 {
-	return; // TODO: Keep?
+	return; // debug only
+	CEngineFontRendering::the().push_render_side(CEngineFontRendering::RIGHT);
+
 	CEngineFontRendering::the().render_debug("--- Player info ---");
 
 	for (const auto& [id, p] : m_known_players)
@@ -63,8 +72,12 @@ void CEntityMgr::update_screen()
 			continue;
 		}
 
-		CEngineFontRendering::the().render_debug("{:<2}: {}", id, p.get_playerinfo()->name);
+		auto cl_ent = p.cl_entity();
+
+		CEngineFontRendering::the().render_debug("{:<2}: {} | {}", id, p.get_playerinfo()->name, cl_ent->curstate.iuser1);
 	}
+
+	CEngineFontRendering::the().pop_render_side();
 }
 
 void CEntityMgr::init()
@@ -79,6 +92,35 @@ void CEntityMgr::init()
 	m_known_entities.reserve(cl->max_edicts - m_known_players.bucket_count());
 	CConsole::the().info("  {} for entities.", m_known_entities.bucket_count());
 }
+
+std::optional<CGenericPlayer*> CEntityMgr::get_local_player()
+{
+	int local_index = CMemoryHookMgr::the().cl().get()->playernum + 1;
+
+	try
+	{
+		return std::make_optional(&m_known_players.at(local_index));
+	}
+	catch (...)
+	{
+		CConsole::the().derror("Non-existent local player index: {}", local_index);
+		return std::nullopt;
+	}
+}
+
+std::optional<CGenericPlayer*> CEntityMgr::get_player_by_id(int index)
+{
+	try
+	{
+		return std::make_optional(&m_known_players.at(index));
+	}
+	catch (...)
+	{
+		CConsole::the().derror("Non-existent player index: {}", index);
+		return std::nullopt;
+	}
+}
+
 
 void CEntityMgr::update_bomb_info(const Vector& origin, uint8_t flags)
 {

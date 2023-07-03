@@ -65,28 +65,28 @@ bool CRemovals::remove_player(int id)
 	{
 		if (remove_players_enemy.get_value())
 		{
-			if (player->get_team() != local->get_team())
+			if ((*player)->get_team() != local->get_team())
 			{
 				return true;
 			}
 		}
 		else if (remove_players_teammates.get_value())
 		{
-			if (player->get_team() == local->get_team())
+			if ((*player)->get_team() == local->get_team())
 			{
 				return true;
 			}
 		}
 	}
 
-	if (player->get_team() == hl::TERRORIST)
+	if ((*player)->get_team() == hl::TERRORIST)
 	{
 		if (remove_players_t.get_value())
 		{
 			return true;
 		}
 	}
-	else if (player->get_team() == hl::CT)
+	else if ((*player)->get_team() == hl::CT)
 	{
 		if (remove_players_ct.get_value())
 		{

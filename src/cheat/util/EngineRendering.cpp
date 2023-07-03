@@ -29,6 +29,7 @@
 #include "precompiled.h"
 
 VarBoolean debug_render_info("debug_render_info", "Renders some information on the screen", false);
+VarBoolean debug_render_info_misc("debug_render_info_misc", "Renders miscellaneous information on the screen", false);
 
 //-----------------------------------------------------------------------------
 
@@ -112,22 +113,41 @@ void CEngineFontRendering::render_debug_impl(const std::string& text)
 {
 	if (debug_render_info.get_value())
 	{
-		if (m_current_cursor_pos.IsZero())
+		auto& pos = m_current_cursor_pos[m_render_side];
+
+		if (pos.IsZero())
 		{
 			// initialize
-			m_current_cursor_pos = Vector2D(50, 50); // top left
+			switch (m_render_side)
+			{
+				case LEFT:
+				{
+					pos = Vector2D(50, 50); // top left
+					break;
+				}
+				case RIGHT:
+				{
+					pos = Vector2D(CVideoModeUtil::the().get_real_screen_size().x - 50.0f - 200.0f, 50); // top right
+					break;
+				}
+			}
 		}
 		else
 		{
 			// already initialized, inrement on y axis
-			m_current_cursor_pos.y += m_debug_font.get_text_height();
+			pos.y += m_debug_font.get_text_height();
 		}
-		m_debug_text.push_back({ text, m_current_cursor_pos });
+		m_debug_text.push_back({ text, pos });
 	}
 }
 
 void CEngineFontRendering::render_information()
 {
+	if (!debug_render_info_misc.get_value())
+	{
+		return;
+	}
+
 	CEngineFontRendering::the().render_debug("--- Miscellaneous ---");
 	
 	float gnd_dist = CLocalState::the().get_ground_dist();
@@ -205,7 +225,10 @@ void CEngineFontRendering::debug_repaint()
 		}
 
 		m_debug_text.clear();
-		m_current_cursor_pos.Clear();
+		for (int i = 0; i < NUMSIDES; i++)
+		{
+			m_current_cursor_pos[i].Clear();
+		}
 	}
 }
 

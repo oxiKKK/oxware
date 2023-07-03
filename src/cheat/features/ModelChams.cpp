@@ -91,8 +91,8 @@ std::array<ChammedModel, CHAMS_COUNT> CModelChams::m_chammed_models =
 		{
 			if (current_ent->player)
 			{
-				auto& player = CEntityMgr::the().m_known_players[current_ent->index];
-				return player.get_team() == hl::CT && current_ent->curstate.iuser4 == ENT_ID_NONE;
+				auto player = CEntityMgr::the().get_player_by_id(current_ent->index);
+				return player && (*player)->get_team() == hl::CT && current_ent->curstate.iuser4 == ENT_ID_NONE;
 			}
 			return false;
 		}),
@@ -104,8 +104,8 @@ std::array<ChammedModel, CHAMS_COUNT> CModelChams::m_chammed_models =
 		{
 			if (current_ent->player)
 			{
-				auto& player = CEntityMgr::the().m_known_players[current_ent->index];
-				return player.get_team() == hl::TERRORIST && current_ent->curstate.iuser4 == ENT_ID_NONE;
+				auto player = CEntityMgr::the().get_player_by_id(current_ent->index);
+				return player && (*player)->get_team() == hl::TERRORIST && current_ent->curstate.iuser4 == ENT_ID_NONE;
 			}
 			return false;
 		}),
@@ -262,9 +262,9 @@ bool CModelChams::studio_draw_skeleton()
 	auto player = CEntityMgr::the().get_player_by_id(current_ent->index);
 
 	CColor color_based_on_team = CColor(170, 170, 170, 255); // gray by default
-	if (player && player->is_valid())
+	if (player && (*player)->is_valid())
 	{
-		color_based_on_team = player->get_color_based_on_team();
+		color_based_on_team = (*player)->get_color_based_on_team();
 	}
 
 	if (m_rendering_real_playermodel)

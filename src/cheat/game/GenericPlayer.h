@@ -35,8 +35,8 @@ class CGenericPlayer : public CGenericEntity
 public:
 	virtual void update(hl::cl_entity_t* ent);
 
-	// apart from entity state updates, the engine can also send fg
-	virtual void update_player_info(int index);
+	// apart from entity state updates, the engine can also send this
+	virtual void update_player_info(int index, hl::player_info_t* pinfo);
 
 	virtual bool is_valid() const { return CGenericEntity::is_valid() && m_extra_playerinfo && m_playerinfo; }
 

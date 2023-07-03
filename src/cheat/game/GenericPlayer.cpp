@@ -31,20 +31,21 @@
 void CGenericPlayer::update(hl::cl_entity_t* ent)
 {
 	CGenericEntity::update(ent);
+}
 
+void CGenericPlayer::update_player_info(int index, hl::player_info_t* pinfo)
+{
+	m_playerinfo = pinfo;
+
+	// now the extra info
 	if (CoXWARE::the().get_build_number() < 8684)
 	{
-		m_extra_playerinfo = (hl::extra_player_info_t*)&(CMemoryHookMgr::the().g_PlayerExtraInfoOld().get()[m_ent->index]);
+		m_extra_playerinfo = (hl::extra_player_info_t*)&(CMemoryHookMgr::the().g_PlayerExtraInfoOld().get()[index]);
 	}
 	else
 	{
-		m_extra_playerinfo = (hl::extra_player_info_t*)&(CMemoryHookMgr::the().g_PlayerExtraInfo().get()[m_ent->index]);
+		m_extra_playerinfo = (hl::extra_player_info_t*)&(CMemoryHookMgr::the().g_PlayerExtraInfo().get()[index]);
 	}
-}
-
-void CGenericPlayer::update_player_info(int index)
-{
-	m_playerinfo = &CMemoryHookMgr::the().cl().get()->players[index];
 }
 
 bool CGenericPlayer::is_alive() const

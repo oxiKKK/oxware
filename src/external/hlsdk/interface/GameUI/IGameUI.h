@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2002, Valve LLC, All rights reserved. ============
+//========= Copyright Â© 1996-2002, Valve LLC, All rights reserved. ============
 //
 // Purpose: 
 //
@@ -100,7 +100,7 @@ public:
 
 	/*
 	*	Activates the loading dialog on level load start
-	*	Called by the engine when connecting/starting a map, etñ
+	*	Called by the engine when connecting/starting a map, etÃ±
 	*/
 	virtual void LoadingStarted(const char* resourceType, const char* resourceName) = 0;
 

@@ -95,7 +95,7 @@ void CFlashbangFadeModifier::on_render()
 		return;
 	}
 
-	auto percentage_font = g_gui_fontmgr_i->get_font(FID_ProggyClean, FontSize::UIText.medium(), FDC_Regular);
+	auto percentage_font = g_gui_fontmgr_i->get_font(FID_ProggyClean, FSZ_13px, FDC_Regular);
 
 	auto label = std::format("flashed {:.1f} %", percent);
 	auto label_size = g_gui_fontmgr_i->calc_font_text_size(percentage_font, label.c_str());

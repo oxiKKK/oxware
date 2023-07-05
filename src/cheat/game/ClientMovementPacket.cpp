@@ -188,7 +188,7 @@ void CClientMovementPacketPlot::on_render()
 	// reset for new frame
 	y_offset = 0.0f;
 
-	auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Bold);
+	auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Bold);
 	
 	// render each data
 	int n = 1;

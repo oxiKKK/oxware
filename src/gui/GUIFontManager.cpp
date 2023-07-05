@@ -34,36 +34,68 @@
 
 #include <set>
 
-static BaseFontContainer_t* find_static_font_container(const char* name)
+// defines glypth ranges for fonts
+class CGlyphRanges
 {
-	for (auto& f : g_static_fonts)
+public:
+	DECL_BASIC_CLASS(CGlyphRanges);
+
+public:
+	inline ImWchar* get_range_for_regular_font()
 	{
-		if (!stricmp(name, f.m_name))
-		{
-			return &f;
-		}
+		return s_regular_font_range;
 	}
-	assert(0);
-	return nullptr;
-}
+
+	inline ImWchar* get_range_for_emojis()
+	{
+		return s_emojis_range;
+	}
+
+private:
+	static ImWchar s_regular_font_range[];
+	static ImWchar s_emojis_range[];
+};
+
+ImWchar CGlyphRanges::s_regular_font_range[] =
+{
+	0x0020,  0x00FF, // ASCII
+	0x0400,  0x052F, // Cyrillic + Cyrillic Supplement
+	0x2000,  0x206F, // General Punctuation
+	0x2DE0,  0x2DFF, // Cyrillic Extended-A
+	0xFF00,  0xFFEF, // Half-width characters
+	0x4e00,  0x9FAF, // CJK Ideograms
+	0x2010,  0x205E, // Punctuations
+	0,
+};
+
+// glyph ranges for standard emojis such as: "😀😃🤗😌😨🥺" etc...
+// see https://en.wikipedia.org/wiki/Emoticons_(Unicode_block)
+// and https://unicode.org/charts/PDF/U1F600.pdf
+//
+// NOTE that building this font is _EXTREMELY_ performance expensive, even on retail builds.
+//		Increasing the glyph range only slightly will have a major impact on performance.
+//
+// NOTE that the standard range of emojis doesn't include other emojis such as "🤐🤑🤒🤓🤔"
+// see https://en.wikipedia.org/wiki/Supplemental_Symbols_and_Pictographs
+ImWchar CGlyphRanges::s_emojis_range[] =
+{
+	0x1F600, 0x1F64F, // standard emoticons
+//	0x1F900, 0x1F9FF, // supplemental symbols
+	0x1F550, 0x1F55B, // clock emojis (🕐, 🕑, 🕕, 🕗)
+	U'🔥', U'🔥',	  // fire
+	0,
+};
 
 //----------------------------------------------------------------------------------------------
 
-using FontIdentifier_t = std::tuple<EFontId, EFontDecoration, float>;
+// font identifier that is unique for this set of parameters such as id, decoration, or size.
+using FontIdentifier_t = std::tuple<EFontId, EFontDecoration, EFontSize>;
 
 MAKE_HASHABLE(FontIdentifier_t, std::get<0>(t), std::get<1>(t), std::get<1>(t));
 
 //----------------------------------------------------------------------------------------------
 
 IGUIFontManager* g_gui_fontmgr_i = nullptr;
-
-BaseCommand ui_reload_fonts(
-	"ui_reload_fonts", "Rebuilds all of the fonts.",
-	[&](BaseCommand* cmd, const CmdArgs& args)
-	{
-		g_gui_fontmgr_i->rebuild_fonts();
-	}
-);
 
 class CGUIFontManager : public IGUIFontManager
 {
@@ -78,7 +110,7 @@ public:
 	void push_default_font();
 	void pop_default_font();
 
-	ImFont* get_font(EFontId id, float size_px, EFontDecoration decor = FDC_Regular);
+	ImFont* get_font(EFontId id, EFontSize size, EFontDecoration decor = FDC_Regular);
 	ImFont* get_default_font();
 
 	Vector2D calc_font_text_size(ImFont* font, const char* text);
@@ -104,19 +136,22 @@ public:
 
 	FreeTypeBuilderFlags get_freetype_builder_flags() { return m_freetype_builder_flags; }
 
+	void render_debug_ui();
+
+private:
+	void precache_all_fonts();
+	ImFont* precache_font(EFontId id, EFontSize size_id, EFontDecoration decor);
+	void merge_emoji_font(ImFontConfig* cfg);
+	
+	void rebuild_font_atlas();
+	
 private:
 	std::unordered_map<FontIdentifier_t, ImFont*> m_precached_fonts;
 
 	ImFont* m_default_font = nullptr;
 
-	ImFont* precache_font(EFontId id, float size_px, EFontDecoration decor);
-
 	bool m_needs_font_rebuild = false;
-	std::set<FontIdentifier_t> m_fonts_that_needs_to_be_precached;
-
 	FreeTypeBuilderFlags m_freetype_builder_flags;
-
-	void rebuild_font_atlas();
 };
 
 CGUIFontManager g_gui_fontmgr;
@@ -140,18 +175,7 @@ CGUIFontManager::~CGUIFontManager()
 
 bool CGUIFontManager::pre_newframe()
 {
-	for (const auto& [id, decor, px] : m_fonts_that_needs_to_be_precached)
-	{
-		precache_font(id, px, decor);
-
-		if (!m_needs_font_rebuild)
-		{
-			m_needs_font_rebuild = true;
-		}
-	}
-
-	m_fonts_that_needs_to_be_precached.clear();
-
+	// someone requested font atlas rebuild
 	if (m_needs_font_rebuild)
 	{
 		rebuild_font_atlas();
@@ -162,14 +186,24 @@ bool CGUIFontManager::pre_newframe()
 	return false;
 }
 
+void CGUIFontManager::initialize()
+{
+	precache_all_fonts();
+
+	rebuild_font_atlas();
+
+	m_default_font = get_font(FID_SegoeUI, FSZ_16px, FDC_Bold);
+}
+
 void CGUIFontManager::rebuild_font_atlas()
 {
 	auto t1 = std::chrono::high_resolution_clock::now();
 
+	// re-build the atlas
+	// NOTE that this is very performance expensive.
 	ImFontAtlas* atlas = ImGui::GetIO().Fonts;
 	atlas->FontBuilderIO = ImGuiFreeType::GetBuilderForFreeType();
 	atlas->FontBuilderFlags = m_freetype_builder_flags;
-
 	atlas->Build();
 
 	auto t2 = std::chrono::high_resolution_clock::now();
@@ -178,9 +212,30 @@ void CGUIFontManager::rebuild_font_atlas()
 						 std::chrono::duration<float, std::ratio<1, 1>>(t2 - t1).count());
 }
 
-void CGUIFontManager::initialize()
+void CGUIFontManager::render_debug_ui()
 {
-	m_default_font = precache_font(FID_SegoeUI, 16.0f, FDC_Bold);
+	if (g_gui_widgets_i->add_tree_node("Info"))
+	{
+		g_gui_widgets_i->add_text(std::format("Fonts precached: {}", m_precached_fonts.size()));
+		
+		g_gui_widgets_i->pop_tree_node();
+	}
+
+	if (g_gui_widgets_i->add_tree_node("Sizes"))
+	{
+		for (auto [id, font] : m_precached_fonts)
+		{
+			g_gui_widgets_i->add_text(std::format("{:<2}px: 😑", font->FontSize), TEXTPROP_None, font);
+		}
+
+		g_gui_widgets_i->pop_tree_node();
+	}
+
+	if (g_gui_widgets_i->add_tree_node("Atlas"))
+	{
+		g_gui_widgets_i->show_font_atlas();
+		g_gui_widgets_i->pop_tree_node();
+	}
 }
 
 void CGUIFontManager::push_default_font()
@@ -193,23 +248,14 @@ void CGUIFontManager::pop_default_font()
 	ImGui::PopFont();
 }
 
-ImFont* CGUIFontManager::get_font(EFontId id, float size_px, EFontDecoration decor)
+ImFont* CGUIFontManager::get_font(EFontId id, EFontSize size, EFontDecoration decor)
 {
-	//
-	// see if already precached
-	//
-	auto iter = m_precached_fonts.find(std::make_tuple(id, decor, size_px));
-	if (iter != m_precached_fonts.end())
-	{
-		return (*iter).second;
-	}
+	auto iter = m_precached_fonts.find(std::make_tuple(id, decor, size));
 
-	//
-	// not found, schedule precache and meanwhile return the default font
-	//
-	m_fonts_that_needs_to_be_precached.insert(std::make_tuple(id, decor, size_px));
+	assert(iter != m_precached_fonts.end() && "You tried to get a font that doesn't exist.");
 	
-	return m_default_font;
+	// if the font hasn't been found, return the default font instead. While debugging, we will catch this.
+	return iter->second == nullptr ? m_default_font : iter->second;
 }
 
 ImFont* CGUIFontManager::get_default_font()
@@ -222,14 +268,96 @@ Vector2D CGUIFontManager::calc_font_text_size(ImFont* font, const char* text)
 	return font->CalcTextSizeA(font->FontSize, FLT_MAX, 0, text);
 }
 
-ImFont* CGUIFontManager::precache_font(EFontId id, float size_px, EFontDecoration decor)
+static BaseFontContainer_t* find_static_font_container(const char* name)
+{
+	for (auto& f : g_static_fonts)
+	{
+		if (!stricmp(name, f.m_name))
+		{
+			return &f;
+		}
+	}
+	assert(0 && "Font not found inside static container!");
+	return nullptr;
+}
+
+void CGUIFontManager::precache_all_fonts()
+{
+	CConsole::the().info("Precaching fonts...");
+
+	auto t1 = std::chrono::high_resolution_clock::now();
+	
+	// This stuff is really performance expensive.
+
+#if 0
+	//
+	// HARDCORE APPROACH: precache all fonts, one by one, including all of their decorations and sizes.
+	//
+	for (int id = 0; id < NUM_FONTS; id++)
+	{
+		for (int decor = 0; decor < NUM_FONT_DECORATIONS; decor++)
+		{
+			for (int size = 0; size < FSZ_COUNT; size++)
+			{
+				precache_font((EFontId)id, s_EFontSizeToFloat[size], (EFontSize)size, (EFontDecoration)decor);
+			}
+		}
+	}
+#else
+	//
+	// MANUAL APPROACH: manually precache fonts only that we use in code.
+	// 
+	// How to search for font variations that are used in code:
+	//	- find all occurences of a font size (e.g. FSZ_13px) in the code.
+	//	- see which variations (font id and decoration) is being used together in
+	//	  combination with this font.
+	//	- add all combinations here.
+	//
+	// NOTE: If you forget to add something, you'll get assertion anyways.
+	//
+
+	// segoe
+	precache_font((EFontId)FID_SegoeUI, FSZ_10px, FDC_Bold);
+	precache_font((EFontId)FID_SegoeUI, FSZ_10px, FDC_Regular);
+
+	precache_font((EFontId)FID_SegoeUI, FSZ_13px, FDC_Bold);
+	precache_font((EFontId)FID_SegoeUI, FSZ_13px, FDC_Regular);
+
+	precache_font((EFontId)FID_SegoeUI, FSZ_16px, FDC_Bold);
+	precache_font((EFontId)FID_SegoeUI, FSZ_16px, FDC_Regular);
+
+	precache_font((EFontId)FID_SegoeUI, FSZ_24px, FDC_Regular);
+	precache_font((EFontId)FID_SegoeUI, FSZ_24px, FDC_Light);
+
+	precache_font((EFontId)FID_SegoeUI, FSZ_27px, FDC_Regular);
+
+	precache_font((EFontId)FID_SegoeUI, FSZ_30px, FDC_Bold);
+	precache_font((EFontId)FID_SegoeUI, FSZ_30px, FDC_Regular);
+
+	precache_font((EFontId)FID_SegoeUI, FSZ_45px, FDC_Bold);
+
+	// proggy
+	precache_font((EFontId)FID_ProggyClean, FSZ_13px, FDC_Bold);
+	precache_font((EFontId)FID_ProggyClean, FSZ_13px, FDC_Regular);
+
+	precache_font((EFontId)FID_ProggyClean, FSZ_16px, FDC_Regular);
+#endif
+
+	auto t2 = std::chrono::high_resolution_clock::now();
+
+	CConsole::the().info("Precached all {} fonts. Took {} seconds.",
+						 m_precached_fonts.size(),
+						 std::chrono::duration<float, std::ratio<1, 1>>(t2 - t1).count());
+}
+
+ImFont* CGUIFontManager::precache_font(EFontId id, EFontSize size_id, EFontDecoration decor)
 {
 	auto& io = ImGui::GetIO();
 
 	auto container = find_static_font_container(g_font_filenames[id]);
 	assert(container && "The container for this font doesn't exist!");
 
-	ImFont* added_font = nullptr;
+	float size_px = s_EFontSizeToFloat[size_id];
 
 	ImFontConfig cfg;
 	cfg.SizePixels = size_px;
@@ -240,75 +368,70 @@ ImFont* CGUIFontManager::precache_font(EFontId id, float size_px, EFontDecoratio
 		cfg.GlyphBuildFlags |= ImGuiFreeTypeGlyphBuildFlags_ForceAutoHint;
 	}
 
-	static const ImWchar glyph_ranges[] =
-	{
-		0x0020,  0x00FF, // ASCII
-		0x0400,  0x052F, // Cyrillic + Cyrillic Supplement
-		0x2000,  0x206F, // General Punctuation
-		0x2DE0,  0x2DFF, // Cyrillic Extended-A
-		0xFF00,  0xFFEF, // Half-width characters
-		0x4e00,  0x9FAF, // CJK Ideograms
-		0x2010,  0x205E, // Punctuations
-		0,
-	};
+	auto normal_ranges = CGlyphRanges::the().get_range_for_regular_font();
 
+	ImFont* added_font = nullptr;
 	switch (decor)
 	{
 		case FDC_Regular:
 		{
-			assert(container->m_regular.raw_data && "The font specified doesn't have regular decoration available!");
-
-			added_font = io.Fonts->AddFontFromMemoryCompressedTTF(container->m_regular.raw_data, container->m_regular.size, size_px, &cfg, glyph_ranges);
+			if (!container->m_regular.raw_data)
+			{
+				return NULL;
+			}
+			added_font = io.Fonts->AddFontFromMemoryCompressedTTF(container->m_regular.raw_data, container->m_regular.size, size_px, &cfg, normal_ranges);
 			break;
 		}
 		case FDC_Bold:
 		{
-			assert(container->m_bold.raw_data && "The font specified doesn't have bold decoration available!");
-
-			//cfg.GlyphBuildFlags = ImGuiFreeTypeGlyphBuildFlags_Italic;
-			added_font = io.Fonts->AddFontFromMemoryCompressedTTF(container->m_bold.raw_data, container->m_bold.size, size_px, &cfg, glyph_ranges);
+			if (!container->m_bold.raw_data)
+			{
+				return NULL;
+			}
+			added_font = io.Fonts->AddFontFromMemoryCompressedTTF(container->m_bold.raw_data, container->m_bold.size, size_px, &cfg, normal_ranges);
 			break;
 		}
 		case FDC_Light:
 		{
-			assert(container->m_light.raw_data && "The font specified doesn't have light decoration available!");
-
-			//cfg.GlyphBuildFlags = ImGuiFreeTypeGlyphBuildFlags_Bold;
-			added_font = io.Fonts->AddFontFromMemoryCompressedTTF(container->m_light.raw_data, container->m_light.size, size_px, &cfg, glyph_ranges);
+			if (!container->m_light.raw_data)
+			{
+				return NULL;
+			}
+			added_font = io.Fonts->AddFontFromMemoryCompressedTTF(container->m_light.raw_data, container->m_light.size, size_px, &cfg, normal_ranges);
 			break;
 		}
 	}
 
-	//
 	// load emojis and merge with previous font
-	//
-	cfg.OversampleH = cfg.OversampleV = 1;
-	cfg.MergeMode = true;
-	cfg.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
+	merge_emoji_font(&cfg);
 
-	// glyph ranges for standard emojis such as: "😀😃🤗😌😨🥺" etc...
-	// see https://en.wikipedia.org/wiki/Emoticons_(Unicode_block)
-	// and https://unicode.org/charts/PDF/U1F600.pdf
-	//
-	// NOTE that building this font is _EXTREMELY_ performance expensive, even on retail builds.
-	//		Increasing the glyph range only slightly will have a major impact on performance.
-	//
-	// NOTE that the standard range of emojis doesn't include other emojis such as "🤐🤑🤒🤓🤔"
-	// see https://en.wikipedia.org/wiki/Supplemental_Symbols_and_Pictographs
-	static const ImWchar glyph_ranges_emoji[] =
-	{
-		0x1F600, 0x1F64F, // emojis
-		0,
-	};
+	m_precached_fonts[std::make_tuple(id, decor, size_id)] = added_font;
 
-	io.Fonts->AddFontFromMemoryCompressedTTF(g_seguiemj_compressed_data, g_seguiemj_compressed_size, size_px, &cfg, glyph_ranges_emoji);
-
-	// the function shouldn't fail, but anyways
-	assert(added_font && "AddFontFromMemoryCompressedTTF failed while adding font.");
-
-	m_precached_fonts[std::make_tuple(id, decor, size_px)] = added_font;
-
-	CConsole::the().info("Added font '{}' ({}) of size {}px to the list.", g_font_filenames[id], g_font_decors[decor], size_px);
+	CConsole::the().info("Font added: '{}', decoration: {}, size: {} px", g_font_filenames[id], g_font_decors[decor], size_px);
 
 	return added_font;
 }
+
+// merge emoji font into current one
+void CGUIFontManager::merge_emoji_font(ImFontConfig* cfg)
+{
+	auto emojis_ranges = CGlyphRanges::the().get_range_for_emojis();
+	auto& io = ImGui::GetIO();
+
+	// setup config
+	cfg->OversampleH = cfg->OversampleV = 1;
+	cfg->MergeMode = true; // merge into existing font
+	cfg->FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
+
+	io.Fonts->AddFontFromMemoryCompressedTTF(g_seguiemj_compressed_data, g_seguiemj_compressed_size, cfg->SizePixels, cfg, emojis_ranges);
+}
+
+//----------------------------------------------------------------------------------------------
+
+BaseCommand ui_reload_fonts(
+	"ui_reload_fonts", "Rebuilds all of the fonts.",
+	[&](BaseCommand* cmd, const CmdArgs& args)
+	{
+		g_gui_fontmgr_i->rebuild_fonts();
+	}
+);

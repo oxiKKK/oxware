@@ -30,6 +30,8 @@
 #define IGUIFONTMANAGER_H
 #pragma once
 
+#include <array>
+
 enum EFontDecoration
 {
 	FDC_Regular,
@@ -61,58 +63,30 @@ static const char* g_font_filenames[NUM_FONTS] =
 	"proggyclean",		// FID_ProggyClean
 };
 
-#ifdef small
-#undef small // bruh
-#endif
-
-inline static constexpr int k_min_font_size = 5;
-inline static constexpr int k_max_font_size = 60;
-//inline static constexpr int k_step = 3;
-// we'll precache k_max_font_size - k_min_font_size at startup for each decoration and for each font
-
-struct ft_size
+// how big is the smallest font, this serves as a base when we're calculating font sizes
+inline static constexpr int k_font_size_base = 10;
+enum EFontSize
 {
-	consteval ft_size(int _l) : l(_l) { }
-	consteval operator int() const { return l; }
+	FSZ_10px,
+	FSZ_13px,
+	FSZ_16px,
+	FSZ_24px,
+	FSZ_27px,
+	FSZ_30px,
+	FSZ_45px,
 
-	inline consteval int smallest(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 0.65f) * scale); }
-	inline consteval int small(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 0.75f) * scale); }
-	inline consteval int medium(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 0.85f) * scale); }
-	inline consteval int regular(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 1.00f) * scale); }
-	inline consteval int bigger(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 1.25f) * scale); }
-	inline consteval int big(float scale = 1.0f) const			{ return constexpr_floor(((float)l * 1.45f) * scale); }
-	inline consteval int large(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 1.65f) * scale); }
-	inline consteval int extra(float scale = 1.0f) const		{ return constexpr_floor(((float)l * 1.85f) * scale); }
-
-	int l;
-
-private:
-	constexpr int constexpr_floor(float f) const
-	{
-		const int i = static_cast<int>(f);
-		return f < i ? i - 1 : i;
-	}
+	FSZ_COUNT
 };
 
-struct FontSize
+inline static constexpr std::array<float, FSZ_COUNT> s_EFontSizeToFloat =
 {
-private:
-	template<int size>
-	inline static consteval int validate()
-	{
-		// see if the size is within bounds.
-		static_assert((int)((float)size * 0.65f) >= k_min_font_size && (int)((float)size * 1.85f) <= k_max_font_size,
-					  "the font size is too big.");
-		return size;
-	}
-
-public:
-
-	// UI
-	inline static constexpr ft_size UIText = validate<16>();
-
-	// Debug
-	inline static constexpr ft_size Debug = validate<14>();
+	/*FSZ_10px*/ 10.0f,
+	/*FSZ_13px*/ 13.0f,
+	/*FSZ_16px*/ 16.0f,
+	/*FSZ_24px*/ 24.0f,
+	/*FSZ_27px*/ 27.0f,
+	/*FSZ_30px*/ 30.0f,
+	/*FSZ_45px*/ 45.0f,
 };
 
 // wrapper over the enum in imgui so that we don't have to include imgui outside of UI code.
@@ -143,7 +117,7 @@ public:
 	virtual void push_default_font() = 0;
 	virtual void pop_default_font() = 0;
 
-	virtual ImFont* get_font(EFontId id, float size_px, EFontDecoration decor = FDC_Regular) = 0;
+	virtual ImFont* get_font(EFontId id, EFontSize size, EFontDecoration decor = FDC_Regular) = 0;
 	virtual ImFont* get_default_font() = 0;
 
 	virtual Vector2D calc_font_text_size(ImFont* font, const char* text) = 0;
@@ -152,6 +126,8 @@ public:
 
 	virtual void add_freetype_builder_flags(FreeTypeBuilderFlags f, bool set) = 0;
 	virtual FreeTypeBuilderFlags get_freetype_builder_flags() = 0;
+
+	virtual void render_debug_ui() = 0;
 };
 
 extern IGUIFontManager* g_gui_fontmgr_i;

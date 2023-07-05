@@ -70,7 +70,7 @@ void CUIFeatureList::on_render()
 					if (f->is_enabled())
 					{
 						EFontDecoration decor = ui_feature_list_font.get_value() == 0 ? FDC_Bold : FDC_Regular;
-						float fsize = (float)(ui_feature_list_font_size.get_value() == 0 ? FontSize::UIText.medium() : FontSize::UIText.regular());
+						EFontSize fsize = ui_feature_list_font_size.get_value() == 0 ? FSZ_16px : FSZ_16px;
 
 						auto feature_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, fsize, decor);
 

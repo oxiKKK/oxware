@@ -352,7 +352,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 					}
 
 					g_gui_widgets_i->add_text("* The bind subsystem is still in beta!", TEXTPROP_Disabled, 
-											  g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular));
+											  g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
 				});
 
 			g_gui_widgets_i->pop_stylevar();

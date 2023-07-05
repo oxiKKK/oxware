@@ -41,6 +41,9 @@ void CLoaderUI::render_contents()
 
 	g_gui_widgets_i->add_tab_item("main", true, { 0, 0 }, [this]() { render_tab_main(); });
 	g_gui_widgets_i->add_tab_item("console", true, { 0, 0 }, [this]() { render_tab_console(); }, { 8.0f, 2.0f });
+#ifndef _RETAIL
+	g_gui_widgets_i->add_tab_item("debug", true, { 0, 0 }, [this]() { render_tab_debug(); }, { 8.0f, 8.0f });
+#endif
 
 	g_gui_widgets_i->end_tab();
 }
@@ -74,7 +77,6 @@ void CLoaderUI::initialize()
 	};
 
 	CMainLoader::the().get_injector()->provide_on_injector_event_callback(on_injector_event_fn);
-
 }
 
 void CLoaderUI::render_tab_main()
@@ -83,7 +85,7 @@ void CLoaderUI::render_tab_main()
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		auto very_large_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.extra() * 1.5f, FDC_Bold);
+		auto very_large_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_45px, FDC_Bold);
 		g_gui_widgets_i->push_font(very_large_font);
 
 		auto injected_object = CMainLoader::the().get_injector()->get_injected_dll(MODULE_CHEAT);
@@ -146,13 +148,41 @@ void CLoaderUI::render_tab_main()
 
 				if (dll)
 				{
+					static size_t clk_counter = 0;
+					static size_t clk_clock = 0;
+					
 					if (dll->is_successfully_injected() && !dll->is_successfully_initialized())
 					{
-						status = std::make_pair("injecting...", CColor(255, 165, 0, 200));
-					}
+						if (GetTickCount() - clk_clock > 50)
+						{
+							if (++clk_counter > 12)
+								clk_counter = 1;
+
+							clk_clock = GetTickCount();
+						}
+
+						switch (clk_counter)
+						{
+							case 1:  status = std::make_pair("injecting 🕐", CColor(255, 165, 0, 200)); break;
+							case 2:  status = std::make_pair("injecting 🕑", CColor(255, 165, 0, 200)); break;
+							case 3:  status = std::make_pair("injecting 🕒", CColor(255, 165, 0, 200)); break;
+							case 4:  status = std::make_pair("injecting 🕓", CColor(255, 165, 0, 200)); break;
+							case 5:  status = std::make_pair("injecting 🕔", CColor(255, 165, 0, 200)); break;
+							case 6:  status = std::make_pair("injecting 🕕", CColor(255, 165, 0, 200)); break;
+							case 7:  status = std::make_pair("injecting 🕖", CColor(255, 165, 0, 200)); break;
+							case 8:  status = std::make_pair("injecting 🕗", CColor(255, 165, 0, 200)); break;
+							case 9:  status = std::make_pair("injecting 🕘", CColor(255, 165, 0, 200)); break;
+							case 10: status = std::make_pair("injecting 🕙", CColor(255, 165, 0, 200)); break;
+							case 11: status = std::make_pair("injecting 🕚", CColor(255, 165, 0, 200)); break;
+							case 12: status = std::make_pair("injecting 🕛", CColor(255, 165, 0, 200)); break;
+						}
+											}
 					else if (dll->is_successfully_injected() && dll->is_successfully_initialized())
 					{
-						status = std::make_pair("online!", CColor(11, 218, 81, 200));
+						status = std::make_pair("online 🔥", CColor(11, 218, 81, 200));
+
+						clk_counter = 0;
+						clk_clock = 0;
 					}
 				}
 
@@ -168,4 +198,14 @@ void CLoaderUI::render_tab_main()
 void CLoaderUI::render_tab_console()
 {
 	g_gui_widgets_i->add_console();
+}
+
+void CLoaderUI::render_tab_debug()
+{
+	if (g_gui_widgets_i->add_tree_node("Fonts"))
+	{
+		g_gui_fontmgr_i->render_debug_ui();
+		
+		g_gui_widgets_i->pop_tree_node();
+	}
 }

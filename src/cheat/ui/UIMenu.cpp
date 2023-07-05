@@ -87,7 +87,7 @@ void MenuTabItem::render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId
 {
 	g_gui_widgets_i->set_cursor_pos(relative_offset);
 
-	auto button_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText, FDC_Bold);
+	auto button_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Bold);
 	g_gui_widgets_i->push_font(button_font);
 
 	// text color
@@ -126,7 +126,7 @@ void MenuTabSection::render(Vector2D& offset, Vector2D& relative_offset, const V
 
 void MenuTabSection::render_current_label(Vector2D& offset, Vector2D& relative_offset, const Vector2D& child_size)
 {
-	auto section_label_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText, FDC_Regular);
+	auto section_label_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular);
 
 	// section title
 	g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(), 
@@ -205,8 +205,8 @@ void CUIMenu::on_render()
 		window_flags &= ~ImGuiWindowFlags_NoResize;
 	}
 
-	auto segoeui_extra = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.extra(1.1f), FDC_Bold);
-	auto segoeui_small = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Bold);
+	auto segoeui_extra = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_30px, FDC_Bold);
+	auto segoeui_small = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Bold);
 
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 
@@ -265,7 +265,7 @@ void CUIMenu::on_render()
 			//
 			// render topside contents
 			//
-			auto topside_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular);
+			auto topside_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Regular);
 
 			auto version_label = std::format("Version: {}", OXVER_STRING);
 			g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(), 
@@ -368,7 +368,7 @@ void CUIMenu::on_render()
 
 	auto screen = g_imgui_platform_layer_i->get_screen_size();
 
-	auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText, FDC_Regular);
+	auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular);
 
 	const char* label = "www.github.com/oxiKKK/oxware";
 	auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, label);
@@ -628,7 +628,7 @@ void CUIMenu::tab_world()
 					"This fixes the FPS movement dependence, where with higher fps you would get slomotion movement and \"higher\" gravity."
 					"\nFor more technical details, follow this link:");
 
-				g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular));
+				g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Regular));
 				if (g_gui_widgets_i->add_hypertext_link("github.com/ValveSoftware/halflife/issues/1940"))
 				{
 					CGenericUtil::the().open_link_inside_browser("https://github.com/ValveSoftware/halflife/issues/1940");
@@ -785,7 +785,7 @@ void CUIMenu::tab_render()
 												   "Renders \"Real playermodel\". Hitboxes of this playermodel are used for hit registration, no matter what the acutal model is.");
 
 				CUIMenuWidgets::the().add_description_text_ex("You can see this why this is useful here:", nullptr, true);
-				g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular));
+				g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Regular));
 				if (g_gui_widgets_i->add_hypertext_link("https://youtu.be/xMd9m3McNvo"))
 				{
 					CGenericUtil::the().open_link_inside_browser("https://youtu.be/xMd9m3McNvo");
@@ -1152,7 +1152,7 @@ void CUIMenu::tab_exploits()
 					g_gui_widgets_i->add_text(
 						"How does it work",
 						TEXTPROP_Wrapped,
-						g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText, FDC_Regular));
+						g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
 
 					g_gui_widgets_i->add_text(
 						"For example, often the server sends command to you such as \"fps_max 100; developer 0\" etc."
@@ -1711,7 +1711,7 @@ void CUIMenu::tab_config()
 									if (name_buffer[0])
 									{
 										g_gui_widgets_i->add_text(std::format("'{}.json'", name_buffer),
-																  TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular));
+																  TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
 									}
 								},
 								[&]() // on close
@@ -1810,7 +1810,7 @@ void CUIMenu::tab_config()
 					{
 						auto color = error ? CColor(112, 0, 0, 170) : CColor(0, 112, 0, 170);
 
-						g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular));
+						g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
 						g_gui_widgets_i->add_colored_text(color, msg);
 						g_gui_widgets_i->pop_font();
 					}
@@ -1863,7 +1863,7 @@ void CUIMenu::tab_cmdlist()
 				}, 
 				[&]()
 				{
-					auto small_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular);
+					auto small_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Regular);
 					g_gui_widgets_i->push_font(small_font);
 
 					int n = 0;
@@ -1929,7 +1929,7 @@ void CUIMenu::tab_varlist()
 				},
 				[&]()
 				{
-					auto small_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular);
+					auto small_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Regular);
 					g_gui_widgets_i->push_font(small_font);
 
 					int n = 0;
@@ -2048,7 +2048,7 @@ void CUIMenu::tab_others()
 			"Storage", CMenuStyle::calc_child_size(200), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[]()
 			{
-				auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular);
+				auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular);
 
 				auto cheat_directory = g_filesystem_i->get_appdata_path();
 
@@ -2105,15 +2105,5 @@ void CUIMenu::tab_others()
 			});
 
 		g_gui_widgets_i->end_columns();
-
-#if !defined(_RETAIL)
-		CUIMenuWidgets::the().add_menu_child_collapsible(
-		"Server command filter", CMenuStyle::child_full_width(410.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[]()
-		{
-			// this is only available not in retail builds
-			g_gui_widgets_i->show_font_atlas();
-		});
-#endif
 	}
 }

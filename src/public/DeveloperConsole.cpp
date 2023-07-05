@@ -251,7 +251,7 @@ void CDeveloperConsole::render()
 {
 	const float footer_height_to_reserve = -32.0f;
 
-	g_gui_widgets_i->add_text("Console", TEXTPROP_None, g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.extra(), FDC_Regular));
+	g_gui_widgets_i->add_text("Console", TEXTPROP_None, g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_30px, FDC_Regular));
 
 	auto window_size = g_gui_widgets_i->get_current_window_size();
 	auto window_pos = g_gui_widgets_i->get_current_window_pos();
@@ -260,7 +260,7 @@ void CDeveloperConsole::render()
 	float offset_from_the_right = 80.0f;
 	float y_offset = 15.0f;
 
-	auto info_font = g_gui_fontmgr_i->get_font(FID_ProggyClean, FontSize::UIText.medium(), FDC_Regular);
+	auto info_font = g_gui_fontmgr_i->get_font(FID_ProggyClean, FSZ_13px, FDC_Regular);
 
 	// lines
 	auto label = std::format("{} lines", m_contents.size());
@@ -296,7 +296,7 @@ void CDeveloperConsole::render()
 					// shrink a little..
 					g_gui_widgets_i->push_stylevar(ImGuiStyleVar_ItemSpacing, { 0.0f, 1.0f });
 					g_gui_widgets_i->push_stylevar(ImGuiStyleVar_IndentSpacing, 0.0f);
-					g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_ProggyClean, FontSize::UIText.small(), FDC_Regular));
+					g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_ProggyClean, FSZ_13px, FDC_Regular));
 
 					g_gui_widgets_i->add_text(line_preamble(line), TEXTPROP_ColorRegular);
 					g_gui_widgets_i->sameline();
@@ -808,7 +808,7 @@ void CDeveloperConsole::render_candidate_tooltip()
 	g_gui_widgets_i->set_next_window_size(Vector2D(320, (m_tooltip_candidates.size() * 20.0f) > 150 ? 150 : m_tooltip_candidates.size() * 20.0f));
 	g_gui_widgets_i->set_next_window_rounding(5.0f, ImDrawFlags_RoundCornersBottom);
 
-	g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_ProggyClean, FontSize::UIText.small(), FDC_Regular));
+	g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_ProggyClean, FSZ_13px, FDC_Regular));
 	g_gui_widgets_i->create_new_window(
 		"Console tooltip",
 		ImGuiWindowFlags_Tooltip |

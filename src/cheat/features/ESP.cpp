@@ -420,7 +420,7 @@ void CESP::render_esp_box(const ESPBoxMetrics& metrics, const CColor& color, flo
 
 void CESP::render_esp_label(const ESPBoxMetrics& metrics, const std::string& label)
 {
-	auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.smallest(1.1f), FDC_Bold);
+	auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_10px, FDC_Bold);
 	auto label_size = g_gui_fontmgr_i->calc_font_text_size(text_font, label.c_str());
 
 	float label_padding = 1.0f + 1.0f; // 1 for the box outline thickness

@@ -170,6 +170,9 @@ public:
 
 	bool add_floating_button(const std::string& label, const Vector2D& last_cursor_pos, const Vector2D& button_pos, const Vector2D& button_size = Vector2D(0, 0), bool disabled = false, EButtonFlags flags = BUTTONFLAG_None);
 
+	bool add_tree_node(const std::string& label);
+	void pop_tree_node();
+
 	//
 	// Tables/lists/columns
 	//
@@ -402,7 +405,7 @@ void CGUIWidgets::add_child_with_header(const std::string& label, const Vector2D
 
 		std::string text = label;
 
-		auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.big(1.05f), FDC_Regular);
+		auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_24px, FDC_Regular);
 
 		auto label_size = g_gui_fontmgr_i->calc_font_text_size(font, text.c_str());
 
@@ -760,7 +763,7 @@ void CGUIWidgets::add_window_centered_text(const std::string& text, ImFont* font
 
 	if (!font)
 	{
-		font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular);
+		font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular);
 	}
 	add_window_centered_text_ex(text, text_color, font);
 }
@@ -771,7 +774,7 @@ void CGUIWidgets::add_window_centered_text_disabled(const std::string& text, ImF
 
 	if (!font)
 	{
-		font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular);
+		font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular);
 	}
 	add_window_centered_text_ex(text, text_color, font);
 }
@@ -990,7 +993,7 @@ bool CGUIWidgets::add_text_input_ex(const std::string& label, char* buffer, size
 
 	PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 
-	PushFont(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.bigger(), FDC_Light));
+	PushFont(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_24px, FDC_Light));
 
 	bool ret = InputTextEx(label.c_str(), NULL, buffer, buffer_size, input_size, flags | ImGuiInputTextFlags_NoLabel, callback, user_data);
 
@@ -1050,7 +1053,7 @@ void CGUIWidgets::end_columns()
 
 void CGUIWidgets::add_separtor_with_text(const std::string& text)
 {
-	auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.bigger(), FDC_Regular);
+	auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_24px, FDC_Regular);
 	add_text(text, TEXTPROP_Slim, font);
 
 	Separator();
@@ -1076,7 +1079,7 @@ void CGUIWidgets::render_clipped_contents(size_t size, const std::function<void(
 
 void CGUIWidgets::add_readmore_on_hover_widget(const char* text)
 {
-	push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular));
+	push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Regular));
 	add_text("Read more...", TEXTPROP_None);
 	if (IsItemHovered(ImGuiHoveredFlags_DelayNormal))
 	{
@@ -1093,7 +1096,7 @@ void CGUIWidgets::add_readmore_on_hover_widget(const char* text)
 
 void CGUIWidgets::add_readmore_on_hover_widget_ex(const std::function<void()>& callback)
 {
-	push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Regular));
+	push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Regular));
 	add_text("Read more...", TEXTPROP_None);
 	if (IsItemHovered(ImGuiHoveredFlags_DelayNormal))
 	{
@@ -1112,7 +1115,7 @@ void CGUIWidgets::add_readmore_on_hover_widget_ex(const std::function<void()>& c
 
 void CGUIWidgets::dialog_on_hover_widget(const std::function<void()>& callback)
 {
-	push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular));
+	push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
 	if (IsItemHovered(ImGuiHoveredFlags_DelayNormal))
 	{
 		set_next_window_rounding(4.0f, ImDrawFlags_RoundCornersAll);
@@ -1190,7 +1193,7 @@ bool CGUIWidgets::add_simple_listbox(const std::string & label, int* value, cons
 	bool edited = false;
 	if (begin_listbox(label, items[*value]))
 	{
-		push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.medium(), FDC_Regular));
+		push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
 		push_stylevar(ImGuiStyleVar_ItemSpacing, { 0.0f, 1.0f });
 
 		for (size_t i = 0; i < items.size(); i++)
@@ -1257,6 +1260,16 @@ bool CGUIWidgets::add_floating_button(const std::string& label, const Vector2D& 
 	pop_stylevar(1); // WindowPadding
 	set_cursor_pos(last_cursor_pos);
 	return ret;
+}
+
+bool CGUIWidgets::add_tree_node(const std::string& label)
+{
+	return TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth);
+}
+
+void CGUIWidgets::pop_tree_node()
+{
+	TreePop();
 }
 
 void CGUIWidgets::add_table(const std::string& name, uint32_t columns, ImGuiTableFlags flags, 
@@ -1740,7 +1753,7 @@ bool CGUIWidgets::begin_combo_internal(const char* label, const char* preview_la
 		preview_label = NULL;
 	}
 
-	PushFont(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText, FDC_Regular));
+	PushFont(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
 
 	// Render preview and label
 	if (preview_label != NULL && !(flags & ImGuiComboFlags_NoPreview))
@@ -2456,7 +2469,7 @@ bool CGUIWidgets::add_slider_internal(const char* label, T* value, T* min, T* ma
 
 	const ImVec2 value_label_size = CalcTextSize(value_buf, NULL, true);
 
-	PushFont(g_gui_fontmgr_i->get_font(FID_SegoeUI, FontSize::UIText.small(), FDC_Bold));
+	PushFont(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Bold));
 
 	const float value_label_offset = 1.f;
 	RenderTextClipped({ frame_bb_thin_min.x + frame_bb_thin_size.x / 2.f - value_label_size.x / 2.f, frame_bb_thin_min.y - value_label_size.y - value_label_offset },

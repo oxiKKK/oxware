@@ -185,6 +185,9 @@ public:
 
 	virtual bool add_floating_button(const std::string& label, const Vector2D& last_cursor_pos, const Vector2D& button_pos, const Vector2D& button_size = Vector2D(0, 0), bool disabled = false, EButtonFlags flags = BUTTONFLAG_None) = 0;
 
+	virtual bool add_tree_node(const std::string& label) = 0;
+	virtual void pop_tree_node() = 0;
+
 	//
 	// Tables/lists/columns
 	//

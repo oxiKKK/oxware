@@ -78,6 +78,8 @@ extern unsigned int g_segoeuib_compressed_size;
 extern unsigned int g_segoeuib_compressed_data[688080 / 4];
 extern unsigned int g_segoeuil_compressed_size;
 extern unsigned int g_segoeuil_compressed_data[642404 / 4];
+extern unsigned int g_seguiemj_compressed_size;
+extern unsigned int g_seguiemj_compressed_data[1405400 / 4];
 struct SegoeUIFontContainer_t : public BaseFontContainer_t
 {
 public:

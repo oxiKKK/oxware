@@ -33,6 +33,9 @@
     <ClCompile Include="oxware_48_c.cpp">
       <Filter>src\icon</Filter>
     </ClCompile>
+    <ClCompile Include="seguiemj_c.cpp">
+      <Filter>src\segoeui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\assets\compressed_font_data.h">

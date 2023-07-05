@@ -77,6 +77,8 @@ public:
 	void schedule_simple_popup_dialog(const std::string& label);
 	bool execute_simple_popup_popup(const std::string& name, const Vector2D& size, ImGuiWindowFlags flags, const std::function<void()>& callback);
 
+	void show_font_atlas();
+
 	//
 	// Properties
 	//
@@ -528,6 +530,12 @@ bool CGUIWidgets::execute_simple_popup_popup(const std::string& name, const Vect
 	}
 
 	return false;
+}
+
+void CGUIWidgets::show_font_atlas()
+{
+	ImGuiContext& g = *GImGui;
+	ShowFontAtlas(g.IO.Fonts);
 }
 
 void CGUIWidgets::push_disabled()

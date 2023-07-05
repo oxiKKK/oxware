@@ -1,4 +1,4 @@
-﻿/*
+/*
 *	OXWARE developed by oxiKKK
 *	Copyright (c) 2023
 * 
@@ -229,13 +229,14 @@ void CUIMenu::on_render()
 					auto child_pos = g_gui_widgets_i->get_current_window_pos();
 					auto child_size = g_gui_widgets_i->get_current_window_size();
 
-					auto label_size = g_gui_fontmgr_i->calc_font_text_size(segoeui_extra, "OXWARE");
+					const char* label_text = "OXWARE";
+					auto label_size = g_gui_fontmgr_i->calc_font_text_size(segoeui_extra, label_text);
 
 					g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(), 
 														  segoeui_extra,
 														  { child_pos.x + child_size.x / 2 - label_size.x / 2, window_pos.y + 10 },
 														  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark),
-														  "OXWARE");
+														  label_text);
 
 					m_sectab_relative_active_offset = { 10.0f, 50.0f };
 					m_sectab_active_offs = child_pos + m_sectab_relative_active_offset;
@@ -2002,8 +2003,6 @@ void CUIMenu::tab_others()
 				if (g_gui_widgets_i->add_checkbox("Force auto-hint", &force_auto_hint)) g_gui_fontmgr_i->add_freetype_builder_flags(FreeTypeBuilderFlags_ForceAutoHint, force_auto_hint);
 				if (g_gui_widgets_i->add_checkbox("Light hinting", &light_hinting)) g_gui_fontmgr_i->add_freetype_builder_flags(FreeTypeBuilderFlags_LightHinting, light_hinting);
 				if (g_gui_widgets_i->add_checkbox("Mono hinting", &mono_hinting)) g_gui_fontmgr_i->add_freetype_builder_flags(FreeTypeBuilderFlags_MonoHinting, mono_hinting);
-
-
 			});
 
 		CUIMenuWidgets::the().add_menu_child_collapsible(
@@ -2106,5 +2105,15 @@ void CUIMenu::tab_others()
 			});
 
 		g_gui_widgets_i->end_columns();
+
+#if !defined(_RETAIL)
+		CUIMenuWidgets::the().add_menu_child_collapsible(
+		"Server command filter", CMenuStyle::child_full_width(410.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[]()
+		{
+			// this is only available not in retail builds
+			g_gui_widgets_i->show_font_atlas();
+		});
+#endif
 	}
 }

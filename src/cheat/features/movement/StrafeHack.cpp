@@ -59,10 +59,10 @@ struct direction_data_t
 
 static direction_data_t s_direction_data[5] =
 {
-	{ DIR_FORWARD,	0.0f,								true	}, // 0°
-	{ DIR_RIGHT,	std::numbers::pi_v<float> / 2.0f,	false	}, // 90°
-	{ DIR_BACK,		std::numbers::pi_v<float>,			true	}, // 180°
-	{ DIR_LEFT,		-(std::numbers::pi_v<float> / 2.0f),false	}, // -90° or 270°
+	{ DIR_FORWARD,	0.0f,								true	}, // 0Â°
+	{ DIR_RIGHT,	std::numbers::pi_v<float> / 2.0f,	false	}, // 90Â°
+	{ DIR_BACK,		std::numbers::pi_v<float>,			true	}, // 180Â°
+	{ DIR_LEFT,		-(std::numbers::pi_v<float> / 2.0f),false	}, // -90Â° or 270Â°
 };
 
 void CMovementStrafeHack::update()

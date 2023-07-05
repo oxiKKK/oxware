@@ -271,13 +271,13 @@ float CGameUtil::compute_ground_angle_for_origin(const Vector& origin, float tra
 	hl::pmtrace_t* tr = CMemoryHookMgr::the().cl_enginefuncs()->pfnPM_TraceLine(
 		(Vector)origin, trace_end, PM_TRACELINE_ANYVISIBLE, CLocalState::the().get_current_hull_tracing(), -1);
 	
-	// plane normal returns the [0, 1] scale of rotation of the plane [0°, 90°].
+	// plane normal returns the [0, 1] scale of rotation of the plane [0Â°, 90Â°].
 	//
 	//	  plane			|  		
 	//		|  			|  		   0
- 	//		|-----> 1	|   90°----^----- plane
+ 	//		|-----> 1	|   90Â°----^----- plane
 	//		|			|  
-	//		0°			|  
+	//		0Â°			|  
 	//
 	return CMath::the().rad2deg(acosf(tr->plane.normal.z));
 }

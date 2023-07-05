@@ -644,6 +644,7 @@ void CEngineSynchronization::put_engine_in_sleep()
 	static constexpr uint32_t k_time_to_acknowledge_sleep = 20 * 1000; 
 	m_start_time = GetTickCount();
 	int n = 0;
+	bool failed = false;
 	while (m_engine_is_sleeping == false)
 	{
 		// do nothing until engine acks
@@ -652,19 +653,29 @@ void CEngineSynchronization::put_engine_in_sleep()
 
 		if (!m_engine_is_sleeping && n % 20 == 0)
 		{
-			CConsole::the().info("Waiting for engine...{}x", n++);
+			CConsole::the().info("Waiting for engine...{}x", (n++ / 20) + 1);
 		}
+
+//		CConsole::the().info("m_engine_is_sleeping: {} (tid: {})", m_engine_is_sleeping, std::hash<std::thread::id>{}(std::this_thread::get_id()));
 
 		if (GetTickCount() - m_start_time > k_time_to_acknowledge_sleep)
 		{
 			// time's up... break anyway
 			CConsole::the().error("Engine failed to start a new frame in {} seconds...", k_time_to_acknowledge_sleep);
+			failed = true;
 			break;
 		}
 	}
 
-	CConsole::the().info("Engine went to sleep. Continuing...");
-	CConsole::the().info("Took {} ms to put engine to sleep.", GetTickCount() - m_start_time);
+	if (failed)
+	{
+		CConsole::the().info("Failed to put engine in sleep! Waited {} seconds", k_time_to_acknowledge_sleep / 1000);
+	}
+	else
+	{
+		CConsole::the().info("Engine went to sleep. Continuing...");
+		CConsole::the().info("Took {} ms to put engine to sleep.", GetTickCount() - m_start_time);
+	}
 
 	// ok, engine is now sleeping, continue.
 	// DONT FORGET TO RESUME ENGINE FROM SLEEPING!
@@ -688,6 +699,19 @@ void CEngineSynchronization::engine_frame()
 		// hang till we let engine be free again
 
 		m_engine_is_sleeping = true;
+		
+		// NOTE: Wait a little. Seems like on retail mode, this while loop puts the whole process in a deadlock, 
+		//		 and even tho this loop is running inside the engine thread, the cpu scheduler or whaterver basically
+		//		 doesn't run code for other threads? because at the above function put_engine_in_sleep() we're 
+		//		 basically waiting for this 'm_engine_is_sleeping' variable to be set to true, and even tho it is,
+		//		 the code above still hangs?! what the heck?!
+		//
+		// FIX:	 Seems like waiting there fixes the problem, although this is really suspicious... I assume what is going
+		//		 on is that basically putting this thread to sleep gives space to other threads to function properly?
+		//		 like what the hell is even that?!
+		std::this_thread::sleep_for(10ms);
+		
+//		CConsole::the().info("just set m_engine_is_sleeping to {} (tid: {})", m_engine_is_sleeping, std::hash<std::thread::id>{}(std::this_thread::get_id()));
 	}
 
 	if (m_engine_is_sleeping)

@@ -242,25 +242,13 @@ ImFont* CGUIFontManager::precache_font(EFontId id, float size_px, EFontDecoratio
 
 	static const ImWchar glyph_ranges[] =
 	{
-		0x0020, 0x00FF, // Basic Latin + Latin Supplement
-		0x0400, 0x052F, // Cyrillic + Cyrillic Supplement
-		0x2000, 0x206F, // General Punctuation
-		0x2DE0, 0x2DFF, // Cyrillic Extended-A
-		0x3000, 0x30FF, // CJK Symbols and Punctuations, Hiragana, Katakana
-		0x31F0, 0x31FF, // Katakana Phonetic Extensions
-		0xFF00, 0xFFEF, // Half-width characters
-		0xFFFD, 0xFFFD, // Invalid
-		0x4e00, 0x9FAF, // CJK Ideograms
-		0xA640, 0xA69F, // Cyrillic Extended-B
-		0x2010, 0x205E, // Punctuations
-		0x0E00, 0x0E7F, // Thai
-		0x0102, 0x0103,
-		0x0110, 0x0111,
-		0x0128, 0x0129,
-		0x0168, 0x0169,
-		0x01A0, 0x01A1,
-		0x01AF, 0x01B0,
-		0x1EA0, 0x1EF9,
+		0x0020,  0x00FF, // ASCII
+		0x0400,  0x052F, // Cyrillic + Cyrillic Supplement
+		0x2000,  0x206F, // General Punctuation
+		0x2DE0,  0x2DFF, // Cyrillic Extended-A
+		0xFF00,  0xFFEF, // Half-width characters
+		0x4e00,  0x9FAF, // CJK Ideograms
+		0x2010,  0x205E, // Punctuations
 		0,
 	};
 
@@ -290,6 +278,30 @@ ImFont* CGUIFontManager::precache_font(EFontId id, float size_px, EFontDecoratio
 			break;
 		}
 	}
+
+	//
+	// load emojis and merge with previous font
+	//
+	cfg.OversampleH = cfg.OversampleV = 1;
+	cfg.MergeMode = true;
+	cfg.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
+
+	// glyph ranges for standard emojis such as: "😀😃🤗😌😨🥺" etc...
+	// see https://en.wikipedia.org/wiki/Emoticons_(Unicode_block)
+	// and https://unicode.org/charts/PDF/U1F600.pdf
+	//
+	// NOTE that building this font is _EXTREMELY_ performance expensive, even on retail builds.
+	//		Increasing the glyph range only slightly will have a major impact on performance.
+	//
+	// NOTE that the standard range of emojis doesn't include other emojis such as "🤐🤑🤒🤓🤔"
+	// see https://en.wikipedia.org/wiki/Supplemental_Symbols_and_Pictographs
+	static const ImWchar glyph_ranges_emoji[] =
+	{
+		0x1F600, 0x1F64F, // emojis
+		0,
+	};
+
+	io.Fonts->AddFontFromMemoryCompressedTTF(g_seguiemj_compressed_data, g_seguiemj_compressed_size, size_px, &cfg, glyph_ranges_emoji);
 
 	// the function shouldn't fail, but anyways
 	assert(added_font && "AddFontFromMemoryCompressedTTF failed while adding font.");

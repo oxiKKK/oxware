@@ -26,15 +26,15 @@
 *	IN THE SOFTWARE.
 */
 
-#ifndef SERVERLIAR_H
-#define SERVERLIAR_H
+#ifndef CVARSANDBOX_H
+#define CVARSANDBOX_H
 #pragma once
 
-extern VarBoolean cvarfilter_enable;
-extern VarBoolean cvarfilter_monitor_server;
+extern VarBoolean cvar_sandbox_enable;
+extern VarBoolean cvar_sandbox_monitor_server;
 
-extern VarKeyValue cvarfilter_fps_max;
-extern VarKeyValue cvarfilter_fps_override;
+extern VarKeyValue cvar_sandbox_fps_max;
+extern VarKeyValue cvar_sandbox_fps_override;
 
 extern VarKeyValue fps_max;
 extern VarKeyValue fps_override;
@@ -59,10 +59,10 @@ extern VarKeyValue cl_minmodels;
 // networking
 extern VarKeyValue cl_cmdrate;
 
-class CServerLiar
+class CCvarSandbox
 {
 public:
-	DECL_BASIC_CLASS(CServerLiar);
+	DECL_BASIC_CLASS(CCvarSandbox);
 
 public:
 	// returns fake cvar value
@@ -73,7 +73,7 @@ public:
 private:
 	void initialize();
 
-	void render_cvarfilter_slot(VarKeyValue* var);
+	void render_cvar_sandbox_slot(VarKeyValue* var);
 
 	// ik that this seems really dumb and out of place however, I don't really know how to properly
 	// work with input text buffers... xD
@@ -89,4 +89,4 @@ private:
 	std::vector<VarKeyValue*> m_variables;
 };
 
-#endif // SERVERLIAR_H
+#endif // CVARSANDBOX_H

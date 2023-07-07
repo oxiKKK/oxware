@@ -326,6 +326,8 @@ void CGUIFontManager::precache_all_fonts()
 	precache_font((EFontId)FID_SegoeUI, FSZ_16px, FDC_Bold);
 	precache_font((EFontId)FID_SegoeUI, FSZ_16px, FDC_Regular);
 
+	precache_font((EFontId)FID_SegoeUI, FSZ_18px, FDC_Regular);
+
 	precache_font((EFontId)FID_SegoeUI, FSZ_24px, FDC_Regular);
 	precache_font((EFontId)FID_SegoeUI, FSZ_24px, FDC_Light);
 
@@ -333,6 +335,8 @@ void CGUIFontManager::precache_all_fonts()
 
 	precache_font((EFontId)FID_SegoeUI, FSZ_30px, FDC_Bold);
 	precache_font((EFontId)FID_SegoeUI, FSZ_30px, FDC_Regular);
+
+	precache_font((EFontId)FID_SegoeUI, FSZ_33px, FDC_Bold);
 
 	precache_font((EFontId)FID_SegoeUI, FSZ_45px, FDC_Bold);
 

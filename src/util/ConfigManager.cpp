@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-VarInteger save_cfg_interval_sec("save_cfg_interval_sec", "Iterval in seconds for how often current settings should be saved.", 30, 10, 60);
+VarInteger save_cfg_interval_sec("save_cfg_interval_sec", "Iterval in seconds for how often current settings should be saved.", 30, 9, 60);
 
 BaseCommand export_config(
 	"export_config", "<config name>", "Exports a json config file",
@@ -161,6 +161,12 @@ void CConfigManager::shutdown()
 
 void CConfigManager::update()
 {
+	// see if enabled
+	if (save_cfg_interval_sec.get_value() == save_cfg_interval_sec.get_min())
+	{
+		return;
+	}
+
 	if (get_duration_last_saved_sec() > save_cfg_interval_sec.get_value())
 	{
 		write_configuration(CFG_CheatSettings, "saved.json", true);

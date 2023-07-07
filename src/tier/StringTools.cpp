@@ -70,7 +70,7 @@ std::string CStringTools::format_date(const std::chrono::system_clock::time_poin
 	auto now_c = std::chrono::system_clock::to_time_t(point);
 	std::tm* now_tm = std::localtime(&now_c);
 	std::string date = std::format("{}/{}/{} | {:02}:{:02}:{:02}", 
-								   now_tm->tm_mday, now_tm->tm_mon, now_tm->tm_year + 1900, 
+								   now_tm->tm_mday, now_tm->tm_mon + 1, now_tm->tm_year + 1900, 
 								   now_tm->tm_hour, now_tm->tm_min, now_tm->tm_sec);
 
 	return date;

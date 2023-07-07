@@ -34,6 +34,7 @@ void CUIPerfProfilerVisualization::on_initialize()
 
 void CUIPerfProfilerVisualization::on_render()
 {
+#if 0
 	g_gui_widgets_i->set_next_window_size({ 400.0f, 600.0f }, ImGuiCond_Once);
 
 	static constexpr auto window_flags =
@@ -110,6 +111,7 @@ void CUIPerfProfilerVisualization::on_render()
 						});
 				});
 		});
+#endif
 }
 
 void CUIPerfProfilerVisualization::on_destroy()

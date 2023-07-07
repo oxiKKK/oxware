@@ -54,9 +54,6 @@ public:
 	void add_description_text(const char* additional_desc, const char* readmore_string = nullptr, bool no_padding = false);
 	void add_description_text_ex(const char* additional_desc, const std::function<void()>& callback = nullptr, bool no_padding = false);
 
-	void add_menu_child(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents);
-	void add_menu_child_collapsible(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents);
-
 	void feature_enabled_section(VarBoolean* var_boolean, const std::function<void()>& callback, const std::string& title = "Enable", bool see_if_enabled = true);
 	void feature_enabled_section(VarBoolean* var_boolean, VarColor* colors_var, const std::function<void()>& callback, bool alpha = false, const std::string& title = "Enable", bool see_if_enabled = true);
 
@@ -70,6 +67,14 @@ private:
 
 	template<typename T>
 	bool add_slider_t(const std::string& label, const char* format, T* var, bool no_label, const char* min_value_label = nullptr, const char* max_value_label = nullptr, const char* additional_desc = nullptr);
+
+	struct collapsible_child_data_t
+	{
+		bool	collapsed;
+		float	initial_height, height;
+		bool	hovered;
+	};
+	std::unordered_map<std::string, collapsible_child_data_t> m_collapsible_child_data;
 };
 
 #endif // UIMENUWIDGETS_H

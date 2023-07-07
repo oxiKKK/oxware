@@ -229,7 +229,7 @@
     <ClCompile Include="features\FrameSkipper.cpp" />
     <ClCompile Include="features\ModelChams.cpp" />
     <ClCompile Include="features\Removals.cpp" />
-    <ClCompile Include="features\ServerLiar.cpp" />
+    <ClCompile Include="features\CvarSandbox.cpp" />
     <ClCompile Include="features\SmokeVisuals.cpp" />
     <ClCompile Include="features\StuffCMDFilter.cpp" />
     <ClCompile Include="features\ThirdPerson.cpp" />
@@ -276,13 +276,20 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="ui\menu\UIMenu.cpp" />
+    <ClCompile Include="ui\menu\UIMenu_Configuration.cpp" />
+    <ClCompile Include="ui\menu\UIMenu_Exploits.cpp" />
+    <ClCompile Include="ui\menu\UIMenu_Movement.cpp" />
+    <ClCompile Include="ui\menu\UIMenu_Other.cpp" />
+    <ClCompile Include="ui\menu\UIMenu_Rendering.cpp" />
+    <ClCompile Include="ui\menu\UIMenu_Screen.cpp" />
+    <ClCompile Include="ui\menu\UIMenu_World.cpp" />
     <ClCompile Include="ui\OxWareUI.cpp" />
     <ClCompile Include="ui\UIBackgroundRendering.cpp" />
     <ClCompile Include="ui\UIConsole.cpp" />
     <ClCompile Include="ui\UIFeatureList.cpp" />
     <ClCompile Include="ui\UIInCommandBinding.cpp" />
     <ClCompile Include="ui\UIKeyBinding.cpp" />
-    <ClCompile Include="ui\UIMenu.cpp" />
     <ClCompile Include="ui\UIMenuBackground.cpp" />
     <ClCompile Include="ui\UIMenuWidgets.cpp" />
     <ClCompile Include="ui\UIPerformanceProfilerVisualization.cpp" />
@@ -338,7 +345,7 @@
     <ClInclude Include="features\FrameSkipper.h" />
     <ClInclude Include="features\ModelChams.h" />
     <ClInclude Include="features\Removals.h" />
-    <ClInclude Include="features\ServerLiar.h" />
+    <ClInclude Include="features\CvarSandbox.h" />
     <ClInclude Include="features\SmokeVisuals.h" />
     <ClInclude Include="features\StuffCMDFilter.h" />
     <ClInclude Include="features\ThirdPerson.h" />
@@ -374,13 +381,13 @@
     <ClInclude Include="oxware.h" />
     <ClInclude Include="precompiled.h" />
     <ClInclude Include="ui\IRendererContext.h" />
+    <ClInclude Include="ui\menu\UIMenu.h" />
     <ClInclude Include="ui\OxWareUI.h" />
     <ClInclude Include="ui\UIBackgroundRendering.h" />
     <ClInclude Include="ui\UIConsole.h" />
     <ClInclude Include="ui\UIFeatureList.h" />
     <ClInclude Include="ui\UIInCommandBinding.h" />
     <ClInclude Include="ui\UIKeyBinding.h" />
-    <ClInclude Include="ui\UIMenu.h" />
     <ClInclude Include="ui\UIMenuBackground.h" />
     <ClInclude Include="ui\UIMenuWidgets.h" />
     <ClInclude Include="ui\UIPerformanceProfilerVisualization.h" />

@@ -59,128 +59,123 @@ void CUIInCommandKeyBinding::render_interactible_list()
 {
 	auto last_cursor_pos = g_gui_widgets_i->get_cursor_pos();
 
-	CUIMenuWidgets::the().add_menu_child(
-		"InCommands", CMenuStyle::child_full_width(-1.0f), false, ImGuiWindowFlags_AlwaysUseWindowPadding,
+	g_gui_widgets_i->add_spacing();
+
+	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_CellPadding, { 2.0f, 1.0f });
+
+	if (g_gui_widgets_i->begin_columns("incommands_column", 5))
+	{
+		g_gui_widgets_i->setup_column_fixed_width(100.0f);
+		g_gui_widgets_i->setup_column_fixed_width(50.0f);
+		g_gui_widgets_i->setup_column_fixed_width(50.0f);
+		g_gui_widgets_i->setup_column_fixed_width(50.0f);
+		g_gui_widgets_i->setup_column_fixed_width(283.0f);
+
+		g_gui_widgets_i->goto_next_column();
+		g_gui_widgets_i->add_text("Key name");
+		g_gui_widgets_i->goto_next_column();
+		g_gui_widgets_i->add_text("Enable");
+		g_gui_widgets_i->goto_next_column();
+		g_gui_widgets_i->add_text("Always");
+		g_gui_widgets_i->goto_next_column();
+		g_gui_widgets_i->add_text("Options");
+		g_gui_widgets_i->goto_next_column();
+		g_gui_widgets_i->add_text("Command");
+
+		g_gui_widgets_i->end_columns();
+	}
+
+	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
+
+	g_gui_widgets_i->add_separator();
+
+	g_gui_widgets_i->add_child(
+		"incommands_list", Vector2D(-1.0f, -1.0f), false, ImGuiWindowFlags_None,
 		[&]()
 		{
-			g_gui_widgets_i->add_spacing();
-
-			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_CellPadding, { 2.0f, 1.0f });
-
-			if (g_gui_widgets_i->begin_columns("incommands_column", 5))
+			if (g_gui_widgets_i->begin_columns("binds_column_nested", 5))
 			{
 				g_gui_widgets_i->setup_column_fixed_width(100.0f);
 				g_gui_widgets_i->setup_column_fixed_width(50.0f);
 				g_gui_widgets_i->setup_column_fixed_width(50.0f);
 				g_gui_widgets_i->setup_column_fixed_width(50.0f);
-				g_gui_widgets_i->setup_column_fixed_width(283.0f);
+				g_gui_widgets_i->setup_column_fixed_width(285.0f);
 
-				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("Key name");
-				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("Enable");
-				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("Always");
-				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("Options");
-				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("Command");
+				// for the '...' button
+				static struct popup_state_t
+				{
+					BaseInCommand* in_cmd;
+					ui_incmd_element_t* ui_element;
+				} popup_st{};
+
+				g_in_commands_i->for_each_incommand(
+					[&](BaseInCommand* in_cmd)
+					{
+						auto& name = in_cmd->get_name();
+
+						g_gui_widgets_i->goto_next_column();
+
+						int vk = in_cmd->get_key_bound();
+
+						add_keyscan_button(in_cmd, Vector2D(-1.0f, 25.0f));
+
+						// unique insertion
+						ui_incmd_element_t* ui_element = retreive_ui_element_or_insert_new(in_cmd);
+
+						g_gui_widgets_i->goto_next_column();
+
+						auto toggle_var = in_cmd->get_toggle_var();
+						CUIMenuWidgets::the().add_checkbox(std::format("##{}_0", name), toggle_var);
+
+						g_gui_widgets_i->goto_next_column();
+
+						auto always_enabled_var = in_cmd->get_always_enabled_var();
+						CUIMenuWidgets::the().add_checkbox(std::format("##{}_1", name), always_enabled_var);
+
+						g_gui_widgets_i->goto_next_column();
+
+						if (g_gui_widgets_i->add_button(std::format("...##{}", name), Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
+						{
+							popup_st = { in_cmd, ui_element };
+
+							g_gui_widgets_i->schedule_simple_popup_dialog("options_popup");
+						}
+
+						g_gui_widgets_i->goto_next_column();
+
+						g_gui_widgets_i->add_text(name);
+					}
+				);
+
+				g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
+				static bool was_popup_opened = false;
+				bool popup_opened = g_gui_widgets_i->execute_simple_popup_popup(
+					"options_popup", { 180, 40 }, ImGuiWindowFlags_NoMove,
+					[&]()
+					{
+						auto ui_element = popup_st.ui_element;
+						auto in_cmd = popup_st.in_cmd;
+
+						if (g_gui_widgets_i->add_checkbox("Disable in-game key", &ui_element->f_disable_ingame_key))
+						{
+							in_cmd->add_flags(IN_FLAG_DisableInGameKey, ui_element->f_disable_ingame_key);
+						}
+					});
+				g_gui_widgets_i->pop_stylevar();
+
+				// on close
+				if (was_popup_opened != popup_opened && !popup_opened)
+				{
+					popup_st = {};
+					was_popup_opened = popup_opened;
+				}
 
 				g_gui_widgets_i->end_columns();
 			}
-
-			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
-
-			g_gui_widgets_i->add_separator();
-
-			g_gui_widgets_i->add_child(
-				"incommands_list", Vector2D(-1.0f, -1.0f), false, ImGuiWindowFlags_None,
-				[&]()
-				{
-					if (g_gui_widgets_i->begin_columns("binds_column_nested", 5))
-					{
-						g_gui_widgets_i->setup_column_fixed_width(100.0f);
-						g_gui_widgets_i->setup_column_fixed_width(50.0f);
-						g_gui_widgets_i->setup_column_fixed_width(50.0f);
-						g_gui_widgets_i->setup_column_fixed_width(50.0f);
-						g_gui_widgets_i->setup_column_fixed_width(285.0f);
-
-						// for the '...' button
-						static struct popup_state_t
-						{
-							BaseInCommand* in_cmd;
-							ui_incmd_element_t* ui_element;
-						} popup_st{};
-
-						g_in_commands_i->for_each_incommand(
-							[&](BaseInCommand* in_cmd)
-							{
-								auto& name = in_cmd->get_name();
-
-								g_gui_widgets_i->goto_next_column();
-
-								int vk = in_cmd->get_key_bound();
-
-								add_keyscan_button(in_cmd, Vector2D(-1.0f, 25.0f));
-
-								// unique insertion
-								ui_incmd_element_t* ui_element = retreive_ui_element_or_insert_new(in_cmd);
-
-								g_gui_widgets_i->goto_next_column();
-
-								auto toggle_var = in_cmd->get_toggle_var();
-								CUIMenuWidgets::the().add_checkbox(std::format("##{}_0", name), toggle_var);
-
-								g_gui_widgets_i->goto_next_column();
-
-								auto always_enabled_var = in_cmd->get_always_enabled_var();
-								CUIMenuWidgets::the().add_checkbox(std::format("##{}_1", name), always_enabled_var);
-
-								g_gui_widgets_i->goto_next_column();
-
-								if (g_gui_widgets_i->add_button(std::format("...##{}", name), Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
-								{
-									popup_st = { in_cmd, ui_element };
-
-									g_gui_widgets_i->schedule_simple_popup_dialog("options_popup");
-								}
-
-								g_gui_widgets_i->goto_next_column();
-
-								g_gui_widgets_i->add_text(name);
-							}
-						);
-
-						g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
-						static bool was_popup_opened = false;
-						bool popup_opened = g_gui_widgets_i->execute_simple_popup_popup(
-							"options_popup", { 180, 40 }, ImGuiWindowFlags_NoMove,
-							[&]()
-							{
-								auto ui_element = popup_st.ui_element;
-								auto in_cmd = popup_st.in_cmd;
-
-								if (g_gui_widgets_i->add_checkbox("Disable in-game key", &ui_element->f_disable_ingame_key))
-								{
-									in_cmd->add_flags(IN_FLAG_DisableInGameKey, ui_element->f_disable_ingame_key);
-								}
-							});
-						g_gui_widgets_i->pop_stylevar();
-
-						// on close
-						if (was_popup_opened != popup_opened && !popup_opened)
-						{
-							popup_st = {};
-							was_popup_opened = popup_opened;
-						}
-
-						g_gui_widgets_i->end_columns();
-					}
-				});
-
-			g_gui_widgets_i->pop_stylevar();
-			g_gui_widgets_i->pop_stylevar();
 		});
+
+	g_gui_widgets_i->pop_stylevar();
+	g_gui_widgets_i->pop_stylevar();
 
 #if 0
 	if (g_gui_widgets_i->add_floating_button("?", last_cursor_pos, { window_size.x - 23.0f - button_size.x - 3.0f - button_size.x, 30.0f },

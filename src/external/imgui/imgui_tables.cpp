@@ -2933,7 +2933,14 @@ void ImGui::TableHeader(const char* label)
     // If we already got a row height, there's use that.
     // FIXME-TABLE: Padding problem if the correct outer-padding CellBgRect strays off our ClipRect?
     ImRect cell_r = TableGetCellBgRect(table, column_n);
-    float label_height = ImMax(label_size.y, table->RowMinHeight - table->CellPaddingY * 2.0f);
+
+    // oxware
+    bool text_only_header = (table->Flags & ImGuiTableFlags_HeaderTextOnly);
+
+    if (text_only_header)
+        label_size.y = 0.0f;
+
+    float label_height = text_only_header ? 0.0f : ImMax(label_size.y, table->RowMinHeight - table->CellPaddingY * 2.0f);
 
     // Calculate ideal size for sort order arrow
     float w_arrow = 0.0f;
@@ -2965,9 +2972,6 @@ void ImGui::TableHeader(const char* label)
 
     //GetForegroundDrawList()->AddRect(cell_r.Min, cell_r.Max, IM_COL32(255, 0, 0, 255)); // [DEBUG]
     //GetForegroundDrawList()->AddRect(bb.Min, bb.Max, IM_COL32(255, 0, 0, 255)); // [DEBUG]
-
-    // oxware
-    bool text_only_header = (table->Flags & ImGuiTableFlags_HeaderTextOnly);
 
     // Using AllowItemOverlap mode because we cover the whole cell, and we want user to be able to submit subsequent items.
     bool hovered = false, held = false;
@@ -3043,8 +3047,11 @@ void ImGui::TableHeader(const char* label)
         }
     }
 
-    float text_max = cell_r.Max.x - w_arrow;
-    RenderTextClipped(label_pos, ImVec2(text_max, label_pos.y + label_height + g.Style.FramePadding.y), label, NULL, NULL);
+    if (!text_only_header)
+    {
+        float text_max = cell_r.Max.x - w_arrow;
+        RenderTextClipped(label_pos, ImVec2(text_max, label_pos.y + label_height + g.Style.FramePadding.y), label, NULL, NULL);
+    }
 
     // Render clipped label. Clipping here ensure that in the majority of situations, all our header cells will
     // be merged into a single draw call.

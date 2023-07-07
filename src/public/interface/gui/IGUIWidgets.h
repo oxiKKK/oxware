@@ -61,6 +61,17 @@ enum EButtonFlags
 	BUTTONFLAG_NoHover = BIT(1),
 };
 
+enum EArrowDirection
+{
+	ARROWDIR_None = -1,
+	ARROWDIR_Left = 0,
+	ARROWDIR_Right = 1,
+	ARROWDIR_Up = 2,
+	ARROWDIR_Down = 3,
+	ARROWDIR_COUNT
+};
+
+
 struct GLFWwindow;
 struct ImFont;
 
@@ -75,6 +86,7 @@ public:
 
 	virtual void set_next_window_size(const Vector2D& size, ImGuiCond condition = ImGuiCond_None) = 0;
 	virtual void set_next_window_pos(const Vector2D& pos, ImGuiCond condition = ImGuiCond_None) = 0;
+	virtual void set_next_window_size_constrains(const Vector2D& min, const Vector2D& max) = 0;
 	virtual void center_next_window_pos(ImGuiCond condition) = 0;
 	virtual void set_next_window_rounding(float rounding, ImDrawFlags flags = ImDrawFlags_None) = 0;
 
@@ -83,8 +95,6 @@ public:
 	virtual void block_input_on_all_except_popup(bool block) = 0;
 
 	virtual void add_child(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents) = 0;
-	virtual void add_child_with_header(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents, bool collapsible = false) = 0;
-	virtual void add_child_with_header_collapsible(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents) = 0;
 
 	virtual Vector2D get_current_window_pos() = 0;
 	virtual Vector2D get_current_window_size() = 0;
@@ -136,6 +146,9 @@ public:
 	virtual void push_executing_popup_code() = 0;
 	virtual void pop_executing_popup_code() = 0;
 
+	virtual Vector2D get_current_scroll() = 0;
+	virtual void set_scroll(const Vector2D& xy) = 0; // provide -1 for no scroll
+
 	//
 	// Widgets
 	//
@@ -147,7 +160,8 @@ public:
 	virtual void add_window_centered_text_disabled(const std::string& text, ImFont* font = nullptr) = 0;
 
 	virtual bool add_button(const std::string& label, const Vector2D& size, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None) = 0;
-	virtual bool add_toggle_button(const std::string& label, const Vector2D& size, bool selected = false, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None) = 0;
+	virtual bool add_toggle_button(const std::string& label, const Vector2D& size, bool selected = false, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None, CColor unselected_color = CColor(0, 0, 0, 0)) = 0;
+	virtual bool add_invisible_button_behaviour(const std::string& label, const Vector2D& pos, const Vector2D& size) = 0;
 
 	virtual bool add_hypertext_link(const std::string& label) = 0;
 
@@ -209,6 +223,8 @@ public:
 
 	virtual void table_next_column() = 0;
 
+	virtual void table_headers_row() = 0;
+
 	// columns using tables api
 	virtual bool begin_columns(const std::string& label, int count_columns) = 0;
 	virtual void end_columns() = 0;
@@ -236,6 +252,12 @@ public:
 	// Custom widgets
 	//
 	virtual void add_console() = 0;
+
+	//
+	// rendering
+	//
+
+	virtual void render_arrow(const Vector2D& pos, const CColor& color, EArrowDirection direction) = 0;
 };
 
 extern IGUIWidgets* g_gui_widgets_i;

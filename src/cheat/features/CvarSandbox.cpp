@@ -28,12 +28,12 @@
 
 #include "precompiled.h"
 
-VarBoolean cvarfilter_enable("cvarfilter_enable", "Enables \"lying to the server\" feature. See menu for more details.", false);
-VarBoolean cvarfilter_monitor_server("cvarfilter_monitor_server", "Allows to see what cvar server requests from the client. (inside the console)", false);
+VarBoolean cvar_sandbox_enable("cvar_sandbox_enable", "Enables \"lying to the server\" feature. See menu for more details.", false);
+VarBoolean cvar_sandbox_monitor_server("cvar_sandbox_monitor_server", "Allows to see what cvar server requests from the client. (inside the console)", false);
 
 // convenience macros
 #define DESC(x) "Specify fake value for " x " when sent to the server."
-#define DEF_VAR(name, value) VarKeyValue cvarfilter_##name("cvarfilter_" #name, DESC(#name), KeyValue(#name, #value))
+#define DEF_VAR(name, value) VarKeyValue cvar_sandbox_##name("cvar_sandbox_" #name, DESC(#name), KeyValue(#name, #value))
 
 // fps
 DEF_VAR(fps_max, 100);
@@ -58,43 +58,43 @@ DEF_VAR(cl_minmodels, 0);
 
 // networking
 DEF_VAR(cl_cmdrate, 101);
-//VarKeyValue cvarfilter_("cvarfilter_fps_override", DESC("fps_override"), KeyValue("fps_override", "0"));
-//VarKeyValue cvarfilter_("cvarfilter_fps_override", DESC("fps_override"), KeyValue("fps_override", "0"));
-//VarKeyValue cvarfilter_("cvarfilter_fps_override", DESC("fps_override"), KeyValue("fps_override", "0"));
-//VarKeyValue cvarfilter_("cvarfilter_fps_override", DESC("fps_override"), KeyValue("fps_override", "0"));
+//VarKeyValue cvar_sandbox_("cvar_sandbox_fps_override", DESC("fps_override"), KeyValue("fps_override", "0"));
+//VarKeyValue cvar_sandbox_("cvar_sandbox_fps_override", DESC("fps_override"), KeyValue("fps_override", "0"));
+//VarKeyValue cvar_sandbox_("cvar_sandbox_fps_override", DESC("fps_override"), KeyValue("fps_override", "0"));
+//VarKeyValue cvar_sandbox_("cvar_sandbox_fps_override", DESC("fps_override"), KeyValue("fps_override", "0"));
 
-void CServerLiar::initialize()
+void CCvarSandbox::initialize()
 {
 	// fps
-	m_variables.push_back(&cvarfilter_fps_max);
-	m_variables.push_back(&cvarfilter_fps_override);
-	m_variables.push_back(&cvarfilter_gl_vsync);
-	m_variables.push_back(&cvarfilter_developer);
+	m_variables.push_back(&cvar_sandbox_fps_max);
+	m_variables.push_back(&cvar_sandbox_fps_override);
+	m_variables.push_back(&cvar_sandbox_gl_vsync);
+	m_variables.push_back(&cvar_sandbox_developer);
 
 	// movement
-	m_variables.push_back(&cvarfilter_cl_movespeedkey);
-	m_variables.push_back(&cvarfilter_cl_forwardspeed);
-	m_variables.push_back(&cvarfilter_cl_sidespeed);
-	m_variables.push_back(&cvarfilter_cl_upspeed);
-	m_variables.push_back(&cvarfilter_cl_yawspeed);
-	m_variables.push_back(&cvarfilter_cl_pitchspeed);
+	m_variables.push_back(&cvar_sandbox_cl_movespeedkey);
+	m_variables.push_back(&cvar_sandbox_cl_forwardspeed);
+	m_variables.push_back(&cvar_sandbox_cl_sidespeed);
+	m_variables.push_back(&cvar_sandbox_cl_upspeed);
+	m_variables.push_back(&cvar_sandbox_cl_yawspeed);
+	m_variables.push_back(&cvar_sandbox_cl_pitchspeed);
 
 	// prediction
-	m_variables.push_back(&cvarfilter_cl_lc);
-	m_variables.push_back(&cvarfilter_cl_lw);
+	m_variables.push_back(&cvar_sandbox_cl_lc);
+	m_variables.push_back(&cvar_sandbox_cl_lw);
 
 	// other
-	m_variables.push_back(&cvarfilter_cl_minmodels);
+	m_variables.push_back(&cvar_sandbox_cl_minmodels);
 
 	// networking
-	m_variables.push_back(&cvarfilter_cl_cmdrate);
+	m_variables.push_back(&cvar_sandbox_cl_cmdrate);
 }
 
-const char* CServerLiar::filter_cvarvalue(const char* cvar_name)
+const char* CCvarSandbox::filter_cvarvalue(const char* cvar_name)
 {
 	// TODO: Make this list dynamic, not hardcoded...
 
-	if (cvarfilter_enable.get_value())
+	if (cvar_sandbox_enable.get_value())
 	{
 		for (const auto& var : m_variables)
 		{
@@ -109,7 +109,7 @@ const char* CServerLiar::filter_cvarvalue(const char* cvar_name)
 	return nullptr;
 }
 
-void CServerLiar::render_ui()
+void CCvarSandbox::render_ui()
 {
 	static bool once = false;
 	if (!once)
@@ -132,12 +132,14 @@ void CServerLiar::render_ui()
 					static auto column_flags = ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_NoResize;
 					g_gui_widgets_i->table_setup_column_fixed_width("Cvar name", 200.0f, column_flags);
 					g_gui_widgets_i->table_setup_column_fixed_width("Value", 130.0f, column_flags);
+
+					g_gui_widgets_i->table_headers_row();
 				},
 				[&]()
 				{
 					for (const auto& var : m_variables)
 					{
-						render_cvarfilter_slot(var);
+						render_cvar_sandbox_slot(var);
 					}
 				});
 		});
@@ -154,7 +156,7 @@ void CServerLiar::render_ui()
 	}
 }
 
-void CServerLiar::render_cvarfilter_slot(VarKeyValue* var)
+void CCvarSandbox::render_cvar_sandbox_slot(VarKeyValue* var)
 {
 	g_gui_widgets_i->table_next_column();
 

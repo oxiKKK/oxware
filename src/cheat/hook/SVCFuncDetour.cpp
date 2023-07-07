@@ -99,7 +99,7 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue_f()
 
 		CHLNetMessageIO::the().write_byte(clc_cvarvalue);
 
-		if (cvarfilter_monitor_server.get_value())
+		if (cvar_sandbox_monitor_server.get_value())
 		{
 			CConsole::the().info("Server requested cvar value from '{}' (svc_sendcvarvalue)", requested_cvar);
 		}
@@ -132,13 +132,13 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue_f()
 		}
 		else
 		{
-			const char* value = CServerLiar::the().filter_cvarvalue(requested_cvar);
+			const char* value = CCvarSandbox::the().filter_cvarvalue(requested_cvar);
 			if (value == nullptr)
 			{
 				value = cvar->string;
 			}
 
-			if (cvarfilter_monitor_server.get_value())
+			if (cvar_sandbox_monitor_server.get_value())
 			{
 				if (stricmp(cvar->string, value))
 				{
@@ -175,7 +175,7 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 		CHLNetMessageIO::the().write_long(request_id);
 		CHLNetMessageIO::the().write_string(requested_cvar);
 
-		if (cvarfilter_monitor_server.get_value())
+		if (cvar_sandbox_monitor_server.get_value())
 		{
 			CConsole::the().info("Server requested cvar value from '{}' (svc_sendcvarvalue2)", requested_cvar);
 		}
@@ -208,13 +208,13 @@ void CSVCFuncDetourMgr::svc_sendcvarvalue2_f()
 		}
 		else
 		{
-			const char* value = CServerLiar::the().filter_cvarvalue(requested_cvar);
+			const char* value = CCvarSandbox::the().filter_cvarvalue(requested_cvar);
 			if (value == nullptr)
 			{
 				value = cvar->string;
 			}
 
-			if (cvarfilter_monitor_server.get_value())
+			if (cvar_sandbox_monitor_server.get_value())
 			{
 				CConsole::the().info("Responding to server with.. '{}' (but have '{}')", value, cvar->string);
 			}

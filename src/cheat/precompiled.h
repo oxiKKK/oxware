@@ -98,7 +98,7 @@
 #include <deque>
 #include <numbers>
 #include <thread>
-#include <memory_resource>
+#include <set>
 
 //-------------------------------------------------------------------
 //
@@ -281,7 +281,7 @@ namespace hl
 #include "features/ModelChams.h"
 #include "features/Removals.h"
 #include "features/ViewmodelOffset.h"
-#include "features/ServerLiar.h"
+#include "features/CvarSandbox.h"
 #include "features/SmokeVisuals.h"
 #include "features/BulletTrace.h"
 #include "features/FrameSkipper.h"
@@ -312,7 +312,7 @@ namespace hl
 // ui
 #include "ui/IRendererContext.h"
 #include "ui/UIMenuWidgets.h"
-#include "ui/UIMenu.h"
+#include "ui/menu/UIMenu.h"
 #include "ui/UIMenuBackground.h"
 #include "ui/UIFeatureList.h"
 #include "ui/UIConsole.h"

@@ -97,7 +97,7 @@ void CFeatureManager::precache_features()
 	add_new_feature(BaseFeature(&frame_skip_enable, "Frame skip"));
 
 	// cvar filter
-	add_new_feature(BaseFeature(&cvarfilter_enable, "Server liar / cvar filter"));
+	add_new_feature(BaseFeature(&cvar_sandbox_enable, "Server liar / cvar filter"));
 
 	// command filter
 	add_new_feature(BaseFeature(&cmdfilter_enable, "Command filter"));

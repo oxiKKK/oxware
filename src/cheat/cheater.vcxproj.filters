@@ -62,6 +62,12 @@
     <Filter Include="src\util\engine">
       <UniqueIdentifier>{f4349ca2-c8c0-4a8b-80d1-cd67effbc0ce}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\UI\rendering contexts\menu">
+      <UniqueIdentifier>{de6056c8-10f9-4ad5-b162-96b58487f93d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\UI\rendering contexts\menu\tabs">
+      <UniqueIdentifier>{4d71eee9-f51e-4ce3-a8fd-1110eca51ce3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -93,9 +99,6 @@
       <Filter>src\UI\rendering contexts</Filter>
     </ClCompile>
     <ClCompile Include="ui\UIFeatureList.cpp">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIMenu.cpp">
       <Filter>src\UI\rendering contexts</Filter>
     </ClCompile>
     <ClCompile Include="ui\UIMenuBackground.cpp">
@@ -296,7 +299,7 @@
     <ClCompile Include="features\ResourceConsistencyBypass.cpp">
       <Filter>src\features\exploits</Filter>
     </ClCompile>
-    <ClCompile Include="features\ServerLiar.cpp">
+    <ClCompile Include="features\CvarSandbox.cpp">
       <Filter>src\features\exploits</Filter>
     </ClCompile>
     <ClCompile Include="features\StuffCMDFilter.cpp">
@@ -347,6 +350,30 @@
     <ClCompile Include="util\parsemsg.cpp">
       <Filter>src\util\engine</Filter>
     </ClCompile>
+    <ClCompile Include="ui\menu\UIMenu.cpp">
+      <Filter>src\UI\rendering contexts\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\menu\UIMenu_World.cpp">
+      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\menu\UIMenu_Movement.cpp">
+      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\menu\UIMenu_Other.cpp">
+      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\menu\UIMenu_Rendering.cpp">
+      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\menu\UIMenu_Screen.cpp">
+      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\menu\UIMenu_Configuration.cpp">
+      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\menu\UIMenu_Exploits.cpp">
+      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -369,9 +396,6 @@
       <Filter>src\UI\rendering contexts</Filter>
     </ClInclude>
     <ClInclude Include="ui\UIFeatureList.h">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\UIMenu.h">
       <Filter>src\UI\rendering contexts</Filter>
     </ClInclude>
     <ClInclude Include="ui\UIMenuBackground.h">
@@ -572,7 +596,7 @@
     <ClInclude Include="features\ResourceConsistencyBypass.h">
       <Filter>src\features\exploits</Filter>
     </ClInclude>
-    <ClInclude Include="features\ServerLiar.h">
+    <ClInclude Include="features\CvarSandbox.h">
       <Filter>src\features\exploits</Filter>
     </ClInclude>
     <ClInclude Include="features\StuffCMDFilter.h">
@@ -622,6 +646,9 @@
     </ClInclude>
     <ClInclude Include="util\parsemsg.h">
       <Filter>src\util\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\menu\UIMenu.h">
+      <Filter>src\UI\rendering contexts\menu</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

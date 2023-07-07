@@ -270,28 +270,6 @@ void CUIMenuWidgets::add_description_text_ex(const char* additional_desc, const 
 	}
 }
 
-void CUIMenuWidgets::add_menu_child(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents)
-{
-	g_gui_widgets_i->set_next_window_rounding(CMenuStyle::k_child_contents_rounding, ImDrawFlags_RoundCornersAll);
-
-	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, CMenuStyle::k_child_contents_padding);
-
-	g_gui_widgets_i->add_child_with_header(label, size, border, flags | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse, pfn_contents);
-
-	g_gui_widgets_i->pop_stylevar(1);
-}
-
-void CUIMenuWidgets::add_menu_child_collapsible(const std::string& label, const Vector2D& size, bool border, ImGuiWindowFlags flags, const std::function<void()>& pfn_contents)
-{
-	g_gui_widgets_i->set_next_window_rounding(CMenuStyle::k_child_contents_rounding, ImDrawFlags_RoundCornersAll);
-
-	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, CMenuStyle::k_child_contents_padding);
-
-	g_gui_widgets_i->add_child_with_header_collapsible(label, size, border, flags | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse, pfn_contents);
-
-	g_gui_widgets_i->pop_stylevar(1);
-}
-
 void CUIMenuWidgets::feature_enabled_section(VarBoolean* var_boolean, const std::function<void()>& callback, 
 											 const std::string& title, bool see_if_enabled)
 {

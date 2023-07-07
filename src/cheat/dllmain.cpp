@@ -37,7 +37,7 @@ extern "C" DLLEXPORT bool CommunicativeDllEntryPoint(injector_information_packag
 {
 	CConsole::the().info(__FUNCTION__ " start.");
 
-	bool ret = CoXWARE::the().run(ifp);
+	bool ret = COxWare::the().run(ifp);
 	if (!ret)
 	{
 		CInjectedDllIPCLayerClient::the().write_code(C2I_Init_Failed);

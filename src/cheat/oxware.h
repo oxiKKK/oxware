@@ -34,10 +34,10 @@ extern VarBoolean debug;
 
 extern uintptr_t g_cheat_dll_base;
 
-class CoXWARE
+class COxWare
 {
 public:
-	DECL_BASIC_CLASS(CoXWARE);
+	DECL_BASIC_CLASS(COxWare);
 
 public:
 	bool run(injector_information_package_t* ifp);

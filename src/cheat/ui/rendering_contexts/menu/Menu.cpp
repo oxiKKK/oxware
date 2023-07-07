@@ -957,7 +957,7 @@ void CUIMenu::render_menu_decoration(const Vector2D& window_pos, const Vector2D&
 	if (g_gui_widgets_i->add_button("manually unload", CMenuStyle::k_unload_button_size, false, BUTTONFLAG_CenterLabel))
 	{
 		// end next frame.
-		CoXWARE::the().end_cheat_execution();
+		COxWare::the().end_cheat_execution();
 	}
 
 	// About button

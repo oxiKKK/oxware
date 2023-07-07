@@ -37,7 +37,7 @@ void CNonSteamFpsFixer::fix_fps()
 		return;
 	}
 
-	if (CoXWARE::the().get_build_number() > FIRST_CLMOVE_DPS_DEPENDENCE_BUILD)
+	if (COxWare::the().get_build_number() > FIRST_CLMOVE_DPS_DEPENDENCE_BUILD)
 	{
 		return;
 	}

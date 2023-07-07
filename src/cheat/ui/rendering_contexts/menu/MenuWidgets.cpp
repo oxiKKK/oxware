@@ -334,7 +334,7 @@ void CUIMenuWidgets::feature_enabled_section_incommands(BaseInCommand* in_cmd, c
 
 void CUIMenuWidgets::section_unavailable_for_builds(int build_num_start, int build_num_end, const std::string& avalable, const std::function<void()>& callback)
 {
-	int current_bn = CoXWARE::the().get_build_number();
+	int current_bn = COxWare::the().get_build_number();
 
 	bool disabled = current_bn >= build_num_start && current_bn <= build_num_end;
 

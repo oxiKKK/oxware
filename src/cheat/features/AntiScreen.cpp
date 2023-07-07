@@ -33,7 +33,7 @@ VarInteger antiscreen_time("antiscreen_time", "Amount of seconds to wait before 
 
 void CAntiScreen::update()
 {
-	if (!CoXWARE::the().is_fully_initialized())
+	if (!COxWare::the().is_fully_initialized())
 	{
 		return;
 	}

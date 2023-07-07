@@ -52,13 +52,13 @@ BaseCommand unload_cheat(
 	"unload_cheat", "Unloads the cheat. Same as unloading the cheat through menu.",
 	[&](BaseCommand* cmd, const CmdArgs& args)
 	{
-		CoXWARE::the().end_cheat_execution();
+		COxWare::the().end_cheat_execution();
 	}
 );
 
 VarBoolean debug("debug", "Enables debug mode", false);
 
-bool CoXWARE::run(injector_information_package_t* ifp)
+bool COxWare::run(injector_information_package_t* ifp)
 {
 	m_ifp = ifp;
 
@@ -90,7 +90,7 @@ bool CoXWARE::run(injector_information_package_t* ifp)
 	return true;
 }
 
-bool CoXWARE::initialize_phase2()
+bool COxWare::initialize_phase2()
 {
 	if (!initialize_hook_managers())
 	{
@@ -110,7 +110,7 @@ bool CoXWARE::initialize_phase2()
 	return true;
 }
 
-const wchar_t* CoXWARE::get_engine_fs_module_name() const
+const wchar_t* COxWare::get_engine_fs_module_name() const
 {
 	uintptr_t module = g_libloader_i->get_target_loaded_dll_base_address(L"filesystem_stdio.dll");
 	if (module != NULL)
@@ -121,7 +121,7 @@ const wchar_t* CoXWARE::get_engine_fs_module_name() const
 	return L"filesystem_steam.dll";
 }
 
-bool CoXWARE::initialize()
+bool COxWare::initialize()
 {
 	CConsole::the().initialize(EOutputModule::CHEAT, g_devconsole_i);
 
@@ -231,7 +231,7 @@ bool CoXWARE::initialize()
 	return true;
 }
 
-void CoXWARE::shutdown()
+void COxWare::shutdown()
 {
 	CConsole::the().info("Shutting down cheat module subsystems...");
 
@@ -273,7 +273,7 @@ void CoXWARE::shutdown()
 	m_shutted_down = true;
 }
 
-bool CoXWARE::load_and_initialize_dependencies()
+bool COxWare::load_and_initialize_dependencies()
 {
 	assert(get_injection_technique() != INJECT_UNINITIALIZED); // just sanity checks
 	ELoadType type = (get_injection_technique() == INJECT_MANUALMAP) ? LOADTYPE_MANUALMAP : LOADTYPE_NATIVE;
@@ -328,7 +328,7 @@ bool CoXWARE::load_and_initialize_dependencies()
 	return true;
 }
 
-bool CoXWARE::run_frame()
+bool COxWare::run_frame()
 {
 	if (!can_update_frame())
 	{
@@ -375,7 +375,7 @@ bool CoXWARE::run_frame()
 	return true;
 }
 
-void CoXWARE::unload_dependencies()
+void COxWare::unload_dependencies()
 {
 	if (g_registry_i)
 	{
@@ -407,7 +407,7 @@ void CoXWARE::unload_dependencies()
 	g_bindmgr_i = nullptr;
 }
 
-bool CoXWARE::initialize_hook_managers()
+bool COxWare::initialize_hook_managers()
 {
 	// security module hook
 	if (!CSecurityModuleHook::the().install_hooks())
@@ -492,7 +492,7 @@ bool CoXWARE::initialize_hook_managers()
 	return true;
 }
 
-void CoXWARE::shutdown_hook_managers()
+void COxWare::shutdown_hook_managers()
 {
 	// we uninstall hooks only that ch ange memory.
 	CSecurityModuleHook::the().uninstall_hooks();
@@ -503,7 +503,7 @@ void CoXWARE::shutdown_hook_managers()
 	CHLCommandsDetourMgr::the().uninstall_hooks();
 }
 
-void CoXWARE::check_for_clientside_protectors()
+void COxWare::check_for_clientside_protectors()
 {
 	// https://github.com/2010kohtep/CSXGuard
 	bool is_xguard = g_libloader_i->is_dll_loaded(L"xguard.dll");
@@ -523,7 +523,7 @@ void CoXWARE::check_for_clientside_protectors()
 	}
 }
 
-bool CoXWARE::is_valid_game()
+bool COxWare::is_valid_game()
 {
 	auto app_id = CGameUtil::the().get_current_app_id();
 	if (app_id != 10) // cs
@@ -537,7 +537,7 @@ bool CoXWARE::is_valid_game()
 	return true;
 }
 
-bool CoXWARE::is_hardware()
+bool COxWare::is_hardware()
 {
 	// we check if we're running the hardware engine by looking whenever the hw.dll is loaded in our process.
 	// 
@@ -557,7 +557,7 @@ bool CoXWARE::is_hardware()
 	return is_hw;
 }
 
-bool CoXWARE::validate_engine_build()
+bool COxWare::validate_engine_build()
 {
 	m_gs_build_number = CGameUtil::the().get_build_number();
 
@@ -571,7 +571,7 @@ bool CoXWARE::validate_engine_build()
 	return true;
 }
 
-bool CoXWARE::check_for_encrypted_modules()
+bool COxWare::check_for_encrypted_modules()
 {
 	// modules that we need to decrypt, in order for the hooks to work..
 	static const std::string s_possibly_encrypted_modules[] =

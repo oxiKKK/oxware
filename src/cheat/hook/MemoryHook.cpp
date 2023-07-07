@@ -37,7 +37,7 @@ bool CMemoryHookMgr::install_hooks()
 	if (!cl().install()) return false;
 	if (!gGlobalVariables().install()) return false;
 	if (!scr_fov_value().install()) return false;
-	if (CoXWARE::the().get_build_number() < 8684) // old struct
+	if (COxWare::the().get_build_number() < 8684) // old struct
 	{
 		if (!g_PlayerExtraInfoOld().install()) return false;
 	}

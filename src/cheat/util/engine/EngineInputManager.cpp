@@ -30,7 +30,7 @@
 
 void CEngineInput::initialize()
 {
-	if (CoXWARE::the().get_build_number() >= FIRST_SDL_BUILD)
+	if (COxWare::the().get_build_number() >= FIRST_SDL_BUILD)
 	{
 		SDL_WarpMouseInWindow = (decltype(SDL_WarpMouseInWindow))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_WarpMouseInWindow");
 		SDL_SetRelativeMouseMode = (decltype(SDL_SetRelativeMouseMode))GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_SetRelativeMouseMode");
@@ -115,7 +115,7 @@ void CEngineInput::surface_set_cursor_pos(const Vector2D& pos)
 {
 	Vector2D pos_to_set = pos;
 
-	if (CoXWARE::the().get_build_number() >= FIRST_SDL_BUILD)
+	if (COxWare::the().get_build_number() >= FIRST_SDL_BUILD)
 	{
 		auto pmainwindow = *CMemoryHookMgr::the().pmainwindow().get();
 		if (!*pmainwindow)
@@ -210,7 +210,7 @@ void CEngineInput::toggle_ingame_input(bool enable)
 
 void CEngineInput::toggle_relative_mouse_mode(bool enable)
 {
-	if (CoXWARE::the().get_build_number() < FIRST_SDL_BUILD)
+	if (COxWare::the().get_build_number() < FIRST_SDL_BUILD)
 	{
 		return; // this isn't a thing on older builds.
 	}

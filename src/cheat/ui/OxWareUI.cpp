@@ -60,7 +60,7 @@ BaseCommand ui_toggle_perf_profiler_visualization(
 
 void COxWareUI::swapbuffers_detour(HDC hdc)
 {
-	if (CoXWARE::the().is_cheat_exiting())
+	if (COxWare::the().is_cheat_exiting())
 	{
 		return; // this is an external func, so we have to handle it like this.
 	}
@@ -89,7 +89,7 @@ void COxWareUI::destroy()
 	// if we're exiting/restarting from the game, we don't have to worry about this at all.
 	// NOTE: This is in order to fix a occasional crash that would happen where the gameUI 
 	//		 interface would become dangling... (non-nullptr, but invalid memory) so this fixes that.
-	if (!CoXWARE::the().is_game_exiting_or_restarting())
+	if (!COxWare::the().is_game_exiting_or_restarting())
 	{
 		CEngineInput::the().toggle_ingame_clientdll_mouse(true); // call this before the restoration, so that we eliminate bugs when not in relative mode.
 		CEngineInput::the().toggle_ingame_input(true);
@@ -138,7 +138,7 @@ void COxWareUI::initialize(HWND wnd)
 
 	if (!g_imgui_platform_layer_i->create_new_layer(IMPLATFORM_win32, wnd, [this]() { render_imgui(); }, ImGuiConfigFlags_NoMouseCursorChange))
 	{
-		CoXWARE::the().end_cheat_execution();
+		COxWare::the().end_cheat_execution();
 		return;
 	}
 
@@ -252,7 +252,7 @@ void COxWareUI::run_ui()
 
 	// welcoming popup dialog
 	static bool once = false;
-	if (!once && (CoXWARE::the().at_least_once_focused() || GetFocus() == m_hwnd))
+	if (!once && (COxWare::the().at_least_once_focused() || GetFocus() == m_hwnd))
 	{
 		bool show_welcome_popup = g_registry_i->read_int(REG_OXWARE, "already_shown_welcome_popup") == 0;
 		if (show_welcome_popup)

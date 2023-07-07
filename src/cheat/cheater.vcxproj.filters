@@ -14,9 +14,6 @@
     <Filter Include="src\UI">
       <UniqueIdentifier>{4d4f162f-b636-447d-ac2d-8d2472e35049}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\UI\rendering contexts">
-      <UniqueIdentifier>{a5235558-c385-4bc6-b462-3c1e8054a21f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\features">
       <UniqueIdentifier>{3a40ca1c-00bb-4389-88ea-8ef8eccd4b4f}</UniqueIdentifier>
     </Filter>
@@ -56,17 +53,17 @@
     <Filter Include="src\features\exploits">
       <UniqueIdentifier>{df6ba73d-f720-4ffd-9705-16c0fdf188d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\hooking\function hooks">
-      <UniqueIdentifier>{9b8cac96-7568-4b44-8984-9e448d499820}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\util\engine">
       <UniqueIdentifier>{f4349ca2-c8c0-4a8b-80d1-cd67effbc0ce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\UI\rendering contexts\menu">
-      <UniqueIdentifier>{de6056c8-10f9-4ad5-b162-96b58487f93d}</UniqueIdentifier>
+    <Filter Include="src\hooking\function_hooks">
+      <UniqueIdentifier>{9b8cac96-7568-4b44-8984-9e448d499820}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\UI\rendering contexts\menu\tabs">
-      <UniqueIdentifier>{4d71eee9-f51e-4ce3-a8fd-1110eca51ce3}</UniqueIdentifier>
+    <Filter Include="src\UI\rendering_contexts">
+      <UniqueIdentifier>{a5235558-c385-4bc6-b462-3c1e8054a21f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\UI\rendering_contexts\menu">
+      <UniqueIdentifier>{a47d0788-3006-4f3c-bb8c-783692d023f8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -95,19 +92,7 @@
     <ClCompile Include="..\public\DeveloperConsole.cpp">
       <Filter>public</Filter>
     </ClCompile>
-    <ClCompile Include="ui\UIConsole.cpp">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIFeatureList.cpp">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIMenuBackground.cpp">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClCompile>
     <ClCompile Include="ui\OxWareUI.cpp">
-      <Filter>src\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIMenuWidgets.cpp">
       <Filter>src\UI</Filter>
     </ClCompile>
     <ClCompile Include="hook\HLInterfaceHook.cpp">
@@ -134,9 +119,6 @@
     <ClCompile Include="game\GenericMdl.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
-    <ClCompile Include="ui\UIBackgroundRendering.cpp">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClCompile>
     <ClCompile Include="game\model\StudioModelData.cpp">
       <Filter>src\game\model</Filter>
     </ClCompile>
@@ -152,14 +134,8 @@
     <ClCompile Include="..\public\code_performace_profile.cpp">
       <Filter>public</Filter>
     </ClCompile>
-    <ClCompile Include="ui\UIPerformanceProfilerVisualization.cpp">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClCompile>
     <ClCompile Include="game\SpriteManager.cpp">
       <Filter>src\game</Filter>
-    </ClCompile>
-    <ClCompile Include="hook\HookTests.cpp">
-      <Filter>src\hooking\tests</Filter>
     </ClCompile>
     <ClCompile Include="util\GameUtil.cpp">
       <Filter>src\util</Filter>
@@ -172,9 +148,6 @@
     </ClCompile>
     <ClCompile Include="game\LocalPlayerState.cpp">
       <Filter>src\game</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIKeyBinding.cpp">
-      <Filter>src\UI</Filter>
     </ClCompile>
     <ClCompile Include="InCommands.cpp">
       <Filter>src</Filter>
@@ -220,9 +193,6 @@
     </ClCompile>
     <ClCompile Include="game\VideoModeUtil.cpp">
       <Filter>src\game</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIInCommandBinding.cpp">
-      <Filter>src\UI</Filter>
     </ClCompile>
     <ClCompile Include="game\weapons\Weapons.cpp">
       <Filter>src\game\weapons</Filter>
@@ -305,74 +275,101 @@
     <ClCompile Include="features\StuffCMDFilter.cpp">
       <Filter>src\features\exploits</Filter>
     </ClCompile>
-    <ClCompile Include="hook\MemoryFnDetour.cpp">
-      <Filter>src\hooking\function hooks</Filter>
+    <ClCompile Include="ui\rendering_contexts\Console.cpp">
+      <Filter>src\UI\rendering_contexts</Filter>
     </ClCompile>
-    <ClCompile Include="hook\MemoryFnHook.cpp">
-      <Filter>src\hooking\function hooks</Filter>
+    <ClCompile Include="ui\rendering_contexts\FeatureList.cpp">
+      <Filter>src\UI\rendering_contexts</Filter>
     </ClCompile>
-    <ClCompile Include="hook\SVCFuncDetour.cpp">
-      <Filter>src\hooking\function hooks</Filter>
+    <ClCompile Include="ui\rendering_contexts\MenuBackground.cpp">
+      <Filter>src\UI\rendering_contexts</Filter>
     </ClCompile>
-    <ClCompile Include="hook\UserMSGDetour.cpp">
-      <Filter>src\hooking\function hooks</Filter>
+    <ClCompile Include="ui\rendering_contexts\PerformanceProfilerVisualization.cpp">
+      <Filter>src\UI\rendering_contexts</Filter>
     </ClCompile>
-    <ClCompile Include="hook\HLCommandDetour.cpp">
-      <Filter>src\hooking\function hooks</Filter>
+    <ClCompile Include="ui\rendering_contexts\BackgroundRendering.cpp">
+      <Filter>src\UI\rendering_contexts</Filter>
     </ClCompile>
-    <ClCompile Include="util\EngineInputManager.cpp">
+    <ClCompile Include="ui\rendering_contexts\menu\Menu.cpp">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_Configuration.cpp">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_Exploits.cpp">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_Movement.cpp">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_Other.cpp">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_Rendering.cpp">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_Screen.cpp">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_World.cpp">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\MenuWidgets.cpp">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\InCommandBinding.cpp">
+      <Filter>src\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\KeyBinding.cpp">
+      <Filter>src\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="util\engine\EngineInputManager.cpp">
       <Filter>src\util\engine</Filter>
     </ClCompile>
-    <ClCompile Include="util\EngineRendering.cpp">
+    <ClCompile Include="util\engine\EngineRendering.cpp">
       <Filter>src\util\engine</Filter>
     </ClCompile>
-    <ClCompile Include="util\EngineSoundPlayer.cpp">
+    <ClCompile Include="util\engine\EngineSoundPlayer.cpp">
       <Filter>src\util\engine</Filter>
     </ClCompile>
-    <ClCompile Include="util\EngineSpeedControl.cpp">
+    <ClCompile Include="util\engine\EngineSpeedControl.cpp">
       <Filter>src\util\engine</Filter>
     </ClCompile>
-    <ClCompile Include="util\GoldSrcCommandManager.cpp">
+    <ClCompile Include="util\engine\FakePlayerRenderer.cpp">
       <Filter>src\util\engine</Filter>
     </ClCompile>
-    <ClCompile Include="util\GoldSrcMungificationAlgorigthms.cpp">
+    <ClCompile Include="util\engine\GoldSrcCommandManager.cpp">
       <Filter>src\util\engine</Filter>
     </ClCompile>
-    <ClCompile Include="util\HLNetMessageIO.cpp">
+    <ClCompile Include="util\engine\GoldSrcMungificationAlgorigthms.cpp">
       <Filter>src\util\engine</Filter>
     </ClCompile>
-    <ClCompile Include="util\build_num.cpp">
+    <ClCompile Include="util\engine\HLNetMessageIO.cpp">
       <Filter>src\util\engine</Filter>
     </ClCompile>
-    <ClCompile Include="util\FakePlayerRenderer.cpp">
+    <ClCompile Include="util\engine\parsemsg.cpp">
       <Filter>src\util\engine</Filter>
     </ClCompile>
-    <ClCompile Include="util\parsemsg.cpp">
+    <ClCompile Include="util\engine\build_num.cpp">
       <Filter>src\util\engine</Filter>
     </ClCompile>
-    <ClCompile Include="ui\menu\UIMenu.cpp">
-      <Filter>src\UI\rendering contexts\menu</Filter>
+    <ClCompile Include="hook\tests\HookTests.cpp">
+      <Filter>src\hooking\tests</Filter>
     </ClCompile>
-    <ClCompile Include="ui\menu\UIMenu_World.cpp">
-      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
+    <ClCompile Include="hook\function_hooks\HLCommandDetour.cpp">
+      <Filter>src\hooking\function_hooks</Filter>
     </ClCompile>
-    <ClCompile Include="ui\menu\UIMenu_Movement.cpp">
-      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
+    <ClCompile Include="hook\function_hooks\MemoryFnDetour.cpp">
+      <Filter>src\hooking\function_hooks</Filter>
     </ClCompile>
-    <ClCompile Include="ui\menu\UIMenu_Other.cpp">
-      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
+    <ClCompile Include="hook\function_hooks\MemoryFnHook.cpp">
+      <Filter>src\hooking\function_hooks</Filter>
     </ClCompile>
-    <ClCompile Include="ui\menu\UIMenu_Rendering.cpp">
-      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
+    <ClCompile Include="hook\function_hooks\SVCFuncDetour.cpp">
+      <Filter>src\hooking\function_hooks</Filter>
     </ClCompile>
-    <ClCompile Include="ui\menu\UIMenu_Screen.cpp">
-      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\menu\UIMenu_Configuration.cpp">
-      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\menu\UIMenu_Exploits.cpp">
-      <Filter>src\UI\rendering contexts\menu\tabs</Filter>
+    <ClCompile Include="hook\function_hooks\UserMSGDetour.cpp">
+      <Filter>src\hooking\function_hooks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -389,22 +386,7 @@
     <ClInclude Include="..\public\DependencyLoader.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="ui\IRendererContext.h">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\UIConsole.h">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\UIFeatureList.h">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\UIMenuBackground.h">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClInclude>
     <ClInclude Include="ui\OxWareUI.h">
-      <Filter>src\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\UIMenuWidgets.h">
       <Filter>src\UI</Filter>
     </ClInclude>
     <ClInclude Include="hook\HLInterfaceHook.h">
@@ -431,9 +413,6 @@
     <ClInclude Include="game\GenericMdl.h">
       <Filter>src\game</Filter>
     </ClInclude>
-    <ClInclude Include="ui\UIBackgroundRendering.h">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClInclude>
     <ClInclude Include="game\model\StudioModelData.h">
       <Filter>src\game\model</Filter>
     </ClInclude>
@@ -449,17 +428,11 @@
     <ClInclude Include="..\public\code_performace_profile.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="ui\UIPerformanceProfilerVisualization.h">
-      <Filter>src\UI\rendering contexts</Filter>
-    </ClInclude>
     <ClInclude Include="game\SpriteManager.h">
       <Filter>src\game</Filter>
     </ClInclude>
     <ClInclude Include="custom_format_cheat.h">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="hook\HookTests.h">
-      <Filter>src\hooking\tests</Filter>
     </ClInclude>
     <ClInclude Include="util\GameUtil.h">
       <Filter>src\util</Filter>
@@ -472,9 +445,6 @@
     </ClInclude>
     <ClInclude Include="game\LocalPlayerState.h">
       <Filter>src\game</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\UIKeyBinding.h">
-      <Filter>src\UI</Filter>
     </ClInclude>
     <ClInclude Include="features\movement\BunnyHop.h">
       <Filter>src\features\movement</Filter>
@@ -514,9 +484,6 @@
     </ClInclude>
     <ClInclude Include="game\VideoModeUtil.h">
       <Filter>src\game</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\UIInCommandBinding.h">
-      <Filter>src\UI</Filter>
     </ClInclude>
     <ClInclude Include="game\weapons\Weapons.h">
       <Filter>src\game\weapons</Filter>
@@ -602,53 +569,83 @@
     <ClInclude Include="features\StuffCMDFilter.h">
       <Filter>src\features\exploits</Filter>
     </ClInclude>
-    <ClInclude Include="hook\MemoryFnDetour.h">
-      <Filter>src\hooking\function hooks</Filter>
+    <ClInclude Include="ui\rendering_contexts\BackgroundRendering.h">
+      <Filter>src\UI\rendering_contexts</Filter>
     </ClInclude>
-    <ClInclude Include="hook\MemoryFnHook.h">
-      <Filter>src\hooking\function hooks</Filter>
+    <ClInclude Include="ui\rendering_contexts\Console.h">
+      <Filter>src\UI\rendering_contexts</Filter>
     </ClInclude>
-    <ClInclude Include="hook\SVCFuncDetour.h">
-      <Filter>src\hooking\function hooks</Filter>
+    <ClInclude Include="ui\rendering_contexts\FeatureList.h">
+      <Filter>src\UI\rendering_contexts</Filter>
     </ClInclude>
-    <ClInclude Include="hook\UserMSGDetour.h">
-      <Filter>src\hooking\function hooks</Filter>
+    <ClInclude Include="ui\rendering_contexts\IRendererContext.h">
+      <Filter>src\UI\rendering_contexts</Filter>
     </ClInclude>
-    <ClInclude Include="hook\HLCommandDetour.h">
-      <Filter>src\hooking\function hooks</Filter>
+    <ClInclude Include="ui\rendering_contexts\MenuBackground.h">
+      <Filter>src\UI\rendering_contexts</Filter>
     </ClInclude>
-    <ClInclude Include="util\EngineInputManager.h">
+    <ClInclude Include="ui\rendering_contexts\PerformanceProfilerVisualization.h">
+      <Filter>src\UI\rendering_contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\rendering_contexts\menu\Menu.h">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\rendering_contexts\menu\MenuWidgets.h">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\InCommandBinding.h">
+      <Filter>src\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\KeyBinding.h">
+      <Filter>src\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="util\engine\build_num.h">
       <Filter>src\util\engine</Filter>
     </ClInclude>
-    <ClInclude Include="util\EngineRendering.h">
+    <ClInclude Include="util\engine\EngineInputManager.h">
       <Filter>src\util\engine</Filter>
     </ClInclude>
-    <ClInclude Include="util\EngineSoundPlayer.h">
+    <ClInclude Include="util\engine\EngineRendering.h">
       <Filter>src\util\engine</Filter>
     </ClInclude>
-    <ClInclude Include="util\EngineSpeedControl.h">
+    <ClInclude Include="util\engine\EngineSoundPlayer.h">
       <Filter>src\util\engine</Filter>
     </ClInclude>
-    <ClInclude Include="util\HLNetMessageIO.h">
+    <ClInclude Include="util\engine\EngineSpeedControl.h">
       <Filter>src\util\engine</Filter>
     </ClInclude>
-    <ClInclude Include="util\GoldSrcCommandManager.h">
+    <ClInclude Include="util\engine\FakePlayerRenderer.h">
       <Filter>src\util\engine</Filter>
     </ClInclude>
-    <ClInclude Include="util\GoldSrcMungificationAlgorigthms.h">
+    <ClInclude Include="util\engine\GoldSrcCommandManager.h">
       <Filter>src\util\engine</Filter>
     </ClInclude>
-    <ClInclude Include="util\build_num.h">
+    <ClInclude Include="util\engine\GoldSrcMungificationAlgorigthms.h">
       <Filter>src\util\engine</Filter>
     </ClInclude>
-    <ClInclude Include="util\FakePlayerRenderer.h">
+    <ClInclude Include="util\engine\HLNetMessageIO.h">
       <Filter>src\util\engine</Filter>
     </ClInclude>
-    <ClInclude Include="util\parsemsg.h">
+    <ClInclude Include="util\engine\parsemsg.h">
       <Filter>src\util\engine</Filter>
     </ClInclude>
-    <ClInclude Include="ui\menu\UIMenu.h">
-      <Filter>src\UI\rendering contexts\menu</Filter>
+    <ClInclude Include="hook\tests\HookTests.h">
+      <Filter>src\hooking\tests</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\function_hooks\HLCommandDetour.h">
+      <Filter>src\hooking\function_hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\function_hooks\MemoryFnDetour.h">
+      <Filter>src\hooking\function_hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\function_hooks\MemoryFnHook.h">
+      <Filter>src\hooking\function_hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\function_hooks\SVCFuncDetour.h">
+      <Filter>src\hooking\function_hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\function_hooks\UserMSGDetour.h">
+      <Filter>src\hooking\function_hooks</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

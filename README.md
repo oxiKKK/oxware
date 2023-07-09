@@ -16,6 +16,8 @@ So stay tuned! 😉<br><br>
 
 Please, before proceeding, **read this README**!
 
+![The cheat](https://i.imgur.com/eqC8HHW.jpg)
+
 </div>
 
 ---
@@ -50,10 +52,6 @@ Please, before proceeding, **read this README**!
 The cheat is composed out of two parts: **the loader (oxware.exe)** and **the cheat module (cheater.dll)**. By using the loader you can inject the cheat module to the game. After injecting the cheat, you can use <kbd>INSERT</kbd> key to open up the menu`. 
 
 Both the cheat and loader have developer consoles built inside of them that you can access at any time. (inside the cheat it is the <kbd>~</kbd> key, below the escape key)
-
-## Cheat menu in-game
-
-![The cheat](https://i.imgur.com/cdNsx89.png)
 
 ## The loader
 

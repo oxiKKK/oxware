@@ -12,10 +12,7 @@ Welcome to **oxWARE**! A free Counter-Strike 1.6 cheat built with love and passi
 
 This cheat is still in <b>alpha stage</b> of development!<br>
 I will be contributing to it in the near future as much as possible, adding new features et cetera.<br>
-So stay tuned! 😉<br><br>
-
-Please, before proceeding, **read this README**!
-
+So stay tuned! 😉<br>
 ![The cheat](https://i.imgur.com/eqC8HHW.jpg)
 
 </div>

@@ -32,7 +32,7 @@ dir_filter = (
 settings = {
     '-v': "enables verbose mode", 
     '-f': "dumps to a file elegantly",
-    '-m': "Automatically modifies README.md"
+    '-m': "Automatically modifies README.md and Menu.cpp"
 }
 
 def print_settings():
@@ -45,7 +45,7 @@ def print_settings():
 # settings
 verbs           = False
 dump_to_file    = False
-modify_readme   = False
+modify_files   = False
 
 # sum of all lines
 total_lines = 0
@@ -115,8 +115,8 @@ def parse_settings():
         dump_to_file = True
 
     if '-m' in arguments:
-        global modify_readme
-        modify_readme = True
+        global modify_files
+        modify_files = True
 
 # check parameters
 def check_params() -> bool:
@@ -153,6 +153,32 @@ def modify_readme_fn():
     file.write(final_contents)
 
     print("wrote new README.md!")
+
+# automatically modify Menu.cpp linecount and filecount with up to date data
+def modify_menu_cpp_fn():
+    try:
+        file = open(r"..\..\src\cheat\ui\rendering_contexts\menu\Menu.cpp", "r", encoding="utf8")
+    except OSError as e:
+        print(f"OSError: {e}")
+        sys.exit()
+    
+    contents = file.read()
+
+    token = r'/*LINES&FILESMARKER*/"{} lines in {} files", '
+    ending_token = ");\n"
+    pos = contents.find(token)
+    ending_pos = contents.find(ending_token, pos)
+
+    to_replace_with = '/*LINES&FILESMARKER*/"{{}} lines in {{}} files", "{:,}", "{:,}"'.format(count_data.total_lines, len(count_data.files))
+
+    final_contents = contents[:pos] + to_replace_with + contents[ending_pos:]
+    file.close()
+
+    # reopen the file and write to it
+    file = open(r"..\..\src\cheat\ui\rendering_contexts\menu\Menu.cpp", "w", encoding="utf8")
+    file.write(final_contents)
+
+    print("wrote new Menu.cpp!")
 
 # check directory
 def check_directory() -> bool:
@@ -198,7 +224,7 @@ def count_lines() -> None:
             if ext in extensions:
                 fulldir = os.path.join(subdir, file)
 
-                num_lines = sum(1 for _ in open(fulldir))
+                num_lines = sum(1 for _ in open(fulldir, encoding='utf8'))
 
                 file_data = CountData.File(
                     fulldir, num_lines
@@ -251,8 +277,9 @@ def script():
 
     process_result()
 
-    if modify_readme:
+    if modify_files:
         modify_readme_fn()
+        modify_menu_cpp_fn()
 
     # close the file if opened
     if dump_to_file:

@@ -258,9 +258,16 @@ void MenuChilden::Configuration::Config::contents()
 
 				g_gui_widgets_i->pop_stylevar();
 
+				//
+				// auto-save interval
+				//
+
 				g_gui_widgets_i->add_spacing();
 				auto var = g_config_mgr_i->get_save_cfg_interval_var();
-				CUIMenuWidgets::the().add_slider("Autosave interval", "%0.0f seconds", var, "off");
+
+				g_gui_widgets_i->add_text("⏳ Auto-save interval");
+				g_gui_widgets_i->add_spacing();
+				CUIMenuWidgets::the().add_slider_nolabel("autosave_interval", "%0.0f seconds", var, "off");
 
 				if (var->get_value() != var->get_min())
 				{
@@ -291,6 +298,11 @@ void MenuChilden::Configuration::Config::contents()
 void MenuChilden::Configuration::Theme::contents()
 {
 	g_gui_widgets_i->add_window_centered_text_disabled("To be done... Soon... 😉");
+}
+
+void MenuChilden::Configuration::Language::contents()
+{
+	g_gui_widgets_i->add_window_centered_text_disabled("To be done... Soon... 😉😁");
 }
 
 void MenuChilden::Configuration::KeyBinding::contents()

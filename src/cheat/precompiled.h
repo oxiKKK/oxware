@@ -312,6 +312,7 @@ namespace hl
 // ui
 #include "ui/rendering_contexts/IRendererContext.h"
 #include "ui/rendering_contexts/menu/MenuWidgets.h"
+#include "ui/rendering_contexts/menu/MenuStyle.h"
 #include "ui/rendering_contexts/menu/Menu.h"
 #include "ui/rendering_contexts/MenuBackground.h"
 #include "ui/rendering_contexts/FeatureList.h"

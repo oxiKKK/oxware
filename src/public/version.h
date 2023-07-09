@@ -50,6 +50,6 @@
 #define OX_BUILD "release"
 #endif
 
-#define OX_COMPILE_TIMESTAMP __TIME__ " | " __DATE__
+#define OX_COMPILE_TIMESTAMP __DATE__ " " __TIME__ 
 
 #endif // VERSION_H

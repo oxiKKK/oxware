@@ -319,13 +319,13 @@ void COxWareUI::create_welcome_popup()
 		[this]()
 		{
 			g_gui_widgets_i->add_separtor_with_text("Introduction");
-			g_gui_widgets_i->add_text("Welcome to oxWARE " OXVER_STRING "! A public open-source cheat for CS 1.6.", TEXTPROP_Wrapped);
+			g_gui_widgets_i->add_text("Welcome to oxWARE " OXVER_STRING "🥳! A public open-source cheat for CS 1.6.", TEXTPROP_Wrapped);
 			g_gui_widgets_i->add_spacing();
-			g_gui_widgets_i->add_text("Please, note that this cheat is still in development! It's nowhere near finished!", TEXTPROP_Wrapped);
+			g_gui_widgets_i->add_text("Please, note that this cheat is still in development! It's nowhere near finished! 😉", TEXTPROP_Wrapped);
 
 			g_gui_widgets_i->add_spacing();
 
-			g_gui_widgets_i->add_text("Press INSERT to begin the cheating experience! :) Or simply re-bind the key to whatever you like!", TEXTPROP_Wrapped);
+			g_gui_widgets_i->add_text("Press INSERT to begin the cheating experience! 😁 Or simply re-bind the key to whatever you like using the Bind manager!", TEXTPROP_Wrapped);
 
 			float sections_padding = 10.0f;
 
@@ -352,14 +352,15 @@ void COxWareUI::create_welcome_popup()
 
 			g_gui_widgets_i->add_padding({ 0.0f, sections_padding });
 			g_gui_widgets_i->add_separtor_with_text("Bugs / feature requests");
-			g_gui_widgets_i->add_text("If you find any bugs or you want something to be added, please, create an issue here:", TEXTPROP_Wrapped);
+			g_gui_widgets_i->add_text("🐞 If you find any bugs or you just want something to be added, please, create an issue here:", TEXTPROP_Wrapped);
 			if (g_gui_widgets_i->add_hypertext_link("github.com/oxiKKK/oxware/issues"))
 			{
 				CGenericUtil::the().open_link_inside_browser("https://github.com/oxiKKK/oxware/issues");
 			}
 
-			g_gui_widgets_i->add_spacing();
-			g_gui_widgets_i->add_text("Or just simply contact me anywhere! ;)", TEXTPROP_Wrapped);
+			g_gui_widgets_i->add_text("Please, note that I develop this hack based on community suggestions and recommendations, so feel free to contact me about anything you want!", TEXTPROP_Wrapped);
+			g_gui_widgets_i->add_text("So that we can make together the best CS 1.6 cheat ever! 😊", TEXTPROP_Wrapped);
+			g_gui_widgets_i->add_text("You can always find me for example on discord. Links below.", TEXTPROP_Wrapped);
 
 			g_gui_widgets_i->add_padding({ 0.0f, sections_padding });
 			g_gui_widgets_i->add_separtor_with_text("Contact on the author");
@@ -536,7 +537,7 @@ void COxWareUI::render_popup()
 	g_gui_widgets_i->pop_stylevar();
 
 	g_gui_widgets_i->center_next_window_pos(ImGuiCond_Always);
-	g_gui_widgets_i->set_next_window_rounding(CMenuStyle::k_rounding_factor, ImDrawFlags_RoundCornersTopRight | ImDrawFlags_RoundCornersBottomLeft);
+	g_gui_widgets_i->set_next_window_rounding(MenuStyle::rounding_factor, ImDrawFlags_RoundCornersTopRight | ImDrawFlags_RoundCornersBottomLeft);
 	g_gui_widgets_i->set_next_window_size(m_popup_window_size, ImGuiCond_Appearing);
 
 	g_gui_thememgr_i->push_color(GUICLR_ChildBackground, CColor());

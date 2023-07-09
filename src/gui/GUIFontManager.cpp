@@ -83,6 +83,23 @@ ImWchar CGlyphRanges::s_emojis_range[] =
 //	0x1F900, 0x1F9FF, // supplemental symbols
 	0x1F550, 0x1F55B, // clock emojis (🕐, 🕑, 🕕, 🕗)
 	U'🔥', U'🔥',	  // fire
+	U'⏳', U'⏳',	  // sand clock
+	U'🌈', U'🌈',	  // rainbow
+	U'🥳', U'🥳',	  // celebration
+	U'⌨', U'⌨',	  // keyboard
+	U'🏃', U'🏃',	  // man running
+	U'🌎', U'🌎',	  // globe
+	U'⛈', U'⛈',	  // thunderstorm
+	U'❌', U'❌',	  // rotated cross
+	U'❔', U'❔',	  // question mark
+	U'🔎', U'🔎',	  // right-facing magnifier glass
+	U'🖥', U'🖥',	  // computer screen
+	U'📼', U'📼',	  // recording tape
+	U'💀', U'💀',	  // skull
+	U'🔳', U'🔳',	  // empty rectangle with outline
+	U'➕', U'➕',	  // crosshair
+	U'⚙', U'⚙',	  // cog
+	U'📂', U'📂',	  // file
 	0,
 };
 
@@ -317,34 +334,39 @@ void CGUIFontManager::precache_all_fonts()
 	//
 
 	// segoe
-	precache_font((EFontId)FID_SegoeUI, FSZ_10px, FDC_Bold);
-	precache_font((EFontId)FID_SegoeUI, FSZ_10px, FDC_Regular);
+	precache_font(FID_SegoeUI, FSZ_10px, FDC_Bold);
+	precache_font(FID_SegoeUI, FSZ_10px, FDC_Regular);
 
-	precache_font((EFontId)FID_SegoeUI, FSZ_13px, FDC_Bold);
-	precache_font((EFontId)FID_SegoeUI, FSZ_13px, FDC_Regular);
+	precache_font(FID_SegoeUI, FSZ_13px, FDC_Bold);
+	precache_font(FID_SegoeUI, FSZ_13px, FDC_Regular);
 
-	precache_font((EFontId)FID_SegoeUI, FSZ_16px, FDC_Bold);
-	precache_font((EFontId)FID_SegoeUI, FSZ_16px, FDC_Regular);
+	precache_font(FID_SegoeUI, FSZ_14px, FDC_Regular);
 
-	precache_font((EFontId)FID_SegoeUI, FSZ_18px, FDC_Regular);
+	precache_font(FID_SegoeUI, FSZ_16px, FDC_Bold);
+	precache_font(FID_SegoeUI, FSZ_16px, FDC_Regular);
 
-	precache_font((EFontId)FID_SegoeUI, FSZ_24px, FDC_Regular);
-	precache_font((EFontId)FID_SegoeUI, FSZ_24px, FDC_Light);
+	precache_font(FID_SegoeUI, FSZ_18px, FDC_Regular);
+	precache_font(FID_SegoeUI, FSZ_18px, FDC_Light);
 
-	precache_font((EFontId)FID_SegoeUI, FSZ_27px, FDC_Regular);
+	precache_font(FID_SegoeUI, FSZ_21px, FDC_Light);
 
-	precache_font((EFontId)FID_SegoeUI, FSZ_30px, FDC_Bold);
-	precache_font((EFontId)FID_SegoeUI, FSZ_30px, FDC_Regular);
+	precache_font(FID_SegoeUI, FSZ_24px, FDC_Regular);
+	precache_font(FID_SegoeUI, FSZ_24px, FDC_Light);
 
-	precache_font((EFontId)FID_SegoeUI, FSZ_33px, FDC_Bold);
+	precache_font(FID_SegoeUI, FSZ_27px, FDC_Regular);
 
-	precache_font((EFontId)FID_SegoeUI, FSZ_45px, FDC_Bold);
+	precache_font(FID_SegoeUI, FSZ_30px, FDC_Bold);
+	precache_font(FID_SegoeUI, FSZ_30px, FDC_Regular);
+
+	precache_font(FID_SegoeUI, FSZ_33px, FDC_Bold);
+
+	precache_font(FID_SegoeUI, FSZ_45px, FDC_Bold);
 
 	// proggy
-	precache_font((EFontId)FID_ProggyClean, FSZ_13px, FDC_Bold);
-	precache_font((EFontId)FID_ProggyClean, FSZ_13px, FDC_Regular);
+	precache_font(FID_ProggyClean, FSZ_13px, FDC_Bold);
+	precache_font(FID_ProggyClean, FSZ_13px, FDC_Regular);
 
-	precache_font((EFontId)FID_ProggyClean, FSZ_16px, FDC_Regular);
+	precache_font(FID_ProggyClean, FSZ_16px, FDC_Regular);
 #endif
 
 	auto t2 = std::chrono::high_resolution_clock::now();
@@ -426,6 +448,9 @@ void CGUIFontManager::merge_emoji_font(ImFontConfig* cfg)
 	cfg->OversampleH = cfg->OversampleV = 1;
 	cfg->MergeMode = true; // merge into existing font
 	cfg->FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
+
+	// make emojis slightly smaller, because usually they're bigger than acutal text.
+	cfg->SizePixels *= 0.75f;
 
 	io.Fonts->AddFontFromMemoryCompressedTTF(g_seguiemj_compressed_data, g_seguiemj_compressed_size, cfg->SizePixels, cfg, emojis_ranges);
 }

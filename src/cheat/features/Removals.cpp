@@ -1,28 +1,28 @@
 /*
 *	OXWARE developed by oxiKKK
 *	Copyright (c) 2023
-* 
-*	This program is licensed under the MIT license. By downloading, copying, 
+*
+*	This program is licensed under the MIT license. By downloading, copying,
 *	installing or using this software you agree to this license.
 *
 *	License Agreement
 *
-*	Permission is hereby granted, free of charge, to any person obtaining a 
-*	copy of this software and associated documentation files (the "Software"), 
-*	to deal in the Software without restriction, including without limitation 
-*	the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-*	and/or sell copies of the Software, and to permit persons to whom the 
+*	Permission is hereby granted, free of charge, to any person obtaining a
+*	copy of this software and associated documentation files (the "Software"),
+*	to deal in the Software without restriction, including without limitation
+*	the rights to use, copy, modify, merge, publish, distribute, sublicense,
+*	and/or sell copies of the Software, and to permit persons to whom the
 *	Software is furnished to do so, subject to the following conditions:
 *
-*	The above copyright notice and this permission notice shall be included 
-*	in all copies or substantial portions of the Software. 
+*	The above copyright notice and this permission notice shall be included
+*	in all copies or substantial portions of the Software.
 *
-*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 *	IN THE SOFTWARE.
 */
 
@@ -41,19 +41,11 @@ bool CRemovals::remove_viewmodel()
 	return ::remove_viewmodel.get_value();
 }
 
-VarBoolean remove_players_all("remove_players_all", "Removes every player.", false);
-VarBoolean remove_players_t("remove_players_t", "Removes Ts.", false);
-VarBoolean remove_players_ct("remove_players_ct", "Removes CTs.", false);
-VarBoolean remove_players_enemy("remove_players_enemy", "Removes enemy players.", false);
-VarBoolean remove_players_teammates("remove_players_teammates", "Removes teammate players.", false);
+// Ts, CTs, Enemy, Both
+VarInteger remove_players_team("remove_players_team", "Removes players depending on their team.", 0, 0, 4);
 
 bool CRemovals::remove_player(int id)
 {
-	if (remove_players_all.get_value())
-	{
-		return true;
-	}
-
 	auto player = CEntityMgr::the().get_player_by_id(id);
 	if (!player)
 	{
@@ -61,37 +53,24 @@ bool CRemovals::remove_player(int id)
 	}
 
 	auto local = CLocalState::the().local_player();
-	if (local)
-	{
-		if (remove_players_enemy.get_value())
-		{
-			if ((*player)->get_team() != local->get_team())
-			{
-				return true;
-			}
-		}
-		else if (remove_players_teammates.get_value())
-		{
-			if ((*player)->get_team() == local->get_team())
-			{
-				return true;
-			}
-		}
-	}
 
-	if ((*player)->get_team() == hl::TERRORIST)
+	int player_team = (*player)->get_team();
+	int local_team = local ? local->get_team() : hl::UNASSIGNED;
+	int selected_team = remove_players_team.get_value();
+
+	if (
+		// only terrorists
+		(selected_team == 0 && local_team == hl::TERRORIST) ||
+		// only cts
+		(selected_team == 1 && local_team == hl::CT) ||
+		// only our team
+		(selected_team == 2 && local_team == player_team) ||
+		// only enemy team
+		(selected_team == 3 && local_team != player_team) ||
+		// both teams
+		(selected_team == 4 && (local_team == hl::TERRORIST || local_team == hl::CT)))
 	{
-		if (remove_players_t.get_value())
-		{
-			return true;
-		}
-	}
-	else if ((*player)->get_team() == hl::CT)
-	{
-		if (remove_players_ct.get_value())
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;

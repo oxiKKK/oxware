@@ -149,6 +149,8 @@ public:
 	virtual Vector2D get_current_scroll() = 0;
 	virtual void set_scroll(const Vector2D& xy) = 0; // provide -1 for no scroll
 
+	virtual ImGuiStyle& get_imgui_style() = 0;
+
 	//
 	// Widgets
 	//
@@ -175,7 +177,7 @@ public:
 	virtual bool add_slider(const std::string& label, int* value, int* min, int* max, const char* format, bool no_label = false) = 0;
 
 	virtual bool add_text_input(const std::string& label, char* buffer, size_t buffer_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, bool no_title = false, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr) = 0;
-	virtual bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr) = 0;
+	virtual bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr, ImFont* font = 0) = 0;
 
 	virtual void add_padding(const Vector2D& size) = 0;
 	virtual void add_spacing() = 0;
@@ -226,7 +228,7 @@ public:
 	virtual void table_headers_row() = 0;
 
 	// columns using tables api
-	virtual bool begin_columns(const std::string& label, int count_columns) = 0;
+	virtual bool begin_columns(const std::string& label, int count_columns, ImGuiTableFlags flags = 0) = 0;
 	virtual void end_columns() = 0;
 	virtual void setup_column_fixed_width(float width, ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None) = 0;
 	virtual void setup_column(ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None) = 0;

@@ -341,7 +341,7 @@ void CDeveloperConsole::render()
 
 	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 4.0f, 4.0f });
 
-	ImGuiInputTextFlags input_text_flags = 
+	static const ImGuiInputTextFlags input_text_flags = 
 		ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | 
 		ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackEdit;
 	if (g_gui_widgets_i->add_text_input("Enter commands", m_input_buffer, sizeof(m_input_buffer), input_text_flags, true, &text_edit_callback_stub, (void*)this))

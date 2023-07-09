@@ -284,6 +284,7 @@
     <ClCompile Include="ui\rendering_contexts\FeatureList.cpp" />
     <ClCompile Include="ui\rendering_contexts\MenuBackground.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu.cpp" />
+    <ClCompile Include="ui\rendering_contexts\menu\MenuStyle.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\MenuWidgets.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Configuration.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Exploits.cpp" />
@@ -389,6 +390,7 @@
     <ClInclude Include="ui\rendering_contexts\IRendererContext.h" />
     <ClInclude Include="ui\rendering_contexts\MenuBackground.h" />
     <ClInclude Include="ui\rendering_contexts\menu\Menu.h" />
+    <ClInclude Include="ui\rendering_contexts\menu\MenuStyle.h" />
     <ClInclude Include="ui\rendering_contexts\menu\MenuWidgets.h" />
     <ClInclude Include="ui\rendering_contexts\PerformanceProfilerVisualization.h" />
     <ClInclude Include="util\engine\build_num.h" />

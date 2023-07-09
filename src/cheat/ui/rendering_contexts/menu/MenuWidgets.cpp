@@ -77,8 +77,11 @@ bool CUIMenuWidgets::add_checkbox_with_incommand_keypress_button(const std::stri
 
 		static Vector2D button_size = Vector2D(80.0f, 20.0f);
 
+		auto& style = g_gui_widgets_i->get_imgui_style();
+		auto window_size = g_gui_widgets_i->get_current_window_size();
+
 		auto cursor_pos = g_gui_widgets_i->get_cursor_pos();
-		g_gui_widgets_i->set_cursor_pos({ cursor_pos.x + g_gui_widgets_i->get_content_region_avail().x - button_size.x, cursor_pos.y });
+		g_gui_widgets_i->set_cursor_pos({ cursor_pos.x + (g_gui_widgets_i->get_content_region_avail().x - (button_size.x + style.ScrollbarSize)), cursor_pos.y});
 
 		CUIInCommandKeyBinding::the().add_keyscan_button(in_cmd, button_size);
 
@@ -165,7 +168,7 @@ bool CUIMenuWidgets::add_slider_nolabel(const std::string& label, const char* fo
 
 void CUIMenuWidgets::add_pair_textinput(const std::string& label, VarKeyValue* var, const char* first_column_header, const char* second_column_header)
 {
-	float left_textinput_width = CMenuStyle::get_child_width_w_padding() / 1.5f;
+	float left_textinput_width = MenuStyle::get_child_width_w_padding() / 1.5f;
 
 	if (g_gui_widgets_i->begin_columns(label.c_str(), 2))
 	{

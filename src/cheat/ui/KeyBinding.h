@@ -52,6 +52,13 @@ public:
 	void update();
 
 private:
+	void render_list();
+	void render_decoration(const Vector2D& last_cursor_pos);
+
+	// command text input box
+	void render_command_textinput(bound_key_t* bound_key, int vk, const std::string& key_name);
+	static int command_texinput_callback(ImGuiInputTextCallbackData* data);
+
 	void add_keyscan_button(const std::string& label, int vk, const Vector2D& size, bool* force_binding_mode = nullptr);
 
 	void setup_interactible_bind_list();

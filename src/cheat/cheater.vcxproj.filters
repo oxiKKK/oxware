@@ -65,6 +65,9 @@
     <Filter Include="src\UI\rendering_contexts\menu">
       <UniqueIdentifier>{a47d0788-3006-4f3c-bb8c-783692d023f8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\UI\rendering_contexts\menu\tabs">
+      <UniqueIdentifier>{c1b29177-076b-4cb3-aa9b-2b8b0185a4e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -293,27 +296,6 @@
     <ClCompile Include="ui\rendering_contexts\menu\Menu.cpp">
       <Filter>src\UI\rendering_contexts\menu</Filter>
     </ClCompile>
-    <ClCompile Include="ui\rendering_contexts\menu\Menu_Configuration.cpp">
-      <Filter>src\UI\rendering_contexts\menu</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\rendering_contexts\menu\Menu_Exploits.cpp">
-      <Filter>src\UI\rendering_contexts\menu</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\rendering_contexts\menu\Menu_Movement.cpp">
-      <Filter>src\UI\rendering_contexts\menu</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\rendering_contexts\menu\Menu_Other.cpp">
-      <Filter>src\UI\rendering_contexts\menu</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\rendering_contexts\menu\Menu_Rendering.cpp">
-      <Filter>src\UI\rendering_contexts\menu</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\rendering_contexts\menu\Menu_Screen.cpp">
-      <Filter>src\UI\rendering_contexts\menu</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\rendering_contexts\menu\Menu_World.cpp">
-      <Filter>src\UI\rendering_contexts\menu</Filter>
-    </ClCompile>
     <ClCompile Include="ui\rendering_contexts\menu\MenuWidgets.cpp">
       <Filter>src\UI\rendering_contexts\menu</Filter>
     </ClCompile>
@@ -370,6 +352,30 @@
     </ClCompile>
     <ClCompile Include="hook\function_hooks\UserMSGDetour.cpp">
       <Filter>src\hooking\function_hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\MenuStyle.cpp">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_Configuration.cpp">
+      <Filter>src\UI\rendering_contexts\menu\tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_Exploits.cpp">
+      <Filter>src\UI\rendering_contexts\menu\tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_Movement.cpp">
+      <Filter>src\UI\rendering_contexts\menu\tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_Other.cpp">
+      <Filter>src\UI\rendering_contexts\menu\tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_Rendering.cpp">
+      <Filter>src\UI\rendering_contexts\menu\tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_Screen.cpp">
+      <Filter>src\UI\rendering_contexts\menu\tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_World.cpp">
+      <Filter>src\UI\rendering_contexts\menu\tabs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -646,6 +652,9 @@
     </ClInclude>
     <ClInclude Include="hook\function_hooks\UserMSGDetour.h">
       <Filter>src\hooking\function_hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\rendering_contexts\menu\MenuStyle.h">
+      <Filter>src\UI\rendering_contexts\menu</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

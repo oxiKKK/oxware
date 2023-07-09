@@ -50,17 +50,14 @@ void MenuChilden::Rendering::AspectRatio::contents()
 
 void MenuChilden::Rendering::StudioRenderer::contents()
 {
-	g_gui_widgets_i->add_padding({ 0, 5.0f });
-	g_gui_widgets_i->add_separtor_with_text("Player skeleton");
+	g_gui_widgets_i->add_separtor_with_text("Player skeleton 💀");
 
 	CUIMenuWidgets::the().add_checkbox("Enable ##skelly", &mdlchams_player_skeleton);
 
-	g_gui_widgets_i->add_padding({ 0, 5.0f });
 	g_gui_widgets_i->add_separtor_with_text("Player head hitbox");
 
 	CUIMenuWidgets::the().add_checkbox_with_color("Enable ##hbox", &mdlchams_head_box_enable, &mdlchams_head_box_color);
 
-	g_gui_widgets_i->add_padding({ 0, 5.0f });
 	g_gui_widgets_i->add_separtor_with_text("Other");
 
 	CUIMenuWidgets::the().add_checkbox("Real player model ##skelly", &mdlchams_render_real_playermodel,
@@ -77,6 +74,8 @@ void MenuChilden::Rendering::StudioRenderer::contents()
 	g_gui_widgets_i->add_padding({ 0, 5.0f });
 	CUIMenuWidgets::the().add_checkbox("Disable animations", &mdlchams_disable_animations);
 	CUIMenuWidgets::the().add_checkbox("Enforce default VM", &mdlchams_force_default_viewmodel);
+
+	g_gui_widgets_i->add_spacing();
 }
 
 void MenuChilden::Rendering::ModelChams::contents()
@@ -87,7 +86,7 @@ void MenuChilden::Rendering::ModelChams::contents()
 	{
 		g_gui_widgets_i->begin_tab("model_chams_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-		float tab_height = 140.0f;
+		float tab_height = 150.0f;
 
 		g_gui_widgets_i->add_tab_item(
 			"VM", false,

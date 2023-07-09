@@ -28,6 +28,23 @@
 
 #include "precompiled.h"
 
+struct callback_data_t
+{
+	size_t	len;
+	int		vk;
+	int		n_buffer; // nth buffer
+};
+
+// for the '...' button
+struct popup_state_t
+{
+	int vk;
+	bound_key_t* key;
+	std::string key_name;
+};
+
+static popup_state_t s_popup_state;
+
 void CUIKeyBinding::update()
 {
 	static bool once = true;
@@ -60,302 +77,239 @@ void CUIKeyBinding::render_interactible_bind_list()
 
 	auto last_cursor_pos = g_gui_widgets_i->get_cursor_pos();
 
-	g_gui_widgets_i->add_spacing();
-
-	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_CellPadding, { 2.0f, 1.0f });
-
-	if (g_gui_widgets_i->begin_columns("binds_column", 2))
-	{
-		g_gui_widgets_i->setup_column_fixed_width(100.0f);
-		g_gui_widgets_i->setup_column_fixed_width(283.0f);
-
-		g_gui_widgets_i->goto_next_column();
-		g_gui_widgets_i->add_text("Key name");
-		g_gui_widgets_i->goto_next_column();
-		g_gui_widgets_i->add_text("Command");
-
-		g_gui_widgets_i->end_columns();
-	}
-
-	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
-
-	g_gui_widgets_i->add_spacing();
-	g_gui_widgets_i->add_separator();
+	// add a little bit of padding for the decoration (floating buttons)
+	g_gui_widgets_i->add_padding({ 0.0f, 15.0f });
 
 	g_gui_widgets_i->add_child(
-		"binds_list", Vector2D(-1.0f, -1.0f), false, ImGuiWindowFlags_None,
+		"bind_list",
+		// add some padding to the right, because tables without borders are weird.
+		{ -1.0f - (MenuStyle::child_contents_padding.x + g_gui_widgets_i->get_imgui_style().ScrollbarSize), -1.0f },
+		false,
+		ImGuiWindowFlags_None,
+		[this]()
+		{
+			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_CellPadding, { 2.0f, 1.0f });
+
+			g_gui_widgets_i->add_table(
+				"binds_table", 3,
+				ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_HeaderTextOnly | ImGuiTableFlags_ScrollY,
+				[]()
+				{
+					static auto flags = ImGuiTableColumnFlags_NoReorder;
+
+					g_gui_widgets_i->table_setup_column_fixed_width("Key name", 100.0f, flags);
+					g_gui_widgets_i->table_setup_column("Bound command", flags);
+					g_gui_widgets_i->table_setup_column("", flags);
+
+					g_gui_widgets_i->table_headers_row();
+				},
+				[this]()
+				{
+					render_list();
+				});
+
+			g_gui_widgets_i->pop_stylevar(); // cell padding
+		});
+
+	render_decoration(last_cursor_pos);
+}
+
+void CUIKeyBinding::render_list()
+{
+	int bind_to_be_removed = -1;
+	g_bindmgr_i->for_each_bind(
+		[&](int vk, const bind_t& bind)
+		{
+			g_gui_widgets_i->table_next_column();
+
+			std::string key_name = g_user_input_i->virtual_key_to_string(vk);
+			if (key_name.empty())
+			{
+				bind_to_be_removed = vk;
+				return;
+			}
+			
+			add_keyscan_button(std::format("vk_{}", vk), vk, Vector2D(-1.0f, 25.0f));
+
+			g_gui_widgets_i->table_next_column();
+
+			// unique insertion
+			bound_key_t* bound_key = retreive_bound_key_or_insert_new(vk, bind);
+			
+			render_command_textinput(bound_key, vk, key_name);
+
+			g_gui_widgets_i->table_next_column();
+
+			if (g_gui_widgets_i->add_button(std::format("...##{}", key_name), Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
+			{
+				s_popup_state = { vk, bound_key, key_name };
+			
+				g_gui_widgets_i->schedule_simple_popup_dialog("bind_popup");
+			}
+		});
+
+	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
+	static bool was_popup_opened = false;
+	bool popup_opened = g_gui_widgets_i->execute_simple_popup_popup(
+		"bind_popup", { 180, 185 }, ImGuiWindowFlags_NoMove,
 		[&]()
 		{
-			if (g_gui_widgets_i->begin_columns("binds_column_nested", 3))
+			if (g_gui_widgets_i->add_button("Remove", { -1.0f, 0.0f }, false))
 			{
-				g_gui_widgets_i->setup_column_fixed_width(100.0f);
-				g_gui_widgets_i->setup_column_fixed_width(285.0f);
-
-				// for the '...' button
-				static struct popup_state_t
-				{
-					int vk;
-					bound_key_t* key;
-					std::string key_name;
-				} popup_st{};
-
-				int bind_to_be_removed = -1;
-				g_bindmgr_i->for_each_bind(
-					[&](int vk, const bind_t& bind)
-					{
-						g_gui_widgets_i->goto_next_column();
-
-						std::string key_name = g_user_input_i->virtual_key_to_string(vk);
-						if (key_name.empty())
-						{
-							bind_to_be_removed = vk;
-							return;
-						}
-
-						add_keyscan_button(std::format("vk_{}", vk), vk, Vector2D(-1.0f, 25.0f));
-
-						g_gui_widgets_i->goto_next_column();
-
-						// unique insertion
-						bound_key_t* bound_key = retreive_bound_key_or_insert_new(vk, bind);
-
-						struct callback_data
-						{
-							size_t len;
-							int vk;
-							int n_buffer; // nth buffer
-						};
-
-						static auto textinput_callback = [](ImGuiInputTextCallbackData* data) -> int
-						{
-							switch (data->EventFlag)
-							{
-								case ImGuiInputTextFlags_CallbackAlways:
-								{
-									auto [last_length, vk, n_buffer] = *(callback_data*)data->UserData;
-									if (last_length != data->BufTextLen)
-									{
-										if (data->BufTextLen != 0)
-										{
-											auto bind = g_bindmgr_i->get_bind(vk);
-
-											if (bind)
-											{
-												if (n_buffer == 0)
-												{
-													bind->cmd_sequence_0 = data->Buf;
-												}
-												else // 1st buffer
-												{
-													bind->cmd_sequence_1 = data->Buf;
-												}
-											}
-										}
-									}
-									break;
-								}
-							}
-							return 1;
-						};
-
-						switch (bound_key->state)
-						{
-							case 0:
-							{
-								callback_data d = { strlen(bound_key->cmd_0.data()), vk, 0 };
-								g_gui_widgets_i->add_text_input_ex(std::format("{}##0", key_name), bound_key->cmd_0.data(), buffer_len,
-																   Vector2D(-1.0f, 0.0f), ImGuiInputTextFlags_CallbackAlways,
-																   textinput_callback, (void*)&d);
-								break;
-							}
-							case 1:
-							{
-								callback_data d = { strlen(bound_key->cmd_1.data()), vk, 1 };
-								g_gui_widgets_i->add_text_input_ex(std::format("{}##1", key_name), bound_key->cmd_1.data(), buffer_len,
-																   Vector2D(-1.0f, 0.0f), ImGuiInputTextFlags_CallbackAlways,
-																   textinput_callback, (void*)&d);
-								break;
-							}
-						}
-
-						g_gui_widgets_i->goto_next_column();
-
-						if (g_gui_widgets_i->add_button(std::format("...##{}", key_name), Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
-						{
-							popup_st = { vk, bound_key, key_name };
-
-							g_gui_widgets_i->schedule_simple_popup_dialog("bind_popup");
-						}
-					});
-
-				g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
-				static bool was_popup_opened = false;
-				bool popup_opened = g_gui_widgets_i->execute_simple_popup_popup(
-					"bind_popup", { 180, 185 }, ImGuiWindowFlags_NoMove,
-					[&]()
-					{
-						if (g_gui_widgets_i->add_button("Remove", { -1.0f, 0.0f }, false))
-						{
-							bind_to_be_removed = popup_st.vk; // remove after the iteration. avoids random iterator crashes
-							g_gui_widgets_i->close_current_popup();
-						}
-
-						auto bound_key = popup_st.key;
-						if (bound_key->has_two_cmds)
-						{
-							if (g_gui_widgets_i->add_button(std::format("{}##{}", bound_key->state == 1 ? "Switch to first" : "Switch to second", popup_st.key_name),
-															Vector2D(-1.0f, 0.0f), false))
-							{
-								bound_key->state ^= 1;
-								g_gui_widgets_i->close_current_popup();
-							}
-						}
-
-						g_gui_widgets_i->add_spacing();
-						g_gui_widgets_i->add_separator();
-						g_gui_widgets_i->add_spacing();
-
-						if (g_gui_widgets_i->add_checkbox("Execute over Cheat UI", &bound_key->f_execute_over_ui))
-						{
-							auto bind = g_bindmgr_i->get_bind(popup_st.vk);
-							if (bind)
-							{
-								if (bound_key->f_execute_over_ui)
-								{
-									bind->flags |= BINDFLAG_ExecuteOverUI;
-								}
-								else
-								{
-									bind->flags &= ~BINDFLAG_ExecuteOverUI;
-								}
-							}
-						}
-
-						if (g_gui_widgets_i->add_checkbox("Execute over Game UI", &bound_key->f_execute_over_game_ui))
-						{
-							auto bind = g_bindmgr_i->get_bind(popup_st.vk);
-							if (bind)
-							{
-								if (bound_key->f_execute_over_game_ui)
-								{
-									bind->flags |= BINDFLAG_ExecuteOverGameUI;
-								}
-								else
-								{
-									bind->flags &= ~BINDFLAG_ExecuteOverGameUI;
-								}
-							}
-						}
-
-						if (g_gui_widgets_i->add_checkbox("Silent", &bound_key->f_silent))
-						{
-							auto bind = g_bindmgr_i->get_bind(popup_st.vk);
-							if (bind)
-							{
-								if (bound_key->f_silent)
-								{
-									bind->flags |= BINDFLAG_Silent;
-								}
-								else
-								{
-									bind->flags &= ~BINDFLAG_Silent;
-								}
-							}
-						}
-
-						if (g_gui_widgets_i->add_checkbox("Disable in-game key", &bound_key->f_disable_ingame_key))
-						{
-							auto bind = g_bindmgr_i->get_bind(popup_st.vk);
-							if (bind)
-							{
-								if (bound_key->f_disable_ingame_key)
-								{
-									bind->flags |= BINDFLAG_DisableInGameKey;
-								}
-								else
-								{
-									bind->flags &= ~BINDFLAG_DisableInGameKey;
-								}
-							}
-						}
-					});
-				g_gui_widgets_i->pop_stylevar();
-
-				// on close
-				if (was_popup_opened != popup_opened && !popup_opened)
-				{
-					popup_st = {};
-					was_popup_opened = popup_opened;
-				}
-
-				if (bind_to_be_removed != -1)
-				{
-					m_bound_keys[bind_to_be_removed] = {};
-					g_bindmgr_i->remove_bind(bind_to_be_removed);
-				}
-
-				g_gui_widgets_i->goto_next_column();
-
-				if (g_gui_widgets_i->add_button("+##newbind", Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
-				{
-					g_gui_widgets_i->schedule_simple_popup_dialog("new_bind_popup");
-				}
-
-				g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
-
-				g_gui_widgets_i->execute_simple_popup_popup(
-					"new_bind_popup", { 140, 60 }, ImGuiWindowFlags_NoMove,
-					[&]()
-					{
-						static bool close_current_popup = false;
-						if (close_current_popup)
-						{
-							g_gui_widgets_i->close_current_popup();
-							close_current_popup = false;
-						}
-
-						if (g_gui_widgets_i->add_button("On Push", { -1.0f, 0.0f }, false))
-						{
-							switch_to_key_binding_mode(&m_key_scan_button_info["new_key"], [&](key_scan_button_info_t* info, int vk)
-								{
-									// create new fresh bind
-									if (!g_bindmgr_i->is_key_bound(vk))
-									{
-										g_bindmgr_i->add_bind(vk, "");
-										update_keyscan_button_title(vk);
-									}
-									close_current_popup = true;
-								});
-						}
-						
-						if (g_gui_widgets_i->add_button("On Push and Release", { -1.0f, 0.0f }, false))
-						{
-							switch_to_key_binding_mode(&m_key_scan_button_info["new_key"], [&](key_scan_button_info_t* info, int vk)
-								{
-									// create new fresh bind
-									if (!g_bindmgr_i->is_key_bound(vk))
-									{
-										g_bindmgr_i->add_bind_on_push_and_release(vk, "", "");
-										update_keyscan_button_title(vk);
-									}
-									close_current_popup = true;
-								});
-						}
-					});
-
-				g_gui_widgets_i->pop_stylevar();
-
-				g_gui_widgets_i->end_columns();
+				bind_to_be_removed = s_popup_state.vk; // remove after the iteration. avoids random iterator crashes
+				g_gui_widgets_i->close_current_popup();
 			}
 
-			g_gui_widgets_i->add_text("* The bind subsystem is still in beta!", TEXTPROP_Disabled, 
-									  g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
+			auto bound_key = s_popup_state.key;
+			if (bound_key->has_two_cmds)
+			{
+				if (g_gui_widgets_i->add_button(std::format("{}##{}", bound_key->state == 1 ? "Switch to first" : "Switch to second", s_popup_state.key_name),
+												Vector2D(-1.0f, 0.0f), false))
+				{
+					bound_key->state ^= 1;
+					g_gui_widgets_i->close_current_popup();
+				}
+			}
+
+			g_gui_widgets_i->add_spacing();
+			g_gui_widgets_i->add_separator();
+			g_gui_widgets_i->add_spacing();
+
+			if (g_gui_widgets_i->add_checkbox("Execute over Cheat UI", &bound_key->f_execute_over_ui))
+			{
+				auto bind = g_bindmgr_i->get_bind(s_popup_state.vk);
+				if (bind)
+				{
+					if (bound_key->f_execute_over_ui)
+					{
+						bind->flags |= BINDFLAG_ExecuteOverUI;
+					}
+					else
+					{
+						bind->flags &= ~BINDFLAG_ExecuteOverUI;
+					}
+				}
+			}
+
+			if (g_gui_widgets_i->add_checkbox("Execute over Game UI", &bound_key->f_execute_over_game_ui))
+			{
+				auto bind = g_bindmgr_i->get_bind(s_popup_state.vk);
+				if (bind)
+				{
+					if (bound_key->f_execute_over_game_ui)
+					{
+						bind->flags |= BINDFLAG_ExecuteOverGameUI;
+					}
+					else
+					{
+						bind->flags &= ~BINDFLAG_ExecuteOverGameUI;
+					}
+				}
+			}
+
+			if (g_gui_widgets_i->add_checkbox("Silent", &bound_key->f_silent))
+			{
+				auto bind = g_bindmgr_i->get_bind(s_popup_state.vk);
+				if (bind)
+				{
+					if (bound_key->f_silent)
+					{
+						bind->flags |= BINDFLAG_Silent;
+					}
+					else
+					{
+						bind->flags &= ~BINDFLAG_Silent;
+					}
+				}
+			}
+
+			if (g_gui_widgets_i->add_checkbox("Disable in-game key", &bound_key->f_disable_ingame_key))
+			{
+				auto bind = g_bindmgr_i->get_bind(s_popup_state.vk);
+				if (bind)
+				{
+					if (bound_key->f_disable_ingame_key)
+					{
+						bind->flags |= BINDFLAG_DisableInGameKey;
+					}
+					else
+					{
+						bind->flags &= ~BINDFLAG_DisableInGameKey;
+					}
+				}
+			}
 		});
 
 	g_gui_widgets_i->pop_stylevar();
-	g_gui_widgets_i->pop_stylevar();
 
-	float x_pad = CMenuStyle::k_child_contents_padding.x;
+	// on close
+	if (was_popup_opened != popup_opened && !popup_opened)
+	{
+		s_popup_state = {};
+		was_popup_opened = popup_opened;
+	}
+
+	if (bind_to_be_removed != -1)
+	{
+		m_bound_keys[bind_to_be_removed] = {};
+		g_bindmgr_i->remove_bind(bind_to_be_removed);
+	}
+
+	g_gui_widgets_i->table_next_column();
+	
+	if (g_gui_widgets_i->add_button("+##newbind", Vector2D(25.0f, 25.0f), false, BUTTONFLAG_CenterLabel))
+	{
+		g_gui_widgets_i->schedule_simple_popup_dialog("new_bind_popup");
+	}
+	
+	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
+	
+	g_gui_widgets_i->execute_simple_popup_popup(
+		"new_bind_popup", { 140, 60 }, ImGuiWindowFlags_NoMove,
+		[&]()
+		{
+			static bool close_current_popup = false;
+			if (close_current_popup)
+			{
+				g_gui_widgets_i->close_current_popup();
+				close_current_popup = false;
+			}
+	
+			if (g_gui_widgets_i->add_button("On Push", { -1.0f, 0.0f }, false))
+			{
+				switch_to_key_binding_mode(&m_key_scan_button_info["new_key"], [&](key_scan_button_info_t* info, int vk)
+					{
+				// create new fresh bind
+				if (!g_bindmgr_i->is_key_bound(vk))
+				{
+					g_bindmgr_i->add_bind(vk, "");
+					update_keyscan_button_title(vk);
+				}
+				close_current_popup = true;
+					});
+			}
+	
+			if (g_gui_widgets_i->add_button("On Push and Release", { -1.0f, 0.0f }, false))
+			{
+				switch_to_key_binding_mode(&m_key_scan_button_info["new_key"], [&](key_scan_button_info_t* info, int vk)
+					{
+				// create new fresh bind
+				if (!g_bindmgr_i->is_key_bound(vk))
+				{
+					g_bindmgr_i->add_bind_on_push_and_release(vk, "", "");
+					update_keyscan_button_title(vk);
+				}
+				close_current_popup = true;
+					});
+			}
+		});
+	
+	g_gui_widgets_i->pop_stylevar(); // window padding
+}
+
+void CUIKeyBinding::render_decoration(const Vector2D& last_cursor_pos)
+{
+	float x_pad = MenuStyle::child_contents_padding.x + g_gui_widgets_i->get_imgui_style().ScrollbarSize;
 	float x_spacing = 3.0f;
 
 	auto window_size = g_gui_widgets_i->get_current_window_size();
@@ -397,6 +351,7 @@ void CUIKeyBinding::render_interactible_bind_list()
 				g_gui_widgets_i->add_bullet_text("ExecuteOverUI - Executes the command even if the Cheat UI is up.", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_bullet_text("ExecuteOverGameUI - Executes the command even if the Game UI is up.", TEXTPROP_Wrapped);
 				g_gui_widgets_i->add_bullet_text("Silent - Doesn't log anything to the console when the command is being executed.", TEXTPROP_Wrapped);
+				g_gui_widgets_i->add_bullet_text("DisableInGameKey - Blocks the in-game bound key and instead executes cheat bind.", TEXTPROP_Wrapped);
 
 				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
 				g_gui_widgets_i->add_separtor_with_text("Ways of binding a key");
@@ -413,8 +368,63 @@ void CUIKeyBinding::render_interactible_bind_list()
 				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
 				g_gui_widgets_i->add_separtor_with_text("Binding through the UI");
 
-				g_gui_widgets_i->add_text("Use the UI to bind any command sequence to a key. Inside the \"Binds\" tab, there are all of the current binds listed.", TEXTPROP_Wrapped);			});
+				g_gui_widgets_i->add_text("Use the UI to bind any command sequence to a key. Inside the \"Bind manager\" tab, there are all of the current binds listed.", TEXTPROP_Wrapped);			});
 	}
+}
+
+void CUIKeyBinding::render_command_textinput(bound_key_t* bound_key, int vk, const std::string& key_name)
+{
+	switch (bound_key->state)
+	{
+		case 0:
+		{
+			callback_data_t d = { strlen(bound_key->cmd_0.data()), vk, 0 };
+			g_gui_widgets_i->add_text_input_ex(std::format("{}##0", key_name), bound_key->cmd_0.data(), buffer_len,
+											   Vector2D(-1.0f, 0.0f), ImGuiInputTextFlags_CallbackAlways,
+											   command_texinput_callback, (void*)&d);
+			break;
+		}
+		case 1:
+		{
+			callback_data_t d = { strlen(bound_key->cmd_1.data()), vk, 1 };
+			g_gui_widgets_i->add_text_input_ex(std::format("{}##1", key_name), bound_key->cmd_1.data(), buffer_len,
+											   Vector2D(-1.0f, 0.0f), ImGuiInputTextFlags_CallbackAlways,
+											   command_texinput_callback, (void*)&d);
+			break;
+		}
+	}
+}
+
+int CUIKeyBinding::command_texinput_callback(ImGuiInputTextCallbackData * data)
+{
+	switch (data->EventFlag)
+	{
+		case ImGuiInputTextFlags_CallbackAlways:
+		{
+			auto [last_length, vk, n_buffer] = *(callback_data_t*)data->UserData;
+			if (last_length != data->BufTextLen)
+			{
+				if (data->BufTextLen != 0)
+				{
+					auto bind = g_bindmgr_i->get_bind(vk);
+
+					if (bind)
+					{
+						if (n_buffer == 0)
+						{
+							bind->cmd_sequence_0 = data->Buf;
+						}
+						else // 1st buffer
+						{
+							bind->cmd_sequence_1 = data->Buf;
+						}
+					}
+				}
+			}
+			break;
+		}
+	}
+	return 1;
 }
 
 void CUIKeyBinding::add_keyscan_button(const std::string& id, int vk, const Vector2D& size, bool* force_binding_mode)

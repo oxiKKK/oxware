@@ -170,3 +170,14 @@ std::string CStringTools::pretify_value(float value, int digits_after_decimal, b
 
 	return out;
 }
+
+// https://stackoverflow.com/questions/3152241/case-insensitive-stdstring-find
+bool CStringTools::case_insensitive_string_search(const std::string& haystack, const std::string& needle)
+{
+	auto it = std::search(
+		haystack.begin(), haystack.end(),
+		needle.begin(), needle.end(),
+		[](unsigned char ch1, unsigned char ch2) { return std::toupper(ch1) == std::toupper(ch2); }
+	);
+	return (it != haystack.end());
+}

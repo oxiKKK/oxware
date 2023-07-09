@@ -2937,10 +2937,7 @@ void ImGui::TableHeader(const char* label)
     // oxware
     bool text_only_header = (table->Flags & ImGuiTableFlags_HeaderTextOnly);
 
-    if (text_only_header)
-        label_size.y = 0.0f;
-
-    float label_height = text_only_header ? 0.0f : ImMax(label_size.y, table->RowMinHeight - table->CellPaddingY * 2.0f);
+    float label_height = ImMax(label_size.y, table->RowMinHeight - table->CellPaddingY * 2.0f);
 
     // Calculate ideal size for sort order arrow
     float w_arrow = 0.0f;
@@ -3047,11 +3044,8 @@ void ImGui::TableHeader(const char* label)
         }
     }
 
-    if (!text_only_header)
-    {
-        float text_max = cell_r.Max.x - w_arrow;
-        RenderTextClipped(label_pos, ImVec2(text_max, label_pos.y + label_height + g.Style.FramePadding.y), label, NULL, NULL);
-    }
+    float text_max = cell_r.Max.x - w_arrow;
+    RenderTextClipped(label_pos, ImVec2(text_max, label_pos.y + label_height + g.Style.FramePadding.y), label, NULL, NULL);
 
     // Render clipped label. Clipping here ensure that in the majority of situations, all our header cells will
     // be merged into a single draw call.

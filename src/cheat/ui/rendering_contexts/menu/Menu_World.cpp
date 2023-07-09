@@ -36,35 +36,8 @@ void MenuChilden::World::Removals::contents()
 	CUIMenuWidgets::the().add_checkbox("Remove sniper scopes", &remove_sniper_scope);
 
 	g_gui_widgets_i->add_separtor_with_text("Remove players");
-	CUIMenuWidgets::the().add_checkbox("All", &remove_players_all);
 
-	if (remove_players_all.get_value())
-	{
-		g_gui_widgets_i->push_disabled();
-	}
-
-	if (g_gui_widgets_i->begin_columns("player_removals", 2))
-	{
-		g_gui_widgets_i->goto_next_column();
-
-		CUIMenuWidgets::the().add_checkbox("Enemy", &remove_players_enemy);
-		CUIMenuWidgets::the().add_checkbox("Teammates", &remove_players_teammates);
-
-		g_gui_widgets_i->goto_next_column();
-
-		CUIMenuWidgets::the().add_checkbox("Ts", &remove_players_t);
-		CUIMenuWidgets::the().add_checkbox("CTs", &remove_players_ct);
-
-		g_gui_widgets_i->end_columns();
-	}
-
-	if (remove_players_all.get_value())
-	{
-		g_gui_widgets_i->pop_disabled();
-	}
-
-	g_gui_widgets_i->add_spacing();
-	CUIMenuWidgets::the().add_description_text("In order to disable in-game fog, use \"gl_fog\" command.");
+	CUIMenuWidgets::the().add_listbox("Team", &remove_players_team, { "Ts", "CTs", "Teammates", "Enemy", "Both" });
 
 	g_gui_widgets_i->add_separtor_with_text("Remove HUD");
 
@@ -90,6 +63,33 @@ void MenuChilden::World::Removals::contents()
 			g_gui_widgets_i->end_columns();
 		}
 	});
+
+	g_gui_widgets_i->add_separtor_with_text("Other");
+
+	// the first is the value under checkbox, and the second is the "do this shit only once" boolean... 😀
+	static std::pair<bool, bool> disable_fog{};
+
+	g_gui_widgets_i->add_checkbox("Disable FOG", &disable_fog.first);
+
+	static hl::cvar_t* gl_fog = nullptr;
+
+	if (!gl_fog)
+	{
+		gl_fog = CGoldSrcCommandMgr::the().get_cvar("gl_fog");
+	}
+	else
+	{
+		if (disable_fog.first && !disable_fog.second)
+		{
+			gl_fog->value = 0.0f;
+			disable_fog.second = true;
+		}
+		else if (!disable_fog.first && disable_fog.second)
+		{
+			gl_fog->value = 1.0f;
+			disable_fog.second = false;
+		}
+	}
 }
 
 void MenuChilden::World::Thirdperson::contents()
@@ -182,7 +182,7 @@ void MenuChilden::World::SmokeVisuals::contents()
 	[]()
 	{
 		CUIMenuWidgets::the().add_color_edit("Color", &smoke_color);
-		CUIMenuWidgets::the().add_checkbox("Rainbow smoke", &smoke_rainbow);
+		CUIMenuWidgets::the().add_checkbox("Rainbow smoke 🌈", &smoke_rainbow);
 
 		CUIMenuWidgets::the().add_slider("Opacity", "%0.0f %%", &smoke_opacity);
 

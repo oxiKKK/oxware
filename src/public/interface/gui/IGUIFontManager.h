@@ -69,8 +69,10 @@ enum EFontSize
 {
 	FSZ_10px,
 	FSZ_13px,
+	FSZ_14px,
 	FSZ_16px,
 	FSZ_18px,
+	FSZ_21px,
 	FSZ_24px,
 	FSZ_27px,
 	FSZ_30px,
@@ -84,8 +86,10 @@ inline static constexpr std::array<float, FSZ_COUNT> s_EFontSizeToFloat =
 {
 	/*FSZ_10px*/ 10.0f,
 	/*FSZ_13px*/ 13.0f,
+	/*FSZ_14px*/ 14.0f,
 	/*FSZ_16px*/ 16.0f,
 	/*FSZ_20px*/ 20.0f,
+	/*FSZ_21px*/ 21.0f,
 	/*FSZ_24px*/ 24.0f,
 	/*FSZ_27px*/ 27.0f,
 	/*FSZ_30px*/ 30.0f,

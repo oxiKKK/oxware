@@ -114,6 +114,8 @@ public:
 	Vector2D get_current_scroll(); 
 	void set_scroll(const Vector2D& xy);
 
+	ImGuiStyle& get_imgui_style();
+
 	//
 	// Widgets
 	//
@@ -140,7 +142,7 @@ public:
 	bool add_slider(const std::string& label, int* value, int* min, int* max, const char* format, bool no_label);
 
 	bool add_text_input(const std::string& label, char* buffer, size_t buffer_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, bool no_title = false, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
-	bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
+	bool add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr, ImFont* font = 0);
 
 	void add_padding(const Vector2D& size);
 	void add_spacing();
@@ -191,7 +193,7 @@ public:
 	void table_headers_row();
 
 	// columns using tables api
-	bool begin_columns(const std::string& label, int count_columns);
+	bool begin_columns(const std::string& label, int count_columns, ImGuiTableFlags flags);
 	void end_columns();
 	void setup_column_fixed_width(float width, ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None);
 	void setup_column(ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None);
@@ -555,6 +557,11 @@ void CGUIWidgets::set_scroll(const Vector2D& xy)
 	}
 }
 
+ImGuiStyle& CGUIWidgets::get_imgui_style()
+{
+	return GImGui->Style;
+}
+
 void CGUIWidgets::add_text(const std::string& text, ETextProperties properties, ImFont* font)
 {
 	//
@@ -899,13 +906,17 @@ bool CGUIWidgets::add_text_input(const std::string& label, char* buffer, size_t 
 }
 
 bool CGUIWidgets::add_text_input_ex(const std::string& label, char* buffer, size_t buffer_size, Vector2D input_size,
-									ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void * user_data)
+									ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data, ImFont* font)
 {
 	PushStyleColor(ImGuiCol_FrameBg, get_color<GUICLR_InputTextBg>());
 
 	PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 
-	PushFont(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_24px, FDC_Light));
+	if (!font)
+	{
+		font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_21px, FDC_Light);
+	}
+	PushFont(font);
 
 	bool ret = InputTextEx(label.c_str(), NULL, buffer, buffer_size, input_size, flags | ImGuiInputTextFlags_NoLabel, callback, user_data);
 
@@ -933,9 +944,9 @@ void CGUIWidgets::add_spacing()
 	Spacing();
 }
 
-bool CGUIWidgets::begin_columns(const std::string& label, int count_columns)
+bool CGUIWidgets::begin_columns(const std::string& label, int count_columns, ImGuiTableFlags flags)
 {
-	return BeginTable(label.c_str(), count_columns, ImGuiTableFlags_HeaderTextOnly);
+	return BeginTable(label.c_str(), count_columns, flags | ImGuiTableFlags_HeaderTextOnly);
 }
 
 void CGUIWidgets::setup_column_fixed_width(float width, ImGuiTableColumnFlags flags)
@@ -1220,7 +1231,7 @@ void CGUIWidgets::table_setup_column_fixed_width(const std::string& name, float 
 
 void CGUIWidgets::table_setup_column(const std::string& name, ImGuiTableColumnFlags flags)
 {
-	TableSetupColumn(name.empty() ? name.c_str() : nullptr, flags);
+	TableSetupColumn(!name.empty() ? name.c_str() : nullptr, flags);
 }
 
 void CGUIWidgets::table_next_column()
@@ -1471,11 +1482,17 @@ bool CGUIWidgets::add_checkbox_internal(const char* label, T* value)
 
 bool CGUIWidgets::add_checkbox_with_color_internal(const char* label, float* value, float rgba[4], ImGuiColorEditFlags flags)
 {
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+	ImGuiWindow* window = g.CurrentWindow;
+
 	BeginGroup();
 
 	bool pressed = add_checkbox_internal(label, value);
 
-	SameLine(GetWindowContentRegionMax().x - 30.f);
+	float color_picker_rect_size = 18.0f;
+	SameLine();
+	SetCursorPosX(window->Size.x - style.WindowPadding.x - style.ScrollbarSize - color_picker_rect_size);
 
 	char buffer[256];
 	sprintf(buffer, "##%s", label);
@@ -1614,7 +1631,7 @@ bool CGUIWidgets::begin_combo_internal(const char* label, const char* preview_la
 	const ImVec2 arrow_size = { (flags & ImGuiComboFlags_NoArrowButton) ? 0.0f : GetFrameHeight(), GetFrameHeight() * height_factor };
 	const ImVec2 label_size = CalcTextSize(label, NULL, true);
 	const float full_w = window->Size.x - style.FramePadding.x * 1.5f;
-	const float w = (flags & ImGuiComboFlags_NoPreview) ? arrow_size.x : window->Size.x - style.WindowPadding.x;
+	const float w = (flags & ImGuiComboFlags_NoPreview) ? arrow_size.x : window->Size.x - style.WindowPadding.x - style.ScrollbarSize;
 	ImRect bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f * height_factor));
 	const ImRect total_bb(bb.Min, bb.Max + ImVec2(style.ItemInnerSpacing.x, 0.0f));
 	ItemSize(total_bb, style.FramePadding.y);
@@ -2289,7 +2306,7 @@ bool CGUIWidgets::add_slider_internal(const char* label, T* value, T* min, T* ma
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
-	const float w = window->Size.x - style.WindowPadding.x;
+	const float w = window->Size.x - style.WindowPadding.x - style.ScrollbarSize;
 
 	ImVec2 label_size = CalcTextSize(label, NULL, true);
 

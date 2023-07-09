@@ -120,6 +120,7 @@ void MenuChilden::Screen::CustomCrosshair::contents()
 
 		CUIMenuWidgets::the().add_listbox("Type ##hidden", &crosshair_type, { "Classic", "T-Shaped", "Circular" });
 
+		g_gui_widgets_i->add_spacing();
 		CUIMenuWidgets::the().add_color_edit("Color", &crosshair_color);
 	});
 }

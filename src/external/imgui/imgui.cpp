@@ -5867,6 +5867,7 @@ void ImGui::RenderWindowDecorations(ImGuiWindow* window, const ImRect& title_bar
         if (window->ScrollbarY)
             Scrollbar(ImGuiAxis_Y);
 
+#if 0 // oxware
         // Render resize grips (after their input handling so we don't have a frame of latency)
         if (handle_borders_and_resize_grips && !(flags & ImGuiWindowFlags_NoResize))
         {
@@ -5883,6 +5884,7 @@ void ImGui::RenderWindowDecorations(ImGuiWindow* window, const ImRect& title_bar
                 window->DrawList->PathFillConvex(col);
             }
         }
+#endif 
 
         // Borders
         if (handle_borders_and_resize_grips)
@@ -8544,8 +8546,6 @@ void ImGui::UpdateMouseWheel()
         }
         return;
     }
-    if (g.IO.KeyCtrl)
-        return;
 
     // Mouse wheel scrolling
     // As a standard behavior holding SHIFT while using Vertical Mouse Wheel triggers Horizontal scroll instead
@@ -8557,6 +8557,13 @@ void ImGui::UpdateMouseWheel()
         wheel.x = wheel.y;
         wheel.y = 0.0f;
     }
+
+    // oxware added
+    if (g.IO.KeyCtrl)
+    {
+        wheel.y *= 5.0f;
+    }
+    
 
     // Maintain a rough average of moving magnitude on both axises
     // FIXME: should by based on wall clock time rather than frame-counter

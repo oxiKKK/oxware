@@ -30,7 +30,8 @@
 
 VarBoolean frame_skip_enable("frame_skip_enable", "Enables frame skipping exploit", false);
 VarInteger frame_skip_amount("frame_skip_amount", "Amount of frames to skip each update", 2, 2, 20);
-VarInteger frame_skip_maxfps("frame_skip_maxfps", "FPS limit when frame skipping is on", 1000, 300, 1500);
+VarInteger frame_skip_method("frame_skip_method", "Frame skipper method", 0, 0, 1);
+VarInteger frame_skip_type("frame_skip_type", "Type of the frame skipper. See menu.", 0, 0, 1);
 
 bool CFrameSkipper::skip_current_frame()
 {
@@ -42,17 +43,30 @@ bool CFrameSkipper::skip_current_frame()
 	// skip N frames
 	int N = frame_skip_amount.get_value();
 
-	bool enforce_skip = (1.0 / CGameUtil::the().get_engine_frametime() > frame_skip_maxfps.get_value());
-
+	int type = frame_skip_type.get_value();
 	static uint32_t frames = 0;
-	if (++frames % N != 0 && !enforce_skip)
+	switch (type)
 	{
-		//CConsole::the().info("yes");
-		return true; // skip
+		case 0: // skip every N frames
+		{
+			if (++frames % N != 0)
+			{
+				//CConsole::the().info("yes");
+				return true; // skip
+			}
+			break;
+		}
+		case 1: // skip every Nth frame
+		{
+			if (++frames % N == 0)
+			{
+				//CConsole::the().info("yes");
+				return true; // skip
+			}
+			break;
+		}
 	}
-	else
-	{
-		//CConsole::the().info("no");
-		return false; // don't skip
-	}
+
+	//CConsole::the().info("no");
+	return false; // don't skip
 }

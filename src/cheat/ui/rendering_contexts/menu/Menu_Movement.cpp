@@ -108,7 +108,7 @@ void MenuChilden::Movement::GroundStrafe::contents()
 
 			CUIMenuWidgets::the().add_listbox("Efficiency", &movement_gs_legit_efficiency, { "Helper", "Normal", "Random FOG based" });
 
-			CUIMenuWidgets::the().add_description_text("Same settings as in bunnyhop. I don't want to repeat myself here ;)");
+			CUIMenuWidgets::the().add_description_text("Same settings as in bunnyhop. I don't want to repeat myself here 😉");
 		}
 		else if (movement_gs_mode.get_value() == 1) // rage
 		{

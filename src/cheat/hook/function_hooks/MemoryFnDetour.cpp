@@ -92,6 +92,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 	HUD_Frame().install();
 	R_DrawEntitiesOnList().install();
 	R_StudioSetupLighting().install();
+	VGui_ViewportPaintBackground().install();
 
 	CEngineSynchronization::the().resume_engine();
 
@@ -164,6 +165,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	HUD_Frame().uninstall();
 	R_DrawEntitiesOnList().uninstall();
 	R_StudioSetupLighting().uninstall();
+	VGui_ViewportPaintBackground().uninstall();
 
 	// must be unloaded at last, because of synchronizated cheat unload. see CEngineSynchronization for more info.
 	_Host_Frame().uninstall();
@@ -366,16 +368,21 @@ void CL_CreateMove_FnDetour_t::CL_CreateMove(float frametime, hl::usercmd_t *cmd
 	if (active)
 	{
 		CLocalState::the().update_pre_clientmove(frametime, cmd);
+
+		if (bypass_constrain_renderer_glclear.get_value())
+		{
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
 	}
 
 	CMemoryFnDetourMgr::the().CL_CreateMove().call(frametime, cmd, active);
 
 	if (active)
 	{
+		CLocalState::the().update_clientmove(frametime, cmd);
+
 		// update if we're alive, connected, etc..
 		g_in_commands_i->update_activation_conditions();
-
-		CLocalState::the().update_clientmove(frametime, cmd);
 
 		if (!CGameUtil::the().is_spectator())
 		{
@@ -507,7 +514,7 @@ void MYgluPerspective_FnDetour_t::MYgluPerspective(GLdouble fovy, GLdouble aspec
 			our_zFar = zFar;
 		}
 
-		our_aspect = CAspectRatioChanger::the().scale_aspect();
+		our_aspect = aspect * CAspectRatioChanger::the().scale_aspect();
 		if (our_aspect == -1.0f)
 		{
 			our_aspect = aspect;
@@ -861,7 +868,8 @@ void SCR_UpdateScreen_FnDetour_t::SCR_UpdateScreen()
 
 	if (!CAntiScreen::the().hide_visuals())
 	{
-		if (CFrameSkipper::the().skip_current_frame())
+		// check if method is set to 'UpdateScreen'
+		if (frame_skip_method.get_value() == 0 && CFrameSkipper::the().skip_current_frame())
 		{
 			return;
 		}
@@ -1304,6 +1312,12 @@ void R_StudioSetupLighting_FnDetour_t::R_StudioSetupLighting(hl::alight_t* pligh
 	// function takes care of studiomodel lighting (ambient / shadelight)
 
 //	CConsole::the().info("ambient: {}, shade: {}", plighting->ambientlight, plighting->shadelight);
+//	CConsole::the().info("plightvec: {}", Vector(plighting->plightvec));
+
+	// some generic values that usually look good
+	plighting->plightvec[0] = 0.366f;
+	plighting->plightvec[0] = 0.341f;
+	plighting->plightvec[0] = -0.866f;
 
 	if (!CAntiScreen::the().hide_visuals())
 	{
@@ -1315,6 +1329,30 @@ void R_StudioSetupLighting_FnDetour_t::R_StudioSetupLighting(hl::alight_t* pligh
 //	plighting->color[2] = 0.9f;
 
 	CMemoryFnDetourMgr::the().R_StudioSetupLighting().call(plighting);
+}
+
+//---------------------------------------------------------------------------------
+
+bool VGui_ViewportPaintBackground_FnDetour_t::install()
+{
+	initialize("VGui_ViewportPaintBackground", L"hw.dll");
+	return detour_using_memory_address((uintptr_t*)VGui_ViewportPaintBackground, (uintptr_t*)CMemoryHookMgr::the().cl_enginefuncs()->pfnVGui_ViewportPaintBackground);
+}
+
+void VGui_ViewportPaintBackground_FnDetour_t::VGui_ViewportPaintBackground(int* extents)
+{
+	// responsible for the entire rendering (including VGUI and world view)
+
+	if (!CAntiScreen::the().hide_visuals())
+	{
+		// check if method is set to 'ViewportPaintBackground'
+		if (frame_skip_method.get_value() == 1 && CFrameSkipper::the().skip_current_frame())
+		{
+			return;
+		}
+	}
+
+	CMemoryFnDetourMgr::the().VGui_ViewportPaintBackground().call(extents);
 }
 
 //---------------------------------------------------------------------------------

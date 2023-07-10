@@ -140,14 +140,7 @@ void MenuTab::render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId id,
 	bool selected = (active_id == id);
 	if (g_gui_widgets_i->add_toggle_button(m_label.c_str(), { MenuStyle::tab_select_width - 15.0f, 0.0f }, selected))
 	{
-		if (selected)
-		{
-			active_id = UIMENU_Blank; // selected the same tab, set to blank
-		}
-		else
-		{
-			active_id = id; // make current one selected
-		}
+		active_id = id; // make current one selected
 	}
 
 	if (g_gui_widgets_i->is_last_widget_hovered())
@@ -222,8 +215,6 @@ void CMenuContentsGrid::precompute(const Vector2D& contents_size, const MenuTab&
 		return;
 	}
 
-	float contents_width = contents_size.x;
-
 	const Vector2D& padding = MenuStyle::child_contents_padding;
 
 	//
@@ -285,9 +276,15 @@ void CMenuContentsGrid::precompute(const Vector2D& contents_size, const MenuTab&
 
 		int current_column = 0, current_row = 0;
 		Vector2D cursor_position = { x_offset, 0.0f };
-		int max_children_in_one_row = std::max((int)((contents_width - x_offset) / (MenuStyle::child_width + padding.x)), 1);
+		int max_children_in_one_row = std::max((int)((contents_size.x - x_offset) / (MenuStyle::child_width + padding.x)), 1);
 		int n_children_per_column = (int)std::floor((float)num_regular_children / max_children_in_one_row);
 		int n_children_per_column_remainder = num_regular_children % max_children_in_one_row;
+
+		if (n_children_per_column == 0)
+		{
+			n_children_per_column = 1;
+			n_children_per_column_remainder = 0;
+		}
 		for (auto child : tab.m_children)
 		{
 			// apply the search filter
@@ -346,7 +343,7 @@ void CUIMenu::on_initialize()
 	world.m_children.push_back(new MenuChilden::World::Automation({ "Automation", 120, true }));
 	world.m_children.push_back(new MenuChilden::World::SpeedControl({ "🏃 Speed control", 225, true }));
 	world.m_children.push_back(new MenuChilden::World::ViewmodelOffset({ "Viewmodel offset", 90, true }));
-	world.m_children.push_back(new MenuChilden::World::Backtrack({ "Backtrack", 105, true }));
+	world.m_children.push_back(new MenuChilden::World::Backtrack({ "👥 Backtrack", 125, true }));
 	world.m_children.push_back(new MenuChilden::World::SmokeVisuals({ "Smoke visuals", 180, true }));
 	world.m_children.push_back(new MenuChilden::World::NonSteamFpsFix({ "Non-steam fps fix", 150, true }));
 	world.m_children.push_back(new MenuChilden::World::WorldVisuals({ "🌎 World visuals", 235, true }));
@@ -375,7 +372,7 @@ void CUIMenu::on_initialize()
 	exploits.m_children.push_back(new MenuChilden::Exploits::ServerCommandFilter({ "Server command filter", 210, true, MCH_2x }));
 	exploits.m_children.push_back(new MenuChilden::Exploits::CvarSandbox({ "Cvar sandbox", 400, true, MCH_2x }));
 	exploits.m_children.push_back(new MenuChilden::Exploits::BypassGameConstrains({ "Bypass game constrains", 290, true }));
-	exploits.m_children.push_back(new MenuChilden::Exploits::FramerateSimulation({ "Framerate simulation", 155, true }));
+	exploits.m_children.push_back(new MenuChilden::Exploits::FrameSkipper({ "Frame skipper", 215, true }));
 	exploits.m_children.push_back(new MenuChilden::Exploits::ConsistencyBypass({ "Consistency bypass", 135, true }));
 	exploits.m_children.push_back(new MenuChilden::Exploits::FakeLatency({ "Fake latency", 85, true }));
 
@@ -385,9 +382,9 @@ void CUIMenu::on_initialize()
 	movement.m_children.push_back(new MenuChilden::Movement::Visualization({ "Visualization", 170, true }));
 	movement.m_children.push_back(new MenuChilden::Movement::GroundStrafe({ "Ground strafe", 300, true }));
 	movement.m_children.push_back(new MenuChilden::Movement::Strafehack({ "Strafe hack", 225, true }));
-	movement.m_children.push_back(new MenuChilden::Movement::StrafeHelper({ "Strafe helper", 240, true }));
-	movement.m_children.push_back(new MenuChilden::Movement::Bunnyhop({ "Bunnyhop", 300, true }));
-	movement.m_children.push_back(new MenuChilden::Movement::Edgebug({ "Edge bug", 290, true }));
+	movement.m_children.push_back(new MenuChilden::Movement::StrafeHelper({ "Strafe helper", 220, true }));
+	movement.m_children.push_back(new MenuChilden::Movement::Bunnyhop({ "🐇 Bunnyhop", 300, true }));
+	movement.m_children.push_back(new MenuChilden::Movement::Edgebug({ "Edge bug", 270, true }));
 	movement.m_children.push_back(new MenuChilden::Movement::Fastrun({ "🏃 Fast run", 200, true }));
 	movement.m_children.push_back(new MenuChilden::Movement::AutoJOF({ "Auto JOF", 200, true }));
 
@@ -436,6 +433,9 @@ void CUIMenu::on_render()
 {
 	// we have to update it here since the keyscan buttons may be outside of the InCommands tab.
 	CUIInCommandKeyBinding::the().update();
+
+	// update search filter
+	g_search_filter_context.update();
 
 	g_gui_widgets_i->set_next_window_pos({ 100, 100 }, ImGuiCond_Once);
 	g_gui_widgets_i->set_next_window_size(MenuStyle::menu_rect_size, ImGuiCond_Once);
@@ -536,8 +536,12 @@ void CUIMenu::handle_menu_contents_rendering()
 	// blank tab, nothing selected
 	if (m_active_tab == UIMENU_Blank)
 	{
-		g_gui_widgets_i->add_window_centered_text_disabled("Start by looking through the tabs on the left!");
+		g_gui_widgets_i->add_window_centered_text_disabled("👈👈 Start by looking through the tabs on the left!");
 		return;
+	}
+	else if (g_search_filter_context.filter_active() && !g_search_filter_context.have_at_least_one_result())
+	{
+		g_gui_widgets_i->add_window_centered_text_disabled("Oops! Didn't find any results. 🧐😧");
 	}
 
 	bool contents_changed = false;
@@ -655,7 +659,7 @@ void CUIMenu::render_menu_decoration(const Vector2D& window_pos, const Vector2D&
 
 	// this gets filled automatically by a python script.
 	// DO NOT EDIT FOLLOWING LINE OR THE SCRIPT WILL BREAK.
-	auto lines_label = std::format(/*LINES&FILESMARKER*/"{} lines in {} files", "64,892", "315");
+	auto lines_label = std::format(/*LINES&FILESMARKER*/"{} lines in {} files", "64,281", "314");
 	g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(),
 										  topside_font,
 										 { window_pos.x + MenuStyle::tab_select_width + 5.0f, window_pos.y + 30.0f + 3.0f },
@@ -746,6 +750,11 @@ int CMenuSearchFilterContext::search_input_callback(ImGuiInputTextCallbackData* 
 	return 0;
 }
 
+void CMenuSearchFilterContext::update()
+{
+	m_at_least_one_result = false;
+}
+
 void CMenuSearchFilterContext::render_search_box(const Vector2D& position)
 {
 	auto window_pos = g_gui_widgets_i->get_current_window_pos();
@@ -787,5 +796,13 @@ bool CMenuSearchFilterContext::apply_filter(IMenuChild* child)
 		return true;
 	}
 
-	return !CStringTools::the().case_insensitive_string_search(child->get_header(), m_menu_search_input);
+	if (!CStringTools::the().case_insensitive_string_search(child->get_header(), m_menu_search_input))
+	{
+		return true;
+	}
+	else
+	{
+		m_at_least_one_result = true;
+		return false;
+	}
 }

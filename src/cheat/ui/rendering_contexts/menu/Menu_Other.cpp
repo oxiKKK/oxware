@@ -217,6 +217,7 @@ void MenuChilden::Other::Debug::contents()
 					&debug_render_info,
 					[]()
 					{
+						CUIMenuWidgets::the().add_checkbox("Misc", &debug_render_info_misc);
 						g_gui_widgets_i->add_spacing();
 						g_gui_widgets_i->add_separtor_with_text("Movement");
 						g_gui_widgets_i->add_spacing();

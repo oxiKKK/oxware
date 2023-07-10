@@ -40,11 +40,11 @@ void CGenericPlayer::update_player_info(int index, hl::player_info_t* pinfo)
 	// now the extra info
 	if (COxWare::the().get_build_number() < 8684)
 	{
-		m_extra_playerinfo = (hl::extra_player_info_t*)&(CMemoryHookMgr::the().g_PlayerExtraInfoOld().get()[index]);
+		m_extra_playerinfo = (hl::extra_player_info_t*)&(CMemoryHookMgr::the().g_PlayerExtraInfoOld().get()[index + 1]);
 	}
 	else
 	{
-		m_extra_playerinfo = (hl::extra_player_info_t*)&(CMemoryHookMgr::the().g_PlayerExtraInfo().get()[index]);
+		m_extra_playerinfo = (hl::extra_player_info_t*)&(CMemoryHookMgr::the().g_PlayerExtraInfo().get()[index + 1]);
 	}
 }
 

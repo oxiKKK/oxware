@@ -34,6 +34,7 @@ extern VarBoolean bypass_constrain_renderdist_enable;
 extern VarInteger bypass_constrain_renderdist_value;
 extern VarBoolean bypass_constrain_noclip;
 extern VarBoolean bypass_constrain_renderer_cvars;
+extern VarBoolean bypass_constrain_renderer_glclear;
 extern VarBoolean bypass_constrain_sponly_cvars;
 
 class CForceEnableDisabled

@@ -42,10 +42,17 @@ bool CRemovals::remove_viewmodel()
 }
 
 // Ts, CTs, Enemy, Both
-VarInteger remove_players_team("remove_players_team", "Removes players depending on their team.", 0, 0, 4);
+VarInteger remove_players_team("remove_players_team", "Removes players depending on their team.", 0, 0, 5);
 
 bool CRemovals::remove_player(int id)
 {
+	int selected_team = remove_players_team.get_value();
+
+	if (selected_team == 0)
+	{
+		return false;
+	}
+	
 	auto player = CEntityMgr::the().get_player_by_id(id);
 	if (!player)
 	{
@@ -56,19 +63,18 @@ bool CRemovals::remove_player(int id)
 
 	int player_team = (*player)->get_team();
 	int local_team = local ? local->get_team() : hl::UNASSIGNED;
-	int selected_team = remove_players_team.get_value();
 
 	if (
 		// only terrorists
-		(selected_team == 0 && local_team == hl::TERRORIST) ||
+		(selected_team == 1 && player_team == hl::TERRORIST) ||
 		// only cts
-		(selected_team == 1 && local_team == hl::CT) ||
+		(selected_team == 2 && player_team == hl::CT) ||
 		// only our team
-		(selected_team == 2 && local_team == player_team) ||
+		(selected_team == 3 && player_team == local_team) ||
 		// only enemy team
-		(selected_team == 3 && local_team != player_team) ||
+		(selected_team == 4 && player_team != local_team) ||
 		// both teams
-		(selected_team == 4 && (local_team == hl::TERRORIST || local_team == hl::CT)))
+		(selected_team == 5 && (player_team == hl::TERRORIST || player_team == hl::CT)))
 	{
 		return true;
 	}

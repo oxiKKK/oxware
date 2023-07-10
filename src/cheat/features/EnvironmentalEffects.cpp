@@ -43,12 +43,15 @@ VarFloat env_particle_fallspeed("env_particle_fallspeed", "Controls fallspeed of
 
 VarFloat env_rain_density("env_rain_density", "Controls density of the rain", 2.0f, 0.1f, 8.0f);
 VarBoolean env_rain_ambient("env_rain_ambient", "Plays ambient raining sound", false);
+VarFloat env_rain_ambient_volume("env_rain_ambient_volume", "Volume of the raining ambient sound", 0.5f, 0.1, 1.0f);
 VarBoolean env_rain_ambient_thunder("env_rain_ambient_thunder", "Plays ambient thunder sound", false);
 
 VarBoolean env_snow("env_snow", "Enables snowing", false);
 VarFloat env_snow_density("env_snow_density", "Controls density of the snow", 2.0f, 0.1f, 8.0f);
 VarInteger env_snow_flake_size("env_snow_flake_size", "Snow flake size", 1, 1, 10);
 VarFloat env_snow_flake_die_time("env_snow_flake_die_time", "Time when the flake starts to die after it hits ground", 0.5f, 0.5f, 5.0f);
+VarBoolean env_snow_ambient("env_snow_ambient", "Plays ambient eerie sound for snowy environment", false);
+VarFloat env_snow_ambient_volume("env_snow_ambient_volume", "Volume of the eerie sound for snowy environment", 0.5f, 0.1, 1.0f);
 
 void CEnvironmentalEffects::initialize()
 {
@@ -57,15 +60,12 @@ void CEnvironmentalEffects::initialize()
 	auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
 
 	// sounds
-	m_rain_sound_played = false;
 	m_thunder_timer = cl_enginefuncs->pfnGetClientTime() + cl_enginefuncs->pfnRandomLong(60, 60 * 3);
 
 	precache_sprites();
 
 	// wind
 	initialize_wind_variables();
-
-	m_rain_sound_played = false;
 
 	if (m_initialized_for_the_first_time)
 	{
@@ -548,25 +548,13 @@ void CEnvironmentalEffects::initialize_wind_variables()
 
 void CEnvironmentalEffects::play_ambient_rain_sound()
 {
-	bool env_enabled = env_enable.get_value();
-	bool rain_enabled = env_rain.get_value();
-	bool ambient_enabled = env_rain_ambient.get_value();
+	static float prev_vol_rain = 0.0f, prev_vol_snow = 0.0f;
+	static bool rain_sound_played = false, snow_sound_played = false;
 
-	if (ambient_enabled && env_enabled && rain_enabled && !m_rain_sound_played)
-	{
-		CEngineSoundPlayer::the().play_ambient_sound_unique(0, Vector(0, 0, 0), "sound/ambience/rain.wav", 1.0f, AMBIENT_EVERYWHERE, true);
-//		CConsole::the().info("played");
-		m_rain_sound_played = true;
-	}
+	play_ambient_looped_sound_helper(&env_rain, &env_rain_ambient, &env_rain_ambient_volume, &prev_vol_rain, &rain_sound_played, "sound/ambience/rain.wav");
+	play_ambient_looped_sound_helper(&env_snow, &env_snow_ambient, &env_snow_ambient_volume, &prev_vol_snow, &snow_sound_played, "sound/de_torn/torn_ambience.wav");
 
-	if ((!ambient_enabled || !env_enabled || !rain_enabled) && m_rain_sound_played)
-	{
-		CEngineSoundPlayer::the().stop_sound("sound/ambience/rain.wav");
-///		CConsole::the().info("stopped");
-		m_rain_sound_played = false;
-	}
-	
-	if (env_rain_ambient_thunder.get_value())
+	if (env_rain.get_value() && env_rain_ambient_thunder.get_value())
 	{
 		auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
 
@@ -574,9 +562,35 @@ void CEnvironmentalEffects::play_ambient_rain_sound()
 		if (time > m_thunder_timer)
 		{
 			CEngineSoundPlayer::the().play_ambient_sound_unique(0, Vector(0, 0, 0), "sound/ambience/thunder_clap.wav", 1.0f, AMBIENT_EVERYWHERE, false);
-			m_thunder_timer = time + cl_enginefuncs->pfnRandomLong(60, 60 * 3);
+			m_thunder_timer = time + cl_enginefuncs->pfnRandomLong(20, 60);
 		}
 	}
+}
+
+void CEnvironmentalEffects::play_ambient_looped_sound_helper(VarBoolean* env_effect_enabled, VarBoolean* sound_enabled,
+															 VarFloat* sound_volume, float* prev_volume, bool* sound_played, const char* sound_file)
+{
+	bool env_enabled = env_enable.get_value();
+	bool rain_enabled = env_effect_enabled->get_value();
+	bool ambient_enabled = sound_enabled->get_value();
+	float volume = sound_volume->get_value();
+
+	if (ambient_enabled && env_enabled && rain_enabled && !*sound_played)
+	{
+		CEngineSoundPlayer::the().play_ambient_sound_unique(0, Vector(0, 0, 0), sound_file,
+															volume, AMBIENT_EVERYWHERE, true);
+//		CConsole::the().info("played");
+		*sound_played = true;
+	}
+
+	if ((!ambient_enabled || !env_enabled || !rain_enabled || *prev_volume != volume) && *sound_played)
+	{
+		CEngineSoundPlayer::the().stop_sound(sound_file);
+//		CConsole::the().info("stopped");
+		*sound_played = false;
+		*prev_volume = volume;
+	}
+
 }
 
 //--------------------------------------------------------------------------------------------------

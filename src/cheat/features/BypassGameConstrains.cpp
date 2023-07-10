@@ -57,6 +57,7 @@ GLdouble CForceEnableDisabled::force_max_viewable_renderdistance()
 }
 
 VarBoolean bypass_constrain_renderer_cvars("bypass_constrain_renderer_cvars", "Re-enables setting cvars such as gl_wireframe, chase_active, or gl_clear in singleplayer (and mp).", false);
+VarBoolean bypass_constrain_renderer_glclear("bypass_constrain_renderer_glclear", "Enables opengl background clearning", false);
 bool CForceEnableDisabled::disable_renderer_cvar_constrain()
 {
 	if (!bypass_constrain_renderer_cvars.get_value())

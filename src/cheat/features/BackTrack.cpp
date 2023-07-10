@@ -48,6 +48,7 @@
 
 VarBoolean backtrack_enable("backtrack_enable", "Enables backtracking on players", false);
 VarInteger backtrack_team("backtrack_team", "Which team to backtrack on", 0, 0, 4);
+VarBoolean backtrack_self("backtrack_self", "Applies backtracking on your player", false);
 
 void CBacktrack::update()
 {
@@ -60,7 +61,7 @@ void CBacktrack::update()
 
 	for (auto& [index, player] : CEntityMgr::the().m_known_players)
 	{
-		if (!player.is_valid() || player.is_local_player() || !player.is_alive())
+		if (!player.is_valid() || (player.is_local_player() && !backtrack_self.get_value()) || !player.is_alive())
 		{
 			continue;
 		}
@@ -82,22 +83,26 @@ void CBacktrack::update()
 
 		if (
 			// draw entity for only terrorists
-			(selected_team == 0 && local_team == hl::TERRORIST) ||
+			(selected_team == 0 && player_team == hl::TERRORIST) ||
 			// draw entity for only cts
-			(selected_team == 1 && local_team == hl::CT) ||
+			(selected_team == 1 && player_team == hl::CT) ||
 			// draw entity for only our team
-			(selected_team == 2 && local_team == player_team) ||
+			(selected_team == 2 && player_team == local_team) ||
 			// draw entity for only enemy team
-			(selected_team == 3 && local_team != player_team) ||
+			(selected_team == 3 && player_team != local_team) ||
 			// draw entity for both teams
-			(selected_team == 4 && (local_team == hl::TERRORIST || local_team == hl::CT)))
+			(selected_team == 4 && (player_team == hl::TERRORIST || player_team == hl::CT)))
 		{
 			static hl::cl_entity_t copy = *cl_ent;
 
 			// copy interpolated data
 			copy.origin = simorg;
 			copy.angles = simang;
-//			copy.curstate.weaponmodel = 0;
+			copy.curstate.weaponmodel = 0;
+			copy.curstate.renderamt = 0;
+			copy.curstate.rendercolor = {};
+			copy.curstate.renderfx = 0;
+			copy.curstate.rendermode = 0;
 
 			CFakePlayerRenderer::the().schedule_entity(copy, ENT_ID_BACKTRACK);
 		}

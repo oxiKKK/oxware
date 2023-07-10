@@ -37,7 +37,7 @@ void MenuChilden::World::Removals::contents()
 
 	g_gui_widgets_i->add_separtor_with_text("Remove players");
 
-	CUIMenuWidgets::the().add_listbox("Team", &remove_players_team, { "Ts", "CTs", "Teammates", "Enemy", "Both" });
+	CUIMenuWidgets::the().add_listbox("Team", &remove_players_team, { "Off", "Ts", "CTs", "Teammates", "Enemy", "Both" });
 
 	g_gui_widgets_i->add_separtor_with_text("Remove HUD");
 
@@ -66,30 +66,9 @@ void MenuChilden::World::Removals::contents()
 
 	g_gui_widgets_i->add_separtor_with_text("Other");
 
-	// the first is the value under checkbox, and the second is the "do this shit only once" boolean... 😀
 	static std::pair<bool, bool> disable_fog{};
-
-	g_gui_widgets_i->add_checkbox("Disable FOG", &disable_fog.first);
-
-	static hl::cvar_t* gl_fog = nullptr;
-
-	if (!gl_fog)
-	{
-		gl_fog = CGoldSrcCommandMgr::the().get_cvar("gl_fog");
-	}
-	else
-	{
-		if (disable_fog.first && !disable_fog.second)
-		{
-			gl_fog->value = 0.0f;
-			disable_fog.second = true;
-		}
-		else if (!disable_fog.first && disable_fog.second)
-		{
-			gl_fog->value = 1.0f;
-			disable_fog.second = false;
-		}
-	}
+	CUIMenuWidgets::the().add_ingame_cvar_toggleable_checkbox("Disable FOG", CGoldSrcCommandMgr::the().get_cvar("gl_fog"), disable_fog, 
+															  0.0f, 1.0f);
 }
 
 void MenuChilden::World::Thirdperson::contents()
@@ -172,6 +151,7 @@ void MenuChilden::World::Backtrack::contents()
 	[]()
 	{
 		CUIMenuWidgets::the().add_listbox("Team", &backtrack_team, { "Ts", "CTs", "Teammates", "Enemy", "Both" });
+		CUIMenuWidgets::the().add_checkbox("Self", &backtrack_self);
 	});
 }
 
@@ -192,18 +172,23 @@ void MenuChilden::World::SmokeVisuals::contents()
 
 void MenuChilden::World::NonSteamFpsFix::contents()
 {
-	CUIMenuWidgets::the().add_checkbox("Enable", &nonsteam_fps_fix);
+	CUIMenuWidgets::the().section_unavailable_for_builds(
+		[](int current_bn) { return current_bn >= FIRST_SDL_BUILD; }, "< 5943",
+		[]()
+		{
+			CUIMenuWidgets::the().add_checkbox("Enable", &nonsteam_fps_fix);
 
-	CUIMenuWidgets::the().add_description_text(
-		"This fixes the FPS movement dependence, where with higher fps you would get slomotion movement and \"higher\" gravity."
-		"\nFor more technical details, follow this link:");
+			CUIMenuWidgets::the().add_description_text(
+				"This fixes the FPS movement dependence, where with higher fps you would get slomotion movement and \"higher\" gravity."
+				"\nFor more technical details, follow this link:");
 
-	g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Regular));
-	if (g_gui_widgets_i->add_hypertext_link("github.com/ValveSoftware/halflife/issues/1940"))
-	{
-		CGenericUtil::the().open_link_inside_browser("https://github.com/ValveSoftware/halflife/issues/1940");
-	}
-	g_gui_widgets_i->pop_font();
+			g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Regular));
+			if (g_gui_widgets_i->add_hypertext_link("github.com/ValveSoftware/halflife/issues/1940"))
+			{
+				CGenericUtil::the().open_link_inside_browser("https://github.com/ValveSoftware/halflife/issues/1940");
+			}
+			g_gui_widgets_i->pop_font();
+	});
 }
 
 void MenuChilden::World::WorldVisuals::contents()
@@ -260,7 +245,7 @@ void MenuChilden::World::EnvironmentalEffects::contents()
 
 		g_gui_widgets_i->begin_tab("env_effects", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-		float tab_height = 100.0f;
+		float tab_height = 150.0f;
 
 		g_gui_widgets_i->add_tab_item(
 			"Rain", false,
@@ -272,8 +257,11 @@ void MenuChilden::World::EnvironmentalEffects::contents()
 				[]()
 				{
 					CUIMenuWidgets::the().add_slider("Density", "%0.1f", &env_rain_density);
+					
+					g_gui_widgets_i->add_separtor_with_text("Ambience");
 					CUIMenuWidgets::the().add_checkbox("Ambient sound", &env_rain_ambient);
 					CUIMenuWidgets::the().add_checkbox("Occasional Thunder", &env_rain_ambient_thunder);
+					CUIMenuWidgets::the().add_slider("Volume", "%0.1f", &env_rain_ambient_volume);
 				});
 			});
 
@@ -289,6 +277,10 @@ void MenuChilden::World::EnvironmentalEffects::contents()
 					CUIMenuWidgets::the().add_slider("Density", "%0.1f", &env_snow_density);
 					CUIMenuWidgets::the().add_slider("Flake size", "%0.0fx", &env_snow_flake_size);
 					CUIMenuWidgets::the().add_slider("Die time", "%0.1f seconds", &env_snow_flake_die_time);
+
+					g_gui_widgets_i->add_separtor_with_text("Ambience");
+					CUIMenuWidgets::the().add_checkbox("Ambient sound", &env_snow_ambient);
+					CUIMenuWidgets::the().add_slider("Volume", "%0.1f", &env_snow_ambient_volume);
 				});
 			});
 

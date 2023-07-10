@@ -224,10 +224,18 @@ private:
 class CMenuSearchFilterContext
 {
 public:
+	// call every frame
+	void update();
+
 	void render_search_box(const Vector2D& position);
 
 	inline bool filter_active() { return m_menu_search_input[0] != 0; }
 	inline const char* get_input_search_buffer() { return m_menu_search_input; }
+
+	inline bool have_at_least_one_result()
+	{
+		return m_at_least_one_result;
+	}
 
 	bool apply_filter(IMenuChild* child);
 
@@ -240,6 +248,8 @@ private:
 		return _this->search_input_callback(data);
 	}
 	int search_input_callback(ImGuiInputTextCallbackData* data);
+
+	bool m_at_least_one_result = false;
 };
 
 extern CMenuSearchFilterContext g_search_filter_context;
@@ -360,7 +370,7 @@ struct MenuChilden
 	{
 		DECL_CHILD(BypassGameConstrains);
 		DECL_CHILD(ServerCommandFilter);
-		DECL_CHILD(FramerateSimulation);
+		DECL_CHILD(FrameSkipper);
 		DECL_CHILD(ConsistencyBypass);
 		DECL_CHILD(FakeLatency);
 		DECL_CHILD(CvarSandbox);

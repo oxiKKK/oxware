@@ -32,7 +32,8 @@
 
 extern VarBoolean frame_skip_enable;
 extern VarInteger frame_skip_amount;
-extern VarInteger frame_skip_maxfps;
+extern VarInteger frame_skip_method;
+extern VarInteger frame_skip_type;
 
 class CFrameSkipper
 {

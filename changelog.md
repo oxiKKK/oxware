@@ -158,8 +158,12 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Added backtrack, see [this video](https://youtu.be/G-ZjjsUHHlg).
 - Added fake latency.
 - Added speed control.
+- Reworked the UI.
+- Improved various features.
 
 ## Bugfixes
 
 - Fixed ([#0002](https://github.com/oxiKKK/oxware/issues/2))
 - Fixed a bug related to mouse cursor where if you were in game alive and you'd alt+tab out of the game, you could not move your mouse.
+- Fixed a bug where if you would unload the cheat while in-game, the mouse cursor would get stuck outside of the game, unless you alt-tabbed back to the game and activated the game UI.
+- Fixed a lot of stuff and bugs.

@@ -43,12 +43,15 @@ extern VarFloat env_particle_fallspeed;
 
 extern VarFloat env_rain_density;
 extern VarBoolean env_rain_ambient;
+extern VarFloat env_rain_ambient_volume;
 extern VarBoolean env_rain_ambient_thunder;
 
 extern VarBoolean env_snow;
 extern VarFloat env_snow_density;
 extern VarInteger env_snow_flake_size;
 extern VarFloat env_snow_flake_die_time;
+extern VarBoolean env_snow_ambient;
+extern VarFloat env_snow_ambient_volume;
 
 class CEnvironmentalEffects
 {
@@ -94,7 +97,7 @@ private:
 
 	void play_ambient_rain_sound();
 
-	bool m_rain_sound_played = false;
+	void play_ambient_looped_sound_helper(VarBoolean* env_effect_enabled, VarBoolean* sound_enabled, VarFloat* sound_volume, float* prev_volume, bool* sound_played, const char* sound_file);
 
 	float m_thunder_timer;
 

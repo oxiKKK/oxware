@@ -32,6 +32,7 @@
 
 extern VarBoolean backtrack_enable;
 extern VarInteger backtrack_team;
+extern VarBoolean backtrack_self;
 
 class CBacktrack
 {

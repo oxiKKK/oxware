@@ -93,6 +93,32 @@ bool CUIMenuWidgets::add_checkbox_with_incommand_keypress_button(const std::stri
 	return ret;
 }
 
+void CUIMenuWidgets::add_ingame_cvar_toggleable_checkbox(const std::string& label, hl::cvar_t* cvar, 
+														 std::pair<bool, bool>& disable_pair, 
+														 float off_value, float on_value)
+{
+	// the first is the value under checkbox, and the second is the "do this shit only once" boolean... 😀
+
+	g_gui_widgets_i->add_checkbox(label, &disable_pair.first);
+
+	if (!cvar)
+	{
+		assert(0 && "Cvar not found! Tried to add checkbox with non-existent in-game cvar!");
+		return;
+	}
+
+	if (disable_pair.first && !disable_pair.second)
+	{
+		cvar->value = off_value;
+		disable_pair.second = true;
+	}
+	else if (!disable_pair.first && disable_pair.second)
+	{
+		cvar->value = on_value;
+		disable_pair.second = false;
+	}
+}
+
 bool CUIMenuWidgets::add_color_edit(const std::string& label, VarColor* colors_var, const char* additional_desc)
 {
 	auto color = colors_var->get_value();
@@ -335,11 +361,11 @@ void CUIMenuWidgets::feature_enabled_section_incommands(BaseInCommand* in_cmd, c
 	}
 }
 
-void CUIMenuWidgets::section_unavailable_for_builds(int build_num_start, int build_num_end, const std::string& avalable, const std::function<void()>& callback)
+void CUIMenuWidgets::section_unavailable_for_builds(const std::function<bool(int current_bn)>& disable_condition, const std::string& avalable, const std::function<void()>& callback)
 {
 	int current_bn = COxWare::the().get_build_number();
 
-	bool disabled = current_bn >= build_num_start && current_bn <= build_num_end;
+	bool disabled = disable_condition(current_bn);
 
 	if (disabled)
 	{

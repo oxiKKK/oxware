@@ -39,6 +39,7 @@ public:
 	bool add_checkbox(const std::string& label, VarBoolean* var, const char* additional_desc = nullptr);
 	bool add_checkbox_with_color(const std::string& label, VarBoolean* toggle_var, VarColor* colors_var, bool alpha = false, const char* additional_desc = nullptr);
 	bool add_checkbox_with_incommand_keypress_button(const std::string& label, VarBoolean* var, const char* incommand_name, const char* additional_desc = nullptr);
+	void add_ingame_cvar_toggleable_checkbox(const std::string& label, hl::cvar_t* cvar, std::pair<bool, bool>& disable_pair¨, float off_value, float on_value);
 
 	bool add_color_edit(const std::string& label, VarColor* colors_var, const char* additional_desc = nullptr);
 
@@ -60,7 +61,7 @@ public:
 	// additions for incommands, since they use different checkbox widget
 	void feature_enabled_section_incommands(BaseInCommand* in_cmd, const std::function<void()>& callback, const std::string& title = "Enable", bool see_if_enabled = true);
 
-	void section_unavailable_for_builds(int build_num_start, int build_num_end, const std::string& avalable, const std::function<void()>& callback);
+	void section_unavailable_for_builds(const std::function<bool(int current_bn)>& disable_condition, const std::string& avalable, const std::function<void()>& callback);
 
 private:
 	void handle_widget_hover(BaseVariable* var);

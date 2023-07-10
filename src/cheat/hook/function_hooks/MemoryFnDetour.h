@@ -569,6 +569,13 @@ struct R_StudioSetupLighting_FnDetour_t final : public GenericMemoryFnDetour_cde
 	static void R_StudioSetupLighting(hl::alight_t* plighting);
 };
 
+// void VGui_ViewportPaintBackground(int* extents);
+struct VGui_ViewportPaintBackground_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, int*>
+{
+	bool install();
+	static void VGui_ViewportPaintBackground(int* extents);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -633,6 +640,7 @@ public:
 	inline auto& HUD_Frame() { static HUD_Frame_FnDetour_t fnhook; return fnhook; }
 	inline auto& R_DrawEntitiesOnList() { static R_DrawEntitiesOnList_FnDetour_t fnhook; return fnhook; }
 	inline auto& R_StudioSetupLighting() { static R_StudioSetupLighting_FnDetour_t fnhook; return fnhook; }
+	inline auto& VGui_ViewportPaintBackground() { static VGui_ViewportPaintBackground_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

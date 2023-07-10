@@ -100,6 +100,10 @@ ImWchar CGlyphRanges::s_emojis_range[] =
 	U'➕', U'➕',	  // crosshair
 	U'⚙', U'⚙',	  // cog
 	U'📂', U'📂',	  // file
+	U'👈', U'👈',	  // left-pointing finger
+	U'🧐', U'🧐',	  // 
+	U'🐇', U'🐇',	  // bunny
+	U'👥', U'👥',	  // 2x gray person
 	0,
 };
 

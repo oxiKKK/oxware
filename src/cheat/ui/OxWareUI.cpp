@@ -87,12 +87,23 @@ void COxWareUI::destroy()
 	CConsole::the().info("Destroying cheat UI...");
 
 	// if we're exiting/restarting from the game, we don't have to worry about this at all.
-	// NOTE: This is in order to fix a occasional crash that would happen where the gameUI 
-	//		 interface would become dangling... (non-nullptr, but invalid memory) so this fixes that.
 	if (!COxWare::the().is_game_exiting_or_restarting())
 	{
 		CEngineInput::the().toggle_ingame_clientdll_mouse(true); // call this before the restoration, so that we eliminate bugs when not in relative mode.
 		CEngineInput::the().toggle_ingame_input(true);
+
+		// reactivate the game UI here, so that when we're in relative mode and we are not within focus of the game window, and
+		// we unload the cheat, capture of the mouse will target the window, and you cursor will get stuck. To remedy this, 
+		// enable the in-game ui, and that will cover us.
+		auto ibaseui = CHLInterfaceHook::the().IBaseUI();
+		if (ibaseui)
+		{
+			if (!CEngineInput::the().is_gameui_rendering())
+			{
+				ibaseui->HideGameUI();
+				ibaseui->ActivateGameUI(); // doing just one call doesn't do the work.
+			}
+		}
 	}
 
 	destroy_rendering_contexts();

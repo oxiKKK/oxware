@@ -377,6 +377,9 @@
     <ClCompile Include="ui\rendering_contexts\menu\Menu_World.cpp">
       <Filter>src\UI\rendering_contexts\menu\tabs</Filter>
     </ClCompile>
+    <ClCompile Include="features\Panic.cpp">
+      <Filter>src\features\world</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -655,6 +658,9 @@
     </ClInclude>
     <ClInclude Include="ui\rendering_contexts\menu\MenuStyle.h">
       <Filter>src\UI\rendering_contexts\menu</Filter>
+    </ClInclude>
+    <ClInclude Include="features\Panic.h">
+      <Filter>src\features\world</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

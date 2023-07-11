@@ -343,6 +343,7 @@ struct MenuChilden
 		DECL_CHILD(StudioRenderer);
 		DECL_CHILD(ModelChams);
 		DECL_CHILD(HUDRendering);
+		DECL_CHILD(Panic);
 	};
 
 	struct Screen

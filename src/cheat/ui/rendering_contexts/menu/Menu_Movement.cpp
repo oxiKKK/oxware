@@ -34,8 +34,10 @@ void MenuChilden::Movement::AirStuck::contents()
 	&CMovement::the().airstuck,
 	[]()
 	{
+		const char* format = movement_air_stuck_type.get_value() == 0 ? "%0.0f" : "%0.2f";
+
 		g_gui_widgets_i->add_text("Intensity");
-		CUIMenuWidgets::the().add_slider_nolabel("Intensity", "%0.2f", &movement_air_stuck_intensity, "froze");
+		CUIMenuWidgets::the().add_slider_nolabel("Intensity", format, &movement_air_stuck_intensity, "froze");
 
 		CUIMenuWidgets::the().add_listbox("Type", &movement_air_stuck_type, { "Server speedhack", "Engine speedhack" });
 	});
@@ -123,7 +125,7 @@ void MenuChilden::Movement::GroundStrafe::contents()
 void MenuChilden::Movement::Strafehack::contents()
 {
 	CUIMenuWidgets::the().feature_enabled_section_incommands(
-	&CMovement::the().strafe,
+	&CFrameSkipper::the().frame_skipper,
 	[]()
 	{
 		CUIMenuWidgets::the().add_checkbox("Allow on surf", &movement_strafe_hack_allow_on_surf);

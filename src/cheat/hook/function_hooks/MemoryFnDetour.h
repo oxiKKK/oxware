@@ -576,6 +576,18 @@ struct VGui_ViewportPaintBackground_FnDetour_t final : public GenericMemoryFnDet
 	static void VGui_ViewportPaintBackground(int* extents);
 };
 
+// enable this to detour this function that steamclient.dll uses to log stuff.
+#define INTERCEPT_STEAM_LOGGING
+
+#ifdef INTERCEPT_STEAM_LOGGING
+// int __cdecl CLogInstance__log(int a1, int a2, int a3, int a4, int a5, int a6, int *a7, int *a8, int *a9, char* message, int a11)
+struct CLogInstance__log_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, int, int, int, int, int, int, int*, int*, int*, char*, int>
+{
+	bool install();
+	static void CLogInstance__log(int a1, int a2, int a3, int a4, int a5, int a6, int *a7, int *a8, int *a9, char* message, int a11);
+};
+#endif // /INTERCEPT_STEAM_LOGGING
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -641,6 +653,9 @@ public:
 	inline auto& R_DrawEntitiesOnList() { static R_DrawEntitiesOnList_FnDetour_t fnhook; return fnhook; }
 	inline auto& R_StudioSetupLighting() { static R_StudioSetupLighting_FnDetour_t fnhook; return fnhook; }
 	inline auto& VGui_ViewportPaintBackground() { static VGui_ViewportPaintBackground_FnDetour_t fnhook; return fnhook; }
+#ifdef INTERCEPT_STEAM_LOGGING
+	inline auto& CLogInstance__log() { static CLogInstance__log_FnDetour_t fnhook; return fnhook; }
+#endif
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

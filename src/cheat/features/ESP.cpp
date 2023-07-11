@@ -67,6 +67,11 @@ void CESP::on_render()
 		return;
 	}
 
+	if (CPanic::the().pannicing())
+	{
+		return;
+	}
+
 	if (esp_player_enable.get_value())
 	{
 		render_players();
@@ -400,6 +405,12 @@ bool CESP::origin_to_2d_box(const Vector& origin, const Vector& min, const Vecto
 	if (!CGameUtil::the().world_to_screen(box_top3d, box_top2d) || !CGameUtil::the().world_to_screen(box_bot3d, box_bot2d))
 	{
 		return false;
+	}
+
+	// add the artifical aspect ratio, if we set one
+	if (aspect_ratio_enable.get_value())
+	{
+		box_aspect *= 1.0f / aspect_ratio_value.get_value();
 	}
 
 	metrics.box_tall_half = box_bot2d.y - box_top2d.y;

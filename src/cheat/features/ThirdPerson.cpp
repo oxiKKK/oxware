@@ -28,11 +28,18 @@
 
 #include "precompiled.h"
 
+InCommand CThirdPerson::thirdperson = InCommand("thirdperson", NULL, true, IN_ACTCOND_Alive);
+
 VarInteger thirdperson_dist("thirdperson_dist", "Distance from the player when in 3rd person view", 0, 0, 300);
 VarBoolean thirdperson_block_wall("thirdperson_block_wall", "3rd person camera gets blocked by a solid object, doesn't clip through", true);
 
 void CThirdPerson::update(hl::ref_params_t* pparams)
 {
+	if (!thirdperson.is_active())
+	{
+		return;
+	}
+
 	float dist = (float)thirdperson_dist.get_value();
 
 	if (dist == 0.0f)

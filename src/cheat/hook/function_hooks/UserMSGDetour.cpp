@@ -62,10 +62,13 @@ int CUserMSGDetourMgr::HideWeapon_f(const char* pszName, int iSize, void* pbuf)
 
 int CUserMSGDetourMgr::MOTD_f(const char* pszName, int iSize, void* pbuf)
 {
-	if (CRemovals::the().remove_motd())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
 	{
-		// TODO: Some servers detect this somehow, fix!
-		return 0;
+		if (CRemovals::the().remove_motd())
+		{
+			// TODO: Some servers detect this somehow, fix!
+			return 0;
+		}
 	}
 
 	return CUserMSGDetourMgr::the().MOTD_fn().call_usermsg(iSize, pbuf);

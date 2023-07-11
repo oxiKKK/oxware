@@ -40,6 +40,8 @@ public:
 
 public:
 	void update(hl::ref_params_t* pparams);
+
+	static InCommand thirdperson;
 };
 
 #endif // THIRDPERSON_H

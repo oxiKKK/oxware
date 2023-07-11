@@ -160,6 +160,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Added speed control.
 - Reworked the UI.
 - Improved various features.
+- Added visual panic
 
 ## Bugfixes
 

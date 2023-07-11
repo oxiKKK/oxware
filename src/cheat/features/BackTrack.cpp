@@ -273,7 +273,7 @@ bool CBacktrack::backtrack_entity(hl::cl_entity_t* ent, float lerp_msec, Vector&
 	// don't run to the future on our local time
 	target_time = std::min(realtime, target_time);
 
-	CConsole::the().info("lat: {}", realtime - target_time);
+//	CConsole::the().info("lat: {}", realtime - target_time);
 
 	hl::position_history_t* newer, *older;
 	find_interpolation_updates(ent, target_time, &newer, &older);

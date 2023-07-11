@@ -30,7 +30,6 @@
 #define FRAMESKIPPER_H
 #pragma once
 
-extern VarBoolean frame_skip_enable;
 extern VarInteger frame_skip_amount;
 extern VarInteger frame_skip_method;
 extern VarInteger frame_skip_type;
@@ -42,6 +41,8 @@ public:
 
 public:
 	bool skip_current_frame();
+
+	static InCommand frame_skipper;
 };
 
 #endif // FRAMESKIPPER_H

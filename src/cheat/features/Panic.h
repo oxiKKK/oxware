@@ -26,32 +26,27 @@
 *	IN THE SOFTWARE.
 */
 
-#include "precompiled.h"
+#ifndef PANIC_H
+#define PANIC_H
+#pragma once
 
-VarFloat movement_air_stuck_intensity("movement_air_stuck_intensity", "Determines how \"froze\" you will be", 0.0f, 0.0f, 3.0f);
-VarInteger movement_air_stuck_type("movement_air_stuck_type", "Type of the speedhack that will be used", 0, 0, 1);
-
-void CMovementAirStuck::update()
+class CPanic
 {
-	float value = movement_air_stuck_intensity.get_value();
+public:
+	DECL_BASIC_CLASS(CPanic);
 
-	// override previous value.
-	switch (movement_air_stuck_type.get_value())
+public:
+	inline bool pannicing()
 	{
-		case 0: // server
-		{
-			float ft = CGameUtil::the().get_engine_frametime();
-
-			// make it somewhat fps-based so that this doesn't get affected when changing fps
-			// since this is capped to only integer resolution, it just will not work properly...
-			value *= (1.0f + (70.0f * ft));
-			CClientMovementPacket::the().svside_movement_speed_factor((int)(std::floor(value)), true);
-			break;
-		}
-		case 1: // engine
-		{
-			CEngineSpeedControl::the().classic_cs16_cheating_scene_speedhack(value);
-			break;
-		}
+		return m_pannicing;
 	}
-}
+
+	void update();
+
+	static InCommand panic;
+
+private:
+	bool m_pannicing = false;
+};
+
+#endif // PANIC_H

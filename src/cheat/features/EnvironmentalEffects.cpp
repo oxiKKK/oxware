@@ -86,6 +86,8 @@ void CEnvironmentalEffects::shutdown()
 
 	m_shutting_down = true;
 
+	stop_all_ambient_sound();
+
 	reset_particles();
 
 	CParticlemanMiniMemEmulation::the().restore_from_emulation();
@@ -130,7 +132,7 @@ void CEnvironmentalEffects::render()
 
 	// TODO: Figure out a better way of doing this, since this respawns all particles, it doesn't
 	//		 just stop rendering them..
-	if (CAntiScreen::the().hide_visuals())
+	if (CAntiScreen::the().hide_visuals() || CPanic::the().pannicing())
 	{
 		shutdown();
 		as_lock = true;
@@ -549,10 +551,10 @@ void CEnvironmentalEffects::initialize_wind_variables()
 void CEnvironmentalEffects::play_ambient_rain_sound()
 {
 	static float prev_vol_rain = 0.0f, prev_vol_snow = 0.0f;
-	static bool rain_sound_played = false, snow_sound_played = false;
 
-	play_ambient_looped_sound_helper(&env_rain, &env_rain_ambient, &env_rain_ambient_volume, &prev_vol_rain, &rain_sound_played, "sound/ambience/rain.wav");
-	play_ambient_looped_sound_helper(&env_snow, &env_snow_ambient, &env_snow_ambient_volume, &prev_vol_snow, &snow_sound_played, "sound/de_torn/torn_ambience.wav");
+	play_ambient_looped_sound_helper(&env_rain, &env_rain_ambient, &env_rain_ambient_volume, &prev_vol_rain, &m_rain_sound_played, "sound/ambience/rain.wav");
+	play_ambient_looped_sound_helper(&env_snow, &env_snow_ambient, &env_snow_ambient_volume, &prev_vol_snow, &m_snow_sound_played, "sound/de_torn/torn_ambience.wav");
+	// NOTE: If you add more ambient sounds, don't forget to add them below.
 
 	if (env_rain.get_value() && env_rain_ambient_thunder.get_value())
 	{
@@ -567,9 +569,22 @@ void CEnvironmentalEffects::play_ambient_rain_sound()
 	}
 }
 
+void CEnvironmentalEffects::stop_all_ambient_sound()
+{
+	CEngineSoundPlayer::the().stop_sound("sound/ambience/rain.wav");
+	m_rain_sound_played = false;
+
+	CEngineSoundPlayer::the().stop_sound("sound/de_torn/torn_ambience.wav");
+	m_snow_sound_played = false;
+
+	// NOTE: Add all ambient sounds here.
+}
+
 void CEnvironmentalEffects::play_ambient_looped_sound_helper(VarBoolean* env_effect_enabled, VarBoolean* sound_enabled,
 															 VarFloat* sound_volume, float* prev_volume, bool* sound_played, const char* sound_file)
 {
+	// TODO: Figure out a better way of doing this, this is pretty sus and looks like shit...
+
 	bool env_enabled = env_enable.get_value();
 	bool rain_enabled = env_effect_enabled->get_value();
 	bool ambient_enabled = sound_enabled->get_value();

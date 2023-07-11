@@ -57,6 +57,8 @@ public:
 private:
 	void grab_clean_pixels();
 
+	void handle_panic();
+
 	bool m_disable_visual_features = false;
 	bool m_forced_disable_visuals = false;
 

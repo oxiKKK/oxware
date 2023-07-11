@@ -77,6 +77,8 @@ void CAntiScreen::update()
 			m_time_last_took = GetTickCount();
 		}
 	}
+
+	m_forced_disable_visuals = false;
 }
 
 void CAntiScreen::detour_pixels(uint8_t* pixels)
@@ -100,4 +102,9 @@ void CAntiScreen::grab_clean_pixels()
 	m_antiscreen_reading_pixels = true;
 	glReadPixels(0, 0, (int)screen_size_full.x, (int)screen_size_full.y, GL_RGB, GL_UNSIGNED_BYTE, m_clean_screen_pixel_buffer.data());
 	m_antiscreen_reading_pixels = false;
+}
+
+void CAntiScreen::handle_panic()
+{
+	m_forced_disable_visuals = true;
 }

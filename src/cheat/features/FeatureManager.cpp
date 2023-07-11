@@ -28,15 +28,6 @@
 
 #include "precompiled.h"
 
-BaseCommand toggle_panic(
-	"toggle_panic", "Disables/Enables every visual feature",
-	[&](BaseCommand* cmd, const CmdArgs& args)
-	{
-		// this is kinda lazy, but whatever - use antiscreen for this.
-		CAntiScreen::the().set_disable_visuals(!CAntiScreen::the().hide_visuals());
-	}
-);
-
 void CFeatureManager::initialize()
 {
 	CConsole::the().info("Initializing Feature Manager...");
@@ -94,7 +85,7 @@ void CFeatureManager::precache_features()
 	add_new_feature(BaseFeature(&smoke_visuals, "Smoke visuals"));
 
 	// frame skip
-	add_new_feature(BaseFeature(&frame_skip_enable, "Frame skip"));
+	add_new_feature(BaseFeature(CMovement::the().strafe.get_toggle_var(), "Frame skip"));
 
 	// cvar filter
 	add_new_feature(BaseFeature(&cvar_sandbox_enable, "Server liar / cvar filter"));

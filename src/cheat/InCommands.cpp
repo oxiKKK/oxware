@@ -372,5 +372,10 @@ std::string CInCommands::create_string_out_of_flags(EInCommandFlags flags)
 
 bool CInCommands::does_meet_activation_conditions(EActivationCondition act_cond)
 {
-	return m_activation_conditions_for_this_frame == act_cond;
+	if (act_cond == IN_ACTCOND_None)
+	{
+		return true;
+	}
+
+	return (m_activation_conditions_for_this_frame & act_cond) != 0;
 }

@@ -96,6 +96,9 @@ private:
 	void render_ground_fog();
 
 	void play_ambient_rain_sound();
+	void stop_all_ambient_sound();
+	bool m_rain_sound_played = false;
+	bool m_snow_sound_played = false;
 
 	void play_ambient_looped_sound_helper(VarBoolean* env_effect_enabled, VarBoolean* sound_enabled, VarFloat* sound_volume, float* prev_volume, bool* sound_played, const char* sound_file);
 

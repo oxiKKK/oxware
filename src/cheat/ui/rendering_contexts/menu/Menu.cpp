@@ -356,6 +356,7 @@ void CUIMenu::on_initialize()
 	rendering.m_children.push_back(new MenuChilden::Rendering::StudioRenderer({ "Studio renderer", 300, true }));
 	rendering.m_children.push_back(new MenuChilden::Rendering::ModelChams({ "Model chams", 350, true }));
 	rendering.m_children.push_back(new MenuChilden::Rendering::HUDRendering({ "HUD rendering", 215, true }));
+	rendering.m_children.push_back(new MenuChilden::Rendering::Panic({ "Panic", 85, true }));
 
 	auto& screen = m_tab_groups["Visuals"].m_tabs[UIMENU_Screen];
 	screen.initialize("Screen", "Screen-related cheats");

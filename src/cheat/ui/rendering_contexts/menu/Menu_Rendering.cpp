@@ -167,3 +167,12 @@ void MenuChilden::Rendering::HUDRendering::contents()
 
 	CUIMenuWidgets::the().add_checkbox_with_color("HUD Color", &hud_color_enable, &hud_color);
 }
+
+void MenuChilden::Rendering::Panic::contents()
+{
+	CUIMenuWidgets::the().feature_enabled_section_incommands(
+	&CPanic::the().panic,
+	[]()
+	{
+	});
+}

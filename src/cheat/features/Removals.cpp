@@ -95,14 +95,17 @@ void CRemovals::remove_hud_modifier()
 	int return_flags = 0;
 	static int prev_return_flags = return_flags;
 
-	if (remove_hud_enable.get_value())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
 	{
-		if (remove_hud_weapons.get_value())		return_flags |= HIDEHUD_WEAPONS;
-		if (remove_hud_crosshair.get_value())	return_flags |= HIDEHUD_MISCSTATUS;
-		if (remove_hud_flashlight.get_value())	return_flags |= HIDEHUD_FLASHLIGHT;
-		if (remove_hud_health.get_value())		return_flags |= HIDEHUD_HEALTH;
-		if (remove_hud_timer.get_value())		return_flags |= HIDEHUD_PLAYERDEAD;
-		if (remove_hud_money.get_value())		return_flags |= HIDEHUD_NEEDSUIT;
+		if (remove_hud_enable.get_value())
+		{
+			if (remove_hud_weapons.get_value())		return_flags |= HIDEHUD_WEAPONS;
+			if (remove_hud_crosshair.get_value())	return_flags |= HIDEHUD_MISCSTATUS;
+			if (remove_hud_flashlight.get_value())	return_flags |= HIDEHUD_FLASHLIGHT;
+			if (remove_hud_health.get_value())		return_flags |= HIDEHUD_HEALTH;
+			if (remove_hud_timer.get_value())		return_flags |= HIDEHUD_PLAYERDEAD;
+			if (remove_hud_money.get_value())		return_flags |= HIDEHUD_NEEDSUIT;
+		}
 	}
 
 	if (CUserMSGDetourMgr::the().HideWeapon_fn().is_installed() && prev_return_flags != return_flags)

@@ -28,14 +28,14 @@
 
 #include "precompiled.h"
 
-InCommand CMovement::bunnyhop = InCommand("movement_bhop", VK_SPACE, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected);
-InCommand CMovement::airstuck = InCommand("movement_air_stuck", VK_XBUTTON1, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected); // mouse4
-InCommand CMovement::gs = InCommand("movement_gs", VK_XBUTTON2, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected); // mouse5
-InCommand CMovement::eb = InCommand("movement_eb", 'C', false, IN_ACTCOND_Alive | IN_ACTCOND_Connected );
-InCommand CMovement::strafe = InCommand("movement_strafe_hack", VK_MBUTTON, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected ); // mouse3
-InCommand CMovement::strafe_helper = InCommand("movement_strafe_helper", NULL, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected );
-InCommand CMovement::fastrun = InCommand("movement_fastrun", NULL, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected );
-InCommand CMovement::auto_jof = InCommand("movement_auto_jof", NULL, false, IN_ACTCOND_Alive | IN_ACTCOND_Connected );
+InCommand CMovement::bunnyhop = InCommand("movement_bhop", VK_SPACE, false, IN_ACTCOND_Alive);
+InCommand CMovement::airstuck = InCommand("movement_air_stuck", VK_XBUTTON1, false, IN_ACTCOND_Alive); // mouse4
+InCommand CMovement::gs = InCommand("movement_gs", VK_XBUTTON2, false, IN_ACTCOND_Alive); // mouse5
+InCommand CMovement::eb = InCommand("movement_eb", 'C', false, IN_ACTCOND_Alive);
+InCommand CMovement::strafe = InCommand("movement_strafe_hack", VK_MBUTTON, false, IN_ACTCOND_Alive); // mouse3
+InCommand CMovement::strafe_helper = InCommand("movement_strafe_helper", NULL, false, IN_ACTCOND_Alive);
+InCommand CMovement::fastrun = InCommand("movement_fastrun", NULL, false, IN_ACTCOND_Alive);
+InCommand CMovement::auto_jof = InCommand("movement_auto_jof", NULL, false, IN_ACTCOND_Alive);
 
 VarBoolean debug_render_info_movement_bhop("debug_render_info_bhop", "Bunnyhop information", false);
 VarBoolean debug_render_info_movement_strafe("debug_render_info_movement_strafe", "Strafehack information", false);

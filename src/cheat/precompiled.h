@@ -299,6 +299,7 @@ namespace hl
 #include "features/Automation.h"
 #include "features/EnvironmentalEffects.h"
 #include "features/BackTrack.h"
+#include "features/Panic.h"
 #include "features/movement/BunnyHop.h"
 #include "features/movement/AirStuck.h"
 #include "features/movement/GroundStrafe.h"

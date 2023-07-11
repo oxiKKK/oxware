@@ -28,14 +28,15 @@
 
 #include "precompiled.h"
 
-VarBoolean frame_skip_enable("frame_skip_enable", "Enables frame skipping exploit", false);
+InCommand CFrameSkipper::frame_skipper = InCommand("frame_skipper", NULL, false, IN_ACTCOND_None);
+
 VarInteger frame_skip_amount("frame_skip_amount", "Amount of frames to skip each update", 2, 2, 20);
 VarInteger frame_skip_method("frame_skip_method", "Frame skipper method", 0, 0, 1);
 VarInteger frame_skip_type("frame_skip_type", "Type of the frame skipper. See menu.", 0, 0, 1);
 
 bool CFrameSkipper::skip_current_frame()
 {
-	if (!frame_skip_enable.get_value())
+	if (!frame_skipper.is_active())
 	{
 		return false;
 	}

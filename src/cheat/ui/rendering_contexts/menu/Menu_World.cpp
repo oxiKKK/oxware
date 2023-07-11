@@ -73,11 +73,16 @@ void MenuChilden::World::Removals::contents()
 
 void MenuChilden::World::Thirdperson::contents()
 {
-	g_gui_widgets_i->add_spacing();
-	g_gui_widgets_i->add_spacing();
+	CUIMenuWidgets::the().feature_enabled_section_incommands(
+	&CThirdPerson::the().thirdperson,
+	[]()
+	{
+		g_gui_widgets_i->add_spacing();
+		g_gui_widgets_i->add_spacing();
 
-	CUIMenuWidgets::the().add_slider("Distance", "%0.0f units", &thirdperson_dist);
-	CUIMenuWidgets::the().add_checkbox("Block wall", &thirdperson_block_wall);
+		CUIMenuWidgets::the().add_slider("Distance", "%0.0f units", &thirdperson_dist);
+		CUIMenuWidgets::the().add_checkbox("Block wall", &thirdperson_block_wall);
+	});
 }
 
 void MenuChilden::World::AntiDemoRecorder::contents()

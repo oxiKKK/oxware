@@ -46,7 +46,7 @@ public:
 	void force_enable_noclip_pre();
 	void force_enable_noclip_post();
 
-	GLdouble force_max_viewable_renderdistance();
+	std::optional<GLdouble> force_max_viewable_renderdistance();
 
 	bool disable_renderer_cvar_constrain();
 	void update_disable_sponly_cvars();

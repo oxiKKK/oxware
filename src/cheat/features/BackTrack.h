@@ -54,6 +54,8 @@ private:
 
 	// simulate interpolated origin & angles
 	bool backtrack_entity(hl::cl_entity_t* ent, float lerp_msec, Vector& simorg, Vector& simang);
+
+	void construct_backtrack_entity(hl::cl_entity_t& in, const Vector& interpolated_origin, const Vector& interpolated_angles);
 };
 
 #endif // BACKTRACK_H

@@ -31,11 +31,11 @@
 VarBoolean aspect_ratio_enable("aspect_ratio_enable", "Enables custom aspect ratio", false);
 VarFloat aspect_ratio_value("aspect_ratio_value", "Aspect ratio value", 3.0f / 4.0f, 0.5f, 2.0f);
 
-double CAspectRatioChanger::scale_aspect()
+std::optional<double> CAspectRatioChanger::scale_aspect()
 {
 	if (!aspect_ratio_enable.get_value())
 	{
-		return -1.0;
+		return std::nullopt;
 	}
 
 	return aspect_ratio_value.get_value();

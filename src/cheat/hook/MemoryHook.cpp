@@ -53,6 +53,7 @@ bool CMemoryHookMgr::install_hooks()
 	if (!r_model().install()) return false;
 	if (!pstudiohdr().install()) return false;
 	if (!pStudioAPI().install()) return false;
+	if (!currententity().install()) return false;
 	if (!host_framecount().install()) return false;
 	if (!realtime().install()) return false;
 	if (!IVideoMode().install()) return false;
@@ -411,6 +412,16 @@ void pStudioAPI_MemoryHook::test_hook()
 			auto pStudioAPI = *p;
 			return pStudioAPI->StudioDrawModel && pStudioAPI->StudioDrawPlayer && pStudioAPI->version == STUDIO_INTERFACE_VERSION;
 		});
+}
+
+//-----------------------------------------------------------------------------
+
+bool currententity_MemoryHook::install()
+{
+	initialize("currententity", L"hw.dll");
+
+	uintptr_t* pfnGetCurrentEntity = (uintptr_t*)CMemoryHookMgr::the().engine_studio_api().get()->GetCurrentEntity;
+	return install_using_memory_address((uintptr_t*)((uint8_t*)pfnGetCurrentEntity + 0x1), 1);
 }
 
 //-----------------------------------------------------------------------------

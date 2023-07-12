@@ -94,7 +94,7 @@ void CAntiScreen::grab_clean_pixels()
 
 	// pixels + 3 color channels (RGB)
 	m_clean_screen_pixel_buffer.clear();
-	m_clean_screen_pixel_buffer.resize(screen_size_full.x * screen_size_full.y * 3.0f);
+	m_clean_screen_pixel_buffer.resize((size_t)(screen_size_full.x * screen_size_full.y * 3.0f));
 
 //	CConsole::the().dinfo("Grabbing clean pixels ({}x{})", (int)screen_size_full.x, (int)screen_size_full.y);
 

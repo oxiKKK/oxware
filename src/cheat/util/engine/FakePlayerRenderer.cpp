@@ -28,27 +28,27 @@
 
 #include "precompiled.h"
 
-void CFakePlayerRenderer::schedule_entity(hl::cl_entity_t& ent, EEntityIdentifier id)
+void CFakePlayerRenderer::render_player(hl::cl_entity_t& ent, EEntityIdentifier id)
 {
 	// we use this _unused_ member of cl_entity_t as our identifier.
 	// depending on this identifier we then act accordingly inside our chams code.
 	ent.curstate.iuser4 = id;
 
-	m_entities.push_back(ent);
+	render_internal(STUDIO_RENDER, ent);
 }
 
-void CFakePlayerRenderer::create_entities()
+void CFakePlayerRenderer::render_internal(int flags, hl::cl_entity_t& ent)
 {
-	for (auto& ent : m_entities)
-	{
-		CMemoryHookMgr::the().cl_enginefuncs()->pfnCL_CreateVisibleEntity(ET_PLAYER, &ent);
-	}
+	auto engine_studio_api = CMemoryHookMgr::the().engine_studio_api().get();
 
-	flush();
-}
+	hl::cl_entity_t** currententity = CMemoryHookMgr::the().currententity().get();
 
-void CFakePlayerRenderer::flush()
-{
-	// clear the list after we render them
-	m_entities.clear();
+	// set current entity to our entity, since the engine will use this data in studio code.
+	*currententity = &ent;
+
+	// setup the renderer for the studio code and then render the player. we render
+	// this model without engine actually knowing it, so clean everything up afterwards.
+	engine_studio_api->SetupRenderer(hl::kRenderNormal);
+	CMemoryFnDetourMgr::the().R_StudioDrawPlayer().call(flags, &ent.curstate);
+	engine_studio_api->RestoreRenderer();
 }

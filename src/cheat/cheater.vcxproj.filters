@@ -378,7 +378,7 @@
       <Filter>src\UI\rendering_contexts\menu\tabs</Filter>
     </ClCompile>
     <ClCompile Include="features\Panic.cpp">
-      <Filter>src\features\world</Filter>
+      <Filter>src\features\render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -660,7 +660,7 @@
       <Filter>src\UI\rendering_contexts\menu</Filter>
     </ClInclude>
     <ClInclude Include="features\Panic.h">
-      <Filter>src\features\world</Filter>
+      <Filter>src\features\render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

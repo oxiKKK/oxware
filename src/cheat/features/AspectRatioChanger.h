@@ -39,7 +39,7 @@ public:
 	DECL_BASIC_CLASS(CAspectRatioChanger);
 
 public:
-	double scale_aspect();
+	std::optional<double> scale_aspect();
 };
 
 #endif // ASPECTRATIOCHANGER_H

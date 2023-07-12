@@ -337,7 +337,7 @@ void CUIMenu::on_initialize()
 
 	world.initialize("World", "World-related cheats");
 	world.m_children.push_back(new MenuChilden::World::Removals({ "Removals", 250, true }));
-	world.m_children.push_back(new MenuChilden::World::Thirdperson({ "Thirdperson", 100, true }));
+	world.m_children.push_back(new MenuChilden::World::Thirdperson({ "Thirdperson", 125, true }));
 	world.m_children.push_back(new MenuChilden::World::AntiDemoRecorder({ "📼 Anti demo recorder", 125, true }));
 	world.m_children.push_back(new MenuChilden::World::AntiScreen({ "🖥 Anti screen", 90, true }));
 	world.m_children.push_back(new MenuChilden::World::Automation({ "Automation", 120, true }));

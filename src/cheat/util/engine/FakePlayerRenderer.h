@@ -45,13 +45,10 @@ public:
 	
 public:
 	// schedule entity for later rendering
-	void schedule_entity(hl::cl_entity_t& ent, EEntityIdentifier id);
-
-	void create_entities();
-	void flush();
+	void render_player(hl::cl_entity_t& ent, EEntityIdentifier id);
 
 private:
-	std::vector<hl::cl_entity_t> m_entities;
+	void render_internal(int flags, hl::cl_entity_t& ent);
 };
 
 #endif // FAKEPLAYERRENDERER_H

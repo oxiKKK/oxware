@@ -43,7 +43,7 @@ VarFloat env_particle_fallspeed("env_particle_fallspeed", "Controls fallspeed of
 
 VarFloat env_rain_density("env_rain_density", "Controls density of the rain", 2.0f, 0.1f, 8.0f);
 VarBoolean env_rain_ambient("env_rain_ambient", "Plays ambient raining sound", false);
-VarFloat env_rain_ambient_volume("env_rain_ambient_volume", "Volume of the raining ambient sound", 0.5f, 0.1, 1.0f);
+VarFloat env_rain_ambient_volume("env_rain_ambient_volume", "Volume of the raining ambient sound", 0.5f, 0.1f, 1.0f);
 VarBoolean env_rain_ambient_thunder("env_rain_ambient_thunder", "Plays ambient thunder sound", false);
 
 VarBoolean env_snow("env_snow", "Enables snowing", false);
@@ -51,7 +51,7 @@ VarFloat env_snow_density("env_snow_density", "Controls density of the snow", 2.
 VarInteger env_snow_flake_size("env_snow_flake_size", "Snow flake size", 1, 1, 10);
 VarFloat env_snow_flake_die_time("env_snow_flake_die_time", "Time when the flake starts to die after it hits ground", 0.5f, 0.5f, 5.0f);
 VarBoolean env_snow_ambient("env_snow_ambient", "Plays ambient eerie sound for snowy environment", false);
-VarFloat env_snow_ambient_volume("env_snow_ambient_volume", "Volume of the eerie sound for snowy environment", 0.5f, 0.1, 1.0f);
+VarFloat env_snow_ambient_volume("env_snow_ambient_volume", "Volume of the eerie sound for snowy environment", 0.5f, 0.1f, 1.0f);
 
 void CEnvironmentalEffects::initialize()
 {
@@ -556,7 +556,7 @@ void CEnvironmentalEffects::play_ambient_rain_sound()
 	play_ambient_looped_sound_helper(&env_snow, &env_snow_ambient, &env_snow_ambient_volume, &prev_vol_snow, &m_snow_sound_played, "sound/de_torn/torn_ambience.wav");
 	// NOTE: If you add more ambient sounds, don't forget to add them below.
 
-	if (env_rain.get_value() && env_rain_ambient_thunder.get_value())
+	if (env_enable.get_value() && env_rain.get_value() && env_rain_ambient_thunder.get_value())
 	{
 		auto cl_enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
 

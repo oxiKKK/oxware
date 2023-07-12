@@ -418,8 +418,6 @@ void CL_CreateMove_FnDetour_t::CL_CreateMove(float frametime, hl::usercmd_t *cmd
 
 			CAutomation::the().update();
 
-			CBacktrack::the().update();
-
 			CMovement::the().update_clientmove(frametime, cmd);
 		}
 
@@ -517,25 +515,27 @@ bool MYgluPerspective_FnDetour_t::install()
 
 void MYgluPerspective_FnDetour_t::MYgluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
 {
-	GLdouble our_zFar = zFar;
-	GLdouble our_aspect = aspect;
+	GLdouble out_zFar = zFar;
+	GLdouble out_aspect = aspect;
 
 	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
 	{
-		our_zFar = CForceEnableDisabled::the().force_max_viewable_renderdistance();
-		if (our_zFar == -1.0)
+		// render distance
+		auto renderdist_scaled = CForceEnableDisabled::the().force_max_viewable_renderdistance();
+		if (renderdist_scaled)
 		{
-			our_zFar = zFar;
+			out_zFar = zFar * renderdist_scaled.value();
 		}
 
-		our_aspect = aspect * CAspectRatioChanger::the().scale_aspect();
-		if (our_aspect == -1.0f)
+		// aspect raio
+		auto aspect_scaled = CAspectRatioChanger::the().scale_aspect();
+		if (aspect_scaled)
 		{
-			our_aspect = aspect;
+			out_aspect = aspect * aspect_scaled.value();
 		}
 	}
 
-	CMemoryFnDetourMgr::the().MYgluPerspective().call(fovy, our_aspect, zNear, our_zFar);
+	CMemoryFnDetourMgr::the().MYgluPerspective().call(fovy, out_aspect, zNear, out_zFar);
 }
 
 //---------------------------------------------------------------------------------
@@ -1301,7 +1301,10 @@ bool R_DrawEntitiesOnList_FnDetour_t::install()
 void R_DrawEntitiesOnList_FnDetour_t::R_DrawEntitiesOnList()
 {
 	// function to process all visents and beams
+
+	CBacktrack::the().update();
 	
+#if 0
 	// this should be done already by handling this inside the chams code, but whatever, 
 	// at least we will not populate the visent list inside the engine by calling following function...
 	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
@@ -1313,6 +1316,7 @@ void R_DrawEntitiesOnList_FnDetour_t::R_DrawEntitiesOnList()
 			CFakePlayerRenderer::the().create_entities();
 		}
 	}
+#endif
 	
 	CMemoryFnDetourMgr::the().R_DrawEntitiesOnList().call();
 }

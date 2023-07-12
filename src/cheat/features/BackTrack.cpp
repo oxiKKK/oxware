@@ -93,18 +93,15 @@ void CBacktrack::update()
 			// draw entity for both teams
 			(selected_team == 4 && (player_team == hl::TERRORIST || player_team == hl::CT)))
 		{
-			static hl::cl_entity_t copy = *cl_ent;
+			// this needs to be static because we will carry this pointer outside of this call stack
+			static hl::cl_entity_t copy;
 
-			// copy interpolated data
-			copy.origin = simorg;
-			copy.angles = simang;
-			copy.curstate.weaponmodel = 0;
-			copy.curstate.renderamt = 0;
-			copy.curstate.rendercolor = {};
-			copy.curstate.renderfx = 0;
-			copy.curstate.rendermode = 0;
+			copy = *cl_ent;
 
-			CFakePlayerRenderer::the().schedule_entity(copy, ENT_ID_BACKTRACK);
+			// construct fake entity for backtracked player
+			construct_backtrack_entity(copy, simorg, simang);
+
+			CFakePlayerRenderer::the().render_player(copy, ENT_ID_BACKTRACK);
 		}
 	}
 }
@@ -304,7 +301,7 @@ bool CBacktrack::backtrack_entity(hl::cl_entity_t* ent, float lerp_msec, Vector&
 
 		// interpolate position and angles based on fraction
 		CMath::the().vector_ma(older->origin, frac, delta, pos);
-		CMath::the().interp_angles(older->angles, newer->angles, ang, frac);
+		CMath::the().vector_ma(older->angles, frac, delta, ang);
 
 		simorg = pos;
 		simang = ang;
@@ -316,4 +313,19 @@ bool CBacktrack::backtrack_entity(hl::cl_entity_t* ent, float lerp_msec, Vector&
 	}
 
 	return true;
+}
+
+void CBacktrack::construct_backtrack_entity(hl::cl_entity_t& in, const Vector& interpolated_origin, const Vector& interpolated_angles)
+{
+	in.origin = interpolated_origin;
+	in.angles = interpolated_angles;
+
+	// don't render weapon
+	in.curstate.weaponmodel = 0;
+
+	// without any effects
+	in.curstate.renderamt = 0;
+	in.curstate.rendercolor = {};
+	in.curstate.renderfx = hl::kRenderFxNone;
+	in.curstate.rendermode = hl::kRenderNormal;
 }

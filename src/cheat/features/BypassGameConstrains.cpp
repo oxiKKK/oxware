@@ -46,11 +46,11 @@ void CForceEnableDisabled::force_enable_noclip_post()
 
 VarBoolean bypass_constrain_renderdist_enable("bypass_constrain_renderdist_enable", "Enforces max viweable render distance.", false);
 VarInteger bypass_constrain_renderdist_value("bypass_constrain_renderdist_value", "Enforces max viweable render distance.", 8192, 512, 8192);
-GLdouble CForceEnableDisabled::force_max_viewable_renderdistance()
+std::optional<GLdouble> CForceEnableDisabled::force_max_viewable_renderdistance()
 {
 	if (!bypass_constrain_renderdist_enable.get_value())
 	{
-		return -1.0; // let engine decide
+		return std::nullopt; // let engine decide
 	}
 
 	return (GLdouble)bypass_constrain_renderdist_value.get_value();

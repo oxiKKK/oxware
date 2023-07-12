@@ -195,11 +195,6 @@ void CModelChams::executeall_studio_lighting(hl::alight_t* plighting)
 
 	if (mdlchams_enable.get_value())
 	{
-		// some generic values that usually look good
-		plighting->plightvec[0] = 0.366f;
-		plighting->plightvec[0] = 0.341f;
-		plighting->plightvec[0] = -0.866f;
-
 		for (auto& chams : m_chammed_models)
 		{
 			if (chams.is_enabled() && chams.should_render(current_ent))
@@ -449,14 +444,12 @@ void ChammedModel::process_studio_pre()
 		case CHAMS_FlatLightened:
 		{
 			glDisable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, 0);
 			break;
 		}
 		case CHAMS_Wireframe:
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); 
 			glDisable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, 0);
 			break;
 		}
 		case CHAMS_Texture:
@@ -567,6 +560,11 @@ void ChammedModel::process_studio_lighting(hl::alight_t* plighting)
 	{
 		plighting->ambientlight = ambient;
 	}
+
+	// some generic values that usually look good
+	plighting->plightvec[0] = 0.366f;
+	plighting->plightvec[0] = 0.341f;
+	plighting->plightvec[0] = -0.866f;
 }
 
 void CModelChams::force_default_models()

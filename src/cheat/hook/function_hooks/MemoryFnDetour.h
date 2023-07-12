@@ -366,13 +366,6 @@ struct R_GLStudioDrawPoints_FnDetour_t final : public GenericMemoryFnDetour_cdec
 	static void R_GLStudioDrawPoints();
 };
 
-// void __cdecl R_LightLambert(float (*light)[4], float *normal, float *src, float *lambert)
-struct R_LightLambert_FnDetour_t final : public GenericMemoryFnDetour_cdecl<void, float**, float*, float*, float*>
-{
-	bool install();
-	static void R_LightLambert(float** light, float *normal, float *src, float *lambert);
-};
-
 // int V_FadeAlpha()
 struct V_FadeAlpha_FnDetour_t final : public GenericMemoryFnDetour_cdecl<int>
 {
@@ -577,7 +570,7 @@ struct VGui_ViewportPaintBackground_FnDetour_t final : public GenericMemoryFnDet
 };
 
 // enable this to detour this function that steamclient.dll uses to log stuff.
-#define INTERCEPT_STEAM_LOGGING
+//#define INTERCEPT_STEAM_LOGGING
 
 #ifdef INTERCEPT_STEAM_LOGGING
 // int __cdecl CLogInstance__log(int a1, int a2, int a3, int a4, int a5, int a6, int *a7, int *a8, int *a9, char* message, int a11)
@@ -623,7 +616,6 @@ public:
 	inline auto& EV_HLDM_FireBullets() { static EV_HLDM_FireBullets_FnDetour_t fnhook; return fnhook; }
 	inline auto& HUD_Redraw() { static HUD_Redraw_FnDetour_t fnhook; return fnhook; }
 	inline auto& R_GLStudioDrawPoints() { static R_GLStudioDrawPoints_FnDetour_t fnhook; return fnhook; }
-	inline auto& R_LightLambert() { static R_LightLambert_FnDetour_t fnhook; return fnhook; }
 	inline auto& V_FadeAlpha() { static V_FadeAlpha_FnDetour_t fnhook; return fnhook; }
 	inline auto& V_ApplyShake() { static V_ApplyShake_FnDetour_t fnhook; return fnhook; }
 	inline auto& S_StartDynamicSound() { static S_StartDynamicSound_FnDetour_t fnhook; return fnhook; }

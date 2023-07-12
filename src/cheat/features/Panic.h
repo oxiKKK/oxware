@@ -36,9 +36,9 @@ public:
 	DECL_BASIC_CLASS(CPanic);
 
 public:
-	inline bool pannicing()
+	inline bool panicking()
 	{
-		return m_pannicing;
+		return m_panicking;
 	}
 
 	void update();
@@ -46,7 +46,7 @@ public:
 	static InCommand panic;
 
 private:
-	bool m_pannicing = false;
+	bool m_panicking = false;
 };
 
 #endif // PANIC_H

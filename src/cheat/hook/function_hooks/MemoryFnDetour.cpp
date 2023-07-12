@@ -63,7 +63,6 @@ bool CMemoryFnDetourMgr::install_hooks()
 	//EV_HLDM_FireBullets().install();
 	HUD_Redraw().install();
 	R_GLStudioDrawPoints().install();
-	R_LightLambert().install();
 	V_FadeAlpha().install();
 	V_ApplyShake().install();
 	S_StartDynamicSound().install();
@@ -136,7 +135,6 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 	//EV_HLDM_FireBullets().uninstall();
 	HUD_Redraw().uninstall();
 	R_GLStudioDrawPoints().uninstall();
-	R_LightLambert().uninstall();
 	V_FadeAlpha().uninstall();
 	V_ApplyShake().uninstall();
 	S_StartDynamicSound().uninstall();
@@ -214,7 +212,7 @@ void APIENTRY glBegin_FnDetour_t::glBegin(GLenum mode)
 {
 	// Note: That detouring functions such as glBegin can be really slow, because of how often they're called.
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		if (CGameUtil::the().is_fully_connected())
 		{
@@ -268,7 +266,7 @@ bool glColor4f_FnDetour_t::install()
 
 void glColor4f_FnDetour_t::glColor4f(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 {
-	CModelChams::the().executeall_color(&r, &g, &b, &a);
+	CModelChams::the().update_studio_colors(&r, &g, &b, &a);
 
 	CMemoryFnDetourMgr::the().glColor4f().call(r, g, b, a);
 }
@@ -518,7 +516,7 @@ void MYgluPerspective_FnDetour_t::MYgluPerspective(GLdouble fovy, GLdouble aspec
 	GLdouble out_zFar = zFar;
 	GLdouble out_aspect = aspect;
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		// render distance
 		auto renderdist_scaled = CForceEnableDisabled::the().force_max_viewable_renderdistance();
@@ -568,7 +566,7 @@ void V_CalcRefdef_FnDetour_t::V_CalcRefdef(hl::ref_params_t *pparams)
 {
 	CMemoryFnDetourMgr::the().V_CalcRefdef().call(pparams);
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		CThirdPerson::the().update(pparams);
 
@@ -613,7 +611,7 @@ int HUD_Redraw_FnDetour_t::HUD_Redraw(float time, int intermission)
 	// handle the antiscreen and panic logic inside of this function separately.
 	CRemovals::the().remove_hud_modifier();
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		CSpriteMgr::the().update();
 	}
@@ -631,7 +629,7 @@ bool R_GLStudioDrawPoints_FnDetour_t::install()
 
 void R_GLStudioDrawPoints_FnDetour_t::R_GLStudioDrawPoints()
 {
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		// function responsible for the actual rendering of the studio model
 		OX_PROFILE_SCOPE("studio_drawpoints");
@@ -643,35 +641,15 @@ void R_GLStudioDrawPoints_FnDetour_t::R_GLStudioDrawPoints()
 			return;
 		}
 
-		CModelChams::the().executeall_studio_pre();
+		CModelChams::the().update_studio_drawpoints_pre();
 	}
 
 	CMemoryFnDetourMgr::the().R_GLStudioDrawPoints().call();
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
-		CModelChams::the().executeall_studio_post();
+		CModelChams::the().update_studio_drawpoints_post();
 	}
-}
-
-//---------------------------------------------------------------------------------
-
-bool R_LightLambert_FnDetour_t::install()
-{
-	initialize("R_LightLambert", L"hw.dll");
-	return detour_using_bytepattern((uintptr_t*)R_LightLambert);
-}
-
-void R_LightLambert_FnDetour_t::R_LightLambert(float** light, float *normal, float *src, float *lambert)
-{
-	// function called inside R_GLStudioDrawPoints() for modifying the color of the rendered model.
-
-	CMemoryFnDetourMgr::the().R_LightLambert().call(light, normal, src, lambert);
-
-	//if (!CAntiScreen::the().hide_visuals())
-	//{
-	//	CModelChams::the().executeall_color(lambert);
-	//}
 }
 
 //---------------------------------------------------------------------------------
@@ -688,7 +666,7 @@ int V_FadeAlpha_FnDetour_t::V_FadeAlpha()
 
 	int alpha = CMemoryFnDetourMgr::the().V_FadeAlpha().call();
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		CFlashbangFadeModifier::the().update(alpha);
 	}
@@ -706,7 +684,7 @@ bool V_ApplyShake_FnDetour_t::install()
 
 void V_ApplyShake_FnDetour_t::V_ApplyShake(float* origin, float* angles, float factor)
 {
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		if (CRemovals::the().remove_screenshake())
 		{
@@ -749,7 +727,7 @@ bool R_DrawViewModel_FnDetour_t::install()
 
 void R_DrawViewModel_FnDetour_t::R_DrawViewModel()
 {
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		if (CRemovals::the().remove_viewmodel())
 		{
@@ -861,7 +839,7 @@ void SCR_CalcRefdef_FnDetour_t::SCR_CalcRefdef()
 {
 	// fov gets capped inside this function.
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		CFieldOfViewChanger::the().scale_fov();
 	}
@@ -881,7 +859,7 @@ void SCR_UpdateScreen_FnDetour_t::SCR_UpdateScreen()
 {
 	CAntiScreen::the().update();
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		// check if method is set to 'UpdateScreen'
 		if (frame_skip_method.get_value() == 0 && CFrameSkipper::the().skip_current_frame())
@@ -910,7 +888,7 @@ void SPR_Set_FnDetour_t::SPR_Set(hl::HSPRITE_t hSprite, int r, int g, int b)
 	// there isn't any way around this (how to change all sprites color), because this function
 	// directly calls glColorf().
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		CSpriteMgr::the().handle_color_change(hSprite, r, g, b);
 	}
@@ -951,7 +929,7 @@ bool CHudAmmo__DrawCrosshair_FnDetour_t::install()
 
 int __thiscall CHudAmmo__DrawCrosshair_FnDetour_t::CHudAmmo__DrawCrosshair(void* ecx, float flTime, int weaponid)
 {
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		if (crosshair_enable.get_value())
 		{
@@ -973,7 +951,7 @@ bool R_StudioDrawPlayer_FnDetour_t::install()
 
 int R_StudioDrawPlayer_FnDetour_t::R_StudioDrawPlayer(int flags, hl::entity_state_t* pplayer)
 {
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		if (CRemovals::the().remove_player(pplayer->number))
 		{
@@ -1044,7 +1022,7 @@ void SCR_DrawFPS_FnDetour_t::SCR_DrawFPS()
 {
 	// this is in fact a good place to render custom engine stuff from
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		CEngineRendering::the().repaint();
 	}
@@ -1130,6 +1108,8 @@ bool MSG_WriteUsercmd_FnDetour_t::install()
 
 void MSG_WriteUsercmd_FnDetour_t::MSG_WriteUsercmd(hl::sizebuf_t* buf, hl::usercmd_t* to, hl::usercmd_t* from)
 {
+	// called in CL_Move()
+
 	CClientMovementPacket::the().update_msg_writeusercmd(to);
 
 	CMemoryFnDetourMgr::the().MSG_WriteUsercmd().call(buf, to, from);
@@ -1145,7 +1125,7 @@ bool CHudSniperScope__Draw_FnDetour_t::install()
 
 int __thiscall CHudSniperScope__Draw_FnDetour_t::CHudSniperScope__Draw(void* ecx, float flTime)
 {
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		if (CRemovals::the().remove_sniper_scope())
 		{
@@ -1166,7 +1146,7 @@ bool CL_IsThirdPerson_FnDetour_t::install()
 
 int CL_IsThirdPerson_FnDetour_t::CL_IsThirdPerson()
 {
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		return CThirdPerson::the().thirdperson.is_active() && thirdperson_dist.get_value() != 0;
 	}
@@ -1259,7 +1239,7 @@ void MakeSkyVec_FnDetour_t::MakeSkyVec(float s, float t, int axis)
 {
 	// function called when rendering skybox faces, right after qglColor3f().
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		if (world_visuals_dimlight_sky.get_value() && CGameUtil::the().is_fully_connected())
 		{
@@ -1282,7 +1262,7 @@ void HUD_Frame_FnDetour_t::HUD_Frame()
 {
 	// client dll frame function. Called after servercode inside _Host_Frame
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		CWorldVisuals::the().render_fog();
 	}
@@ -1302,21 +1282,10 @@ void R_DrawEntitiesOnList_FnDetour_t::R_DrawEntitiesOnList()
 {
 	// function to process all visents and beams
 
-	CBacktrack::the().update();
-	
-#if 0
-	// this should be done already by handling this inside the chams code, but whatever, 
-	// at least we will not populate the visent list inside the engine by calling following function...
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
-		auto local = CLocalState::the().local_player();
-		if (local)
-		{
-			// quickly add it into the list of visents before we draw them.
-			CFakePlayerRenderer::the().create_entities();
-		}
+		CBacktrack::the().update();
 	}
-#endif
 	
 	CMemoryFnDetourMgr::the().R_DrawEntitiesOnList().call();
 }
@@ -1333,17 +1302,10 @@ void R_StudioSetupLighting_FnDetour_t::R_StudioSetupLighting(hl::alight_t* pligh
 {
 	// function takes care of studiomodel lighting (ambient / shadelight)
 
-//	CConsole::the().info("ambient: {}, shade: {}", plighting->ambientlight, plighting->shadelight);
-//	CConsole::the().info("plightvec: {}", Vector(plighting->plightvec));
-
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
-		CModelChams::the().executeall_studio_lighting(plighting);
+		CModelChams::the().update_studio_lighting(plighting);
 	}
-
-//	plighting->color[0] = 0;
-//	plighting->color[1] = 0;
-//	plighting->color[2] = 0.9f;
 
 	CMemoryFnDetourMgr::the().R_StudioSetupLighting().call(plighting);
 }
@@ -1360,7 +1322,7 @@ void VGui_ViewportPaintBackground_FnDetour_t::VGui_ViewportPaintBackground(int* 
 {
 	// responsible for the entire rendering (including VGUI and world view)
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		// check if method is set to 'ViewportPaintBackground'
 		if (frame_skip_method.get_value() == 1 && CFrameSkipper::the().skip_current_frame())
@@ -1374,6 +1336,7 @@ void VGui_ViewportPaintBackground_FnDetour_t::VGui_ViewportPaintBackground(int* 
 
 //---------------------------------------------------------------------------------
 
+#ifdef INTERCEPT_STEAM_LOGGING
 bool CLogInstance__log_FnDetour_t::install()
 {
 	initialize("CLogInstance::log", L"steamclient.dll");
@@ -1407,5 +1370,6 @@ void CLogInstance__log_FnDetour_t::CLogInstance__log(int a1, int a2, int a3, int
 
 	CMemoryFnDetourMgr::the().CLogInstance__log().call(a1, a2, a3, a4, a5, a6, a7, a8, a9, message, a11);
 }
+#endif // INTERCEPT_STEAM_LOGGING
 
 //---------------------------------------------------------------------------------

@@ -119,7 +119,7 @@ std::array<ChammedModel, CHAMS_COUNT> CModelChams::m_chammed_models =
 		}),
 } };
 
-void CModelChams::executeall_studio_pre()
+void CModelChams::update_studio_drawpoints_pre()
 {
 	OX_PROFILE_SCOPE("studio_points_pre");
 
@@ -134,8 +134,8 @@ void CModelChams::executeall_studio_pre()
 		{
 			if (chams.is_enabled() && chams.should_render(current_ent))
 			{
-				chams.process_studio_pre();
-				break;
+				chams.process_studio_drawpoints_pre();
+				break; // we're done here, this is called per model
 			}
 		}
 	}
@@ -153,7 +153,7 @@ void CModelChams::executeall_studio_pre()
 	}
 }
 
-void CModelChams::executeall_studio_post()
+void CModelChams::update_studio_drawpoints_post()
 {
 	OX_PROFILE_SCOPE("studio_points_post");
 	
@@ -166,8 +166,8 @@ void CModelChams::executeall_studio_post()
 		{
 			if (chams.is_enabled() && chams.should_render(current_ent))
 			{
-				chams.process_studio_post();
-				break;
+				chams.process_studio_drawpoints_post();
+				break; // we're done here, this is called per model
 			}
 		}
 	}
@@ -186,7 +186,7 @@ void CModelChams::executeall_studio_post()
 	m_studio_draw_points_lock = false;
 }
 
-void CModelChams::executeall_studio_lighting(hl::alight_t* plighting)
+void CModelChams::update_studio_lighting(hl::alight_t* plighting)
 {
 	OX_PROFILE_SCOPE("studio_lighting");
 	
@@ -200,13 +200,13 @@ void CModelChams::executeall_studio_lighting(hl::alight_t* plighting)
 			if (chams.is_enabled() && chams.should_render(current_ent))
 			{
 				chams.process_studio_lighting(plighting);
-				break;
+				break; // we're done here, this is called per model
 			}
 		}
 	}
 }
 
-void CModelChams::executeall_color(GLfloat* r, GLfloat* g, GLfloat* b, GLfloat* a)
+void CModelChams::update_studio_colors(GLfloat* r, GLfloat* g, GLfloat* b, GLfloat* a)
 {
 	OX_PROFILE_SCOPE("modelchams_color");
 	
@@ -227,6 +227,7 @@ void CModelChams::executeall_color(GLfloat* r, GLfloat* g, GLfloat* b, GLfloat* 
 		if (chams.is_enabled() && chams.should_render(current_ent))
 		{
 			chams.process_color(r, g, b, a);
+			break; // we're done here
 		}
 	}
 }
@@ -421,9 +422,31 @@ hl::studiohdr_t* CModelChams::get_currently_rendered_model_header()
 	return nullptr;
 }
 
+void CModelChams::force_default_models()
+{
+	if (!mdlchams_force_default_viewmodel.get_value())
+	{
+		return;
+	}
+
+	auto cl = CMemoryHookMgr::the().cl().get();
+	auto vm = &cl->viewent;
+
+	auto current_weapon = CWeapons::the().get_current_weapon();
+	if (current_weapon)
+	{
+		std::string model_name = current_weapon->m_model_name;
+
+		if (!model_name.empty())
+		{
+			vm->model = CMemoryHookMgr::the().cl_enginefuncs()->pfnCL_LoadModel(model_name.c_str(), NULL);
+		}
+	}
+}
+
 //---------------------------------------------------------------------------------
 
-void ChammedModel::process_studio_pre()
+void ChammedModel::process_studio_drawpoints_pre()
 {
 	if (mdlchams_flatshaded.get_value())
 	{
@@ -460,7 +483,7 @@ void ChammedModel::process_studio_pre()
 	}
 }
 
-void ChammedModel::process_studio_post()
+void ChammedModel::process_studio_drawpoints_post()
 {
 	if (mdlchams_blend.get_value())
 	{
@@ -497,7 +520,7 @@ void ChammedModel::process_color(GLfloat* r, GLfloat* g, GLfloat* b, GLfloat* a)
 		return;
 	}
 
-	if (CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		return;
 	}
@@ -563,28 +586,6 @@ void ChammedModel::process_studio_lighting(hl::alight_t* plighting)
 
 	// some generic values that usually look good
 	plighting->plightvec[0] = 0.366f;
-	plighting->plightvec[0] = 0.341f;
-	plighting->plightvec[0] = -0.866f;
-}
-
-void CModelChams::force_default_models()
-{
-	if (!mdlchams_force_default_viewmodel.get_value())
-	{
-		return;
-	}
-
-	auto cl = CMemoryHookMgr::the().cl().get();
-	auto vm = &cl->viewent;
-
-	auto current_weapon = CWeapons::the().get_current_weapon();
-	if (current_weapon)
-	{
-		std::string model_name = current_weapon->m_model_name;
-
-		if (!model_name.empty())
-		{
-			vm->model = CMemoryHookMgr::the().cl_enginefuncs()->pfnCL_LoadModel(model_name.c_str(), NULL);
-		}
-	}
+	plighting->plightvec[1] = 0.341f;
+	plighting->plightvec[2] = -0.866f;
 }

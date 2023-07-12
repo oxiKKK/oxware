@@ -65,7 +65,7 @@ bool CForceEnableDisabled::disable_renderer_cvar_constrain()
 		return false;
 	}
 
-	if (CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		if (!m_just_disabled_renderer_cvars)
 		{
@@ -93,7 +93,7 @@ void CForceEnableDisabled::update_disable_sponly_cvars()
 {
 	static float last = bypass_constrain_sponly_cvars.get_value();
 	
-	if (CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		if (!m_just_disabled_sponly_cvars)
 		{

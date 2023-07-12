@@ -62,7 +62,7 @@ int CUserMSGDetourMgr::HideWeapon_f(const char* pszName, int iSize, void* pbuf)
 
 int CUserMSGDetourMgr::MOTD_f(const char* pszName, int iSize, void* pbuf)
 {
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		if (CRemovals::the().remove_motd())
 		{

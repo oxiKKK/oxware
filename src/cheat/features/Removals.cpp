@@ -95,7 +95,7 @@ void CRemovals::remove_hud_modifier()
 	int return_flags = 0;
 	static int prev_return_flags = return_flags;
 
-	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().pannicing())
+	if (!CAntiScreen::the().hide_visuals() && !CPanic::the().panicking())
 	{
 		if (remove_hud_enable.get_value())
 		{

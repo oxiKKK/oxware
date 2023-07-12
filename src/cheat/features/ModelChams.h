@@ -82,11 +82,13 @@ enum EModelChamsType
 	CHAMS_Wireframe,
 };
 
+using ShouldRenderFn = bool(*)(hl::cl_entity_t* current_ent);
+
 class ChammedModel
 {
 public:
 	ChammedModel(VarBoolean* is_enabled, VarColor* color, VarInteger* type, VarInteger* shade, VarInteger* ambient,
-				 const std::function<bool(hl::cl_entity_t* current_ent)>& should_render) :
+				ShouldRenderFn should_render) :
 		m_is_enabled(is_enabled), 
 		m_color(color), 
 		m_type(type), 
@@ -104,8 +106,8 @@ public:
 
 	EModelChamsType get_type() const { return (EModelChamsType)m_type->get_value(); }
 
-	virtual void process_studio_pre();
-	virtual void process_studio_post();
+	virtual void process_studio_drawpoints_pre();
+	virtual void process_studio_drawpoints_post();
 	virtual void process_studio_lighting(hl::alight_t* plighting);
 	
 	virtual void process_color(GLfloat* r, GLfloat* g, GLfloat* b, GLfloat* a);
@@ -118,7 +120,7 @@ private:
 
 	VarInteger* m_type = nullptr;
 
-	std::function<bool(hl::cl_entity_t* current_ent)> m_should_render;
+	ShouldRenderFn m_should_render;
 };
 
 enum EChammedModel
@@ -137,10 +139,10 @@ public:
 	DECL_BASIC_CLASS(CModelChams);
 
 public:
-	void executeall_studio_pre();
-	void executeall_studio_post();
-	void executeall_studio_lighting(hl::alight_t* plighting);
-	void executeall_color(GLfloat* r, GLfloat* g, GLfloat* b, GLfloat* a);
+	void update_studio_drawpoints_pre();
+	void update_studio_drawpoints_post();
+	void update_studio_lighting(hl::alight_t* plighting);
+	void update_studio_colors(GLfloat* r, GLfloat* g, GLfloat* b, GLfloat* a);
 
 	// replacement for R_GLStudioDrawPoints()
 	bool studio_draw_skeleton();

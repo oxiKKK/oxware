@@ -234,7 +234,7 @@ void COxWareUI::initialize(HWND wnd)
 
 void COxWareUI::run_ui()
 {
-	// let the UI visible when pannicing... TODO: Change?
+	// let the UI visible when panicking... TODO: Change?
 	if (CAntiScreen::the().hide_visuals())
 	{
 		return;

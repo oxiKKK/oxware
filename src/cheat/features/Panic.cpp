@@ -32,12 +32,12 @@ InCommand CPanic::panic = InCommand("panic", NULL, false, IN_ACTCOND_None);
 
 void CPanic::update()
 {
-	m_pannicing = false;
+	m_panicking = false;
 
 	if (!panic.is_active())
 	{
 		return;
 	}
 
-	m_pannicing = true;
+	m_panicking = true;
 }

@@ -132,7 +132,7 @@ void CEnvironmentalEffects::render()
 
 	// TODO: Figure out a better way of doing this, since this respawns all particles, it doesn't
 	//		 just stop rendering them..
-	if (CAntiScreen::the().hide_visuals() || CPanic::the().pannicing())
+	if (CAntiScreen::the().hide_visuals() || CPanic::the().panicking())
 	{
 		shutdown();
 		as_lock = true;

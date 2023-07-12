@@ -67,7 +67,7 @@ void CESP::on_render()
 		return;
 	}
 
-	if (CPanic::the().pannicing())
+	if (CPanic::the().panicking())
 	{
 		return;
 	}

@@ -37,10 +37,7 @@
 //-------------------------------------------------------------------
 #include "platform.h"
 
-#include <interface/ILibraryLoader.h>
-#include <interface/IDeveloperConsole.h>
 #include <interface/IBaseModule.h>
-#include <interface/IImportBank.h>
 #include <interface/IRegistry.h>
 #include <interface/IUserInput.h>
 #include <interface/IWindowMsgHandler.h>

@@ -567,7 +567,7 @@ HMODULE CLibraryLoader::load_library(const wchar_t* path_to, const wchar_t* name
 
 	full_path = CStringTools::the().fix_trailing_slashes(full_path);
 
-	CConsole::the().info("LoadLibrary: Trying to load module '{}'...", CStringTools::the().unicode_to_utf8(full_path));
+	CConsole::the().info("LoadLibrary: Trying to load module '{}'...", CStringTools::the().utf16_to_utf8(full_path));
 
 	module = pfnLoadLibraryExW((LPWSTR)full_path.c_str(), NULL, NULL);
 
@@ -590,7 +590,7 @@ HMODULE CLibraryLoader::load_library(const wchar_t* path_to, const wchar_t* name
 				if (!did_add)
 				{
 					CConsole::the().warning("LoadLibrary: Failed to add dll directory '{}' to the search list. (last err: {})",
-											CStringTools::the().unicode_to_utf8(path_to),
+											CStringTools::the().utf16_to_utf8(path_to),
 											CGenericUtil::the().get_last_win_error());
 				}
 
@@ -658,11 +658,11 @@ bool CLibraryLoader::add_directory_to_search_list(const wchar_t* absolute_direct
 	if (success)
 	{
 		CConsole::the().info("LoadLibrary: Successfully added directory {} to the DLL search list.", 
-							 CStringTools::the().unicode_to_utf8(absolute_directory));
+							 CStringTools::the().utf16_to_utf8(absolute_directory));
 	}
 	else
 	{
-		CConsole::the().error("LoadLibrary: Failed to add directory to the search list: '{}'", CStringTools::the().unicode_to_utf8(absolute_directory));
+		CConsole::the().error("LoadLibrary: Failed to add directory to the search list: '{}'", CStringTools::the().utf16_to_utf8(absolute_directory));
 	}
 
 	return success;
@@ -773,7 +773,7 @@ void* CLibraryLoader::handle_forwarded_export_entry(const std::string& forwarded
 
 	// try to load forwarded dll
 	HMODULE forwarded_module;
-	forwarded_module = load_library(nullptr, CStringTools::the().utf8_to_unicode(dll_name).c_str());
+	forwarded_module = load_library(nullptr, CStringTools::the().utf8_to_utf16(dll_name).c_str());
 	if (!forwarded_module)
 	{
 		assert(0);

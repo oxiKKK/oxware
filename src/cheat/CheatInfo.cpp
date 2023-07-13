@@ -41,8 +41,7 @@ public:
 	bool is_game_ui_running();
 };
 
-CCheatInfo g_cheat_info;
-EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CCheatInfo, ICheatInfo, ICHEATINFO_INTERFACEID, g_cheat_info);
+EXPOSE_SINGLE_INTERFACE(CCheatInfo, ICheatInfo, ICHEATINFO_INTERFACEID);
 
 //-------------------------------------------------------------------------------
 //

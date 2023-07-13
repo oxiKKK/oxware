@@ -43,7 +43,6 @@
 #include <interface/IFileSystem.h>
 #include <interface/IBaseModule.h>
 #include <interface/IDeveloperConsole.h>
-#include <interface/IImportBank.h>
 #include <interface/IRegistry.h>
 #include <interface/IUserInput.h>
 #include <interface/IWindowMsgHandler.h>
@@ -80,6 +79,7 @@
 #include <locale>
 #include <codecvt>
 #include <cassert>
+#include <shlobj_core.h>
 
 //-------------------------------------------------------------------
 //

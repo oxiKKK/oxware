@@ -70,18 +70,18 @@ inline bool CHLInterfaceHook::install_single_hook(T** hook, const wchar_t* dll_n
 	auto factory = hl::Sys_GetFactory((HMODULE)g_libloader_i->get_target_loaded_dll_base_address(dll_name));
 	if (factory == nullptr)
 	{
-		CMessageBox::display_error("Couldn't find HL interface factory inside module '{}'", CStringTools::the().unicode_to_utf8(dll_name));
+		CMessageBox::display_error("Couldn't find HL interface factory inside module '{}'", CStringTools::the().utf16_to_utf8(dll_name));
 		return false;
 	}
 
 	*hook = reinterpret_cast<T*>(factory(interface_name, NULL));
 	if (*hook == nullptr)
 	{
-		CMessageBox::display_error("Couldn't find HL interface '{}' pointer inside module '{}'", interface_name, CStringTools::the().unicode_to_utf8(dll_name));
+		CMessageBox::display_error("Couldn't find HL interface '{}' pointer inside module '{}'", interface_name, CStringTools::the().utf16_to_utf8(dll_name));
 		return false;
 	}
 
-	CConsole::the().info("Found {} interface in {}.", interface_name, CStringTools::the().unicode_to_utf8(dll_name));
+	CConsole::the().info("Found {} interface in {}.", interface_name, CStringTools::the().utf16_to_utf8(dll_name));
 
 	return true;
 }

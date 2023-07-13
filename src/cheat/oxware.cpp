@@ -36,7 +36,6 @@ IGUIWindowRendering* g_gui_window_rendering_i = nullptr;
 IGUIThemeManager* g_gui_thememgr_i = nullptr;
 
 // Util
-IImportBank* g_importbank_i = nullptr;
 IRegistry* g_registry_i = nullptr;
 IFileSystem* g_filesystem_i = nullptr;
 IUserInput* g_user_input_i = nullptr;
@@ -283,7 +282,6 @@ bool COxWare::load_and_initialize_dependencies()
 	// Util
 	if (!CDependencyLoader::the().load_and_initialize_module(type, loader_path, WMODULE_UTIL, [&](const auto& mod)
 	{
-		g_importbank_i = mod.get_interface<IImportBank>(IIMPORTBANK_INTERFACEID);
 		g_registry_i = mod.get_interface<IRegistry>(IREGISTRY_INTERFACEID);
 		g_filesystem_i = mod.get_interface<IFileSystem>(IFILESYSTEM_INTERFACEID);
 		g_user_input_i = mod.get_interface<IUserInput>(IUSERINPUT_INTERFACEID);
@@ -295,7 +293,7 @@ bool COxWare::load_and_initialize_dependencies()
 		g_bytepattern_bank_i = mod.get_interface<IBytePatternBank>(IBYTEPATTERNBANK_INTERFACEID);
 		g_bindmgr_i = mod.get_interface<IBindManager>(IBINDMANAGER_INTERFACEID);
 
-		return g_importbank_i && g_registry_i && g_filesystem_i && g_user_input_i && g_window_msg_handler_i && g_config_mgr_i &&
+		return g_registry_i && g_filesystem_i && g_user_input_i && g_window_msg_handler_i && g_config_mgr_i &&
 			g_appdata_mgr_i && g_variablemgr_i && g_code_perf_profiler_i && g_bytepattern_bank_i && g_bindmgr_i;
 	}))
 	{
@@ -330,6 +328,13 @@ bool COxWare::load_and_initialize_dependencies()
 
 bool COxWare::run_frame()
 {
+	// someone requested to close the cheat.
+	if (is_exit_requested())
+	{
+		CConsole::the().info("Someone requested cheat exit. Exiting cheat main frame loop.");
+		return false;
+	}
+
 	if (!can_update_frame())
 	{
 		return true;
@@ -341,12 +346,6 @@ bool COxWare::run_frame()
 
 	// keep communication with the injector on
 	if (CInjectedDllIPCLayerClient::the().dispatch() != k_IPCLayerStatus_Ok)
-	{
-		return false;
-	}
-
-	// someone requested to close the cheat.
-	if (is_exit_requested())
 	{
 		return false;
 	}
@@ -394,7 +393,6 @@ void COxWare::unload_dependencies()
 	g_gui_thememgr_i = nullptr;
 
 	// Util
-	g_importbank_i = nullptr;
 	g_registry_i = nullptr;
 	g_filesystem_i = nullptr;
 	g_user_input_i = nullptr;
@@ -583,7 +581,7 @@ bool COxWare::check_for_encrypted_modules()
 	for (const auto& file : s_possibly_encrypted_modules)
 	{
 		std::filesystem::path full_path = g_filesystem_i->locate_halflife_dir() / file;
-		std::string s_full_path = CStringTools::the().unicode_to_utf8(full_path.wstring());
+		std::string s_full_path = CStringTools::the().utf16_to_utf8(full_path.wstring());
 
 		if (CGSDecrypt::the().is_dll_encrypted(s_full_path))
 		{
@@ -638,56 +636,89 @@ void CEngineSynchronization::put_engine_in_sleep()
 
 	CConsole::the().info("Putting engine to sleep, waiting for it to ack...");
 
+	// now hang till engine acks that it is sleeping.
+	hang_till_engine_sleeps();
+
+	// ok, engine is now sleeping, continue.
+	// DONT FORGET TO RESUME ENGINE FROM SLEEPING!
+}
+
+void CEngineSynchronization::hang_till_engine_sleeps()
+{
+	int n = 0;
+	
+	//
 	// time since engine starts a new frame, we need to handle a case where we're in some kind
 	// of deadlock or something. in that case we'd hang forever.
 	// let's say wait at max 20 seconds... 20 seconds long frame should be enough.. :^)
-	static constexpr uint32_t k_time_to_acknowledge_sleep = 20 * 1000; 
-	m_start_time = GetTickCount();
-	int n = 0;
-	bool failed = false;
+	//
+	uint32_t start_time = GetTickCount();
+
 	while (m_engine_is_sleeping == false)
 	{
 		// do nothing until engine acks
 
 		std::this_thread::sleep_for(10ms);
 
-		if (!m_engine_is_sleeping && n % 20 == 0)
+		if (!m_engine_is_sleeping && (n % 20 == 0))
 		{
 			CConsole::the().info("Waiting for engine...{}x", (n++ / 20) + 1);
 		}
 
-//		CConsole::the().info("m_engine_is_sleeping: {} (tid: {})", m_engine_is_sleeping, std::hash<std::thread::id>{}(std::this_thread::get_id()));
-
-		if (GetTickCount() - m_start_time > k_time_to_acknowledge_sleep)
+		if (GetTickCount() - start_time > k_time_to_acknowledge_sleep)
 		{
-			// time's up... break anyway
-			CConsole::the().error("Engine failed to start a new frame in {} seconds...", k_time_to_acknowledge_sleep);
-			failed = true;
-			break;
+			CConsole::the().info("Failed to put engine in sleep! Waited {} seconds", k_time_to_acknowledge_sleep / 1000);
+			return;
 		}
 	}
 
-	if (failed)
-	{
-		CConsole::the().info("Failed to put engine in sleep! Waited {} seconds", k_time_to_acknowledge_sleep / 1000);
-	}
-	else
-	{
-		CConsole::the().info("Engine went to sleep. Continuing...");
-		CConsole::the().info("Took {} ms to put engine to sleep.", GetTickCount() - m_start_time);
-	}
-
-	// ok, engine is now sleeping, continue.
-	// DONT FORGET TO RESUME ENGINE FROM SLEEPING!
+	// OK! engine ack'd that it is sleeping.
+	CConsole::the().info("Engine went to sleep. Continuing...");
+	CConsole::the().info("Took {} ms to put engine to sleep.", GetTickCount() - start_time);
 }
 
 void CEngineSynchronization::resume_engine()
 {
 	CConsole::the().info("Resuming engine from sleep...");
 	m_engine_should_sleep = false;
+
+	// wait for the engine to ack that it's not sleeping anymore
+	hang_till_engine_resumes_from_sleep();
 }
 
-void CEngineSynchronization::engine_frame()
+void CEngineSynchronization::hang_till_engine_resumes_from_sleep()
+{
+	int n = 0;
+
+	//
+	// at this point, the engine is inside an infinite loop hanging, waiting for us
+	// to resume it from "sleeping". Tell it to stop.
+	//
+	uint32_t start_time = GetTickCount();
+
+	while (m_engine_is_sleeping)
+	{
+		// do nothing until engine acks
+
+		std::this_thread::sleep_for(10ms);
+
+		if (m_engine_is_sleeping && (n % 20 == 0))
+		{
+			CConsole::the().info("Waiting for engine...{}x", (n++ / 20) + 1);
+		}
+
+		if (GetTickCount() - start_time > k_time_to_acknowledge_sleep)
+		{
+			CConsole::the().info("Failed to resume engine from sleep! Waited {} seconds", k_time_to_acknowledge_sleep / 1000);
+			return;
+		}
+	}
+
+	CConsole::the().info("Engine is not sleeping anymore, continuing...");
+	CConsole::the().info("Took {} ms to resume engine from sleep.", GetTickCount() - start_time);
+}
+
+bool CEngineSynchronization::engine_frame()
 {
 	if (m_engine_should_sleep)
 	{
@@ -700,24 +731,17 @@ void CEngineSynchronization::engine_frame()
 
 		m_engine_is_sleeping = true;
 		
-		// NOTE: Wait a little. Seems like on retail mode, this while loop puts the whole process in a deadlock, 
-		//		 and even tho this loop is running inside the engine thread, the cpu scheduler or whaterver basically
-		//		 doesn't run code for other threads? because at the above function put_engine_in_sleep() we're 
-		//		 basically waiting for this 'm_engine_is_sleeping' variable to be set to true, and even tho it is,
-		//		 the code above still hangs?! what the heck?!
-		//
-		// FIX:	 Seems like waiting there fixes the problem, although this is really suspicious... I assume what is going
-		//		 on is that basically putting this thread to sleep gives space to other threads to function properly?
-		//		 like what the hell is even that?!
+		// don't flood the cpu scheduler with this thread only
 		std::this_thread::sleep_for(10ms);
-		
-//		CConsole::the().info("just set m_engine_is_sleeping to {} (tid: {})", m_engine_is_sleeping, std::hash<std::thread::id>{}(std::this_thread::get_id()));
 	}
 
 	if (m_engine_is_sleeping)
 	{
 		CConsole::the().info("Engine frame: Engine exited from sleep.");
+		m_engine_is_sleeping = false;
+		return false;
 	}
 
 	m_engine_is_sleeping = false;
+	return true;
 }

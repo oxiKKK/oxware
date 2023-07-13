@@ -59,6 +59,11 @@ enum EInjector2Client
 	I2C_Max
 };
 
+// Optional exported functions by loadable DLLs that want to setup something before constructors are invoked and
+// before DllMain and CommunicativeDllEntryPoint is called.
+#define PRE_DLL_LOAD_PROCNAME "PreDllLoad"
+typedef bool(__cdecl*pfnPreDllLoad_t)();
+
 // this procedure exists only within parent client modules that want to communicate with the injector.
 #define COMMUNICATIVEDLLENTRYPOINT_PROCNAME "CommunicativeDllEntryPoint"
 struct injector_information_package_t;

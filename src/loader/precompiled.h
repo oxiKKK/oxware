@@ -38,11 +38,8 @@
 #include <commondefs.h>
 #include <vector.h>
 
-#include <interface/ILibraryLoader.h>
-#include <interface/IVariableManager.h>
 #include <interface/IDeveloperConsole.h>
 #include <interface/IBaseModule.h>
-#include <interface/IImportBank.h>
 #include <interface/IRegistry.h>
 #include <interface/IFileSystem.h>
 #include <interface/IAppDataManager.h>

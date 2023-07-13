@@ -38,8 +38,6 @@
 #include <commondefs.h>
 #include <interface.h>
 
-#include <interface/ILibraryLoader.h>
-#include <interface/IDeveloperConsole.h>
 #include <interface/IBaseModule.h>
 
 #include <interface/gui/IGLFWApp.h>

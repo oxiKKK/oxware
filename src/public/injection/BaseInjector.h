@@ -85,7 +85,7 @@ private:
 #ifdef _DEBUG
 	inline static constexpr size_t k_max_module_unload_wait_time_sec = 9999; // For debugging purposes it's good when you're debugging the dll while it's unloading. :)
 #else
-	inline static constexpr size_t k_max_module_unload_wait_time_sec = 5; // give the module N seconds before we'll force the unload.
+	inline static constexpr size_t k_max_module_unload_wait_time_sec = 10; // give the module N seconds before we'll force the unload.
 #endif
 	EModuleUnloadWaitResult hang_till_module_unloads(const FilePath_t& module_path, IInjectableModuleObject* module,
 													 std::chrono::high_resolution_clock::time_point wait_start);

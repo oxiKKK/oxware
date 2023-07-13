@@ -23,14 +23,8 @@
     <ClCompile Include="FileSystem.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\public\Console.cpp">
       <Filter>public</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportBank.cpp">
-      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="Registry.cpp">
       <Filter>src</Filter>
@@ -68,6 +62,7 @@
     <ClCompile Include="key_translation.cpp">
       <Filter>src\keys</Filter>
     </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />

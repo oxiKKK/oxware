@@ -343,7 +343,7 @@ FilePath_t CFileSystem::locate_halflife_dir()
 
 	if (ldr_data)
 	{
-		halflife_dir = CStringTools::the().unicode_to_utf8(ldr_data->FullDllName.Buffer);
+		halflife_dir = CStringTools::the().utf16_to_utf8(ldr_data->FullDllName.Buffer);
 		halflife_dir = halflife_dir.parent_path();
 	}
 	else
@@ -373,17 +373,17 @@ FilePath_t CFileSystem::path_relative_to_hl_dir(const FilePath_t& relative_path)
 FilePath_t CFileSystem::get_loader_exe_filepath(const FilePath_t& relative_path)
 {
 	WCHAR path[MAX_PATH];
-	g_importbank_i->GetCurrentDirectoryW(sizeof(path), path);
+	GetCurrentDirectoryW(sizeof(path), path);
 	return FilePath_t(path) / relative_path;
 }
 
 FilePath_t CFileSystem::get_appdata_path(const FilePath_t& relative_path)
 {
 	PWSTR pwstr_appdata_directory;
-	HRESULT result = g_importbank_i->SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, NULL, &pwstr_appdata_directory);
+	HRESULT result = SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, NULL, &pwstr_appdata_directory);
 	assert(SUCCEEDED(result));
 	FilePath_t ret = pwstr_appdata_directory;
-	g_importbank_i->CoTaskMemFree(pwstr_appdata_directory);
+	CoTaskMemFree(pwstr_appdata_directory);
 	return ret / "oxware" / relative_path;
 }
 

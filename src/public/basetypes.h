@@ -42,4 +42,6 @@ typedef NTSTATUS(NTAPI*pfnLdrAddDllDirectory_t)(PUNICODE_STRING NewDirectory, PD
 // session id that is provided to the injected module. This changes every time we inject.
 typedef unsigned int session_id_t;
 
+typedef unsigned char byte;
+
 #endif // BASETYPES_H

@@ -453,7 +453,11 @@ void _Host_Frame_FnDetour_t::_Host_Frame(float time)
 		was_connected = is_connected;
 	}
 
-	CEngineSynchronization::the().engine_frame();
+	if (!CEngineSynchronization::the().engine_frame())
+	{
+		// don't call anything below no more, so that after cheat unload, we don't access unloaded memory.
+		return;
+	}
 
 	// GoldSrc engine frame function. There goes all code that has to work with ingame things.
 	OX_PROFILE_SCOPE("engine_frame");
@@ -800,6 +804,7 @@ void __thiscall CEngine__Unload_FnDetour_t::CEngine__Unload(hl::CEngine* ecx)
 	// set up the shutdown of the cheat. this triggers a check inside the main loop that is executing
 	// on another thread. worst possible time to wait is 0.5s (if there's no hang), because the main loop updates
 	// every 0.5s.
+	CConsole::the().info("Requesting the end of cheat execution...");
 	COxWare::the().end_cheat_execution(true);
 
 	while (!COxWare::the().is_shutted_down())

@@ -60,13 +60,28 @@ public:
 
 // Use this to expose a singleton interface with a global variable you've created.
 #define EXPOSE_SINGLE_INTERFACE_GLOBALVAR(className, interfaceName, interfaceID, globalVarName) \
-	static IBaseInterface* __create##className##interfaceName##_interface() {return (IBaseInterface *)&globalVarName;}\
-	static CInterfaceRegistrator __g_exposed_interface_##className##interfaceName##(__create##className##interfaceName##_interface, interfaceID);
+	static CInterfaceRegistrator __g_exposed_interface_##className##interfaceName##([]() { return (IBaseInterface *)&globalVarName; }, interfaceID);
 
 // Use this to expose a singleton interface. This creates the global variable for you automatically.
 #define EXPOSE_SINGLE_INTERFACE(className, interfaceName, interfaceID) \
 	static className __g_##className##_singleton;\
 	EXPOSE_SINGLE_INTERFACE_GLOBALVAR(className, interfaceName, interfaceID, __g_##className##_singleton)
+
+// expose interface late (lazy-initialize)
+#define LAZY_EXPOSE_SINGLE_INTERFACE(className, interfaceName, interfaceID) \
+	void lazy_expose_single_interface_##className() \
+	{ \
+		EXPOSE_SINGLE_INTERFACE(className, interfaceName, interfaceID); \
+	}
+
+// use this for declaration
+#define LAZY_EXPOSED_INTERFACE_DECL(className) \
+	extern void lazy_expose_single_interface_##className();
+
+// use this to instantiate the interface at runtime
+#define CALL_LAZY_EXPOSED_INTERFACE(className) \
+	LAZY_EXPOSED_INTERFACE_DECL(className) \
+	lazy_expose_single_interface_##className();
 
 // Used to retreive interface pointers by client modules
 extern "C"

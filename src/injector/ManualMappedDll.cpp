@@ -122,7 +122,7 @@ void CManualMappedDll::unload(bool tell_client_dll)
 		m_dll_to_be_injected.destroy();
 		close_process_handle();
 
-		CConsole::the().info("Unloaded successfully.");
+		CConsole::the().info("{} unloaded successfully.", m_dll_filepath.string());
 		m_unloaded = true;
 	}
 }
@@ -561,21 +561,25 @@ bool CManualMappedDll::update_shellcode_execution_context_data()
 	assert(m_shellcode_execution_context.pfn_wcsicmp);
 	assert(m_shellcode_execution_context.pfnmemset);
 	assert(m_shellcode_execution_context.pfnmemcpy);
+
 	// debug strings
 	strcpy_s(m_shellcode_execution_context.debug_messages[0], "Hello from shellcode.\n");
 	strcpy_s(m_shellcode_execution_context.debug_messages[1], "Resolving imports...\n");
-	strcpy_s(m_shellcode_execution_context.debug_messages[2], "Resolving exports\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[2], "Resolving exports...\n");
 	strcpy_s(m_shellcode_execution_context.debug_messages[3], "Finding ntdll.dll base...\n");
-	strcpy_s(m_shellcode_execution_context.debug_messages[4], "Resolving C++ exceptions...");
+	strcpy_s(m_shellcode_execution_context.debug_messages[4], "Resolving C++ exceptions...\n");
 	strcpy_s(m_shellcode_execution_context.debug_messages[5], "Searching for RtlInsertInvertedFunctionTable...\n");
-	strcpy_s(m_shellcode_execution_context.debug_messages[6], "Calling DllMain...\n");
-	strcpy_s(m_shellcode_execution_context.debug_messages[7], "Calling Communicative Entry Point...\n");
-	strcpy_s(m_shellcode_execution_context.debug_messages[8], "Shellcode end.\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[6], "Executing RtlInsertInvertedFunctionTable...\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[7], "Calling PreDllLoad...\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[8], "Calling DllMain...\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[9], "Calling Communicative Entry Point...\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[10], "Shellcode end.\n");
 
 	// exported procnames
 	strcpy_s(m_shellcode_execution_context.export_names[0], EXPOSEMODULE_PROCNAME);
 	strcpy_s(m_shellcode_execution_context.export_names[1], INTERFACEINSTANCEGETTER_PROCNAME);
 	strcpy_s(m_shellcode_execution_context.export_names[2], COMMUNICATIVEDLLENTRYPOINT_PROCNAME);
+	strcpy_s(m_shellcode_execution_context.export_names[3], PRE_DLL_LOAD_PROCNAME);
 
 	// dll names
 	wcscpy_s(m_shellcode_execution_context.dll_names[0], L"ntdll.dll");

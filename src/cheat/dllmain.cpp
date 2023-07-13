@@ -32,8 +32,17 @@
 
 #include "precompiled.h"
 
+// called before DllMain
+C_DLLEXPORT bool PreDllLoad()
+{	
+	// preserved for future use.
+	return true;
+}
+
+//-------------------------------------------------------------------------------
+
 // a communicative dll is a dll that exposes this routine and provides communication functionality with the injector.
-extern "C" DLLEXPORT bool CommunicativeDllEntryPoint(injector_information_package_t* ifp)
+C_DLLEXPORT bool CommunicativeDllEntryPoint(injector_information_package_t* ifp)
 {
 	CConsole::the().info(__FUNCTION__ " start.");
 
@@ -48,8 +57,6 @@ extern "C" DLLEXPORT bool CommunicativeDllEntryPoint(injector_information_packag
 }
 
 //-------------------------------------------------------------------------------
-
-#include "tier/MessageBox.h"
 
 uintptr_t g_cheat_dll_base;
 

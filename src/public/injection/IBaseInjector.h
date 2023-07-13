@@ -157,8 +157,8 @@ struct alignas(sizeof(uintptr_t)) manualmap_shellcode_execution_context_t
 	pfnmemcpy_t						pfnmemcpy = nullptr;
 
 	// yes, the shellcode also cannot have any strings
-	char							debug_messages[9][64] = {};
-	char							export_names[3][64] = {};
+	char							debug_messages[11][64] = {};
+	char							export_names[4][64] = {};
 	wchar_t							dll_names[1][32] = {};
 	bytepattern_string_t			byte_patterns[1]; // see BPattern_* macros above
 
@@ -169,11 +169,6 @@ struct alignas(sizeof(uintptr_t)) manualmap_shellcode_execution_context_t
 	// module interfaces, initialize the modules properly, etc.
 	ExposeModuleFn					pfnExposeModule = nullptr;
 	GetInterfaceInstanceFn			pfnGetInterfaceInstance = nullptr;
-
-	// memory snapshot of nt headers saved right before the Dll's DllMain is called.
-	// then the real nt headers are erased completely.
-	// first 4096 bytes is the DOS header + DOS stub + NT headers + image sections. then padded with zeros up to 0x1000
-	uint8_t							m_nt_headers_snapshot[0x1000] = {};
 
 	//------------------------------------------------------------------------
 	// communication
@@ -194,7 +189,7 @@ struct alignas(sizeof(uintptr_t)) loadlibrary_shellcode_execution_context_t
 	pfn_stricmp_t					pfn_stricmp = nullptr;
 
 	// yes, the shellcode also cannot have any strings
-	char							debug_messages[4][64] = {};
+	char							debug_messages[5][64] = {};
 	char							export_names[3][64] = {};
 
 	//------------------------------------------------------------------------

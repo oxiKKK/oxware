@@ -381,6 +381,7 @@
     <ClInclude Include="hook\MemoryHook.h" />
     <ClInclude Include="hook\SecurityModuleHook.h" />
     <ClInclude Include="hook\tests\HookTests.h" />
+    <ClInclude Include="importbank_decls.h" />
     <ClInclude Include="oxware.h" />
     <ClInclude Include="precompiled.h" />
     <ClInclude Include="ui\InCommandBinding.h" />

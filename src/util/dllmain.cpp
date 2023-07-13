@@ -76,11 +76,6 @@ bool CUtilityModule::initialize(ModuleInitializationContext* context)
 
 	g_cheat_info_i = LocateExportedInterface<ICheatInfo>(WMODULE_CHEAT, ICHEATINFO_INTERFACEID);
 
-	if (!g_importbank_i->initialize())
-	{
-		return false;
-	}
-
 	g_registry_i->initialize();
 
 	return true;
@@ -99,7 +94,6 @@ void CUtilityModule::destroy()
 
 	// Local
 	g_registry_i = nullptr;
-	g_importbank_i = nullptr;
 }
 
 EUpdateStatus CUtilityModule::update()
@@ -108,7 +102,7 @@ EUpdateStatus CUtilityModule::update()
 }
 
 // Expose current module to the loader and initialize it
-extern "C" DLLEXPORT bool ExposeModule(IBaseModule** module_interface, ModuleInitializationContext* context)
+C_DLLEXPORT bool ExposeModule(IBaseModule** module_interface, ModuleInitializationContext* context)
 {
 	*module_interface = &g_util_module;
 	if (!(*module_interface)->initialize(context))

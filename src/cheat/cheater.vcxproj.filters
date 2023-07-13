@@ -68,20 +68,17 @@
     <Filter Include="src\UI\rendering_contexts\menu\tabs">
       <UniqueIdentifier>{c1b29177-076b-4cb3-aa9b-2b8b0185a4e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\interfaces">
+      <UniqueIdentifier>{b54f3962-235b-417c-ac94-1728d0db4c59}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="precompiled.cpp" />
     <ClCompile Include="..\public\Console.cpp">
       <Filter>public</Filter>
     </ClCompile>
     <ClCompile Include="..\public\interface.cpp">
       <Filter>public</Filter>
-    </ClCompile>
-    <ClCompile Include="oxware.cpp">
-      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="InjectedDllIPCLayerClient.cpp">
       <Filter>src\communication</Filter>
@@ -152,9 +149,6 @@
     <ClCompile Include="game\LocalPlayerState.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
-    <ClCompile Include="InCommands.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="features\movement\BunnyHop.cpp">
       <Filter>src\features\movement</Filter>
     </ClCompile>
@@ -166,9 +160,6 @@
     </ClCompile>
     <ClCompile Include="..\public\BaseInCommand.cpp">
       <Filter>public</Filter>
-    </ClCompile>
-    <ClCompile Include="CheatInfo.cpp">
-      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="game\ClientMovementPacket.cpp">
       <Filter>src\game</Filter>
@@ -380,6 +371,16 @@
     <ClCompile Include="features\Panic.cpp">
       <Filter>src\features\render</Filter>
     </ClCompile>
+    <ClCompile Include="InCommands.cpp">
+      <Filter>src\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="CheatInfo.cpp">
+      <Filter>src\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="oxware.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -661,6 +662,9 @@
     </ClInclude>
     <ClInclude Include="features\Panic.h">
       <Filter>src\features\render</Filter>
+    </ClInclude>
+    <ClInclude Include="importbank_decls.h">
+      <Filter>src\interfaces</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

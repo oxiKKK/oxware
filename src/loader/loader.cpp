@@ -44,7 +44,6 @@ IGUIThemeManager* g_gui_thememgr_i = nullptr;
 IGUIWindowRendering* g_gui_window_rendering_i = nullptr;
 
 // Util
-IImportBank* g_importbank_i = nullptr;
 IRegistry* g_registry_i = nullptr;
 IFileSystem* g_filesystem_i = nullptr;
 IVariableManager* g_variablemgr_i = nullptr;
@@ -94,11 +93,11 @@ int CMainLoader::run(HINSTANCE hinst)
 
 	while (run_frame()) {}
 
-	on_window_destroy();
-
 	m_selected_injector->destroy();
 	delete m_selected_injector;
 	m_selected_injector = nullptr;
+
+	on_window_destroy();
 
 	unload_dependencies();
 
@@ -112,13 +111,12 @@ bool CMainLoader::load_and_initialize_dependencies()
 	// Util
 	if (!CDependencyLoader::the().load_and_initialize_module(LOADTYPE_NATIVE, {}, WMODULE_UTIL, [&](const auto& mod)
 	{
-		 g_importbank_i = mod.get_interface<IImportBank>(IIMPORTBANK_INTERFACEID);
 		 g_registry_i = mod.get_interface<IRegistry>(IREGISTRY_INTERFACEID);
 		 g_filesystem_i = mod.get_interface<IFileSystem>(IFILESYSTEM_INTERFACEID);
 		 g_variablemgr_i = mod.get_interface<IVariableManager>(IVARIABLEMANAGER_INTERFACEID);
 		 g_appdata_mgr_i = mod.get_interface<IAppDataManager>(IAPPDATAMANAGER_INTERFACEID);
 
-		 return g_importbank_i && g_registry_i && g_filesystem_i && g_variablemgr_i && g_appdata_mgr_i;
+		 return g_registry_i && g_filesystem_i && g_variablemgr_i && g_appdata_mgr_i;
 	}))
 	{
 		return false;
@@ -322,7 +320,6 @@ void CMainLoader::unload_dependencies()
 	g_gui_window_rendering_i = nullptr;
 
 	// Util
-	g_importbank_i = nullptr;
 	g_registry_i = nullptr;
 	g_filesystem_i = nullptr;
 	g_variablemgr_i = nullptr;

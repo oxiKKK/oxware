@@ -206,7 +206,6 @@
     <ClCompile Include="ConfigManager.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="FileSystem.cpp" />
-    <ClCompile Include="ImportBank.cpp" />
     <ClCompile Include="key_translation.cpp" />
     <ClCompile Include="precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

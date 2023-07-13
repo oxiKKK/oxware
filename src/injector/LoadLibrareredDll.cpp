@@ -123,7 +123,7 @@ void CLoadLibrareredDll::unload(bool tell_client_dll)
 		m_dll_to_be_injected.destroy();
 		close_process_handle();
 
-		CConsole::the().info("Unloaded successfully.");
+		CConsole::the().info("{} unloaded successfully.", m_dll_filepath.string());
 		m_unloaded = true;
 	}
 }
@@ -452,14 +452,16 @@ void CLoadLibrareredDll::update_shellcode_execution_context_data()
 
 	// debug strings
 	strcpy_s(m_shellcode_execution_context.debug_messages[0], "Hello from shellcode.\n");
-	strcpy_s(m_shellcode_execution_context.debug_messages[1], "Calling LoadLibraryExA.\n");
-	strcpy_s(m_shellcode_execution_context.debug_messages[2], "Calling DLL communication entry point.\n");
-	strcpy_s(m_shellcode_execution_context.debug_messages[3], "Shellcode finish.\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[1], "Calling LoadLibraryExA...\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[2], "Calling DllPreLoad..\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[3], "Calling DLL communication entry point...\n");
+	strcpy_s(m_shellcode_execution_context.debug_messages[4], "Shellcode finish.\n");
 
 	// exported procnames
 	strcpy_s(m_shellcode_execution_context.export_names[0], EXPOSEMODULE_PROCNAME);
 	strcpy_s(m_shellcode_execution_context.export_names[1], INTERFACEINSTANCEGETTER_PROCNAME);
 	strcpy_s(m_shellcode_execution_context.export_names[2], COMMUNICATIVEDLLENTRYPOINT_PROCNAME);
+	strcpy_s(m_shellcode_execution_context.export_names[3], PRE_DLL_LOAD_PROCNAME);
 
 	if (is_communicative_dll())
 	{

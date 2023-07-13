@@ -37,8 +37,10 @@ IBaseModule* g_thismodule_i = nullptr;
 
 // Dependency loader
 ILibraryLoader* g_libloader_i = nullptr;
-IVariableManager* g_variablemgr_i = nullptr;
 IDeveloperConsole* g_devconsole_i = nullptr;
+
+// Util
+IVariableManager* g_variablemgr_i = nullptr;
 
 class COxUIModule final : public IBaseModule
 {
@@ -85,8 +87,10 @@ void COxUIModule::destroy()
 
 	// Dependency loader
 	g_libloader_i = nullptr;
-	g_variablemgr_i = nullptr;
 	g_devconsole_i = nullptr;
+
+	// Util
+	g_variablemgr_i = nullptr;
 }
 
 EUpdateStatus COxUIModule::update()
@@ -95,7 +99,7 @@ EUpdateStatus COxUIModule::update()
 }
 
 // Expose current module to the loader and initialize it
-extern "C" DLLEXPORT bool ExposeModule(IBaseModule** module_interface, ModuleInitializationContext* context)
+C_DLLEXPORT bool ExposeModule(IBaseModule** module_interface, ModuleInitializationContext* context)
 {
 	*module_interface = &g_oxui_module;
 	if (!(*module_interface)->initialize(context))

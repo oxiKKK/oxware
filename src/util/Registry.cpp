@@ -109,7 +109,7 @@ void CRegistry::shutdown()
 	m_valid = false;
 	for (auto& key : m_registry_key_vault)
 	{
-		LONG st = g_importbank_i->RegCloseKey(key);
+		LONG st = RegCloseKey(key);
 		assert(st == ERROR_SUCCESS);
 	}
 }
@@ -129,7 +129,7 @@ int CRegistry::read_int(EKeyType type, const char* key, int default_value)
 		return default_value;
 	}
 
-	st = g_importbank_i->RegQueryValueExA(
+	st = RegQueryValueExA(
 		hkey,				// handle to key	
 		key,				// value name
 		NULL,				// reserved
@@ -163,7 +163,7 @@ void CRegistry::write_int(EKeyType type, const char* key, int value)
 		return;
 	}
 
-	LONG st = g_importbank_i->RegSetValueExA(
+	LONG st = RegSetValueExA(
 		hkey,			// handle to key
 		key,			// value name
 		0,				// reserved
@@ -192,7 +192,7 @@ const char* CRegistry::read_string(EKeyType type, const char* key, const char* d
 		return default_value;
 	}
 
-	st = g_importbank_i->RegQueryValueExA(
+	st = RegQueryValueExA(
 		hkey,					// handle to key	
 		key,					// value name
 		NULL,					// reserved
@@ -226,7 +226,7 @@ void CRegistry::write_string(EKeyType type, const char* key, const char* value)
 		return;
 	}
 
-	LONG st = g_importbank_i->RegSetValueExA(
+	LONG st = RegSetValueExA(
 		hkey,			// handle to key
 		key,			// value name
 		0,				// reserved
@@ -251,7 +251,7 @@ bool CRegistry::add_new_key(HKEY key, const char* subkey, EKeyType type)
 	LONG st;
 	HKEY new_key;
 
-	st = g_importbank_i->RegCreateKeyExA(
+	st = RegCreateKeyExA(
 		key,						// handle of open key 
 		subkey,						// address of name of subkey to open 
 		0,							// reserved 

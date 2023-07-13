@@ -144,15 +144,18 @@ public:
 	void resume_engine();
 
 	// run inside engine frame function
-	void engine_frame();
+	bool engine_frame();
+
+private:
+	void hang_till_engine_sleeps();
+	void hang_till_engine_resumes_from_sleep();
+
+	inline static constexpr uint32_t k_time_to_acknowledge_sleep = 20 * 1000;
 
 private:
 	bool m_engine_is_sleeping = false;
 
 	bool m_engine_should_sleep = false;
-
-	// the timestamp we started waiting for the engine until it goes to sleep
-	uint32_t m_start_time;
 };
 
 #endif // OXWARE_H

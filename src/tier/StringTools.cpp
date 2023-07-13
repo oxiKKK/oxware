@@ -28,19 +28,19 @@
 
 #include "precompiled.h"
 
-std::string CStringTools::unicode_to_utf8(const std::wstring& wstr)
+std::string CStringTools::utf16_to_utf8(const std::wstring& wstr)
 {
-	auto buf_len = wstr.length();
+	size_t buf_len = wstr.length();
 	std::string result(buf_len, ' ');
-	WideCharToMultiByte(CP_UTF8, NULL, wstr.c_str(), buf_len, (LPSTR)result.c_str(), buf_len, nullptr, nullptr);
+	::WideCharToMultiByte(CP_UTF8, NULL, wstr.c_str(), buf_len, (LPSTR)result.c_str(), buf_len, nullptr, nullptr);
 	return result;
 }
 
-std::wstring CStringTools::utf8_to_unicode(const std::string& str)
+std::wstring CStringTools::utf8_to_utf16(const std::string& str)
 {
-	auto buf_len = str.length();
+	size_t buf_len = str.length();
 	std::wstring result(buf_len, ' ');
-	MultiByteToWideChar(CP_UTF8, NULL, str.c_str(), buf_len, (LPWSTR)result.c_str(), buf_len);
+	::MultiByteToWideChar(CP_UTF8, NULL, str.c_str(), buf_len, (LPWSTR)result.c_str(), buf_len);
 	return result;
 }
 

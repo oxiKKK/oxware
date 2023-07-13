@@ -13,9 +13,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="winmain.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="precompiled.cpp" />
     <ClCompile Include="loader.cpp">
       <Filter>src</Filter>
@@ -41,6 +38,7 @@
     <ClCompile Include="..\public\BaseVariable.cpp">
       <Filter>public</Filter>
     </ClCompile>
+    <ClCompile Include="winmain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />

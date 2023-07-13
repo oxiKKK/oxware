@@ -40,7 +40,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #define DLLEXPORT						__declspec(dllexport)
-#define CDLLEXPORT			extern "C"	__declspec(dllexport)
+#define C_DLLEXPORT			extern "C"	__declspec(dllexport)
 
 //---------------------------------------------------------------------------------
 // PHNT, thank you guys

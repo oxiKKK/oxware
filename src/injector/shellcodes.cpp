@@ -26,15 +26,6 @@
 *	IN THE SOFTWARE.
 */
 
-#include <platform.h>
-
-#include <interface/IBaseModule.h>
-
-#include <injection/IBaseInjector.h>
-#include <injection/BaseInjector.h>
-
-#include <BytePattern.h>
-
 //
 // shellcodes.cpp
 // 
@@ -46,6 +37,24 @@
 //		Function-level linking	- https://learn.microsoft.com/en-us/cpp/build/reference/gy-enable-function-level-linking?view=msvc-170
 //		COMDAT folding			- https://stackoverflow.com/questions/1834597/what-is-the-comdat-section-used-for
 //
+
+#include <platform.h>
+
+#include <interface/IBaseModule.h>
+
+#include <injection/IBaseInjector.h>
+#include <injection/BaseInjector.h>
+
+#include <tier/MessageBox.h>
+
+#include <BytePattern.h>
+
+#include "RtlIIFT_bytepattern_search.h"
+
+//------------------------------------------------------------------------------------------------------------------------
+// LoadLibrary DLl shellcode
+//
+
 
 //
 //	Policy of the shellcode routine code:
@@ -102,6 +111,7 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CLoadLibrareredDll::shellcode_routine(lo
 	auto peb = teb->ProcessEnvironmentBlock;
 
 	pfnCommunicativeDllEntryPoint_t pfnCommunicativeDllEntryPoint = nullptr;
+	pfnPreDllLoad_t pfnPreDllLoad = nullptr;
 
 	//
 	// watch for dll exports we want
@@ -131,10 +141,27 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CLoadLibrareredDll::shellcode_routine(lo
 			{
 				pfnCommunicativeDllEntryPoint = reinterpret_cast<pfnCommunicativeDllEntryPoint_t>((uint8_t*)base + function_table_base[ordinal_table_base[i]]);
 			}
+			else if (!context->pfn_stricmp(export_procname, context->export_names[3]))
+			{
+				pfnPreDllLoad = reinterpret_cast<pfnPreDllLoad_t>((uint8_t*)base + function_table_base[ordinal_table_base[i]]);
+			}
 		}
 	}
 
 	context->pfnOutputDebugStringA(context->debug_messages[2]);
+
+	//
+	// Call PreDllLoad, if available
+	//
+	if (pfnPreDllLoad != nullptr)
+	{
+		if (!pfnPreDllLoad())
+		{
+			return NULL;
+		}
+	}
+
+	context->pfnOutputDebugStringA(context->debug_messages[3]);
 
 	//
 	// if this module we're loading is the communicative one, we have to listen to it.
@@ -149,7 +176,7 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CLoadLibrareredDll::shellcode_routine(lo
 		}
 	}
 
-	context->pfnOutputDebugStringA(context->debug_messages[3]);
+	context->pfnOutputDebugStringA(context->debug_messages[4]);
 
 	return (HINSTANCE)module;
 }
@@ -160,6 +187,8 @@ DWORD CLoadLibrareredDll::shellcode_routine_end_marker()
 }
 
 //------------------------------------------------------------------------------------------------------------------------
+// Manual-mapped DLl shellcode
+//
 
 //
 //	Policy of the shellcode routine code:
@@ -182,6 +211,7 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 	auto pfnDllMain = reinterpret_cast<pfnDllMain_t>(base + op->AddressOfEntryPoint);
 
 	pfnCommunicativeDllEntryPoint_t pfnCommunicativeDllEntryPoint = nullptr;
+	pfnPreDllLoad_t pfnPreDllLoad = nullptr;
 
 	context->pfnOutputDebugStringA(context->debug_messages[1]);
 
@@ -256,6 +286,10 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 			{
 				pfnCommunicativeDllEntryPoint = reinterpret_cast<pfnCommunicativeDllEntryPoint_t>((uint8_t*)base + function_table_base[ordinal_table_base[i]]);
 			}
+			else if (!context->pfn_stricmp(export_procname, context->export_names[3]))
+			{
+				pfnPreDllLoad = reinterpret_cast<pfnPreDllLoad_t>((uint8_t*)base + function_table_base[ordinal_table_base[i]]);
+			}
 		}
 	}
 
@@ -327,6 +361,8 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 		}
 	}
 
+	context->pfnOutputDebugStringA(context->debug_messages[6]);
+
 	RtlInsertInvertedFunctionTable = (decltype(RtlInsertInvertedFunctionTable))address;
 
 	if (RtlInsertInvertedFunctionTable)
@@ -340,25 +376,20 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 		return NULL;
 	}
 
-#if 0 // UPDATE: This was originally not disabled however, after the addition of exception handling, we need data from PE header..
-	  //		 Meh.. I don't wanna deal with this now.. TODO (Note: is this even needed?)
+	context->pfnOutputDebugStringA(context->debug_messages[7]);
 
 	//
-	// Make a memory snapshot of the first 4064 bytes of the DLL file, if needed for later
+	// call PreDllLoad, if available
 	//
-	context->pfnmemcpy(context->m_nt_headers_snapshot, base, sizeof(context->m_nt_headers_snapshot));
-	context->pfnmemset(base, 0x0, sizeof(context->m_nt_headers_snapshot));
+	if (pfnPreDllLoad != nullptr)
+	{
+		if (!pfnPreDllLoad())
+		{
+			return NULL;
+		}
+	}
 
-	//
-	// clear some things we don't want to have in our memory snapshot
-	//
-	auto snap_dos = (PIMAGE_DOS_HEADER)context->m_nt_headers_snapshot;
-	auto snap_nt = (PIMAGE_NT_HEADERS)(snap_dos + dos->e_lfanew);
-	snap_dos->e_magic = 0;
-	snap_nt->OptionalHeader.Magic = 0;
-#endif
-
-	context->pfnOutputDebugStringA(context->debug_messages[6]);
+	context->pfnOutputDebugStringA(context->debug_messages[8]);
 
 	//
 	// call the generic initialization routine that gets called normally. (_DllMainCRTStartup(), usually)
@@ -368,7 +399,7 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 		return NULL;
 	}
 
-	context->pfnOutputDebugStringA(context->debug_messages[7]);
+	context->pfnOutputDebugStringA(context->debug_messages[9]);
 
 	//
 	// if this module we're loading is the communicative one, we have to listen to it.
@@ -383,7 +414,7 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 		}
 	}
 
-	context->pfnOutputDebugStringA(context->debug_messages[8]);
+	context->pfnOutputDebugStringA(context->debug_messages[10]);
 
 	//__debugbreak();
 
@@ -393,4 +424,156 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 DWORD CManualMappedDll::shellcode_routine_end_marker()
 {
 	return 123456; // return value doesn't matter. Return something, so that the compiler doesn't inline this or smth
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+//
+// ManualMapped DLL Current Process shellcode
+//
+
+//
+// This shellcode gets executed in our process's memory, so it's okay to put anything you want here.
+//
+DISABLE_SAFEBUFFERS HINSTANCE CManualMappedDllCurrentProcess::shellcode_routine()
+{
+	auto dos = reinterpret_cast<PIMAGE_DOS_HEADER>(m_allocation_block_ptr);
+	auto nt = reinterpret_cast<PIMAGE_NT_HEADERS>(m_allocation_block_ptr + dos->e_lfanew);
+	auto op = &nt->OptionalHeader;
+
+	auto teb = GET_CURRENT_TEB();
+	auto peb = teb->ProcessEnvironmentBlock;
+
+	auto pfnDllMain = reinterpret_cast<pfnDllMain_t>(m_allocation_block_ptr + op->AddressOfEntryPoint);
+
+	pfnPreDllLoad_t pfnPreDllLoad = nullptr;
+
+	//
+	// manually re-set image imports corresponding to target process's address space addresses.
+	//
+	if (op->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size)
+	{
+		auto import_desc = (IMAGE_IMPORT_DESCRIPTOR*)(m_allocation_block_ptr + op->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
+
+		while (import_desc->Name)
+		{
+			char* module_name = (char*)(m_allocation_block_ptr + import_desc->Name);
+
+//			OutputDebugStringA(module_name);
+
+			HINSTANCE module_handle = (HINSTANCE)LoadLibraryA(module_name);
+
+			auto thunk_ref = (ULONG_PTR*)(m_allocation_block_ptr + import_desc->OriginalFirstThunk);
+			auto func_ref = (ULONG_PTR*)(m_allocation_block_ptr + import_desc->FirstThunk);
+
+			if (!import_desc->OriginalFirstThunk)
+			{
+				thunk_ref = func_ref;
+			}
+
+			for (; *thunk_ref; ++thunk_ref, ++func_ref)
+			{
+				if (IMAGE_SNAP_BY_ORDINAL(*thunk_ref))
+				{
+					*func_ref = (ULONG_PTR)GetProcAddress(module_handle, (char*)IMAGE_ORDINAL32(*thunk_ref));
+				}
+				else
+				{
+					auto import = (IMAGE_IMPORT_BY_NAME*)(m_allocation_block_ptr + (*thunk_ref));
+					*func_ref = (ULONG_PTR)GetProcAddress(module_handle, import->Name);
+				}
+			}
+
+			import_desc++;
+		}
+	}
+
+	//
+	// watch for dll exports we want
+	//
+	if (op->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size)
+	{
+		auto exports_directory = (PIMAGE_EXPORT_DIRECTORY)((uint8_t*)m_allocation_block_ptr + op->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
+
+		auto function_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)m_allocation_block_ptr + exports_directory->AddressOfFunctions);
+		auto name_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)m_allocation_block_ptr + exports_directory->AddressOfNames);
+		auto ordinal_table_base = reinterpret_cast<uint16_t*>((uint8_t*)m_allocation_block_ptr + exports_directory->AddressOfNameOrdinals);
+
+		// search for some procs we want to have
+		for (size_t i = 0; i < exports_directory->NumberOfNames; i++)
+		{
+			auto export_procname = reinterpret_cast<const char*>((uint8_t*)m_allocation_block_ptr + name_table_base[i]);
+			if (!_stricmp(export_procname, EXPOSEMODULE_PROCNAME))
+			{
+				m_pfnExposeModuleFn = reinterpret_cast<ExposeModuleFn>((uint8_t*)m_allocation_block_ptr + function_table_base[ordinal_table_base[i]]);
+//				OutputDebugStringA("Found ExposeModuleFn");
+			}
+			else if (!_stricmp(export_procname, INTERFACEINSTANCEGETTER_PROCNAME))
+			{
+				m_pfnGetInterfaceInstanceFn = reinterpret_cast<GetInterfaceInstanceFn>((uint8_t*)m_allocation_block_ptr + function_table_base[ordinal_table_base[i]]);
+//				OutputDebugStringA("Found GetInterfaceInstanceFn");
+			}
+			else if (!_stricmp(export_procname, PRE_DLL_LOAD_PROCNAME))
+			{
+				pfnPreDllLoad = reinterpret_cast<pfnPreDllLoad_t>((uint8_t*)m_allocation_block_ptr + function_table_base[ordinal_table_base[i]]);
+			}
+		}
+	}
+
+	//
+	// Resolve RtlInsertInvertedFunctionTable byte patterns.
+	//
+
+	// byte patterns
+	if (!RtlIIFT_BytePattern_Search::the().resolve_bytepatterns())
+	{
+		return NULL;
+	}
+
+	// byte pattern for RtlInsertInvertedFunctionTable inside ntdll.
+	CBytePatternRuntime RtlIIFT_pattern({ RtlIIFT_BytePattern_Search::the().m_RtlIIFT_bytepattern.c_str(), RtlIIFT_BytePattern_Search::the().m_RtlIIFT_bytepattern.length() });
+
+	DWORD ntdll_base = (DWORD)GetModuleHandleA("ntdll.dll");
+	DWORD size_of_ntdll_image = (DWORD)((PIMAGE_NT_HEADERS)((uint8_t*)ntdll_base + ((PIMAGE_DOS_HEADER)ntdll_base)->e_lfanew))->OptionalHeader.SizeOfImage;
+
+	// Note that this function's declaration changes rapidly through various windows versions.
+	// On windows 7, this function has three parameters, but on windows 10 it has only two.
+	// The byte pattern for this function may change often, too...
+	//
+	// This function is normally called by the internal native loader api when loading a dll.
+	// Without this function call, we aren't able to use C++ exceptions inside of our code.
+	void(__fastcall * RtlInsertInvertedFunctionTable)(DWORD ImageBase, DWORD SizeOfImage);
+	RtlInsertInvertedFunctionTable = (decltype(RtlInsertInvertedFunctionTable))RtlIIFT_pattern.search_in_loaded_address_space(ntdll_base, ntdll_base + size_of_ntdll_image);
+
+	if (RtlInsertInvertedFunctionTable)
+	{
+		DWORD size_of_image_current = (DWORD)((PIMAGE_NT_HEADERS)((uint8_t*)m_allocation_block_ptr + ((PIMAGE_DOS_HEADER)m_allocation_block_ptr)->e_lfanew))->OptionalHeader.SizeOfImage;
+		RtlInsertInvertedFunctionTable((DWORD)m_allocation_block_ptr, size_of_image_current);
+	}
+	else
+	{
+		CMessageBox::display_error("Couldn't find RtlInsertInvertedFunctionTable function. "
+								   "This function is mandatory. Aborting injection...");
+		return NULL;
+	}
+
+	//
+	// call PreDllLoad, if available
+	//
+	if (pfnPreDllLoad != nullptr)
+	{
+		if (!pfnPreDllLoad())
+		{
+			return NULL;
+		}
+	}
+
+	//
+	// call the generic initialization routine that gets called normally. (_DllMainCRTStartup(), usually)
+	//
+	if (!pfnDllMain((HINSTANCE)m_allocation_block_ptr, DLL_PROCESS_ATTACH, NULL))
+	{
+		return NULL;
+	}
+
+	return (HINSTANCE)m_allocation_block_ptr;
 }

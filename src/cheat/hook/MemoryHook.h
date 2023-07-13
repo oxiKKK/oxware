@@ -73,7 +73,7 @@ private:
 	{
 		assert(is_initialized() && "hook must be initialized first before installed!");
 
-		CConsole::the().info("Installing hook '{}' ({}) using '{}'...", m_name, CStringTools::the().unicode_to_utf8(m_module_name), install_method);
+		CConsole::the().info("Installing hook '{}' ({}) using '{}'...", m_name, CStringTools::the().utf16_to_utf8(m_module_name), install_method);
 	}
 
 	void on_hook_install_success()
@@ -87,7 +87,7 @@ private:
 		std::string formatted_error = std::vformat(_Fmt.get(), std::make_format_args(_Args...));
 
 		CMessageBox::display_error("Failed to install hook '{}' from '{}' !!!\n\nDetails: {}",
-								   m_name, CStringTools::the().unicode_to_utf8(m_module_name),
+								   m_name, CStringTools::the().utf16_to_utf8(m_module_name),
 								   formatted_error);
 	}
 
@@ -138,7 +138,7 @@ protected:
 			if (!is_detoured)
 			{
 				CConsole::the().error("Hook '{}' out of range: is 0x{:08X} but the range is [0x{:08X}; 0x{:08X}] (module: {})",
-									 m_name, addr, base, ((end - 1) - sizeof(uintptr_t)), CStringTools::the().unicode_to_utf8(m_module_name));
+									 m_name, addr, base, ((end - 1) - sizeof(uintptr_t)), CStringTools::the().utf16_to_utf8(m_module_name));
 				return false;
 			}
 		}

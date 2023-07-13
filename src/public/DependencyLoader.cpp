@@ -40,7 +40,7 @@
 
 std::string LoadableModuleObject::get_name_utf8() const
 {
-	return CStringTools::the().unicode_to_utf8(m_name);
+	return CStringTools::the().utf16_to_utf8(m_name);
 }
 
 bool LoadableModuleObject::load_and_initialize(ELoadType type, const FilePath_t& module_path, const std::wstring& module_name)
@@ -159,13 +159,11 @@ void LoadableModuleObject::unload_by_type()
 	{
 		case LOADTYPE_NATIVE:
 		{
-			CConsole::the().info("LOADTYPE_NATIVE");
 			g_libloader_i->unload_library(m_handle);
 			break;
 		}
 		case LOADTYPE_MANUALMAP:
 		{
-			CConsole::the().info("LOADTYPE_MANUALMAP");
 			assert(m_injected_module);
 			m_injected_module->unload(false);
 			delete m_injected_module;
@@ -278,7 +276,7 @@ void CDependencyLoader::unload_module(const std::wstring& module_name)
 		}
 	}
 
-	CConsole::the().error("Failed to unload module '{}'. Already unloaded?", CStringTools::the().unicode_to_utf8(module_name));
+	CConsole::the().error("Failed to unload module '{}'. Already unloaded?", CStringTools::the().utf16_to_utf8(module_name));
 }
 
 bool CDependencyLoader::update()

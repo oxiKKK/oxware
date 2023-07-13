@@ -57,7 +57,7 @@ public:
 		}
 
 		CConsole::the().info("Removing detoured '{}' from {}...",
-							 m_name, CStringTools::the().unicode_to_utf8(m_module_name));
+							 m_name, CStringTools::the().utf16_to_utf8(m_module_name));
 
 		restore_internal();
 	}

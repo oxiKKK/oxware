@@ -34,7 +34,7 @@ CMenuSearchFilterContext g_search_filter_context;
 
 void IMenuChild::render()
 {
-	g_gui_widgets_i->set_cursor_pos(m_computed_position);
+	g_gui_widgets_i->set_cursor_pos(m_computed_position + MenuStyle::menu_contents_padding);
 
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
 
@@ -495,22 +495,24 @@ void CUIMenu::on_render()
 			// now render contents of the menu.
 			//
 
-			g_gui_widgets_i->set_cursor_pos({
-				MenuStyle::tab_select_width + MenuStyle::contents_padding,
-				MenuStyle::top_region_size_h + MenuStyle::contents_padding });
+			g_gui_widgets_i->set_cursor_pos({ MenuStyle::tab_select_width, MenuStyle::top_region_size_h });
+
+			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, MenuStyle::child_contents_padding);
 
 			g_gui_widgets_i->add_child(
 				"menu_contents",
 				{
-					window_size.x - MenuStyle::tab_select_width - (MenuStyle::contents_padding * 2.0f),
-					window_size.y - MenuStyle::top_region_size_h - (MenuStyle::contents_padding * 1.0f + MenuStyle::contents_padding_bottom) - MenuStyle::bottom_reserved_rect_h,
+					window_size.x - MenuStyle::tab_select_width,
+					window_size.y - MenuStyle::top_region_size_h - MenuStyle::bottom_reserved_rect_h - 1.0f,
 				},
 				false,
-				ImGuiWindowFlags_NoBackground,
+				ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar,
 				[&]()
 				{
 					handle_menu_contents_rendering();
 				});
+
+			g_gui_widgets_i->pop_stylevar(); // window padding
 
 			render_menu_decoration(window_pos, window_size);
 		});
@@ -553,44 +555,54 @@ void CUIMenu::handle_menu_contents_rendering()
 		last_id = m_active_tab;
 	}
 
-	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, MenuStyle::child_contents_padding);
+	bool set_scroll = false;
 
-	g_gui_widgets_i->add_child(
-		"menu_contents_inner",
-		{ -1.0f, -1.0f },
-		false,
-		ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar,
-		[&]()
+	CConsole::the().info("----");
+
+	for (auto& [group_label, group] : m_tab_groups)
+	{
+		for (auto& [tab_id, tab] : group.m_tabs)
 		{
-			for (auto [group_label, group] : m_tab_groups)
+			if (tab_id != m_active_tab)
 			{
-				for (auto& [group_id, tab] : group.m_tabs)
+				continue; // this isn't the tab we have selected.
+			}
+
+			if (contents_changed && !set_scroll)
+			{
+				g_gui_widgets_i->set_scroll(tab.m_scroll);
+				set_scroll = true;
+			}
+			else
+			{
+				auto window_scroll = g_gui_widgets_i->get_current_scroll();
+				if (!window_scroll.IsZero())
 				{
-					if (group_id == m_active_tab)
-					{
-						CMenuContentsGrid::the().precompute(window_size, tab, contents_changed);
-
-						g_gui_widgets_i->set_next_window_rounding(MenuStyle::child_rounding, ImDrawFlags_RoundCornersAll);
-
-						for (auto child : tab.m_children)
-						{
-							// apply the search filter, if it is active
-							if (g_search_filter_context.apply_filter(child))
-							{
-								continue;
-							}
-
-							child->render();
-						}
-
-						break;
-					}
+					tab.m_scroll = window_scroll;
+					CConsole::the().info("{}: set scroll to: {}", tab.m_label, window_scroll);
 				}
 			}
-		});
 
-	g_gui_widgets_i->pop_stylevar(); // window padding
-}
+			CMenuContentsGrid::the().precompute(window_size, tab, contents_changed);
+
+			g_gui_widgets_i->set_next_window_rounding(MenuStyle::child_rounding, ImDrawFlags_RoundCornersAll);
+
+			for (auto child : tab.m_children)
+			{
+				// apply the search filter, if it is active
+				if (g_search_filter_context.apply_filter(child))
+				{
+					continue;
+				}
+
+				child->render();
+			}
+
+			// we're done here.
+			break;
+		}
+	}
+	}
 
 void CUIMenu::render_github_repo_link_decor()
 {

@@ -176,6 +176,8 @@ public:
 	std::string m_label, m_desc;
 
 	std::vector<IMenuChild*> m_children;
+
+	Vector2D m_scroll;
 };
 
 // represents group containing several menu entries

@@ -45,8 +45,7 @@ public:
 	static const float		top_region_size_h;
 
 	// menu contents paddings
-	static const float		contents_padding;
-	static const float		contents_padding_bottom;
+	static const float		menu_contents_padding;
 
 	// bottom portion of the menu
 	static const float		bottom_reserved_rect_h;

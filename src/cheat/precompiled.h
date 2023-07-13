@@ -305,6 +305,7 @@ namespace hl
 #include "features/movement/StrafeHelper.h"
 #include "features/movement/FastRun.h"
 #include "features/movement/AutoJOF.h"
+#include "features/movement/MovementVisualInfo.h"
 #include "features/movement/Movement.h"
 
 // ui

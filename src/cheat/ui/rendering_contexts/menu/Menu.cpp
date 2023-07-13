@@ -364,6 +364,7 @@ void CUIMenu::on_initialize()
 	screen.m_children.push_back(new MenuChilden::Screen::ESP({ "🔳 ESP", 290, true }));
 	screen.m_children.push_back(new MenuChilden::Screen::CustomCrosshair({ "➕ Custom crosshair", 265, true }));
 	screen.m_children.push_back(new MenuChilden::Screen::ClShowFPSEnhancement({ "cl_showfps enhancement", 130, true }));
+	screen.m_children.push_back(new MenuChilden::Screen::MovementInfo({ "Movement info", 150, true }));
 
 	//
 	// Miscellanous

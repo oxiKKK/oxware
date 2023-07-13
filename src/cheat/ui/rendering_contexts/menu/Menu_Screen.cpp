@@ -125,7 +125,6 @@ void MenuChilden::Screen::CustomCrosshair::contents()
 	});
 }
 
-
 void MenuChilden::Screen::ClShowFPSEnhancement::contents()
 {
 	CUIMenuWidgets::the().feature_enabled_section(
@@ -135,4 +134,15 @@ void MenuChilden::Screen::ClShowFPSEnhancement::contents()
 		CUIMenuWidgets::the().add_checkbox("Background", &ingamescreen_better_cl_showfps_background);
 		CUIMenuWidgets::the().add_listbox("Position", &ingamescreen_better_cl_showfps_position, { "Top left", "Top right", "bottom right", "bottom left" });
 	});
+}
+
+void MenuChilden::Screen::MovementInfo::contents()
+{
+	CUIMenuWidgets::the().add_checkbox("Enable", &movement_visual_info);
+	CUIMenuWidgets::the().add_checkbox("Keys", &movement_visual_info_keys);
+	CUIMenuWidgets::the().add_slider("Vertical pos", "%0.2f", &movement_visual_info_keys_offset);
+
+	g_gui_widgets_i->add_spacing();
+	g_gui_widgets_i->add_separator();
+	CUIMenuWidgets::the().add_checkbox("Background", &movement_visual_info_background);
 }

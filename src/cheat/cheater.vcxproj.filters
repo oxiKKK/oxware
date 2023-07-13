@@ -381,6 +381,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="features\movement\MovementVisualInfo.cpp">
+      <Filter>src\features\movement</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -665,6 +668,9 @@
     </ClInclude>
     <ClInclude Include="importbank_decls.h">
       <Filter>src\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="features\movement\MovementVisualInfo.h">
+      <Filter>src\features\movement</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

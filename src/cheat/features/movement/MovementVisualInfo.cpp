@@ -53,6 +53,7 @@ static CColor dynamic_color_clamped(float v, float threshold, float max)
 
 void CMovementVisualInfo::render()
 {
+
 	m_background = movement_visual_info_background.get_value();
 
 	if (movement_visual_info.get_value())

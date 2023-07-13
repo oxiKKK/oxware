@@ -558,8 +558,6 @@ void CUIMenu::handle_menu_contents_rendering()
 
 	bool set_scroll = false;
 
-	CConsole::the().info("----");
-
 	for (auto& [group_label, group] : m_tab_groups)
 	{
 		for (auto& [tab_id, tab] : group.m_tabs)
@@ -580,7 +578,6 @@ void CUIMenu::handle_menu_contents_rendering()
 				if (!window_scroll.IsZero())
 				{
 					tab.m_scroll = window_scroll;
-					CConsole::the().info("{}: set scroll to: {}", tab.m_label, window_scroll);
 				}
 			}
 

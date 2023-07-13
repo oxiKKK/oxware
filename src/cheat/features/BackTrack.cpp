@@ -61,7 +61,7 @@ void CBacktrack::update()
 
 	for (auto& [index, player] : CEntityMgr::the().m_known_players)
 	{
-		if (!player.is_valid() || (player.is_local_player() && !backtrack_self.get_value()) || !player.is_alive())
+		if (!player.is_valid() || (player.is_local_player() && !backtrack_self.get_value()) || !player.is_alive() || player.is_out_of_update_for(1.0f))
 		{
 			continue;
 		}

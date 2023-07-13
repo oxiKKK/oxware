@@ -261,7 +261,11 @@ void CEngineRendering::repaint()
 
 	if (!g_cheat_info_i->is_game_ui_running())
 	{
-		CMovementVisualInfo::the().render();
+		auto local = CLocalState::the().local_player();
+		if (local) // render only if alive
+		{
+			CMovementVisualInfo::the().render();
+		}
 	}
 }
 

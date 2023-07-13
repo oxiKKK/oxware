@@ -369,7 +369,7 @@ bool CManualMappedDll::copy_dll_image_data()
 
 		memcpy((void*)from, (void*)to, current_section->SizeOfRawData);
 
-		CConsole::the().info("[{:02}] Created {:<16} at 0x{:08X}", i, (const char*)current_section->Name, to);
+		CConsole::the().info("[{:02}] Created {:<24} at 0x{:08X}", i, (const char*)current_section->Name, to);
 	}
 
 	CConsole::the().info("Created write-able DLL memory image.");
@@ -493,7 +493,7 @@ bool CManualMappedDll::write_data_into_target_process()
 	//		 the function is a static member function, nonetheless, if you don't disable it, this will fail.
 	//
 	
-	CConsole::the().info("Wrote shellcode_routine at 0x{:08X}", (uintptr_t)get_target_process_shellcode_addr());
+	CConsole::the().info("Trying to write shellcode_routine at 0x{:08X}", (uintptr_t)get_target_process_shellcode_addr());
 
 	// now write the actual shellcode
 	if (!CVirtualMemoryManager::the().write(
@@ -598,11 +598,17 @@ bool CManualMappedDll::update_shellcode_execution_context_data()
 	{
 		m_shellcode_execution_context.m_information_package.m_ipc_block_ptr = (IPCInterface_t*)get_target_process_ipc_block_addr();
 		m_shellcode_execution_context.m_information_package.m_current_session_id = generate_new_session_id();
+
+		// c++ exceptions
+		strcpy_s(m_shellcode_execution_context.m_information_package.m_RtlRIFT_pattern.bytepattern, RtlIIFT_BytePattern_Search::the().m_RtlRIFT_bytepattern.c_str());
+		strcpy_s(m_shellcode_execution_context.m_information_package.m_RtlRIFT_pattern.mask, RtlIIFT_BytePattern_Search::the().m_RtlRIFT_bytepattern_mask.c_str());
+		m_shellcode_execution_context.m_information_package.m_RtlRIFT_pattern.length = RtlIIFT_BytePattern_Search::the().m_RtlRIFT_bytepattern.length();
 	}
 	else
 	{
 		m_shellcode_execution_context.m_information_package.m_ipc_block_ptr = nullptr;
 		m_shellcode_execution_context.m_information_package.m_current_session_id = 0;
+		m_shellcode_execution_context.m_information_package.m_RtlRIFT_pattern = {};
 	}
 
 	auto current_path = std::filesystem::current_path().wstring();
@@ -611,4 +617,7 @@ bool CManualMappedDll::update_shellcode_execution_context_data()
 	return true;
 }
 
-
+DWORD CManualMappedDll::calc_shellcode_routine_size_in_bytes()
+{
+	return CInjectorUtils::the().calc_func_size((uintptr_t)shellcode_routine);
+}

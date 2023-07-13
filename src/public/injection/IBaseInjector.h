@@ -115,6 +115,21 @@ inline session_id_t generate_new_session_id()
 	return session_id;
 }
 
+// byte patterns for manually mapped shellcode
+#define BPattern_RtlIIFT_Idx 0 // RtlInsertInvertedFunctionTable
+#define BPattern_RtlRIFT_Idx 1 // RtlRemoveInvertedFunctionTable
+
+// you need to specify both length and the buffer because the byte pattern may contain null terminators.
+static constexpr size_t k_max_mmapper_pattern_length = 128; // had to increase twice.
+struct bytepattern_string_t
+{
+	char bytepattern[k_max_mmapper_pattern_length];
+	char mask[k_max_mmapper_pattern_length];
+	size_t length;
+};
+
+typedef void(__fastcall*pfnRtlRemoveInvertedFunctionTable_t)(DWORD ImageBase);
+
 // stuff that we provide to the injected module through exposed CommunicativeDllEntryPoint routine
 struct alignas(sizeof(uintptr_t)) injector_information_package_t
 {
@@ -123,20 +138,11 @@ struct alignas(sizeof(uintptr_t)) injector_information_package_t
 	// good for generating log files etc.
 	session_id_t					m_current_session_id;
 
+	// c++ exceptions
+	bytepattern_string_t			m_RtlRIFT_pattern;
+
 	// communication block that the injected dll use to communicate between injector and them
 	IPCInterface_t*					m_ipc_block_ptr = nullptr;
-};
-
-// byte patterns for manually mapped shellcode
-#define BPattern_RtlIIFT_Idx 0 // RtlInsertInvertedFunctionTable
-
-// you need to specify both length and the buffer because the byte pattern may contain null terminators.
-static constexpr size_t k_max_mmapper_pattern_length = 64; // had to increase once.
-struct bytepattern_string_t
-{
-	char bytepattern[k_max_mmapper_pattern_length];
-	char mask[k_max_mmapper_pattern_length];
-	size_t length;
 };
 
 // The data that we provide to the shellcode routine so it can operate correctly as
@@ -216,6 +222,8 @@ public:
 	// returns -1 on failure
 	uint32_t get_running_process_id(const char* execuatable_name);
 	HANDLE open_process(const char* execuatable_name);
+
+	size_t calc_func_size(uintptr_t function_base);
 };
 
 class IInjectableModuleObject : public InjectedDllCommunicationInterface

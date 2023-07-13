@@ -257,6 +257,11 @@ void COxWare::shutdown()
 
 	CGoldSrcCommandMgr::the().shutdown();
 
+	if (get_injection_technique() == INJECT_MANUALMAP)
+	{
+		remove_inverted_function_table();
+	}
+
 	shutdown_hook_managers();
 
 	unload_dependencies();
@@ -266,8 +271,6 @@ void COxWare::shutdown()
 	{
 		CEngineSynchronization::the().resume_engine();
 	}
-
-	m_encrypted_module_buffers.clear();
 
 	m_shutted_down = true;
 }
@@ -501,6 +504,28 @@ void COxWare::shutdown_hook_managers()
 	CHLCommandsDetourMgr::the().uninstall_hooks();
 }
 
+void COxWare::remove_inverted_function_table()
+{
+	auto& p = m_ifp->m_RtlRIFT_pattern;
+
+	CBytePatternRuntime RtlRIFT_pattern(p.bytepattern, p.length);
+
+	auto [base, end] = g_libloader_i->get_loaded_dll_address_space(L"ntdll.dll", SPACE_CODE);
+
+	auto pfnRtlRIFT = (pfnRtlRemoveInvertedFunctionTable_t)RtlRIFT_pattern.search_in_loaded_address_space(base, end);
+	if (!pfnRtlRIFT)
+	{
+		CMessageBox::display_warning("Couldn't find RtlRemoveInvertedFunctionTable in ntdll.dll.\n"
+									 "If you will experience random crashes after re-injecting the cheat, it's very likely that its due to this issue.\n"
+									 "However, the cheat can in most situations operate just fine, even with this error.");
+		return;
+	}
+
+	pfnRtlRIFT(g_cheat_dll_base);
+
+	CConsole::the().info("Removed inverted function table.");
+}
+
 void COxWare::check_for_clientside_protectors()
 {
 	// https://github.com/2010kohtep/CSXGuard
@@ -596,14 +621,6 @@ bool COxWare::check_for_encrypted_modules()
 			reconstructed_blob_module_info_t info;
 			if (CGSDecrypt::the().decrypt_dll(s_full_path, info))
 			{
-				std::vector<uint8_t> bytes;
-
-				const std::string& str = os.str();
-
-				bytes.insert(bytes.end(), str.begin(), str.end());
-
-				m_encrypted_module_buffers.push_back(bytes);
-
 				g_libloader_i->register_encrypted_module(w_filename.c_str(), info);
 			}
 			else

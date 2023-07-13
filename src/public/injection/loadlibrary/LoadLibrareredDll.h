@@ -122,16 +122,7 @@ private:
 
 	// Shellcode
 	static HINSTANCE __stdcall shellcode_routine(loadlibrary_shellcode_execution_context_t* context);
-	static DWORD shellcode_routine_end_marker(); // we use this in order to calculate the raw size of the shellcode function.
-	inline static DWORD calc_shellcode_routine_size_in_bytes()
-	{
-		auto a = (uintptr_t)shellcode_routine_end_marker;
-		auto b = (uintptr_t)shellcode_routine;
-
-		// get the size of the shellcode routine that will be injected to the target process's memory.
-		size_t shellcode_size_bytes = (size_t)(a - b);
-		return shellcode_size_bytes;
-	}
+	static DWORD calc_shellcode_routine_size_in_bytes();
 };
 
 #endif // LOADLIBRAREREDDLL_H

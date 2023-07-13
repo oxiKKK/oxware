@@ -478,3 +478,7 @@ void CLoadLibrareredDll::update_shellcode_execution_context_data()
 	wcscpy_s(m_shellcode_execution_context.m_information_package.m_loader_path, current_path.c_str());
 }
 
+DWORD CLoadLibrareredDll::calc_shellcode_routine_size_in_bytes()
+{
+	return CInjectorUtils::the().calc_func_size((uintptr_t)shellcode_routine);
+}

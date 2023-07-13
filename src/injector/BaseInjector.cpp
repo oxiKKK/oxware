@@ -82,6 +82,31 @@ HANDLE CInjectorUtils::open_process(const char* execuatable_name)
 	return hProcess;
 }
 
+size_t CInjectorUtils::calc_func_size(uintptr_t function_base)
+{
+	// walk the memory untill we hit \xCC like three times in a row. That determines the end of the function.
+	size_t shellcode_routine_size_bytes = 0;
+
+	uint8_t cmp[3] = { 0xCC, 0xCC, 0xCC };
+
+	uint8_t* b = (uint8_t*)(function_base);
+	while (true) // this should not deadlock
+	{
+//		CConsole::the().info("0x{:02X}", *b);
+
+		if (!memcmp(b, cmp, sizeof(cmp)))
+		{
+			break;
+		}
+
+		b++;
+		shellcode_routine_size_bytes++;
+	}
+
+	return shellcode_routine_size_bytes;
+
+}
+
 //-------------------------------------------------------------------------------------
 
 void IInjectableModuleObject::close_process_handle()

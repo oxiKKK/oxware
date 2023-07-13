@@ -205,7 +205,7 @@ bool CManualMappedDllCurrentProcess::copy_dll_image_data()
 
 		memcpy((void*)from, (void*)to, current_section->SizeOfRawData);
 
-		CConsole::the().info("[{:02}] Created {:<16} at 0x{:08X}", i, (const char*)current_section->Name, to);
+		CConsole::the().info("[{:02}] Created {:<24} at 0x{:08X}", i, (const char*)current_section->Name, to);
 	}
 
 	CConsole::the().info("Created write-able DLL memory image.");

@@ -109,14 +109,7 @@ void CLoaderUI::render_tab_main()
 
 			if (!success)
 			{
-				std::string processes;
-				for (int i = 0; i < OX_ARRAYSIZE(s_exe_names); i++)
-				{
-					std::string nl = ((i != (OX_ARRAYSIZE(s_exe_names) - 1)) ? "\n" : "");
-					processes += s_exe_names[i] + nl;
-				}
-
-				CMessageBox::display_error("Failed to find the game. Tried:\n{}", processes);
+				CMessageBox::display_error("Failed to inject cheat into the game. For detailed information, see the console.");
 			}
 		}
 

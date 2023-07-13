@@ -86,6 +86,8 @@ private:
 	bool initialize_hook_managers();
 	void shutdown_hook_managers();
 
+	void remove_inverted_function_table();
+
 	void check_for_clientside_protectors();
 	bool is_valid_game();
 	bool is_hardware();
@@ -120,7 +122,6 @@ private:
 
 	bool m_game_exiting_or_restarting = false;
 
-	std::vector<std::vector<std::uint8_t>> m_encrypted_module_buffers;
 	// true if running version of GoldSrc that has encrypted modules.
 	bool m_is_running_encrypted_game = false;
 };

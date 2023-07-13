@@ -259,91 +259,98 @@ void CBindManager::create_binds_from_json(const nlohmann::json& json)
 		}
 	*/
 
-	for (auto& [key, bound_key] : binds->items())
+	try
 	{
-		std::string cmd_str, cmd1_str, type_str, flags_str;
+		for (auto& [key, bound_key] : binds->items())
+		{
+			std::string cmd_str, cmd1_str, type_str, flags_str;
 
-		auto try_to_parse = [&](const std::string& what, std::string& output, bool doesnt_matter = false) {
-			try
-			{
-				auto& key = bound_key.at(what);
-				output = key.get<std::string>();
-				return true;
-			}
-			catch (...)
-			{
-				if (!doesnt_matter)
+			auto try_to_parse = [&](const std::string& what, std::string& output, bool doesnt_matter = false) {
+				try
 				{
-					CConsole::the().error("Error parsing '{}' field for key '{}'", what, key);
+					auto& key = bound_key.at(what);
+					output = key.get<std::string>();
+					return true;
 				}
-				output = "";
-				return false;
-			}
-		};
+				catch (...)
+				{
+					if (!doesnt_matter)
+					{
+						CConsole::the().error("Error parsing '{}' field for key '{}'", what, key);
+					}
+					output = "";
+					return false;
+				}
+			};
 
-		// commnad
-		if (!try_to_parse("command", cmd_str))
-		{
-			continue;
-		}
-
-		// type
-		if (!try_to_parse("type", type_str))
-		{
-			continue;
-		}
-
-		// flags
-		if (!try_to_parse("flags", flags_str, true))
-		{
-			// doesn't have to return, this is optional
-		}
-
-		// bind type
-		EBindType type;
-		if (type_str == bind_type_to_str[BIND_OnPush])
-		{
-			type = BIND_OnPush;
-		}
-		else if (type_str == bind_type_to_str[BIND_OnPushAndRelease])
-		{
-			type = BIND_OnPushAndRelease;
-
-			if (!try_to_parse("command1", cmd1_str))
+			// commnad
+			if (!try_to_parse("command", cmd_str))
 			{
-				CConsole::the().error("You have to provide second command, too, when binding on_push_and_release-type bind");
 				continue;
 			}
-		}
-		else
-		{
-			if (type_str.empty())
+
+			// type
+			if (!try_to_parse("type", type_str))
 			{
-				CConsole::the().error("Bound key '{}' without any bind type! A key must be provided a bind type when bound!", key);
+				continue;
+			}
+
+			// flags
+			if (!try_to_parse("flags", flags_str, true))
+			{
+				// doesn't have to return, this is optional
+			}
+
+			// bind type
+			EBindType type;
+			if (type_str == bind_type_to_str[BIND_OnPush])
+			{
+				type = BIND_OnPush;
+			}
+			else if (type_str == bind_type_to_str[BIND_OnPushAndRelease])
+			{
+				type = BIND_OnPushAndRelease;
+
+				if (!try_to_parse("command1", cmd1_str))
+				{
+					CConsole::the().error("You have to provide second command, too, when binding on_push_and_release-type bind");
+					continue;
+				}
 			}
 			else
 			{
-				CConsole::the().error("Unrecognized bind type '{}' for key '{}'", key, type_str);
+				if (type_str.empty())
+				{
+					CConsole::the().error("Bound key '{}' without any bind type! A key must be provided a bind type when bound!", key);
+				}
+				else
+				{
+					CConsole::the().error("Unrecognized bind type '{}' for key '{}'", key, type_str);
+				}
+				continue;
 			}
-			continue;
-		}
 
-		// bind flags
-		EBindFlags flags = parse_flags_out_of_string(flags_str);
+			// bind flags
+			EBindFlags flags = parse_flags_out_of_string(flags_str);
 
-		switch (type)
-		{
-			case BIND_OnPush:
+			switch (type)
 			{
-				add_bind(key, cmd_str, flags, false);
-				break;
-			}
-			case BIND_OnPushAndRelease:
-			{
-				add_bind_on_push_and_release(key, cmd_str, cmd1_str, flags, false);
-				break;
+				case BIND_OnPush:
+				{
+					add_bind(key, cmd_str, flags, false);
+					break;
+				}
+				case BIND_OnPushAndRelease:
+				{
+					add_bind_on_push_and_release(key, cmd_str, cmd1_str, flags, false);
+					break;
+				}
 			}
 		}
+	}
+	catch (...)
+	{
+		return;
 	}
 }
 

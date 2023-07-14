@@ -48,7 +48,6 @@ void CIngameScreenRendering::better_cl_showfps()
 
 	auto enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
 	auto cl = CMemoryHookMgr::the().cl().get();
-	auto cls = CMemoryHookMgr::the().cls();
 
 	if (!cl_showfps)
 	{

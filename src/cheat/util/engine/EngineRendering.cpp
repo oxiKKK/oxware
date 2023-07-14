@@ -154,6 +154,13 @@ void CEngineFontRendering::render_information()
 		return;
 	}
 
+	auto cmd = CClientMovementPacket::the().get_cmd();
+
+	if (!cmd)
+	{
+		return;
+	}
+
 	render_debug("--- Miscellaneous ---");
 	
 	float gnd_dist = CLocalState::the().get_ground_dist();
@@ -168,7 +175,6 @@ void CEngineFontRendering::render_information()
 	auto pmove = *CMemoryHookMgr::the().pmove().get();
 	auto cl = CMemoryHookMgr::the().cl().get();
 	auto frame = CLocalState::the().get_current_frame();
-	auto cmd = CClientMovementPacket::the().get_cmd();
 
 	float velocity = CLocalState::the().get_local_velocity_2d();
 	static float last_velocity = velocity;

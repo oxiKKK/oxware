@@ -54,6 +54,44 @@ struct player_info_t
 	uint64			m_nSteamID;
 };
 
+struct player_info3266_t
+{
+	// User id on server
+	int				userid;
+
+	// User info string
+	char			userinfo[MAX_INFO_STRING];
+
+	// Name
+	char			name[MAX_SCOREBOARDNAME];
+
+	// Spectator or not, unused
+	int				spectator;
+
+	int				ping;
+	int				packet_loss;
+
+	// skin information
+	char			model[MAX_QPATH];
+	int				topcolor;
+	int				bottomcolor;
+
+	// last frame rendered
+	int				renderframe;
+
+	// Gait frame estimation
+	int				gaitsequence;
+	float			gaitframe;
+	float			gaityaw;
+	vec3_t			prevgaitorigin;
+
+	customization_t customdata;
+
+	char			hashedcdkey[16];
+	uint32			someting_most_likely_just_alignment_generated_by_the_compiler;
+};
+
+
 struct extra_player_info_t
 {
 	short		frags, deaths, team_id;

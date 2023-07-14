@@ -59,9 +59,14 @@ void CBacktrack::update()
 
 	auto cmd = CClientMovementPacket::the().get_cmd();
 
+	if (!cmd)
+	{
+		return;
+	}
+
 	for (auto& [index, player] : CEntityMgr::the().m_known_players)
 	{
-		if (!player.is_valid() || (player.is_local_player() && !backtrack_self.get_value()) || !player.is_alive() || player.is_out_of_update_for(1.0f))
+		if (!player.is_valid() || (player.is_local_player() && !backtrack_self.get_value()) || player.is_local_spectating() || !player.is_alive() || player.is_out_of_update_for(1.0f))
 		{
 			continue;
 		}

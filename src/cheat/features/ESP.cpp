@@ -136,7 +136,7 @@ void CESP::render_bomb_info()
 bool CESP::render_player_esp(int index, const CGenericPlayer& player)
 {
 	// check if the player is valid
-	if (!player.is_valid() || !player.is_alive() || player.is_out_of_update_for(1.0f) || player.is_local_player())
+	if (!player.is_valid() || !player.is_alive() || player.is_out_of_update_for(1.0f) || player.is_local_player() || player.is_local_spectating())
 	{
 		return false;
 	}

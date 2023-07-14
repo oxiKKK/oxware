@@ -41,6 +41,10 @@ void MenuChilden::Screen::FlashbangFade::contents()
 
 void MenuChilden::Screen::ESP::contents()
 {
+	CUIMenuWidgets::the().section_unavailable_for_builds(
+	[](int current_bn) { return current_bn <= 3266; }, "> 3266",
+	[]()
+	{
 	CUIMenuWidgets::the().feature_enabled_section(
 	&esp_enable,
 	[]()
@@ -101,6 +105,7 @@ void MenuChilden::Screen::ESP::contents()
 			});
 
 		g_gui_widgets_i->end_tab();
+	});
 	});
 }
 

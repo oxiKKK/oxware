@@ -81,3 +81,8 @@ bool CGenericPlayer::is_local_player() const
 {
 	return m_ent->index == CMemoryHookMgr::the().cl().get()->playernum + 1;
 }
+
+bool CGenericPlayer::is_local_spectating() const
+{
+	return m_ent->index == CLocalState::the().get_spectating_player() && CLocalState::the().get_spectating_mode() == SPECT_FIRST_PERSON;
+}

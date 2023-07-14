@@ -37,6 +37,17 @@ enum EPlayerHull
 	HULL_POINT,
 };
 
+enum ESpectatingMode
+{
+	SPECT_NOT_SPECTATING,
+	SPECT_THIRD_PERSON_LOCKED,
+	SPECT_THIRD_PERSON_FREE,
+	SPECT_FREE_LOOK,
+	SPECT_FIRST_PERSON,
+	SPECT_MAP_FREE,
+	SPECT_MAP_CHASE,
+};
+
 class CLocalState
 {
 public:
@@ -45,8 +56,6 @@ public:
 public:
 	void update_pre_clientmove(float frametime, hl::usercmd_t *cmd);
 	void update_clientmove(float frametime, hl::usercmd_t *cmd);
-
-	hl::clientdata_t* get_current_frame_clientdata();
 
 	// returns g_iPlayerFlags (in original cstrike client dll)
 	// aka playermove flags (FL_ONGROUND etc - FL_* macros)
@@ -70,34 +79,39 @@ public:
 	// get local player velocity calculated by playermove code
 	float get_local_velocity_2d();
 	float get_local_velocity_3d();
-	inline Vector get_local_velocity_vec() const { return m_pmove->velocity; }
+	Vector get_local_velocity_vec();
 
-	inline Vector get_origin() const { return m_pmove->origin; }
-	inline float get_fall_velocity() const { return m_pmove->flFallVelocity; }
-	inline float get_fall_velocity_abs() const { return abs(m_pmove->flFallVelocity); }
-	inline float get_maxspeed() const { return m_pmove->maxspeed; }
-	inline float get_gravity() const { return m_pmove->gravity != 0.0f ? (m_pmove->gravity * m_pmove->movevars->gravity) : m_pmove->movevars->gravity; }
-	inline float get_ground_angle() const { return m_ground_angle; }
-	inline float get_ground_dist() const { return m_ground_dist; }
-	inline float get_edge_dist() const { return m_edge_dist; }
+	hl::clientdata_t* get_current_frame_clientdata();
 
-	inline bool is_surfing() const { return m_is_surfing; }
-	inline bool is_on_ladder() const { return m_pmove->movetype == MOVETYPE_FLY; }
+	Vector get_origin();
+	float get_fall_velocity();
+	float get_fall_velocity_abs();
+	float get_maxspeed();
+	float get_gravity();
+	float get_ground_angle();
+	float get_ground_dist();
+	float get_edge_dist();
 
-	inline int get_movetype() const { return m_pmove->movetype; }
-	inline int get_waterlevel() const { return m_pmove->waterlevel; }
+	bool is_surfing();
+	bool is_on_ladder();
 
-	inline EPlayerHull get_current_hull() const { return (EPlayerHull)m_pmove->usehull; }
-	// on some servers the hull is being set to 2 and remains constant, idk why.
+	int get_movetype();
+	int get_waterlevel();
+
+	EPlayerHull get_current_hull();
+	// on some servers the hull is being set to 2 and remainsant, idk why.
 	// resolve the hull for ourselfs, otherwise tracing code will fail
-	inline EPlayerHull get_current_hull_tracing() const { return m_tracing_hull; }
+	EPlayerHull get_current_hull_tracing();
 
-	inline Vector2D get_viewangle_delta() const { return m_vieangle_delta; }
+	Vector2D get_viewangle_delta();
 
-	inline auto get_current_frame() const { return m_current_frame; }
+	hl::frame_t* get_current_frame();
 
 	// only set when local player object is valid and alive.
-	inline auto local_player() const { return m_local_player; }
+	CGenericPlayer* local_player();
+
+	int get_spectating_player();
+	ESpectatingMode get_spectating_mode();
 
 private:
 	hl::frame_t* m_current_frame = nullptr;

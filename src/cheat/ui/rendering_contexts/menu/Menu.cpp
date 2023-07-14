@@ -496,7 +496,7 @@ void CUIMenu::on_render()
 			// now render contents of the menu.
 			//
 
-			g_gui_widgets_i->set_cursor_pos({ MenuStyle::tab_select_width, MenuStyle::top_region_size_h });
+			g_gui_widgets_i->set_cursor_pos({ MenuStyle::tab_select_width + 1, MenuStyle::top_region_size_h + 1 });
 
 			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, MenuStyle::child_contents_padding);
 

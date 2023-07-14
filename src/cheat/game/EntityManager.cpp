@@ -44,8 +44,9 @@ void CEntityMgr::player_info_update(int index)
 {
 	// see if the player is actually connected on a server
 	auto cl = CMemoryHookMgr::the().cl().get();
-	auto& player_info = cl->players[index];
-	if (!player_info.name[0])
+	hl::player_info_t* player_info = &cl->players[index];
+
+	if (!player_info->name[0])
 	{
 		return;
 	}
@@ -54,12 +55,11 @@ void CEntityMgr::player_info_update(int index)
 	// NOTE: this index is 0-based and keys inside known_players are 1-based...!
 	auto& player = m_known_players[index + 1];
 
-	player.update_player_info(index, &player_info);
+	player.update_player_info(index, player_info);
 }
 
 void CEntityMgr::update_screen()
 {
-	return; // debug only
 	CEngineFontRendering::the().push_render_side(CEngineFontRendering::RIGHT);
 
 	CEngineFontRendering::the().render_debug("--- Player info ---");

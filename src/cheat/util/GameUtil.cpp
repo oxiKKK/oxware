@@ -222,6 +222,7 @@ int CGameUtil::get_build_number()
 
 bool CGameUtil::is_spectator()
 {
+	// NOTENOTE: This cannot be retreived from LocalState because LocalState update code depends on this!
 	auto local = CLocalState::the().local_player();
 	if (!local)
 		return false;

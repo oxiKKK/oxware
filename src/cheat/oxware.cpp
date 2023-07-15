@@ -744,6 +744,16 @@ bool CEngineSynchronization::engine_frame()
 		// hang till we let engine be free again
 
 		m_engine_is_sleeping = true;
+
+		// NOTE: there's a bug where when in retail mode + using manual mapping + having the game fullscreen + unloading the cheat from the menu :D
+		//		 after calling "surfacefuncs->SetCursor" inside "CEngineInput::surface_set_cursor" that is called inside "COxWareUI::destroy", the
+		//		 game hangs, presumably because the SetCursor engine function calls SDL_SetWindowGrab() however, since we hang inside the engine loop
+		//		 SDL_PumpEvents() doesn't get ever called, and therefore the entire game freezes. So we call it here explicitly, and it will get fixed..
+		//		 holy fuck... xD (clownbug)
+		if (COxWare::the().get_build_number() >= FIRST_SDL_BUILD)
+		{
+			(void(__cdecl*)())GetProcAddress(GetModuleHandleA("SDL2.dll"), "SDL_PumpEvents")();
+		}
 		
 		// don't flood the cpu scheduler with this thread only
 		std::this_thread::sleep_for(10ms);

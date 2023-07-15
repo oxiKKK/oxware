@@ -39,13 +39,18 @@ public:
 	void update_msg_writeusercmd(hl::usercmd_t* to);
 	void update_clientmove(hl::usercmd_t* cmd);
 
-	void set_current_cmd_for_manipulation(hl::usercmd_t* cmd) { m_current_cmd = cmd; }
+	void set_current_cmd_for_manipulation(hl::usercmd_t* cmd)
+	{
+		m_current_cmd = cmd;
+		m_original_cmd = *cmd;
+	}
 
 	bool set_button_bit_atomic(unsigned short button);
 	void set_button_bit(unsigned short button, bool set);
 
 	bool was_in(unsigned short in_action) { return m_previous_buttons_state & in_action; }
-	bool is_in(unsigned short in_action) { return m_current_cmd->buttons & in_action; }
+	bool is_in(unsigned short in_action) { return m_original_cmd.buttons & in_action; }
+	bool is_in_modified(unsigned short in_action) { return m_current_cmd->buttons & in_action; }
 
 	// obviously based on IN_* buttons, not on speed or anything similar
 	bool is_moving();
@@ -55,7 +60,7 @@ public:
 	hl::usercmd_t* get_cmd() { return m_current_cmd; }
 
 private:
-	hl::usercmd_t* m_current_cmd = nullptr;
+	hl::usercmd_t* m_current_cmd = nullptr, m_original_cmd;
 
 	unsigned short m_previous_buttons_state = 0;
 

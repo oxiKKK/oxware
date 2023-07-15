@@ -45,15 +45,15 @@ public:
 		initialize();
 	}
 
-	void render_text(const Vector2D& where, bool background, const std::string& text) const;
-	void render_text_colored(const Vector2D& where, bool background, const CColor& color, const std::string& text) const;
+	int render_text(const Vector2D& where, bool background, const std::string& text) const;
+	int render_text_colored(const Vector2D& where, bool background, const CColor& color, const std::string& text) const;
 
 	// we do need to calculate the text width because it's not monospaced however, the height is always the same, hence the naming.
 	int calc_text_width(const std::string& text) const;
 	int get_text_height() const { return m_font_height; }
 
 private:
-	void render_text_internal(const Vector2D& where, bool background, const CColor& color, const std::string& text) const;
+	int render_text_internal(const Vector2D& where, bool background, const CColor& color, const std::string& text) const;
 
 	void initialize();
 

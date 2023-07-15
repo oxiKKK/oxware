@@ -71,9 +71,6 @@
     <Filter Include="src\interfaces">
       <UniqueIdentifier>{b54f3962-235b-417c-ac94-1728d0db4c59}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\features\discord">
-      <UniqueIdentifier>{bceb2462-d9d0-4818-938b-4717d3b7da20}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="precompiled.cpp" />
@@ -384,8 +381,8 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="features\discord\Discord.cpp">
-      <Filter>src\features\discord</Filter>
+    <ClCompile Include="features\movement\MovementVisualInfo.cpp">
+      <Filter>src\features\movement</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -672,8 +669,8 @@
     <ClInclude Include="importbank_decls.h">
       <Filter>src\interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="features\discord\Discord.h">
-      <Filter>src\features\discord</Filter>
+    <ClInclude Include="features\movement\MovementVisualInfo.h">
+      <Filter>src\features\movement</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

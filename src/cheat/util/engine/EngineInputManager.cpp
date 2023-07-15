@@ -186,9 +186,9 @@ void CEngineInput::toggle_ingame_input(bool enable)
 		}
 		else
 		{
+			toggle_windows_mouse_cursor(true);
 			surface_enable_cursor();
 			toggle_relative_mouse_mode(false);
-			toggle_windows_mouse_cursor(true);
 		}
 	}
 	else
@@ -201,10 +201,10 @@ void CEngineInput::toggle_ingame_input(bool enable)
 			iclientvgui->HideClientUI();
 		}
 
+		toggle_windows_mouse_cursor(false);
 		surface_disable_cursor();
 
 		toggle_relative_mouse_mode(false);
-		toggle_windows_mouse_cursor(false);
 	}
 }
 
@@ -257,6 +257,7 @@ void CEngineInput::toggle_windows_mouse_cursor(bool show)
 
 		// set before hidden
 		m_last_cursor_handle = get_current_cursor_handle();
+		CConsole::the().info("cursor handle: 0x{:08X}", (DWORD)m_last_cursor_handle);
 		SetCursor(NULL);
 	}
 }

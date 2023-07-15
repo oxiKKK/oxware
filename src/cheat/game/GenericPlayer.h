@@ -51,6 +51,7 @@ public:
 	hl::TeamName get_team() const { return m_extra_playerinfo ? (hl::TeamName)m_extra_playerinfo->teamnumber : hl::UNASSIGNED; }
 
 	bool is_local_player() const;
+	bool is_local_spectating() const;
 
 	bool is_standing() const { return get_bounding_box_max().z == 36.0f; }
 	bool is_ducking() const { return get_bounding_box_max().z == 32.0f; }

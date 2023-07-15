@@ -33,14 +33,14 @@ VarBoolean debug_render_info_misc("debug_render_info_misc", "Renders miscellaneo
 
 //-----------------------------------------------------------------------------
 
-void EngineFont::render_text(const Vector2D& where, bool background, const std::string& text) const
+int EngineFont::render_text(const Vector2D& where, bool background, const std::string& text) const
 {
-	render_text_internal(where, background, CColor(230, 230, 230), text);
+	return render_text_internal(where, background, CColor(230, 230, 230), text);
 }
 
-void EngineFont::render_text_colored(const Vector2D& where, bool background, const CColor& color, const std::string& text) const
+int EngineFont::render_text_colored(const Vector2D& where, bool background, const CColor& color, const std::string& text) const
 {
-	render_text_internal(where, background, color, text);
+	return render_text_internal(where, background, color, text);
 }
 
 int EngineFont::calc_text_width(const std::string& text) const
@@ -56,7 +56,7 @@ int EngineFont::calc_text_width(const std::string& text) const
 	return width;
 }
 
-void EngineFont::render_text_internal(const Vector2D& where, bool background, const CColor& color, const std::string& text) const
+int EngineFont::render_text_internal(const Vector2D& where, bool background, const CColor& color, const std::string& text) const
 {
 	auto enginefuncs = CMemoryHookMgr::the().cl_enginefuncs();
 
@@ -71,6 +71,7 @@ void EngineFont::render_text_internal(const Vector2D& where, bool background, co
 
 	enginefuncs->pfnDrawSetTextColor(color.r, color.g, color.b);
 	enginefuncs->pfnDrawConsoleString((int)where.x, (int)where.y, (char*)text.c_str());
+	return text_width_px;
 }
 
 void EngineFont::initialize()
@@ -153,6 +154,13 @@ void CEngineFontRendering::render_information()
 		return;
 	}
 
+	auto cmd = CClientMovementPacket::the().get_cmd();
+
+	if (!cmd)
+	{
+		return;
+	}
+
 	render_debug("--- Miscellaneous ---");
 	
 	float gnd_dist = CLocalState::the().get_ground_dist();
@@ -167,7 +175,6 @@ void CEngineFontRendering::render_information()
 	auto pmove = *CMemoryHookMgr::the().pmove().get();
 	auto cl = CMemoryHookMgr::the().cl().get();
 	auto frame = CLocalState::the().get_current_frame();
-	auto cmd = CClientMovementPacket::the().get_cmd();
 
 	float velocity = CLocalState::the().get_local_velocity_2d();
 	static float last_velocity = velocity;
@@ -237,7 +244,7 @@ void CEngineFontRendering::debug_repaint()
 	}
 }
 
-//-----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void CEngineRendering::initialize()
 {
@@ -257,6 +264,15 @@ void CEngineRendering::repaint()
 	CIngameScreenRendering::the().better_cl_showfps();
 
 	CEngineFontRendering::the().repaint();
+
+	if (!g_cheat_info_i->is_game_ui_running())
+	{
+		auto local = CLocalState::the().local_player();
+		if (local) // render only if alive
+		{
+			CMovementVisualInfo::the().render();
+		}
+	}
 }
 
 void CEngineRendering::render_circle_opengl(float cx, float cy, float radius, int num_segments, float width, bool blend, int r, int g, int b, int a)

@@ -218,6 +218,7 @@
     <ClCompile Include="features\movement\GroundStrafe.cpp" />
     <ClCompile Include="features\movement\EdgeBug.cpp" />
     <ClCompile Include="features\movement\Movement.cpp" />
+    <ClCompile Include="features\movement\MovementVisualInfo.cpp" />
     <ClCompile Include="features\movement\StrafeHack.cpp" />
     <ClCompile Include="features\movement\StrafeHelper.cpp" />
     <ClCompile Include="features\NonSteamFpsFixer.cpp" />
@@ -337,6 +338,7 @@
     <ClInclude Include="features\movement\GroundStrafe.h" />
     <ClInclude Include="features\movement\EdgeBug.h" />
     <ClInclude Include="features\movement\Movement.h" />
+    <ClInclude Include="features\movement\MovementVisualInfo.h" />
     <ClInclude Include="features\movement\StrafeHack.h" />
     <ClInclude Include="features\movement\StrafeHelper.h" />
     <ClInclude Include="features\NonSteamFpsFixer.h" />

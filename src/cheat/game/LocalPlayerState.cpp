@@ -1,28 +1,28 @@
 /*
 *	OXWARE developed by oxiKKK
 *	Copyright (c) 2023
-* 
-*	This program is licensed under the MIT license. By downloading, copying, 
+*
+*	This program is licensed under the MIT license. By downloading, copying,
 *	installing or using this software you agree to this license.
 *
 *	License Agreement
 *
-*	Permission is hereby granted, free of charge, to any person obtaining a 
-*	copy of this software and associated documentation files (the "Software"), 
-*	to deal in the Software without restriction, including without limitation 
-*	the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-*	and/or sell copies of the Software, and to permit persons to whom the 
+*	Permission is hereby granted, free of charge, to any person obtaining a
+*	copy of this software and associated documentation files (the "Software"),
+*	to deal in the Software without restriction, including without limitation
+*	the rights to use, copy, modify, merge, publish, distribute, sublicense,
+*	and/or sell copies of the Software, and to permit persons to whom the
 *	Software is furnished to do so, subject to the following conditions:
 *
-*	The above copyright notice and this permission notice shall be included 
-*	in all copies or substantial portions of the Software. 
+*	The above copyright notice and this permission notice shall be included
+*	in all copies or substantial portions of the Software.
 *
-*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 *	IN THE SOFTWARE.
 */
 
@@ -68,7 +68,7 @@ void CLocalState::update_clientmove(float frametime, hl::usercmd_t* cmd)
 	// local player
 	auto local = CEntityMgr::the().get_local_player();
 	m_local_player = local ? *local : nullptr;
-	
+
 	if (m_local_player)
 	{
 		if (!m_local_player->is_valid() || !m_local_player->is_alive())
@@ -77,11 +77,6 @@ void CLocalState::update_clientmove(float frametime, hl::usercmd_t* cmd)
 			m_local_player = nullptr;
 		}
 	}
-}
-
-hl::clientdata_t* CLocalState::get_current_frame_clientdata()
-{
-	return &m_current_frame->clientdata;
 }
 
 int CLocalState::get_player_flags()
@@ -119,15 +114,15 @@ bool CLocalState::is_on_ground()
 	return m_player_flags & FL_ONGROUND;
 }
 
-float CLocalState::get_fov()
-{
-	return *CMemoryHookMgr::the().scr_fov_value().get();
-}
-
 bool CLocalState::is_on_ground_safe()
 {
 	// HACKHACK
 	return is_on_ground() || m_ground_dist < 0.1f;
+}
+
+float CLocalState::get_fov()
+{
+	return *CMemoryHookMgr::the().scr_fov_value().get();
 }
 
 float CLocalState::get_local_velocity_2d()
@@ -138,4 +133,111 @@ float CLocalState::get_local_velocity_2d()
 float CLocalState::get_local_velocity_3d()
 {
 	return m_moving_velocity.Length();
+}
+
+Vector CLocalState::get_local_velocity_vec()
+{
+	return m_pmove->velocity;
+}
+
+hl::clientdata_t* CLocalState::get_current_frame_clientdata()
+{
+	return &m_current_frame->clientdata;
+}
+
+Vector CLocalState::get_origin()
+{
+	return m_pmove->origin;
+}
+
+float CLocalState::get_fall_velocity()
+{
+	return m_pmove->flFallVelocity;
+}
+
+float CLocalState::get_fall_velocity_abs()
+{
+	return abs(m_pmove->flFallVelocity);
+}
+
+float CLocalState::get_maxspeed()
+{
+	return m_pmove->maxspeed;
+}
+
+float CLocalState::get_gravity()
+{
+	return m_pmove->gravity != 0.0f ? (m_pmove->gravity * m_pmove->movevars->gravity) : m_pmove->movevars->gravity;
+}
+float CLocalState::get_ground_angle()
+{
+	return m_ground_angle;
+}
+
+float CLocalState::get_ground_dist()
+{
+	return m_ground_dist;
+}
+
+float CLocalState::get_edge_dist()
+{
+	return m_edge_dist;
+}
+
+bool CLocalState::is_surfing()
+{
+	return m_is_surfing;
+}
+
+bool CLocalState::is_on_ladder()
+{
+	return m_pmove->movetype == MOVETYPE_FLY;
+}
+
+int CLocalState::get_movetype()
+{
+	return m_pmove->movetype;
+}
+
+int CLocalState::get_waterlevel()
+{
+	return m_pmove->waterlevel;
+}
+
+EPlayerHull CLocalState::get_current_hull()
+{
+	return (EPlayerHull)m_pmove->usehull;
+}
+
+// on some servers the hull is being set to 2 and remainsant, idk why.
+// resolve the hull for ourselfs, otherwise tracing code will fail
+EPlayerHull CLocalState::get_current_hull_tracing()
+{
+	return m_tracing_hull;
+}
+
+Vector2D CLocalState::get_viewangle_delta()
+{
+	return m_vieangle_delta;
+}
+
+hl::frame_t* CLocalState::get_current_frame()
+{
+	return m_current_frame;
+}
+
+// only set when local player object is valid and alive.
+CGenericPlayer* CLocalState::local_player()
+{
+	return m_local_player;
+}
+
+int CLocalState::get_spectating_player()
+{
+	return get_current_frame_clientdata()->iuser2;
+}
+
+ESpectatingMode CLocalState::get_spectating_mode()
+{
+	return (ESpectatingMode)get_current_frame_clientdata()->iuser1;
 }

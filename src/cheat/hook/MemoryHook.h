@@ -431,6 +431,12 @@ struct random_1k_speedhack_modifier_constant_MemoryHook final : public GenericMe
 	void test_hook() override;
 };
 
+// keydest_t key_dest;
+struct key_dest_MemoryHook final : public GenericMemoryHook<hl::keydest_t>
+{ 
+	bool install() override; 
+};
+
 //-----------------------------------------------------------------------------
 
 class CMemoryHookMgr
@@ -467,6 +473,7 @@ public:
 	inline static auto& realtime() { static realtime_MemoryHook hook; return hook; };
 	inline static auto& IVideoMode() { static IVideoMode_MemoryHook hook; return hook; };
 	inline static auto& random_1k_speedhack_modifier_constant() { static random_1k_speedhack_modifier_constant_MemoryHook hook; return hook; };
+	inline static auto& key_dest() { static key_dest_MemoryHook hook; return hook; };
 
 	//
 	// we can get these from elsewhere

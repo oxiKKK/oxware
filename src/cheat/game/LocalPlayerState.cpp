@@ -62,6 +62,9 @@ void CLocalState::update_clientmove(float frametime, hl::usercmd_t* cmd)
 	m_edge_dist = CGameUtil::the().compute_edge_distance(m_pmove->origin);
 	m_is_surfing = m_ground_angle > 45.0f && m_ground_dist < 30.0f;
 
+	// in-game chat
+	m_in_messagemode = *CMemoryHookMgr::the().key_dest().get() == hl::key_message;
+
 	// local player
 	auto local = CEntityMgr::the().get_local_player();
 	m_local_player = local ? *local : nullptr;

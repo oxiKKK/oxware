@@ -24,6 +24,14 @@
 #define CONST_H
 #pragma once
 
+enum keydest_t
+{
+	key_game,
+	key_message,
+	key_menu
+};
+
+
 // edict->flags
 #define	FL_FLY					(1<<0)	// Changes the SV_Movestep() behavior to not need to be on ground
 #define	FL_SWIM					(1<<1)	// Changes the SV_Movestep() behavior to not need to be on ground (but stay in water)

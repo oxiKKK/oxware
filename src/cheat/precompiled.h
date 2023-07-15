@@ -70,6 +70,8 @@
 
 #include <gsdecrypt/gsdecrypt.h>
 
+#include <discord/discord.h>
+
 //-------------------------------------------------------------------
 //
 // Shared
@@ -306,6 +308,7 @@ namespace hl
 #include "features/movement/FastRun.h"
 #include "features/movement/AutoJOF.h"
 #include "features/movement/Movement.h"
+#include "features/discord/Discord.h"
 
 // ui
 #include "ui/rendering_contexts/IRendererContext.h"

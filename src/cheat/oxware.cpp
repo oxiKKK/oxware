@@ -104,6 +104,8 @@ bool COxWare::initialize_phase2()
 	g_code_perf_profiler_i->register_profile_report(&g_module_profile_report);
 #endif
 
+	CDiscord::the().inizialize();
+
 	CConsole::the().info("Cheat module fully initialized.");
 	m_fully_initialized = true;
 	return true;
@@ -367,12 +369,7 @@ bool COxWare::run_frame()
 		return false;
 	}
 
-#if 0
-	if (CMemoryFnHookMgr::the().VGuiWrap2_ConPrintf().is_installed())
-	{
-		CMemoryFnHookMgr::the().VGuiWrap2_ConPrintf().call("tick\n");
-	}
-#endif
+	CDiscord::the().update();
 
 	return true;
 }

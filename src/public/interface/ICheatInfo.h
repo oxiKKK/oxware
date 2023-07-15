@@ -37,6 +37,9 @@ public:
 	virtual bool is_cheat_ui_running() = 0;
 
 	virtual bool is_game_ui_running() = 0;
+
+	// true if chat is opened
+	virtual bool is_in_messagemode() = 0;
 };
 
 extern ICheatInfo* g_cheat_info_i;

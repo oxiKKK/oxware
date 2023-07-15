@@ -99,6 +99,8 @@ public:
 	// only set when local player object is valid and alive.
 	inline auto local_player() const { return m_local_player; }
 
+	inline bool is_in_messagemode() const { return m_in_messagemode; }
+
 private:
 	hl::frame_t* m_current_frame = nullptr;
 
@@ -120,6 +122,8 @@ private:
 	Vector m_last_viewangles; // used to calc the delta
 
 	CGenericPlayer* m_local_player;
+
+	bool m_in_messagemode = false;
 };
 
 #endif // LOCALPLAYERSTATE_H

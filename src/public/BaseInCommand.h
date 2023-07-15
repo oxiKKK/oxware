@@ -35,12 +35,14 @@
 class BaseInCommand;
 using fnInCommandCallback = void(*)(BaseInCommand* _this);
 
-// Conditions whenever to activate the incommand or not
+// Conditions whenever to activate the incommand or not.
+// these are hardcoded to each incmd and cannot be changed by the user.
 enum EActivationCondition
 {
 	IN_ACTCOND_None = BIT(-1),
-	IN_ACTCOND_Connected = BIT(0),		// executes only if connected to a server
-	IN_ACTCOND_Alive = BIT(1),			// executes only if alive
+	IN_ACTCOND_Connected = BIT(0),			// executes only if connected to a server
+	IN_ACTCOND_Alive = BIT(1),				// executes only if alive
+	IN_ACTCOND_NotInMessageMode = BIT(2),	// executes only if not in messagemode (chat opened)
 };
 DEFINE_ENUM_BITWISE_OPERATORS(EActivationCondition);
 

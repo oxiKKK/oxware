@@ -104,8 +104,6 @@ bool COxWare::initialize_phase2()
 	g_code_perf_profiler_i->register_profile_report(&g_module_profile_report);
 #endif
 
-	CDiscord::the().inizialize();
-
 	CConsole::the().info("Cheat module fully initialized.");
 	m_fully_initialized = true;
 	return true;
@@ -368,8 +366,6 @@ bool COxWare::run_frame()
 	{
 		return false;
 	}
-
-	CDiscord::the().update();
 
 	return true;
 }

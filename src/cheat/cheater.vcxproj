@@ -95,7 +95,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>discord_game_sdk.dll.lib;discord.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;$(SolutionDir)src/external/discord/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -126,7 +126,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>discord_game_sdk.dll.lib;discord.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;$(SolutionDir)src/external/discord/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -157,7 +157,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>discord_game_sdk.dll.lib;discord.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;$(SolutionDir)src/external/discord/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -208,7 +208,6 @@
     <ClCompile Include="features\AspectRatioChanger.cpp" />
     <ClCompile Include="features\Automation.cpp" />
     <ClCompile Include="features\BackTrack.cpp" />
-    <ClCompile Include="features\discord\Discord.cpp" />
     <ClCompile Include="features\EnvironmentalEffects.cpp" />
     <ClCompile Include="features\IngameScreenRendering.cpp" />
     <ClCompile Include="features\movement\AirStuck.cpp" />
@@ -328,7 +327,6 @@
     <ClInclude Include="features\AspectRatioChanger.h" />
     <ClInclude Include="features\Automation.h" />
     <ClInclude Include="features\BackTrack.h" />
-    <ClInclude Include="features\discord\Discord.h" />
     <ClInclude Include="features\EnvironmentalEffects.h" />
     <ClInclude Include="features\IngameScreenRendering.h" />
     <ClInclude Include="features\movement\AirStuck.h" />

@@ -45,7 +45,7 @@ VarFloat esp_sound_interval("esp_sound_interval", "Time of which the esp node is
 VarBoolean esp_sound_filter_local("esp_sound_filter_local", "Doesn't apply sound esp on local player", true);
 VarBoolean esp_sound_resolver("esp_sound_resolver", "Tries to resolve entity indexes when anti-cheat is used", true);
 VarInteger esp_sound_resolver_distace("esp_sound_resolver_distace", "How far you want to resolve to", 64, 20, 100);
-VarInteger esp_sound_type("esp_sound_type", "Sound ESP type", 0, 0, 1);
+VarInteger esp_sound_type("esp_sound_type", "Sound ESP type", 0, 0, 2);
 
 void CESP::initialize_gui()
 {
@@ -157,15 +157,7 @@ bool CESP::render_player_esp(int index, const CGenericPlayer& player)
 	}
 #endif
 
-	bool enemy = CGameUtil::the().is_player_on_enemy_team(index);
-
-	// check for player team
-	if (!esp_player_enemy.get_value() && enemy)
-	{
-		return false;
-	}
-
-	if (!esp_player_teammates.get_value() && !enemy)
+	if (!decide_player_enemy(&esp_player_enemy, &esp_player_teammates, index))
 	{
 		return false;
 	}
@@ -238,15 +230,7 @@ bool CESP::render_sound_esp(const PlayerStepSound& step, uint32_t time_limit)
 		return false;
 	}
 
-	bool enemy = CGameUtil::the().is_player_on_enemy_team(step.entid);
-
-	// check for player team
-	if (!esp_player_enemy.get_value() && enemy)
-	{
-		return false;
-	}
-
-	if (!esp_player_teammates.get_value() && !enemy)
+	if (!decide_player_enemy(&esp_player_enemy, &esp_player_teammates, step.entid))
 	{
 		return false;
 	}
@@ -301,58 +285,89 @@ bool CESP::render_sound_esp(const PlayerStepSound& step, uint32_t time_limit)
 		}
 	}
 
+	//
 	// cases rendered outside of the worldtoscreen function
-	switch (type)
+	//
+	if (type == 1) // 3d
 	{
-		case 1: // 3d
-		{
-			render_space_rotated_circle_with_outline(
-				ground_origin, animated_scale * 2.5f, 32,
-				CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f),
-				1.5f);
+		render_space_rotated_circle_with_outline(
+			ground_origin, animated_scale * 2.5f, 32,
+			CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f),
+			1.5f);
+	}
+	else if (type == 2)
+	{
+		//
+		// render player esp on stepsound origin
+		//
 
-			break;
+		auto player = CEntityMgr::the().get_player_by_id(step.entid);
+		if (!player)
+		{
+			return false;
 		}
-	}
 
-	//
-	// render player esp on stepsound origin
-	//
-
-	auto player = CEntityMgr::the().get_player_by_id(step.entid);
-	if (!player)
-	{
-		return false;
-	}
-
-	// only if the player is out of bounds
-	if (!(*player)->is_out_of_update_for(1.0f))
-	{
-		return true;
-	}
-
-	ESPBoxMetrics metrics;
-	if (origin_to_2d_box(step.origin, (*player)->get_default_bounding_box_min(), (*player)->get_default_bounding_box_max(), 1.0f / 4.6f, metrics))
-	{
-		render_esp_box(metrics, (*player)->get_color_based_on_team());
-
-		//
-		// player name
-		//
-
-		if (esp_player_name.get_value())
+		// only if the player is out of bounds
+		if (!(*player)->is_out_of_update_for(1.0f))
 		{
-			const char* label_text = (*player)->get_playerinfo()->name;
-			if (!label_text)
-			{
-				label_text = "none";
-			}
+			return true;
+		}
 
-			render_esp_label(metrics, label_text);
+		ESPBoxMetrics metrics;
+		if (origin_to_2d_box(step.origin, (*player)->get_default_bounding_box_min(), (*player)->get_default_bounding_box_max(), 1.0f / 4.6f, metrics))
+		{
+			render_esp_box(metrics, (*player)->get_color_based_on_team());
+
+			//
+			// player name
+			//
+
+			if (esp_player_name.get_value())
+			{
+				const char* label_text = (*player)->get_playerinfo()->name;
+				if (!label_text)
+				{
+					label_text = "none";
+				}
+
+				render_esp_label(metrics, label_text);
+			}
 		}
 	}
 
 	return true;
+}
+
+bool CESP::decide_player_enemy(VarBoolean* player_enemy, VarBoolean* player_teammates, int index)
+{
+	int enemy_st = CGameUtil::the().is_player_on_enemy_team(index);
+
+	// filter error cases
+	switch (enemy_st)
+	{
+		case -3: // player is unassigned or spectator
+		{
+			return false;
+		}
+		case -2: // local is unassigned or spectator
+		case -1: // could not get player or local
+		{
+			return true;
+		}
+	}
+
+	// check for player team
+	if (!player_enemy->get_value() && enemy_st == 1)
+	{
+		return false;
+	}
+
+	if (!player_teammates->get_value() && enemy_st == 0)
+	{
+		return false;
+	}
+
+	return true; // should not happen
 }
 
 bool CESP::render_dropped_bomb_esp(const BombInfo& bomb_info)

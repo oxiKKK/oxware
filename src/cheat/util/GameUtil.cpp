@@ -127,21 +127,34 @@ bool CGameUtil::is_player_index(int index)
 	return (index > WORLD_ENTITY && index <= CMemoryHookMgr::the().cl().get()->maxclients);
 }
 
-bool CGameUtil::is_player_on_enemy_team(int index)
+int CGameUtil::is_player_on_enemy_team(int index)
 {
 	auto local = CEntityMgr::the().get_local_player();
 	if (!local)
 	{
-		return false;
+		return -1;
 	}
 
 	auto player = CEntityMgr::the().get_player_by_id(index);
 	if (!player)
 	{
-		return false;
+		return -1;
 	}
 
-	return player.value()->get_team() != player.value()->get_team();
+	auto local_team = (*local)->get_team();
+	auto player_team = (*player)->get_team();
+
+	if (local_team == hl::SPECTATOR || local_team == hl::UNASSIGNED)
+	{
+		return -2;
+	}
+
+	if (player_team == hl::SPECTATOR || player_team == hl::UNASSIGNED)
+	{
+		return -3;
+	}
+
+	return local_team != player_team ? 1 : 0;
 }
 
 bool CGameUtil::is_local_player(int index)

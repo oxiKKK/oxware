@@ -142,6 +142,8 @@ private:
 	void render_space_rotated_circle_with_outline(const Vector& origin, float radius, int num_segments, const CColor& color, float thicc = 1.0f);
 
 	inline static constexpr CColor s_outline_color = CColor(0, 0, 0, 230);
+
+	bool decide_player_enemy(VarBoolean* player_enemy, VarBoolean* player_teammates, int index);
 };
 
 #endif // ESP_H

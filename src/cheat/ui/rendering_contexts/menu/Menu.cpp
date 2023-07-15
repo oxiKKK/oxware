@@ -351,7 +351,7 @@ void CUIMenu::on_initialize()
 
 	auto& rendering = m_tab_groups["Visuals"].m_tabs[UIMENU_Rendering];
 	rendering.initialize("Rendering", "Rendering-related cheats");
-	rendering.m_children.push_back(new MenuChilden::Rendering::FieldOfView({ "Field of view", 85, true }));
+	rendering.m_children.push_back(new MenuChilden::Rendering::FieldOfView({ "🕶 Field of view", 85, true }));
 	rendering.m_children.push_back(new MenuChilden::Rendering::AspectRatio({ "Aspect ratio", 85, true }));
 	rendering.m_children.push_back(new MenuChilden::Rendering::StudioRenderer({ "Studio renderer", 300, true }));
 	rendering.m_children.push_back(new MenuChilden::Rendering::ModelChams({ "Model chams", 350, true }));
@@ -447,7 +447,7 @@ void CUIMenu::on_render()
 
 	auto window_flags =
 		ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav
-		| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
+		| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollWithMouse;
 
 	auto segoeui_extra = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_33px, FDC_Bold);
 
@@ -466,7 +466,7 @@ void CUIMenu::on_render()
 				"menu_left",
 				Vector2D(MenuStyle::tab_select_width, window_size.y),
 				false,
-				ImGuiWindowFlags_None,
+				ImGuiWindowFlags_NoScrollWithMouse,
 				[&]()
 				{
 					auto child_pos = g_gui_widgets_i->get_current_window_pos();
@@ -504,7 +504,7 @@ void CUIMenu::on_render()
 				"menu_contents",
 				{
 					window_size.x - MenuStyle::tab_select_width,
-					window_size.y - MenuStyle::top_region_size_h - MenuStyle::bottom_reserved_rect_h - 1.0f,
+					window_size.y - MenuStyle::top_region_size_h - 1.0f - MenuStyle::bottom_reserved_rect_h - 1.0f,
 				},
 				false,
 				ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar,
@@ -542,10 +542,6 @@ void CUIMenu::handle_menu_contents_rendering()
 	{
 		g_gui_widgets_i->add_window_centered_text_disabled("👈👈 Start by looking through the tabs on the left!");
 		return;
-	}
-	else if (g_search_filter_context.filter_active() && !g_search_filter_context.have_at_least_one_result())
-	{
-		g_gui_widgets_i->add_window_centered_text_disabled("Oops! Didn't find any results. 🧐😧");
 	}
 
 	bool contents_changed = false;
@@ -600,7 +596,12 @@ void CUIMenu::handle_menu_contents_rendering()
 			break;
 		}
 	}
+
+	if (g_search_filter_context.filter_active() && !g_search_filter_context.have_at_least_one_result())
+	{
+		g_gui_widgets_i->add_window_centered_text_disabled("Oops! Didn't find any results. 🧐😧");
 	}
+}
 
 void CUIMenu::render_github_repo_link_decor()
 {

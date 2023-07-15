@@ -167,9 +167,6 @@ void MenuChilden::Other::UI::contents()
 	CUIMenuWidgets::the().add_checkbox("Enable rain", &ui_background_rain);
 	CUIMenuWidgets::the().add_checkbox("Enable background fade", &ui_background_fade);
 
-	g_gui_widgets_i->add_separtor_with_text("Menu");
-	CUIMenuWidgets::the().add_checkbox("Resizable (beta)", &ui_menu_resizable);
-
 	g_gui_widgets_i->add_separtor_with_text("Feature list");
 	CUIMenuWidgets::the().feature_enabled_section(
 	&ui_render_feature_list,

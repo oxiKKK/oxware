@@ -159,6 +159,11 @@ void CClientMovementPacketPlot::on_render()
 		return;
 	}
 
+	if (CAntiScreen::the().hide_visuals() || CPanic::the().panicking())
+	{
+		return;
+	}
+
 	auto screen_pos = CVideoModeUtil::the().get_ingame_viewport_pos();
 	auto screen_size = CVideoModeUtil::the().get_real_screen_size();
 	if (screen_size.IsZero())
@@ -273,6 +278,11 @@ void CClientMovementPacketPlot::on_render()
 void CClientMovementPacketPlot::feed_by_name(const std::string& name, const CColor& color, const MPVisualDataEntry& data)
 {
 	if (movement_plot_stop.get_value())
+	{
+		return;
+	}
+
+	if (CAntiScreen::the().hide_visuals() || CPanic::the().panicking())
 	{
 		return;
 	}

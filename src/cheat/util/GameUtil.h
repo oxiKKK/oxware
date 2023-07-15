@@ -72,7 +72,12 @@ public:
 	// an equivalent to CL_IsPlayerIndex().
 	bool is_player_index(int index);
 
-	bool is_player_on_enemy_team(int index);
+	// -3 -> player is specator/unassigned
+	// -2 -> local or player is specator/unassigned
+	// -1 -> could not get local or player
+	// 0  -> isn't
+	// 1  -> is
+	int is_player_on_enemy_team(int index);
 
 	// accepts 1-based index
 	bool is_local_player(int index);

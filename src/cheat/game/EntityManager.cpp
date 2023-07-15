@@ -60,6 +60,7 @@ void CEntityMgr::player_info_update(int index)
 
 void CEntityMgr::update_screen()
 {
+	return; // TODO
 	CEngineFontRendering::the().push_render_side(CEngineFontRendering::RIGHT);
 
 	CEngineFontRendering::the().render_debug("--- Player info ---");

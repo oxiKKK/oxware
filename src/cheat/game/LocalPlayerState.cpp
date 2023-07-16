@@ -62,6 +62,9 @@ void CLocalState::update_clientmove(float frametime, hl::usercmd_t* cmd)
 	m_edge_dist = CGameUtil::the().compute_edge_distance(m_pmove->origin);
 	m_is_surfing = m_ground_angle > 45.0f && m_ground_dist < 30.0f;
 
+	// in-game chat
+	m_in_messagemode = *CMemoryHookMgr::the().key_dest().get() == hl::key_message;
+
 	// local player
 	auto local = CEntityMgr::the().get_local_player();
 	m_local_player = local ? *local : nullptr;
@@ -237,4 +240,16 @@ int CLocalState::get_spectating_player()
 ESpectatingMode CLocalState::get_spectating_mode()
 {
 	return (ESpectatingMode)get_current_frame_clientdata()->iuser1;
+}
+
+bool CLocalState::is_in_messagemode()
+{
+	return m_in_messagemode;
+}
+
+bool CLocalState::is_in_spectator_mapview()
+{
+	auto spect_mode = get_spectating_mode();
+
+	return spect_mode == SPECT_MAP_FREE || spect_mode == SPECT_MAP_CHASE;
 }

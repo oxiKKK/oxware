@@ -177,6 +177,7 @@ void CEngineFontRendering::render_information()
 	auto pmove = *CMemoryHookMgr::the().pmove().get();
 	auto cl = CMemoryHookMgr::the().cl().get();
 	auto frame = CLocalState::the().get_current_frame();
+	auto clientdata = CLocalState::the().get_current_frame_clientdata();
 
 	float velocity = CLocalState::the().get_local_velocity_2d();
 	static float last_velocity = velocity;
@@ -217,6 +218,8 @@ void CEngineFontRendering::render_information()
 	render_debug("prediction_error: {}", cl->prediction_error.Length());
 	render_debug("Yaw: {} a", cmd->viewangles[YAW]);
 	render_debug("usehull: {}", pmove->usehull);
+	render_debug("iuser1: {}", clientdata->iuser1);
+	render_debug("iuser2: {}", clientdata->iuser2);
 
 	auto va_delta = CLocalState::the().get_viewangle_delta();
 	render_debug("VA delta: {}", va_delta);
@@ -226,7 +229,7 @@ void CEngineFontRendering::render_information()
 	static double stable_latency = 0.0, stable_fakel = 0.0;
 	stable_latency = 0.9f * stable_latency + (1.0f - 0.9f) * (frame->latency);
 	stable_fakel = 0.9f * stable_fakel + (1.0f - 0.9f) * (CNetchanSequenceHistory::the().get_desired_fake_latency());
-	render_debug("latency: {:0.3f} s / fake: {:0.3f} ms", stable_latency * 1000.0, stable_fakel * 1000);
+	render_debug("latency: {:0.3f} ms / fake: {:0.3f} ms", stable_latency * 1000.0, stable_fakel * 1000);
 }
 
 void CEngineFontRendering::debug_repaint()

@@ -104,6 +104,8 @@ ImWchar CGlyphRanges::s_emojis_range[] =
 	U'🧐', U'🧐',	  // 
 	U'🐇', U'🐇',	  // bunny
 	U'👥', U'👥',	  // 2x gray person
+	U'🐞', U'🐞',	  // beetle
+	U'🕶', U'🕶',	  // sunglasses
 	0,
 };
 
@@ -350,6 +352,7 @@ void CGUIFontManager::precache_all_fonts()
 	precache_font(FID_SegoeUI, FSZ_16px, FDC_Regular);
 
 	precache_font(FID_SegoeUI, FSZ_18px, FDC_Regular);
+	precache_font(FID_SegoeUI, FSZ_18px, FDC_Bold);
 	precache_font(FID_SegoeUI, FSZ_18px, FDC_Light);
 
 	precache_font(FID_SegoeUI, FSZ_21px, FDC_Light);

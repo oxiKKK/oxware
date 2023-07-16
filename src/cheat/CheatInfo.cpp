@@ -39,6 +39,8 @@ public:
 	bool is_cheat_ui_running();
 
 	bool is_game_ui_running();
+
+	bool is_in_messagemode();
 };
 
 EXPOSE_SINGLE_INTERFACE(CCheatInfo, ICheatInfo, ICHEATINFO_INTERFACEID);
@@ -67,4 +69,9 @@ bool CCheatInfo::is_cheat_ui_running()
 bool CCheatInfo::is_game_ui_running()
 {
 	return CEngineInput::the().is_gameui_rendering();
+}
+
+bool CCheatInfo::is_in_messagemode()
+{
+	return CLocalState::the().is_in_messagemode();
 }

@@ -45,7 +45,7 @@ VarFloat esp_sound_interval("esp_sound_interval", "Time of which the esp node is
 VarBoolean esp_sound_filter_local("esp_sound_filter_local", "Doesn't apply sound esp on local player", true);
 VarBoolean esp_sound_resolver("esp_sound_resolver", "Tries to resolve entity indexes when anti-cheat is used", true);
 VarInteger esp_sound_resolver_distace("esp_sound_resolver_distace", "How far you want to resolve to", 64, 20, 100);
-VarInteger esp_sound_type("esp_sound_type", "Sound ESP type", 0, 0, 1);
+VarInteger esp_sound_type("esp_sound_type", "Sound ESP type", 0, 0, 2);
 
 void CESP::initialize_gui()
 {
@@ -68,6 +68,11 @@ void CESP::on_render()
 	}
 
 	if (CPanic::the().panicking())
+	{
+		return;
+	}
+
+	if (CLocalState::the().is_in_spectator_mapview())
 	{
 		return;
 	}
@@ -157,21 +162,14 @@ bool CESP::render_player_esp(int index, const CGenericPlayer& player)
 	}
 #endif
 
-	bool enemy = CGameUtil::the().is_player_on_enemy_team(index);
-
-	// check for player team
-	if (!esp_player_enemy.get_value() && enemy)
-	{
-		return false;
-	}
-
-	if (!esp_player_teammates.get_value() && !enemy)
+	if (!decide_player_enemy(&esp_player_enemy, &esp_player_teammates, index))
 	{
 		return false;
 	}
 
 	ESPBoxMetrics metrics;
-	if (origin_to_2d_box(cl_ent->origin, player.get_bounding_box_min(), player.get_bounding_box_max(), 1.0f / 4.6f, metrics))
+	if (origin_to_2d_box(cl_ent->origin, player.get_bounding_box_min(), player.get_bounding_box_max(), 
+						 get_playerbox_ratio(&player), metrics))
 	{
 		render_esp_box(metrics, player.get_color_based_on_team());
 
@@ -238,15 +236,7 @@ bool CESP::render_sound_esp(const PlayerStepSound& step, uint32_t time_limit)
 		return false;
 	}
 
-	bool enemy = CGameUtil::the().is_player_on_enemy_team(step.entid);
-
-	// check for player team
-	if (!esp_player_enemy.get_value() && enemy)
-	{
-		return false;
-	}
-
-	if (!esp_player_teammates.get_value() && !enemy)
+	if (!decide_player_enemy(&esp_player_enemy, &esp_player_teammates, step.entid))
 	{
 		return false;
 	}
@@ -287,72 +277,111 @@ bool CESP::render_sound_esp(const PlayerStepSound& step, uint32_t time_limit)
 	Vector2D screen;
 	if (CGameUtil::the().world_to_screen(ground_origin, screen))
 	{
-		switch (type)
+		if (type == 0) // 2d
 		{
-			case 0: // 2d
-			{
-				render_circle_with_outline(
-					screen, animated_scale * 2.0f, 16,
-					CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f),
-					1.5f);
-
-				break;
-			}
-		}
-	}
-
-	// cases rendered outside of the worldtoscreen function
-	switch (type)
-	{
-		case 1: // 3d
-		{
-			render_space_rotated_circle_with_outline(
-				ground_origin, animated_scale * 2.5f, 32,
+			render_circle_with_outline(
+				screen, animated_scale * 1.7f, 16,
 				CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f),
 				1.5f);
-
-			break;
 		}
 	}
 
 	//
-	// render player esp on stepsound origin
+	// cases rendered outside of the worldtoscreen function
 	//
-
-	auto player = CEntityMgr::the().get_player_by_id(step.entid);
-	if (!player)
+	if (type == 1) // 3d
 	{
-		return false;
+		render_space_rotated_circle_with_outline(
+			ground_origin, animated_scale * 2.0f, 32,
+			CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f),
+			1.5f);
 	}
-
-	// only if the player is out of bounds
-	if (!(*player)->is_out_of_update_for(1.0f))
+	else if (type == 2)
 	{
-		return true;
-	}
-
-	ESPBoxMetrics metrics;
-	if (origin_to_2d_box(step.origin, (*player)->get_default_bounding_box_min(), (*player)->get_default_bounding_box_max(), 1.0f / 4.6f, metrics))
-	{
-		render_esp_box(metrics, (*player)->get_color_based_on_team());
-
 		//
-		// player name
+		// render player esp on stepsound origin
 		//
 
-		if (esp_player_name.get_value())
+		auto player = CEntityMgr::the().get_player_by_id(step.entid);
+		if (!player)
 		{
-			const char* label_text = (*player)->get_playerinfo()->name;
-			if (!label_text)
-			{
-				label_text = "none";
-			}
+			return false;
+		}
 
-			render_esp_label(metrics, label_text);
+		// only if the player is out of pvs
+		if (!(*player)->is_out_of_update_for(1.0f))
+		{
+			return true;
+		}
+
+		ESPBoxMetrics metrics;
+		if (origin_to_2d_box(step.origin, (*player)->get_default_bounding_box_min(), 
+							 (*player)->get_default_bounding_box_max(), get_playerbox_ratio(*player), metrics))
+		{
+			render_esp_box(metrics, (*player)->get_color_based_on_team());
+
+			//
+			// player name
+			//
+
+			if (esp_player_name.get_value())
+			{
+				const char* label_text = (*player)->get_playerinfo()->name;
+				if (!label_text)
+				{
+					label_text = "none";
+				}
+
+				render_esp_label(metrics, label_text);
+			}
 		}
 	}
 
 	return true;
+}
+
+bool CESP::decide_player_enemy(VarBoolean* player_enemy, VarBoolean* player_teammates, int index)
+{
+	int enemy_st = CGameUtil::the().is_player_on_enemy_team(index);
+
+	// filter error cases
+	switch (enemy_st)
+	{
+		case -3: // player is unassigned or spectator
+		{
+			return false;
+		}
+		case -2: // local is unassigned or spectator
+		case -1: // could not get player or local
+		{
+			return true;
+		}
+	}
+
+	// check for player team
+	if (!player_enemy->get_value() && enemy_st == 1)
+	{
+		return false;
+	}
+
+	if (!player_teammates->get_value() && enemy_st == 0)
+	{
+		return false;
+	}
+
+	return true; // should not happen
+}
+
+float CESP::get_playerbox_ratio(const CGenericPlayer* player)
+{
+	if (player->is_ducking())
+	{
+		return 1.0f / 2.6f;
+	}
+	else
+	{
+		return 1.0f / 4.6f;
+	}
 }
 
 bool CESP::render_dropped_bomb_esp(const BombInfo& bomb_info)

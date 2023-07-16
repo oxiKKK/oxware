@@ -250,7 +250,7 @@ void MenuChilden::World::EnvironmentalEffects::contents()
 
 		g_gui_widgets_i->begin_tab("env_effects", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-		float tab_height = 150.0f;
+		float tab_height = 160.0f;
 
 		g_gui_widgets_i->add_tab_item(
 			"Rain", false,

@@ -77,6 +77,7 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CLoadLibrareredDll::shellcode_routine(lo
 	HMODULE module = NULL;
 
 	// first try to load the dll in common dirs (e.g. PATH or SysWOW64 etc..)
+	context->pfnOutputDebugStringA(context->m_injected_dll_name);
 	module = context->pfnLoadLibraryExA(context->m_injected_dll_name, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
 	if (!module)
 	{

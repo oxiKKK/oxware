@@ -58,6 +58,7 @@ bool CMemoryHookMgr::install_hooks()
 	if (!realtime().install()) return false;
 	if (!IVideoMode().install()) return false;
 	if (!random_1k_speedhack_modifier_constant().install()) return false;
+	if (!key_dest().install()) return false;
 
 	return true;
 }
@@ -502,6 +503,14 @@ void random_1k_speedhack_modifier_constant_MemoryHook::test_hook()
 	{
 		return *p != 0.0;
 	});
+}
+
+//-----------------------------------------------------------------------------
+
+bool key_dest_MemoryHook::install()
+{
+	initialize("key_dest", L"hw.dll");
+	return install_using_bytepattern(1);
 }
 
 //-----------------------------------------------------------------------------

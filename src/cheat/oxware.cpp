@@ -367,13 +367,6 @@ bool COxWare::run_frame()
 		return false;
 	}
 
-#if 0
-	if (CMemoryFnHookMgr::the().VGuiWrap2_ConPrintf().is_installed())
-	{
-		CMemoryFnHookMgr::the().VGuiWrap2_ConPrintf().call("tick\n");
-	}
-#endif
-
 	return true;
 }
 

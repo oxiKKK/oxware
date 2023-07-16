@@ -116,6 +116,11 @@ void CInCommands::update_activation_conditions()
 			m_activation_conditions_for_this_frame |= IN_ACTCOND_Alive;
 		}
 	}
+
+	if (!CLocalState::the().is_in_messagemode())
+	{
+		m_activation_conditions_for_this_frame |= IN_ACTCOND_NotInMessageMode;
+	}
 }
 
 void CInCommands::add_command(BaseInCommand* in_cmd)

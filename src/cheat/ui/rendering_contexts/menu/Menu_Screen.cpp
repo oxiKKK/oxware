@@ -67,7 +67,7 @@ void MenuChilden::Screen::ESP::contents()
 
 		g_gui_widgets_i->begin_tab("esp_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-		float tab_height = -1.0f;
+		float tab_height = 150.0f;
 
 		g_gui_widgets_i->add_tab_item(
 			"Players", false,
@@ -94,7 +94,7 @@ void MenuChilden::Screen::ESP::contents()
 				CUIMenuWidgets::the().add_checkbox("Enable ##sound", &esp_sound_enable);
 				CUIMenuWidgets::the().add_slider("Display life", "%0.1f seconds", &esp_sound_interval);
 				CUIMenuWidgets::the().add_checkbox("Filter local", &esp_sound_filter_local);
-				CUIMenuWidgets::the().add_listbox("Type ##hidden", &esp_sound_type, { "2D", "3D" });
+				CUIMenuWidgets::the().add_listbox("Type ##hidden", &esp_sound_type, { "2D", "3D", "Player ESP box" });
 
 				CUIMenuWidgets::the().feature_enabled_section(
 				&esp_sound_resolver,

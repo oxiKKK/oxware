@@ -56,6 +56,8 @@ public:
 	}
 };
 
+extern VarBoolean debug_render_player_info;
+
 class CEntityMgr
 {
 public:

@@ -117,39 +117,41 @@ void CEngineFontRendering::render_debug_impl(const std::string& text)
 		return;
 	}
 
-	if (debug_render_info.get_value())
+	if (!debug.get_value() || !debug_render_info.get_value())
 	{
-		auto& pos = m_current_cursor_pos[m_render_side];
+		return;
+	}
 
-		if (pos.IsZero())
+	auto& pos = m_current_cursor_pos[m_render_side];
+
+	if (pos.IsZero())
+	{
+		// initialize
+		switch (m_render_side)
 		{
-			// initialize
-			switch (m_render_side)
+			case LEFT:
 			{
-				case LEFT:
-				{
-					pos = Vector2D(50, 50); // top left
-					break;
-				}
-				case RIGHT:
-				{
-					pos = Vector2D(CVideoModeUtil::the().get_real_screen_size().x - 50.0f - 200.0f, 50); // top right
-					break;
-				}
+				pos = Vector2D(50, 50); // top left
+				break;
+			}
+			case RIGHT:
+			{
+				pos = Vector2D(CVideoModeUtil::the().get_real_screen_size().x - 50.0f - 200.0f, 50); // top right
+				break;
 			}
 		}
-		else
-		{
-			// already initialized, inrement on y axis
-			pos.y += m_debug_font.get_text_height();
-		}
-		m_debug_text.push_back({ text, pos });
 	}
+	else
+	{
+		// already initialized, inrement on y axis
+		pos.y += m_debug_font.get_text_height();
+	}
+	m_debug_text.push_back({ text, pos });
 }
 
 void CEngineFontRendering::render_information()
 {
-	if (!debug_render_info_misc.get_value())
+	if (!debug.get_value() || !debug_render_info_misc.get_value())
 	{
 		return;
 	}
@@ -229,18 +231,20 @@ void CEngineFontRendering::render_information()
 
 void CEngineFontRendering::debug_repaint()
 {
-	if (debug_render_info.get_value())
+	if (!debug.get_value() || !debug_render_info.get_value())
 	{
-		for (auto& [text, pos] : m_debug_text)
-		{
-			m_debug_font.render_text(pos, true, text);
-		}
+		return;
+	}
+	
+	for (auto& [text, pos] : m_debug_text)
+	{
+		m_debug_font.render_text(pos, true, text);
+	}
 
-		m_debug_text.clear();
-		for (int i = 0; i < NUMSIDES; i++)
-		{
-			m_current_cursor_pos[i].Clear();
-		}
+	m_debug_text.clear();
+	for (int i = 0; i < NUMSIDES; i++)
+	{
+		m_current_cursor_pos[i].Clear();
 	}
 }
 

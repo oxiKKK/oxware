@@ -224,6 +224,7 @@ void MenuChilden::Other::Debug::contents()
 						CUIMenuWidgets::the().add_checkbox("Bhop", &debug_render_info_movement_bhop);
 						CUIMenuWidgets::the().add_checkbox("Strafe hack", &debug_render_info_movement_strafe);
 						CUIMenuWidgets::the().add_checkbox("Strafe helper", &debug_render_info_movement_strafe_helper);
+						CUIMenuWidgets::the().add_checkbox("Players", &debug_render_player_info);
 					});
 				});
 

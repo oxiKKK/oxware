@@ -6,7 +6,7 @@
 [![CS 1.6](https://img.shields.io/badge/game-CS1.6-yellow.svg?style=plastic)](https://store.steampowered.com/app/10/Counter-Strike) 
 [![License](https://img.shields.io/github/license/oxiKKK/oxware.svg?style=plastic)](LICENSE)
 [![Github All Releases](https://img.shields.io/github/downloads/oxiKKK/oxware/total.svg?style=plastic&color=orange)]()
-[![release](https://img.shields.io/badge/latest%20release-1.0.4-blue.svg?style=plastic)](https://store.steampowered.com/app/10/Counter-Strike) 
+[![release](https://img.shields.io/badge/latest%20release-1.0.5-blue.svg?style=plastic)](https://store.steampowered.com/app/10/Counter-Strike) 
 
 Welcome to **oxWARE**! A free Counter-Strike 1.6 cheat built with love and passion, featuring **64,502 lines of C++ code in 316 source files!**
 
@@ -46,17 +46,17 @@ So stay tuned! 😉<br>
 
 ## Usage
 
-The cheat is composed out of two parts: **the loader (oxware.exe)** and **the cheat module (cheater.dll)**. By using the loader you can inject the cheat module to the game. After injecting the cheat, you can use <kbd>INSERT</kbd> key to open up the menu`. 
+The cheat is composed out of two parts: **the loader (oxware.exe)** and **the cheat module (cheater.dll)**. By using the loader you can inject the cheat module to the game. After injecting the cheat, you can use <kbd>INSERT</kbd> key to open up the menu. 
 
 Both the cheat and loader have developer consoles built inside of them that you can access at any time. (inside the cheat it is the <kbd>~</kbd> key, below the escape key)
 
 ## The loader
 
-![The loader](https://i.imgur.com/OgpykJQ.png)
+![The loader](https://i.imgur.com/aiCq0HM.png)
 
 # Support on other operating systems
 
-This cheat is currently only available on `Windows 10 and newer`.
+This cheat is currently only available on `Windows 10 and newer`. I will try to make this cheat compatible with Windows 7+ in the near future.
 
 While making this cheat cross-platform (e.g. porting to Linux or OSX) isn't completely impossible, it would take a lot of effort, because from the beginning I designed this cheat mainly for Windows. But that being said, it isn't impossible to port.
 
@@ -66,7 +66,7 @@ This cheat currently supports following builds:
 
 - `8684 steam version`
 - `4554 non-steam version`
-- `3266 non-steam version`
+- `3266 non-steam version` (unstable)
 - xguard, gsclient or other custom implementations **aren't supported**.
 
 ## Uninstalling

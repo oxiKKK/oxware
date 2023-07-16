@@ -41,6 +41,10 @@ const float MenuStyle::top_region_size_h = 50.0f;
 // menu contents paddings
 const float MenuStyle::menu_contents_padding = 5.0f;
 
+// menu tab sections
+const Vector2D MenuStyle::tab_section_button_size = { 130.0f, 22.0f };
+const Vector2D MenuStyle::tab_section_button_padding = { 5.0f, 3.0f };
+
 // bottom portion of the menu
 const float MenuStyle::bottom_reserved_rect_h = 15.0f;
 const float MenuStyle::bottom_right_timestamp_rightside_padding = 5.0f;
@@ -61,9 +65,6 @@ const float MenuStyle::top_rightside_decoration_width = about_button_size.x + un
 
 const float MenuStyle::search_dialog_padding_width = 230.0f;
 const float MenuStyle::search_dialog_spacing_right = 10.0f; // spacing from the right side
-
-const Vector2D MenuStyle::tab_section_button_size = { 130.0f, 22.0f } ;
-const Vector2D MenuStyle::tab_section_button_padding = { 5.0f, 3.0f };
 
 const float MenuStyle::childhdr_text_padding_x = 5.0f;
 const float MenuStyle::childhdr_text_padding_y = 1.0f;

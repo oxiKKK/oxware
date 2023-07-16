@@ -47,6 +47,10 @@ public:
 	// menu contents paddings
 	static const float		menu_contents_padding;
 
+	// menu tab sections
+	static const Vector2D 	tab_section_button_size;
+	static const Vector2D 	tab_section_button_padding;
+
 	// bottom portion of the menu
 	static const float		bottom_reserved_rect_h;
 	static const float		bottom_right_timestamp_rightside_padding;
@@ -67,9 +71,6 @@ public:
 
 	static const float		search_dialog_padding_width;
 	static const float		search_dialog_spacing_right;
-
-	static const Vector2D	tab_section_button_size;
-	static const Vector2D	tab_section_button_padding;
 
 	// children headers
 	static const float		childhdr_text_padding_x;

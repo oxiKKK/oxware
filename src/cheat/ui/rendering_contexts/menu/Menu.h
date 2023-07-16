@@ -177,9 +177,8 @@ public:
 	{
 	}
 
-	void initialize(const char* label, const char* desc)
+	void initialize(const char* desc)
 	{
-		m_label = label;
 		m_desc = desc;
 	}
 
@@ -189,7 +188,7 @@ public:
 
 	Vector2D m_scroll;
 
-	std::string m_label, m_desc;
+	std::string m_desc;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

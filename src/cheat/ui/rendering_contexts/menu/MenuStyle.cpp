@@ -42,7 +42,7 @@ const float MenuStyle::top_region_size_h = 50.0f;
 const float MenuStyle::menu_contents_padding = 5.0f;
 
 // menu tab sections
-const Vector2D MenuStyle::tab_section_button_size = { 130.0f, 22.0f };
+const Vector2D MenuStyle::tab_section_button_size = { 130.0f, 24.0f };
 const Vector2D MenuStyle::tab_section_button_padding = { 5.0f, 3.0f };
 
 // bottom portion of the menu

@@ -163,6 +163,7 @@ public:
 
 	virtual bool add_button(const std::string& label, const Vector2D& size, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None) = 0;
 	virtual bool add_toggle_button(const std::string& label, const Vector2D& size, bool selected = false, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None, CColor unselected_color = CColor(0, 0, 0, 0)) = 0;
+	virtual bool add_toggle_button_custom(const std::string& label, const Vector2D& size, bool selected = false, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None) = 0;
 	virtual bool add_invisible_button_behaviour(const std::string& label, const Vector2D& pos, const Vector2D& size) = 0;
 
 	virtual bool add_hypertext_link(const std::string& label) = 0;

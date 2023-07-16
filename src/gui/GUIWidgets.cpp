@@ -128,6 +128,7 @@ public:
 
 	bool add_button(const std::string& label, const Vector2D& size, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None);
 	bool add_toggle_button(const std::string& label, const Vector2D& size, bool selected = false, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None, CColor unselected_color = CColor(0, 0, 0, 0));
+	bool add_toggle_button_custom(const std::string& label, const Vector2D& size, bool selected = false, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None);
 	bool add_invisible_button_behaviour(const std::string& label, const Vector2D& pos, const Vector2D& size);
 
 	bool add_hypertext_link(const std::string& label);
@@ -707,6 +708,24 @@ bool CGUIWidgets::add_toggle_button(const std::string& label, const Vector2D& si
 	
 	g_gui_thememgr_i->pop_color(2);
 
+	if (IsItemHovered())
+	{
+		g_imgui_platform_layer_i->override_cursor(GUICURSOR_Hand);
+	}
+
+	if (disabled)
+		pop_disabled();
+
+	return ret;
+}
+
+bool CGUIWidgets::add_toggle_button_custom(const std::string& label, const Vector2D& size, bool selected, bool disabled, EButtonFlags flags)
+{
+	if (disabled)
+		push_disabled();
+
+	bool ret = add_button_internal(label.c_str(), size, selected, flags);
+	
 	if (IsItemHovered())
 	{
 		g_imgui_platform_layer_i->override_cursor(GUICURSOR_Hand);
@@ -1364,13 +1383,15 @@ bool CGUIWidgets::add_button_internal(const char* label, const Vector2D& size, b
 	{
 		color_4f = get_color<GUICLR_ButtonHovered>();
 	}
+	else if (selected)
+	{
+		color_4f = get_color<GUICLR_ButtonSelected>();
+	}
 	else
 	{
 		color_4f = get_color<GUICLR_Button>();
 	}
 	
-	if (selected)
-		color_4f.a = 0.2f;
 
 	RenderNavHighlight(bb, id);
 	RenderFrame(bb.Min, bb.Max, color_4f.as_u32(), true, 4.0f);

@@ -43,24 +43,7 @@ void CUIMenu::on_initialize()
 			auto& tab_world = group_visuals.m_tabs[MENU_TAB_World];
 			tab_world.initialize("World", "World-related cheats");
 			{
-				auto& tab_world_main = tab_world.m_sections["Picus"];
-				tab_world_main.initialize("Picus", "Heyy");
-				tab_world_main.m_children.push_back(new MenuChilden::World::Removals({ "Removals", 250, true }));
-				tab_world_main.m_children.push_back(new MenuChilden::World::Thirdperson({ "Thirdperson", 125, true }));
-				tab_world_main.m_children.push_back(new MenuChilden::World::AntiDemoRecorder({ "📼 Anti demo recorder", 125, true }));
-				tab_world_main.m_children.push_back(new MenuChilden::World::AntiScreen({ "🖥 Anti screen", 90, true }));
-				tab_world_main.m_children.push_back(new MenuChilden::World::Automation({ "Automation", 120, true }));
-				tab_world_main.m_children.push_back(new MenuChilden::World::SpeedControl({ "🏃 Speed control", 225, true }));
-				tab_world_main.m_children.push_back(new MenuChilden::World::ViewmodelOffset({ "Viewmodel offset", 90, true }));
-				tab_world_main.m_children.push_back(new MenuChilden::World::Backtrack({ "👥 Backtrack", 125, true }));
-				tab_world_main.m_children.push_back(new MenuChilden::World::SmokeVisuals({ "Smoke visuals", 180, true }));
-				tab_world_main.m_children.push_back(new MenuChilden::World::NonSteamFpsFix({ "Non-steam fps fix", 150, true }));
-				tab_world_main.m_children.push_back(new MenuChilden::World::WorldVisuals({ "🌎 World visuals", 235, true }));
-				tab_world_main.m_children.push_back(new MenuChilden::World::EnvironmentalEffects({ "⛈ Environmental effects", 300, true }));
-			}
-			{
-				auto& tab_world_main = tab_world.m_sections["Kokot"];
-				tab_world_main.initialize("Picus", "Kasdfasdf");
+				auto& tab_world_main = tab_world.m_sections["main"];
 				tab_world_main.m_children.push_back(new MenuChilden::World::Removals({ "Removals", 250, true }));
 				tab_world_main.m_children.push_back(new MenuChilden::World::Thirdperson({ "Thirdperson", 125, true }));
 				tab_world_main.m_children.push_back(new MenuChilden::World::AntiDemoRecorder({ "📼 Anti demo recorder", 125, true }));
@@ -81,7 +64,6 @@ void CUIMenu::on_initialize()
 			tab_rendering.initialize("Rendering", "Rendering-related cheats");
 			{
 				auto& tab_rendering_main = tab_rendering.m_sections["main"];
-				tab_rendering_main.initialize("", "");
 				tab_rendering_main.m_children.push_back(new MenuChilden::Rendering::FieldOfView({ "🕶 Field of view", 85, true }));
 				tab_rendering_main.m_children.push_back(new MenuChilden::Rendering::AspectRatio({ "Aspect ratio", 85, true }));
 				tab_rendering_main.m_children.push_back(new MenuChilden::Rendering::StudioRenderer({ "Studio renderer", 300, true }));
@@ -96,7 +78,6 @@ void CUIMenu::on_initialize()
 			tab_screen.initialize("Screen", "Screen-related cheats");
 			{
 				auto& tab_screen_main = tab_screen.m_sections["main"];
-				tab_screen_main.initialize("", "");
 				tab_screen_main.m_children.push_back(new MenuChilden::Screen::FlashbangFade({ "Flashbang fade", 90, true }));
 				tab_screen_main.m_children.push_back(new MenuChilden::Screen::ESP({ "🔳 ESP", 290, true }));
 				tab_screen_main.m_children.push_back(new MenuChilden::Screen::CustomCrosshair({ "➕ Custom crosshair", 265, true }));
@@ -117,14 +98,22 @@ void CUIMenu::on_initialize()
 			auto& tab_exploits = group_misc.m_tabs[MENU_TAB_Exploits];
 			tab_exploits.initialize("Exploits", "Various game exploitations");
 			{
-				auto& tab_exploits_main = tab_exploits.m_sections["main"];
-				tab_exploits_main.initialize("", "");
-				tab_exploits_main.m_children.push_back(new MenuChilden::Exploits::ServerCommandFilter({ "Server command filter", 210, true, MCH_2x }));
-				tab_exploits_main.m_children.push_back(new MenuChilden::Exploits::CvarSandbox({ "Cvar sandbox", 400, true, MCH_2x }));
-				tab_exploits_main.m_children.push_back(new MenuChilden::Exploits::BypassGameConstrains({ "Bypass game constrains", 290, true }));
-				tab_exploits_main.m_children.push_back(new MenuChilden::Exploits::FrameSkipper({ "Frame skipper", 215, true }));
-				tab_exploits_main.m_children.push_back(new MenuChilden::Exploits::ConsistencyBypass({ "Consistency bypass", 135, true }));
-				tab_exploits_main.m_children.push_back(new MenuChilden::Exploits::FakeLatency({ "Fake latency", 85, true }));
+				auto& tab_exploits_servercmdfilter = tab_exploits.m_sections["Server Command Filter"];
+				tab_exploits_servercmdfilter.initialize("Server Command filter");
+				tab_exploits_servercmdfilter.m_children.push_back(new MenuChilden::Exploits::ServerCommandFilter({ "Server command filter", -1, true, MCH_SameAsWidth }));
+			}
+			{
+				auto& tab_exploits_cvarsandbox = tab_exploits.m_sections["Cvar sandbox"];
+				tab_exploits_cvarsandbox.initialize("Cvar sandbox");
+				tab_exploits_cvarsandbox.m_children.push_back(new MenuChilden::Exploits::CvarSandbox({ "Cvar sandbox", -1, true, MCH_SameAsWidth }));
+			}
+			{
+				auto& tab_exploits_other = tab_exploits.m_sections["Other"];
+				tab_exploits_other.initialize("Other");
+				tab_exploits_other.m_children.push_back(new MenuChilden::Exploits::BypassGameConstrains({ "Bypass game constrains", 290, true }));
+				tab_exploits_other.m_children.push_back(new MenuChilden::Exploits::FrameSkipper({ "Frame skipper", 215, true }));
+				tab_exploits_other.m_children.push_back(new MenuChilden::Exploits::ConsistencyBypass({ "Consistency bypass", 135, true }));
+				tab_exploits_other.m_children.push_back(new MenuChilden::Exploits::FakeLatency({ "Fake latency", 85, true }));
 			}
 		}
 
@@ -133,7 +122,6 @@ void CUIMenu::on_initialize()
 			tab_movement.initialize("Movement", "Kreedz/Movement cheats");
 			{
 				auto& tab_movement_main = tab_movement.m_sections["main"];
-				tab_movement_main.initialize("", "");
 				tab_movement_main.m_children.push_back(new MenuChilden::Movement::AirStuck({ "Air stuck", 150, true }));
 				tab_movement_main.m_children.push_back(new MenuChilden::Movement::Visualization({ "Visualization", 170, true }));
 				tab_movement_main.m_children.push_back(new MenuChilden::Movement::GroundStrafe({ "Ground strafe", 300, true }));
@@ -159,7 +147,6 @@ void CUIMenu::on_initialize()
 			tab_config.initialize("Config", "Config list/manager");
 			{
 				auto& tab_config_main = tab_config.m_sections["main"];
-				tab_config_main.initialize("", "");
 				tab_config_main.m_children.push_back(new MenuChilden::Configuration::Config({ "⚙ Configuration", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
 			}
 		}
@@ -169,7 +156,6 @@ void CUIMenu::on_initialize()
 			tab_theme.initialize("Theme", "Theme editor");
 			{
 				auto& tab_theme_main = tab_theme.m_sections["main"];
-				tab_theme_main.initialize("", "");
 				tab_theme_main.m_children.push_back(new MenuChilden::Configuration::Theme({ "Theme", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
 			}
 		}
@@ -179,7 +165,6 @@ void CUIMenu::on_initialize()
 			tab_language.initialize("Language", "Language selector");
 			{
 				auto& tab_language_main = tab_language.m_sections["main"];
-				tab_language_main.initialize("", "");
 				tab_language_main.m_children.push_back(new MenuChilden::Configuration::Language({ "Language", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
 			}
 		}
@@ -189,7 +174,6 @@ void CUIMenu::on_initialize()
 			tab_binds.initialize("Bind manager", "Cheat key-bind systems");
 			{
 				auto& tab_binds_main = tab_binds.m_sections["main"];
-				tab_binds_main.initialize("", "");
 				tab_binds_main.m_children.push_back(new MenuChilden::Configuration::KeyBinding({ "Key binding ⌨", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
 			}
 		}
@@ -200,7 +184,6 @@ void CUIMenu::on_initialize()
 			tab_incommands.initialize("In-Commands", "In-Command manager");
 			{
 				auto& tab_incommands_main = tab_incommands.m_sections["main"];
-				tab_incommands_main.initialize("", "");
 				tab_incommands_main.m_children.push_back(new MenuChilden::Configuration::InCommands({ "In-Commands", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
 			}
 		}
@@ -218,7 +201,6 @@ void CUIMenu::on_initialize()
 			tab_varlist.initialize("Variable list", "Cheat variable list");
 			{
 				auto& tab_varlist_main = tab_varlist.m_sections["main"];
-				tab_varlist_main.initialize("", "");
 				tab_varlist_main.m_children.push_back(new MenuChilden::Other::VariableList({ "Variable list", -1, false, MCH_4x, MCHILDF_DontApplyFilter }));
 			}
 		}
@@ -228,7 +210,6 @@ void CUIMenu::on_initialize()
 			tab_cmdlist.initialize("Command list", "Cheat command list");
 			{
 				auto& tab_cmdlist_main = tab_cmdlist.m_sections["main"];
-				tab_cmdlist_main.initialize("", "");
 				tab_cmdlist_main.m_children.push_back(new MenuChilden::Other::CommandList({ "Command list", -1, false, MCH_4x, MCHILDF_DontApplyFilter }));
 			}
 		}
@@ -238,7 +219,6 @@ void CUIMenu::on_initialize()
 			tab_other.initialize("Other", "Other non-related");
 			{
 				auto& tab_other_main = tab_other.m_sections["main"];
-				tab_other_main.initialize("", "");
 				tab_other_main.m_children.push_back(new MenuChilden::Other::UI({ "UI", 350, false }));
 				tab_other_main.m_children.push_back(new MenuChilden::Other::Storage({ "📂 Storage", 200, false }));
 			}
@@ -452,23 +432,23 @@ void IMenuChild::render()
 
 bool MenuTabSection::render_button(const Vector2D& button_size, const std::string& section_id, ContentsSelectionContext& contents_selection)
 {
-	auto button_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_18px, FDC_Regular);
-	g_gui_widgets_i->push_font(button_font);
-
 	// text color
 	g_gui_widgets_i->push_color(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark));
 
-	auto unselected_color = g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_Button);
-	unselected_color.a *= 0.35f;
+	auto selected_button_clr = g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_ButtonSelected);
+	selected_button_clr.a *= 1.25f;
+	g_gui_thememgr_i->push_color(GUICLR_ButtonSelected, selected_button_clr);
 
 	bool ret = false;
 
 	bool selected = (contents_selection.section == section_id);
-	if (g_gui_widgets_i->add_toggle_button(section_id, button_size, selected, false, BUTTONFLAG_CenterLabel, unselected_color))
+	if (g_gui_widgets_i->add_toggle_button_custom(section_id, button_size, selected, false, BUTTONFLAG_CenterLabel))
 	{
 		contents_selection.section = section_id; // make current one selected
 		ret = true;
 	}
+
+	g_gui_thememgr_i->pop_color();
 
 	if (g_gui_widgets_i->is_last_widget_hovered())
 	{
@@ -477,7 +457,6 @@ bool MenuTabSection::render_button(const Vector2D& button_size, const std::strin
 
 	g_gui_widgets_i->pop_color(1);
 
-	g_gui_widgets_i->pop_font();
 	return ret;
 }
 
@@ -741,34 +720,58 @@ void CUIMenu::handle_menu_contents_rendering()
 	// render children
 	//
 
-	g_gui_widgets_i->set_next_window_rounding(MenuStyle::child_rounding, ImDrawFlags_RoundCornersAll);
-
-	for (auto child : (*selection)->m_children)
+	if (m_current_context_selection.section != "main")
 	{
-		// apply the search filter, if it is active
-		if (g_search_filter_context.apply_filter(child))
+		// shift vertically
+		g_gui_widgets_i->set_cursor_pos(
+			{ 
+				0.0f, 
+				MenuStyle::tab_section_button_padding.y * 2.0f + MenuStyle::tab_section_button_size.y
+			});
+	}
+
+	g_gui_widgets_i->add_child(
+		"menu_contents_inner",
+		{ -1.0f, -1.0f },
+		false,
+		ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar,
+		[&]()
 		{
-			continue;
-		}
+			g_gui_widgets_i->set_next_window_rounding(MenuStyle::child_rounding, ImDrawFlags_RoundCornersAll);
 
-		child->render();
-	}
+			for (auto child : (*selection)->m_children)
+			{
+				// apply the search filter, if it is active
+				if (g_search_filter_context.apply_filter(child))
+				{
+					continue;
+				}
 
-	if (g_search_filter_context.filter_active() && !g_search_filter_context.have_at_least_one_result())
-	{
-		g_gui_widgets_i->add_window_centered_text_disabled("Oops! Didn't find any results. 🧐😧");
-	}
+				child->render();
+			}
+
+			if (g_search_filter_context.filter_active() && !g_search_filter_context.have_at_least_one_result())
+			{
+				g_gui_widgets_i->add_window_centered_text_disabled("Oops! Didn't find any results. 🧐😧");
+			}
+		});
 }
 
 void CUIMenu::render_menu_contents_section_buttons()
 {
-	float offset = 0.0f;
-	float button_width_w_padding = MenuStyle::tab_section_button_size.x + MenuStyle::tab_section_button_padding.x;
+	float offset = MenuStyle::tab_section_button_padding.x;
+
+	m_did_change_section = false;
 
 	for (auto& [group_id, group] : m_tab_groups)
 	{
 		for (auto& [tab_id, tab] : group.m_tabs)
 		{
+			if (m_current_context_selection.id != tab_id)
+			{
+				continue;
+			}
+
 			// if the tab have only on section called "main", we don't render buttons at all
 			if (tab.m_sections.size() == 1)
 			{
@@ -782,16 +785,27 @@ void CUIMenu::render_menu_contents_section_buttons()
 			// render section buttons
 			for (auto& [section_id, section] : tab.m_sections)
 			{
-				g_gui_widgets_i->set_cursor_pos(Vector2D(offset, 0.0f));
+				g_gui_widgets_i->set_cursor_pos(Vector2D(offset, MenuStyle::tab_section_button_padding.y));
 
-				bool did_change_section = section.render_button(MenuStyle::tab_section_button_size, section_id, m_current_context_selection);
+				auto button_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_18px, FDC_Regular);
+				auto label_size = g_gui_fontmgr_i->calc_font_text_size(button_font, section_id.c_str());
+				label_size += Vector2D(5.0f * 2.0f, 3.0f * 2.0f);
+
+				g_gui_widgets_i->push_font(button_font);
+
+				bool did_change_section = section.render_button(label_size, section_id, m_current_context_selection);
 				if (!m_did_change_section && did_change_section)
 				{
 					m_did_change_section = true;
 				}
 
-				offset += button_width_w_padding;
+				g_gui_widgets_i->pop_font();
+
+				offset += label_size.x + MenuStyle::tab_section_button_padding.x;
 			}
+
+			// we're done here.
+			break;
 		}
 	}
 }

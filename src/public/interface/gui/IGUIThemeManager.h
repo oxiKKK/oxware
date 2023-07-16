@@ -50,6 +50,7 @@ enum EGUIColor
 	GUICLR_Button,
 	GUICLR_ButtonHovered,
 	GUICLR_ButtonActive,
+	GUICLR_ButtonSelected,
 
 	GUICLR_HyperTextLink,
 	GUICLR_HyperTextLinkHovered,

@@ -177,6 +177,7 @@ void CGUIThemeManager::add_themes()
 				CColor(112, 112, 112,  51), // GUICLR_Button
 				CColor(112, 112, 112, 128), // GUICLR_ButtonHovered
 				CColor(112, 112, 112, 170), // GUICLR_ButtonActive
+				CColor(112, 112, 112, 101), // GUICLR_ButtonSelected
 				
 				CColor(112, 112, 112, 255), // GUICLR_HyperTextLink
 				CColor(  0, 136, 255, 170), // GUICLR_HyperTextLinkHovered

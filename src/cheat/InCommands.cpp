@@ -382,5 +382,5 @@ bool CInCommands::does_meet_activation_conditions(EActivationCondition act_cond)
 		return true;
 	}
 
-	return (m_activation_conditions_for_this_frame & act_cond) != 0;
+	return (m_activation_conditions_for_this_frame & act_cond) == act_cond;
 }

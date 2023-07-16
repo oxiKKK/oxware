@@ -39,6 +39,7 @@ VarBoolean esp_player_enable("esp_player_enable", "Toggles player esp", false);
 VarBoolean esp_player_name("esp_name", "Toggles player name esp", false); 
 VarBoolean esp_player_enemy("esp_player_enemy", "Player esp for enemy", false); 
 VarBoolean esp_player_teammates("esp_player_teammates", "Player esp for teammates", false); 
+VarBoolean esp_player_details("esp_player_details", "Renders details about the player", false); 
 
 VarBoolean esp_sound_enable("esp_sound_enable", "Toggles sound esp", false);
 VarFloat esp_sound_interval("esp_sound_interval", "Time of which the esp node is alive", 1.0f, 0.5f, 5.0f);
@@ -186,6 +187,15 @@ bool CESP::render_player_esp(int index, const CGenericPlayer& player)
 			}
 
 			render_esp_label(metrics, label_text);
+		}
+
+		//
+		// details
+		//
+
+		if (esp_player_details.get_value())
+		{
+			render_esp_details(metrics, player);
 		}
 	}
 
@@ -470,6 +480,27 @@ void CESP::render_esp_label(const ESPBoxMetrics& metrics, const std::string& lab
 		g_gui_window_rendering_i->get_current_drawlist(),
 		text_font,
 		label_bottom_centered,
+		CColor(255, 255, 255, 255),
+		label.c_str());
+}
+
+void CESP::render_esp_details(const ESPBoxMetrics& metrics, const CGenericPlayer& player)
+{
+	auto text_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_10px, FDC_Bold);
+
+	std::string label = "";
+
+	label += std::format("id: {}\n", player.cl_entity()->index);
+	label += std::format("mins/maxs: {} {}\n", player.get_bounding_box_min(), player.get_bounding_box_max());
+	label += std::format("movetype: {}\n", player.cl_entity()->curstate.movetype);
+//	label += std::format("activity: {}\n", player.);
+
+	Vector2D label_top_right = { metrics.box_topright.x + 3.0f, metrics.box_topright.y };
+
+	g_gui_window_rendering_i->render_text_with_background(
+		g_gui_window_rendering_i->get_current_drawlist(),
+		text_font,
+		label_top_right,
 		CColor(255, 255, 255, 255),
 		label.c_str());
 }

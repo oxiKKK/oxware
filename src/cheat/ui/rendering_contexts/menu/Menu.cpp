@@ -127,7 +127,7 @@ void IMenuChild::render()
 
 //---------------------------------------------------------------------------------------------------
 
-void MenuTab::render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId id, EMenuTabId& active_id)
+void MenuTab::render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId id, ActiveTabSelection& contents_selection)
 {
 	g_gui_widgets_i->set_cursor_pos(relative_offset);
 
@@ -137,10 +137,10 @@ void MenuTab::render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId id,
 	// text color
 	g_gui_widgets_i->push_color(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark));
 
-	bool selected = (active_id == id);
+	bool selected = (contents_selection.id == id);
 	if (g_gui_widgets_i->add_toggle_button(m_label.c_str(), { MenuStyle::tab_select_width - 15.0f, 0.0f }, selected))
 	{
-		active_id = id; // make current one selected
+		contents_selection.id = id; // make current one selected
 	}
 
 	if (g_gui_widgets_i->is_last_widget_hovered())
@@ -158,13 +158,13 @@ void MenuTab::render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId id,
 
 //---------------------------------------------------------------------------------------------------
 
-void MenuTabGroup::render(const std::string& label, Vector2D& offset, Vector2D& relative_offset, const Vector2D& child_size, EMenuTabId& active_id)
+void MenuTabGroup::render(const std::string& label, Vector2D& offset, Vector2D& relative_offset, const Vector2D& child_size, ActiveTabSelection& contents_selection)
 {
 	render_current_label(label, offset, relative_offset, child_size);
 
 	for (auto& [id, tab] : m_tabs)
 	{
-		tab.render(offset, relative_offset, id, active_id);
+		tab.render(offset, relative_offset, id, contents_selection);
 	}
 }
 
@@ -335,100 +335,105 @@ void CUIMenu::on_initialize()
 	//
 	auto& world = m_tab_groups["Visuals"].m_tabs[UIMENU_World];
 
-	world.initialize("World", "World-related cheats");
-	world.m_children.push_back(new MenuChilden::World::Removals({ "Removals", 250, true }));
-	world.m_children.push_back(new MenuChilden::World::Thirdperson({ "Thirdperson", 125, true }));
-	world.m_children.push_back(new MenuChilden::World::AntiDemoRecorder({ "📼 Anti demo recorder", 125, true }));
-	world.m_children.push_back(new MenuChilden::World::AntiScreen({ "🖥 Anti screen", 90, true }));
-	world.m_children.push_back(new MenuChilden::World::Automation({ "Automation", 120, true }));
-	world.m_children.push_back(new MenuChilden::World::SpeedControl({ "🏃 Speed control", 225, true }));
-	world.m_children.push_back(new MenuChilden::World::ViewmodelOffset({ "Viewmodel offset", 90, true }));
-	world.m_children.push_back(new MenuChilden::World::Backtrack({ "👥 Backtrack", 125, true }));
-	world.m_children.push_back(new MenuChilden::World::SmokeVisuals({ "Smoke visuals", 180, true }));
-	world.m_children.push_back(new MenuChilden::World::NonSteamFpsFix({ "Non-steam fps fix", 150, true }));
-	world.m_children.push_back(new MenuChilden::World::WorldVisuals({ "🌎 World visuals", 235, true }));
-	world.m_children.push_back(new MenuChilden::World::EnvironmentalEffects({ "⛈ Environmental effects", 300, true }));
+	world["main"].initialize("World", "World-related cheats");
+	world["main"].m_children.push_back(new MenuChilden::World::Removals({ "Removals", 250, true }));
+	world["main"].m_children.push_back(new MenuChilden::World::Thirdperson({ "Thirdperson", 125, true }));
+	world["main"].m_children.push_back(new MenuChilden::World::AntiDemoRecorder({ "📼 Anti demo recorder", 125, true }));
+	world["main"].m_children.push_back(new MenuChilden::World::AntiScreen({ "🖥 Anti screen", 90, true }));
+	world["main"].m_children.push_back(new MenuChilden::World::Automation({ "Automation", 120, true }));
+	world["main"].m_children.push_back(new MenuChilden::World::SpeedControl({ "🏃 Speed control", 225, true }));
+	world["main"].m_children.push_back(new MenuChilden::World::ViewmodelOffset({ "Viewmodel offset", 90, true }));
+	world["main"].m_children.push_back(new MenuChilden::World::Backtrack({ "👥 Backtrack", 125, true }));
+	world["main"].m_children.push_back(new MenuChilden::World::SmokeVisuals({ "Smoke visuals", 180, true }));
+	world["main"].m_children.push_back(new MenuChilden::World::NonSteamFpsFix({ "Non-steam fps fix", 150, true }));
+	world["main"].m_children.push_back(new MenuChilden::World::WorldVisuals({ "🌎 World visuals", 235, true }));
+	world["main"].m_children.push_back(new MenuChilden::World::EnvironmentalEffects({ "⛈ Environmental effects", 300, true }));
 
 	auto& rendering = m_tab_groups["Visuals"].m_tabs[UIMENU_Rendering];
-	rendering.initialize("Rendering", "Rendering-related cheats");
-	rendering.m_children.push_back(new MenuChilden::Rendering::FieldOfView({ "🕶 Field of view", 85, true }));
-	rendering.m_children.push_back(new MenuChilden::Rendering::AspectRatio({ "Aspect ratio", 85, true }));
-	rendering.m_children.push_back(new MenuChilden::Rendering::StudioRenderer({ "Studio renderer", 300, true }));
-	rendering.m_children.push_back(new MenuChilden::Rendering::ModelChams({ "Model chams", 350, true }));
-	rendering.m_children.push_back(new MenuChilden::Rendering::HUDRendering({ "HUD rendering", 215, true }));
-	rendering.m_children.push_back(new MenuChilden::Rendering::Panic({ "Panic", 85, true }));
+	rendering["main"].initialize("Rendering", "Rendering-related cheats");
+	rendering["main"].m_children.push_back(new MenuChilden::Rendering::FieldOfView({ "🕶 Field of view", 85, true }));
+	rendering["main"].m_children.push_back(new MenuChilden::Rendering::AspectRatio({ "Aspect ratio", 85, true }));
+	rendering["main"].m_children.push_back(new MenuChilden::Rendering::StudioRenderer({ "Studio renderer", 300, true }));
+	rendering["main"].m_children.push_back(new MenuChilden::Rendering::ModelChams({ "Model chams", 350, true }));
+	rendering["main"].m_children.push_back(new MenuChilden::Rendering::HUDRendering({ "HUD rendering", 215, true }));
+	rendering["main"].m_children.push_back(new MenuChilden::Rendering::Panic({ "Panic", 85, true }));
 
 	auto& screen = m_tab_groups["Visuals"].m_tabs[UIMENU_Screen];
-	screen.initialize("Screen", "Screen-related cheats");
-	screen.m_children.push_back(new MenuChilden::Screen::FlashbangFade({ "Flashbang fade", 90, true }));
-	screen.m_children.push_back(new MenuChilden::Screen::ESP({ "🔳 ESP", 290, true }));
-	screen.m_children.push_back(new MenuChilden::Screen::CustomCrosshair({ "➕ Custom crosshair", 265, true }));
-	screen.m_children.push_back(new MenuChilden::Screen::ClShowFPSEnhancement({ "cl_showfps enhancement", 130, true }));
-	screen.m_children.push_back(new MenuChilden::Screen::MovementInfo({ "Movement info", 150, true }));
+	screen["main"].initialize("Screen", "Screen-related cheats");
+	screen["main"].m_children.push_back(new MenuChilden::Screen::FlashbangFade({ "Flashbang fade", 90, true }));
+	screen["main"].m_children.push_back(new MenuChilden::Screen::ESP({ "🔳 ESP", 290, true }));
+	screen["main"].m_children.push_back(new MenuChilden::Screen::CustomCrosshair({ "➕ Custom crosshair", 265, true }));
+	screen["main"].m_children.push_back(new MenuChilden::Screen::ClShowFPSEnhancement({ "cl_showfps enhancement", 130, true }));
+	screen["main"].m_children.push_back(new MenuChilden::Screen::MovementInfo({ "Movement info", 150, true }));
 
 	//
 	// Miscellanous
 	//
 	auto& exploits = m_tab_groups["Miscellaneous"].m_tabs[UIMENU_Exploits];
-	exploits.initialize("Exploits", "Various game exploitations");
-	exploits.m_children.push_back(new MenuChilden::Exploits::ServerCommandFilter({ "Server command filter", 210, true, MCH_2x }));
-	exploits.m_children.push_back(new MenuChilden::Exploits::CvarSandbox({ "Cvar sandbox", 400, true, MCH_2x }));
-	exploits.m_children.push_back(new MenuChilden::Exploits::BypassGameConstrains({ "Bypass game constrains", 290, true }));
-	exploits.m_children.push_back(new MenuChilden::Exploits::FrameSkipper({ "Frame skipper", 215, true }));
-	exploits.m_children.push_back(new MenuChilden::Exploits::ConsistencyBypass({ "Consistency bypass", 135, true }));
-	exploits.m_children.push_back(new MenuChilden::Exploits::FakeLatency({ "Fake latency", 85, true }));
+	exploits["main"].initialize("Exploits", "Various game exploitations");
+	exploits["main"].m_children.push_back(new MenuChilden::Exploits::ServerCommandFilter({ "Server command filter", 210, true, MCH_2x }));
+	exploits["main"].m_children.push_back(new MenuChilden::Exploits::CvarSandbox({ "Cvar sandbox", 400, true, MCH_2x }));
+	exploits["main"].m_children.push_back(new MenuChilden::Exploits::BypassGameConstrains({ "Bypass game constrains", 290, true }));
+	exploits["main"].m_children.push_back(new MenuChilden::Exploits::FrameSkipper({ "Frame skipper", 215, true }));
+	exploits["main"].m_children.push_back(new MenuChilden::Exploits::ConsistencyBypass({ "Consistency bypass", 135, true }));
+	exploits["main"].m_children.push_back(new MenuChilden::Exploits::FakeLatency({ "Fake latency", 85, true }));
 
 	auto& movement = m_tab_groups["Miscellaneous"].m_tabs[UIMENU_Movement];
-	movement.initialize("Movement", "Kreedz/Movement cheats");
-	movement.m_children.push_back(new MenuChilden::Movement::AirStuck({ "Air stuck", 150, true }));
-	movement.m_children.push_back(new MenuChilden::Movement::Visualization({ "Visualization", 170, true }));
-	movement.m_children.push_back(new MenuChilden::Movement::GroundStrafe({ "Ground strafe", 300, true }));
-	movement.m_children.push_back(new MenuChilden::Movement::Strafehack({ "Strafe hack", 225, true }));
-	movement.m_children.push_back(new MenuChilden::Movement::StrafeHelper({ "Strafe helper", 220, true }));
-	movement.m_children.push_back(new MenuChilden::Movement::Bunnyhop({ "🐇 Bunnyhop", 300, true }));
-	movement.m_children.push_back(new MenuChilden::Movement::Edgebug({ "Edge bug", 270, true }));
-	movement.m_children.push_back(new MenuChilden::Movement::Fastrun({ "🏃 Fast run", 200, true }));
-	movement.m_children.push_back(new MenuChilden::Movement::AutoJOF({ "Auto JOF", 200, true }));
+	movement["main"].initialize("Movement", "Kreedz/Movement cheats");
+	movement["main"].m_children.push_back(new MenuChilden::Movement::AirStuck({ "Air stuck", 150, true }));
+	movement["main"].m_children.push_back(new MenuChilden::Movement::Visualization({ "Visualization", 170, true }));
+	movement["main"].m_children.push_back(new MenuChilden::Movement::GroundStrafe({ "Ground strafe", 300, true }));
+	movement["main"].m_children.push_back(new MenuChilden::Movement::Strafehack({ "Strafe hack", 225, true }));
+	movement["main"].m_children.push_back(new MenuChilden::Movement::StrafeHelper({ "Strafe helper", 220, true }));
+	movement["main"].m_children.push_back(new MenuChilden::Movement::Bunnyhop({ "🐇 Bunnyhop", 300, true }));
+	movement["main"].m_children.push_back(new MenuChilden::Movement::Edgebug({ "Edge bug", 270, true }));
+	movement["main"].m_children.push_back(new MenuChilden::Movement::Fastrun({ "🏃 Fast run", 200, true }));
+	movement["main"].m_children.push_back(new MenuChilden::Movement::AutoJOF({ "Auto JOF", 200, true }));
 
 	//
 	// Configuration
 	//
 	auto& config = m_tab_groups["Configuration"].m_tabs[UIMENU_Config];
-	config.initialize("Config", "Config list/manager");
-	config.m_children.push_back(new MenuChilden::Configuration::Config({ "⚙ Configuration", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
+	config["main"].initialize("Config", "Config list/manager");
+	config["main"].m_children.push_back(new MenuChilden::Configuration::Config({ "⚙ Configuration", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
 
 	auto& theme = m_tab_groups["Configuration"].m_tabs[UIMENU_Theme];
-	theme.initialize("Theme", "Theme editor");
-	theme.m_children.push_back(new MenuChilden::Configuration::Theme({ "Theme", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
+	theme["main"].initialize("Theme", "Theme editor");
+	theme["main"].m_children.push_back(new MenuChilden::Configuration::Theme({ "Theme", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
 
 	auto& language = m_tab_groups["Configuration"].m_tabs[UIMENU_Language];
-	language.initialize("Language", "Language selector");
-	language.m_children.push_back(new MenuChilden::Configuration::Language({ "Language", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
+	language["main"].initialize("Language", "Language selector");
+	language["main"].m_children.push_back(new MenuChilden::Configuration::Language({ "Language", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
 
 	auto& bind_manager = m_tab_groups["Configuration"].m_tabs[UIMENU_Binds];
-	bind_manager.initialize("Bind manager", "Cheat key-bind systems");
-	bind_manager.m_children.push_back(new MenuChilden::Configuration::KeyBinding({ "Key binding ⌨", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
+	bind_manager["main"].initialize("Bind manager", "Cheat key-bind systems");
+	bind_manager["main"].m_children.push_back(new MenuChilden::Configuration::KeyBinding({ "Key binding ⌨", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
 
 	auto& incommands = m_tab_groups["Configuration"].m_tabs[UIMENU_InCommands];
-	incommands.initialize("In-Commands", "In-Command manager");
-	incommands.m_children.push_back(new MenuChilden::Configuration::InCommands({ "In-Commands", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
+	incommands["main"].initialize("In-Commands", "In-Command manager");
+	incommands["main"].m_children.push_back(new MenuChilden::Configuration::InCommands({ "In-Commands", -1, false, MCH_SameAsWidth, MCHILDF_DontApplyFilter }));
 
 	//
 	// Others
 	//
 	auto& variable_list = m_tab_groups["Other"].m_tabs[UIMENU_VariableList];
-	variable_list.initialize("Variable list", "Cheat variable list");
-	variable_list.m_children.push_back(new MenuChilden::Other::VariableList({ "Variable list", -1, false, MCH_4x, MCHILDF_DontApplyFilter }));
+	variable_list["main"].initialize("Variable list", "Cheat variable list");
+	variable_list["main"].m_children.push_back(new MenuChilden::Other::VariableList({ "Variable list", -1, false, MCH_4x, MCHILDF_DontApplyFilter }));
 	
 	auto& command_list = m_tab_groups["Other"].m_tabs[UIMENU_CommandList];
-	command_list.initialize("Command list", "Cheat command list");
-	command_list.m_children.push_back(new MenuChilden::Other::CommandList({ "Command list", -1, false, MCH_4x, MCHILDF_DontApplyFilter }));
+	command_list["main"].initialize("Command list", "Cheat command list");
+	command_list["main"].m_children.push_back(new MenuChilden::Other::CommandList({ "Command list", -1, false, MCH_4x, MCHILDF_DontApplyFilter }));
 
 	auto& other = m_tab_groups["Other"].m_tabs[UIMENU_Others];
-	other.initialize("Other", "Other non-related");
-	other.m_children.push_back(new MenuChilden::Other::UI({ "UI", 350, false }));
-	other.m_children.push_back(new MenuChilden::Other::Debug({ "Debug", 280, false }));
-	other.m_children.push_back(new MenuChilden::Other::Storage({ "📂 Storage", 200, false }));
+	other["main"].initialize("Other", "Other non-related");
+	other["main"].m_children.push_back(new MenuChilden::Other::UI({ "UI", 350, false }));
+	other["main"].m_children.push_back(new MenuChilden::Other::Storage({ "📂 Storage", 200, false }));
+
+#ifndef _RETAIL
+	auto& debug = m_tab_groups["Debug"].m_tabs[UIMENU_Debug];
+	debug["main"].initialize("Debug", "Cheat debugging");
+	debug["main"].m_children.push_back(new MenuChilden::Debug::Debugging({ "Debugging", -1, false, MCH_4x, MCHILDF_DontApplyFilter }));
+#endif // _RETAIL
 }
 
 void CUIMenu::on_render()

@@ -81,7 +81,7 @@ void CEntityMgr::update_screen()
 
 		auto cl_ent = p.cl_entity();
 
-		CEngineFontRendering::the().render_debug("{:<2}: {} | {}", id, p.get_playerinfo()->name, cl_ent->curstate.iuser1);
+		CEngineFontRendering::the().render_debug("{:<2}: {}", id, p.get_playerinfo()->name);
 	}
 
 	CEngineFontRendering::the().pop_render_side();

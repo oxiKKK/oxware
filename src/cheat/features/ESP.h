@@ -41,6 +41,7 @@ extern VarBoolean esp_player_enable;
 extern VarBoolean esp_player_name;
 extern VarBoolean esp_player_enemy;
 extern VarBoolean esp_player_teammates;
+extern VarBoolean esp_player_details;
 
 extern VarBoolean esp_sound_enable;
 extern VarFloat esp_sound_interval;
@@ -136,6 +137,7 @@ private:
 	// rendering widgets
 	void render_esp_box(const ESPBoxMetrics& metrics, const CColor& color, float corner_ratio = 1.0f);
 	void render_esp_label(const ESPBoxMetrics& metrics, const std::string& label);
+	void render_esp_details(const ESPBoxMetrics& metrics, const CGenericPlayer& player);
 	void render_box_for_four_points(const Vector2D& top_left, const Vector2D& top_right, const Vector2D& bottom_right, const Vector2D& bottom_left, const CColor& color, float box_tall_half, float corner_ratio = 1.0f);
 	void render_line_with_outline(const Vector2D& from, const Vector2D& to, const CColor& color, float thicc = 1.0f);
 	void render_circle_with_outline(const Vector2D& center, float radius, int num_segments, const CColor& color, float thicc = 1.0f);

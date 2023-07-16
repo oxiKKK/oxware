@@ -201,6 +201,7 @@ void CEngineFontRendering::render_information()
 	if (local)
 	{
 		render_debug("Is alive: {}", true);
+		render_debug("Min/Max: {}/{}", local->get_bounding_box_min(), local->get_bounding_box_max());
 	}
 	else
 	{
@@ -220,6 +221,7 @@ void CEngineFontRendering::render_information()
 	render_debug("usehull: {}", pmove->usehull);
 	render_debug("iuser1: {}", clientdata->iuser1);
 	render_debug("iuser2: {}", clientdata->iuser2);
+	render_debug("key_dest: {}", (int)*CMemoryHookMgr::the().key_dest().get());
 
 	auto va_delta = CLocalState::the().get_viewangle_delta();
 	render_debug("VA delta: {}", va_delta);

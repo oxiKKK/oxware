@@ -63,6 +63,7 @@ enum EMenuTabId
 	UIMENU_VariableList,
 	UIMENU_CommandList,
 	UIMENU_Others,
+	UIMENU_Debug,
 
 	UIMENU_Max,
 };
@@ -131,7 +132,6 @@ public:
 
 	Vector2D m_computed_position;
 
-
 private:
 	void validate()
 	{
@@ -157,6 +157,23 @@ protected:
 	EMenuChildFlags m_flags = MCHILDF_None;
 };
 
+// optional division of menu tab
+class MenuTabSection
+{
+public:
+	MenuTabSection()
+	{
+	}
+
+	void render(Vector2D& offset, const std::string& section, ActiveTabSelection& contents_selection);
+
+	std::vector<IMenuChild*> m_children;
+
+	Vector2D m_scroll;
+
+	std::string m_label;
+};
+
 // represents an entry within a tab section
 class MenuTab
 {
@@ -171,20 +188,16 @@ public:
 		m_desc = desc;
 	}
 
-	void render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId id, EMenuTabId& active_id);
+	void render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId id, ActiveTabSelection& contents_selection);
 
 	std::string m_label, m_desc;
-
-	std::vector<IMenuChild*> m_children;
-
-	Vector2D m_scroll;
 };
 
 // represents group containing several menu entries
 class MenuTabGroup
 {
 public:
-	void render(const std::string& label, Vector2D& offset, Vector2D& relative_offset, const Vector2D& child_size, EMenuTabId& active_id);
+	void render(const std::string& label, Vector2D& offset, Vector2D& relative_offset, const Vector2D& child_size, ActiveTabSelection& contents_selection);
 
 	std::unordered_map<EMenuTabId, MenuTab> m_tabs;
 
@@ -261,6 +274,12 @@ extern CMenuSearchFilterContext g_search_filter_context;
 // Menu class
 //
 
+struct ActiveTabSelection
+{
+	EMenuTabId	id;
+	std::string section;
+};
+
 class CUIMenu final : public IRenderingContext_Generic
 {
 public:
@@ -281,7 +300,7 @@ private:
 	void render_github_repo_link_decor();
 	void render_menu_decoration(const Vector2D& window_pos, const Vector2D& window_size);
 
-	EMenuTabId m_active_tab;
+	ActiveTabSelection m_active_tab;
 
 	std::unordered_map<std::string, MenuTabGroup> m_tab_groups;
 
@@ -394,8 +413,12 @@ struct MenuChilden
 		DECL_CHILD(VariableList);
 		DECL_CHILD(CommandList);
 		DECL_CHILD(UI);
-		DECL_CHILD(Debug);
 		DECL_CHILD(Storage);
+	};
+
+	struct Debug
+	{
+		DECL_CHILD(Debugging);
 	};
 };
 

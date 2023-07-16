@@ -6,7 +6,7 @@
 [![CS 1.6](https://img.shields.io/badge/game-CS1.6-yellow.svg?style=plastic)](https://store.steampowered.com/app/10/Counter-Strike) 
 [![License](https://img.shields.io/github/license/oxiKKK/oxware.svg?style=plastic)](LICENSE)
 [![Github All Releases](https://img.shields.io/github/downloads/oxiKKK/oxware/total.svg?style=plastic&color=orange)]()
-[![release](https://img.shields.io/badge/latest%20release-1.0.4-blue.svg?style=plastic)](https://store.steampowered.com/app/10/Counter-Strike) 
+[![release](https://img.shields.io/badge/latest%20release-1.0.5-blue.svg?style=plastic)](https://store.steampowered.com/app/10/Counter-Strike) 
 
 Welcome to **oxWARE**! A free Counter-Strike 1.6 cheat built with love and passion, featuring **64,281 lines of C++ code in 314 source files!**
 

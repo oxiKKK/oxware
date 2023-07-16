@@ -144,6 +144,8 @@ private:
 	inline static constexpr CColor s_outline_color = CColor(0, 0, 0, 230);
 
 	bool decide_player_enemy(VarBoolean* player_enemy, VarBoolean* player_teammates, int index);
+
+	float get_playerbox_ratio(const CGenericPlayer* player);
 };
 
 #endif // ESP_H

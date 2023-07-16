@@ -72,6 +72,11 @@ void CESP::on_render()
 		return;
 	}
 
+	if (CLocalState::the().is_in_spectator_mapview())
+	{
+		return;
+	}
+
 	if (esp_player_enable.get_value())
 	{
 		render_players();
@@ -163,7 +168,8 @@ bool CESP::render_player_esp(int index, const CGenericPlayer& player)
 	}
 
 	ESPBoxMetrics metrics;
-	if (origin_to_2d_box(cl_ent->origin, player.get_bounding_box_min(), player.get_bounding_box_max(), 1.0f / 4.6f, metrics))
+	if (origin_to_2d_box(cl_ent->origin, player.get_bounding_box_min(), player.get_bounding_box_max(), 
+						 get_playerbox_ratio(&player), metrics))
 	{
 		render_esp_box(metrics, player.get_color_based_on_team());
 
@@ -271,17 +277,12 @@ bool CESP::render_sound_esp(const PlayerStepSound& step, uint32_t time_limit)
 	Vector2D screen;
 	if (CGameUtil::the().world_to_screen(ground_origin, screen))
 	{
-		switch (type)
+		if (type == 0) // 2d
 		{
-			case 0: // 2d
-			{
-				render_circle_with_outline(
-					screen, animated_scale * 2.0f, 16,
-					CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f),
-					1.5f);
-
-				break;
-			}
+			render_circle_with_outline(
+				screen, animated_scale * 1.7f, 16,
+				CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f),
+				1.5f);
 		}
 	}
 
@@ -291,7 +292,7 @@ bool CESP::render_sound_esp(const PlayerStepSound& step, uint32_t time_limit)
 	if (type == 1) // 3d
 	{
 		render_space_rotated_circle_with_outline(
-			ground_origin, animated_scale * 2.5f, 32,
+			ground_origin, animated_scale * 2.0f, 32,
 			CColor(step_color.r, step_color.g, step_color.b, animated_alpha / 255.0f),
 			1.5f);
 	}
@@ -307,14 +308,15 @@ bool CESP::render_sound_esp(const PlayerStepSound& step, uint32_t time_limit)
 			return false;
 		}
 
-		// only if the player is out of bounds
+		// only if the player is out of pvs
 		if (!(*player)->is_out_of_update_for(1.0f))
 		{
 			return true;
 		}
 
 		ESPBoxMetrics metrics;
-		if (origin_to_2d_box(step.origin, (*player)->get_default_bounding_box_min(), (*player)->get_default_bounding_box_max(), 1.0f / 4.6f, metrics))
+		if (origin_to_2d_box(step.origin, (*player)->get_default_bounding_box_min(), 
+							 (*player)->get_default_bounding_box_max(), get_playerbox_ratio(*player), metrics))
 		{
 			render_esp_box(metrics, (*player)->get_color_based_on_team());
 
@@ -368,6 +370,18 @@ bool CESP::decide_player_enemy(VarBoolean* player_enemy, VarBoolean* player_team
 	}
 
 	return true; // should not happen
+}
+
+float CESP::get_playerbox_ratio(const CGenericPlayer* player)
+{
+	if (player->is_ducking())
+	{
+		return 1.0f / 2.6f;
+	}
+	else
+	{
+		return 1.0f / 4.6f;
+	}
 }
 
 bool CESP::render_dropped_bomb_esp(const BombInfo& bomb_info)

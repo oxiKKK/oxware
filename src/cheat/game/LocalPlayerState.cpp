@@ -241,3 +241,15 @@ ESpectatingMode CLocalState::get_spectating_mode()
 {
 	return (ESpectatingMode)get_current_frame_clientdata()->iuser1;
 }
+
+bool CLocalState::is_in_messagemode()
+{
+	return m_in_messagemode;
+}
+
+bool CLocalState::is_in_spectator_mapview()
+{
+	auto spect_mode = get_spectating_mode();
+
+	return spect_mode == SPECT_MAP_FREE || spect_mode == SPECT_MAP_CHASE;
+}

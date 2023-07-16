@@ -113,7 +113,10 @@ public:
 	int get_spectating_player();
 	ESpectatingMode get_spectating_mode();
 
-	inline bool is_in_messagemode() const { return m_in_messagemode; }
+	bool is_in_messagemode();
+
+	// true when specating and when in the spectator mode where 3d overview is visible
+	bool is_in_spectator_mapview();
 
 private:
 	hl::frame_t* m_current_frame = nullptr;

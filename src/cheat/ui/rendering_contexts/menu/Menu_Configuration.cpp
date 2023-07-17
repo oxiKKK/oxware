@@ -30,14 +30,7 @@
 
 void MenuChilden::Configuration::Config::contents()
 {
-	// first = error or not, second = status message
-	static std::pair<bool, std::string> current_status = {};
-	static uint32_t status_tm = GetTickCount();
-	auto status_msg = [](const std::string& msg, bool error)
-	{
-		current_status = std::make_pair(error, msg);
-		status_tm = GetTickCount();
-	};
+	static UIStatusWidget status_widget = UIStatusWidget(2500);
 
 	static std::vector<FilePath_t> configs;
 	static int num_configs = 0;
@@ -126,11 +119,11 @@ void MenuChilden::Configuration::Config::contents()
 					{
 						if (g_config_mgr_i->load_configuration(CFG_CheatSettings, selected_cfg.string()))
 						{
-							status_msg(std::format("Loaded from {}.", selected_cfg.string()), false);
+							status_widget.update_status(std::format("Loaded from {}.", selected_cfg.string()), UIStatusWidget::Success);
 						}
 						else
 						{
-							status_msg(std::format("Failed to load {}!", selected_cfg.string()), true);
+							status_widget.update_status(std::format("Failed to load {}!", selected_cfg.string()), UIStatusWidget::Error);
 						}
 					}
 
@@ -138,11 +131,11 @@ void MenuChilden::Configuration::Config::contents()
 					{
 						if (g_filesystem_i->remove(g_appdata_mgr_i->get_known("config\\") / selected_cfg))
 						{
-							status_msg(std::format("Deleted {}.", selected_cfg), false);
+							status_widget.update_status(std::format("Deleted {}.", selected_cfg), UIStatusWidget::Success);
 						}
 						else
 						{
-							status_msg(std::format("Failed to delete {}.", selected_cfg), true);
+							status_widget.update_status(std::format("Failed to delete {}.", selected_cfg), UIStatusWidget::Error);
 						}
 					}
 				}
@@ -197,11 +190,11 @@ void MenuChilden::Configuration::Config::contents()
 
 							if (g_config_mgr_i->write_configuration(CFG_CheatSettings, path.filename().string()))
 							{
-								status_msg(std::format("Saved '{}'.", path.filename().string()), false);
+								status_widget.update_status(std::format("Saved '{}'.", path.filename().string()), UIStatusWidget::Success);
 							}
 							else
 							{
-								status_msg(std::format("Couldn't save '{}'.", path.filename().string()), true);
+								status_widget.update_status(std::format("Couldn't save '{}'.", path.filename().string()), UIStatusWidget::Error);
 							}
 
 							strcpy(name_buffer, "");
@@ -213,18 +206,18 @@ void MenuChilden::Configuration::Config::contents()
 				{
 					auto dir = g_config_mgr_i->get_config_directory().string();
 					CGenericUtil::the().open_folder_inside_explorer(dir);
-					status_msg("Opened config directory.", false);
+					status_widget.update_status("Opened config directory.", UIStatusWidget::Success);
 				}
 
 				if (g_gui_widgets_i->add_button("save current", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 				{
 					if (g_config_mgr_i->write_configuration(CFG_CheatSettings, "saved.json"))
 					{
-						status_msg("Saved to saved.json.", false);
+						status_widget.update_status("Saved to saved.json.", UIStatusWidget::Success);
 					}
 					else
 					{
-						status_msg("Failed to save to saved.json!", false);
+						status_widget.update_status("Failed to save to saved.json!", UIStatusWidget::Error);
 					}
 				}
 
@@ -233,23 +226,23 @@ void MenuChilden::Configuration::Config::contents()
 					// this if-else tree is kinda dumb, but whatever xd
 					if (g_config_mgr_i->load_configuration(CFG_CheatSettings, "default.json"))
 					{
-						status_msg("Restored default configuration.", false);
+						status_widget.update_status("Restored default configuration.", UIStatusWidget::Success);
 					}
 					else
 					{
 						if (!g_config_mgr_i->write_configuration(CFG_CheatSettings, "default.json"))
 						{
-							status_msg("Failed to restore defaults!", true);
+							status_widget.update_status("Failed to restore defaults!", UIStatusWidget::Error);
 						}
 						else
 						{
 							if (g_config_mgr_i->load_configuration(CFG_CheatSettings, "default.json"))
 							{
-								status_msg("Restored default configuration.", false);
+								status_widget.update_status("Restored default configuration.", UIStatusWidget::Success);
 							}
 							else
 							{
-								status_msg("Failed to restore defaults!", true);
+								status_widget.update_status("Failed to restore defaults!", UIStatusWidget::Error);
 							}
 						}
 
@@ -282,15 +275,9 @@ void MenuChilden::Configuration::Config::contents()
 		"status", { -1.0f, -1.0f }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[&]()
 		{
-			uint32_t dur_sec = (GetTickCount() - status_tm) * 1000;
-			auto [error, msg] = current_status;
-			if (!msg.empty() && dur_sec < 3)
+			if (status_widget.is_alive())
 			{
-				auto color = error ? CColor(112, 0, 0, 170) : CColor(0, 112, 0, 170);
-
-				g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
-				g_gui_widgets_i->add_colored_text(color, msg);
-				g_gui_widgets_i->pop_font();
+				g_gui_widgets_i->add_colored_text(status_widget.get_color(), status_widget.get_string());
 			}
 		});
 }

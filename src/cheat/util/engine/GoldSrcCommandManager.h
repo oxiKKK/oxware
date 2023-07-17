@@ -47,6 +47,9 @@ public:
 
 	void for_each_cvar(const std::function<void(hl::cvar_t* cvar)>& callback);
 	void for_each_cmd(const std::function<void(hl::cmd_function_t* cvar)>& callback);
+
+	// goes through all tokens inside a tokenized buffer and checks whenever the token coresponds to a cvar or a command.
+	std::vector<std::string> find_invalid_tokens_in_tokenized_buffer(const std::vector<std::string>& tokenized_buffer);
 	
 private:
 	std::unordered_map<std::string, hl::cvar_t*> m_cvars;

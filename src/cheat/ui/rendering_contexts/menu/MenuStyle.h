@@ -50,6 +50,7 @@ public:
 	// menu tab sections
 	static const Vector2D 	tab_section_button_size;
 	static const Vector2D 	tab_section_button_padding;
+	static const Vector2D 	tab_section_button_inner_padding;
 
 	// bottom portion of the menu
 	static const float		bottom_reserved_rect_h;

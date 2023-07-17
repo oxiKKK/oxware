@@ -272,7 +272,7 @@ private:
 
 	std::unordered_map<EMenuTabGroupId, MenuTabGroup> m_tab_groups;
 
-	bool m_did_change_section = false;
+	bool m_menu_contents_changed = false;
 
 	// helper
 	std::optional<MenuTabSection*> get_selected_section();

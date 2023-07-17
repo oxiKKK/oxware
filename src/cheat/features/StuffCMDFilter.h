@@ -44,15 +44,22 @@ public:
 public:
 	bool allow_command_to_be_executed();
 
+	void render_ui();
+
 private:
+	bool is_buffer_valid(const char* buffer);
+
 	bool approve_server_cmdlist(const std::string& server_cmd);
 
-	void tokenize_user_cmd_filter(const std::string& filtered_cmds);
+	static std::vector<std::string> tokenize_user_cmd_filter(const std::string& filtered_cmds);
 
 	std::vector<std::string> m_filtered_cmds;
 
 	// command that caused the block
 	std::string m_block_victim;
+
+	// ui
+	static UIStatusWidget m_status_widget;
 };
 
 #endif // STUFFCMDFILTER_H

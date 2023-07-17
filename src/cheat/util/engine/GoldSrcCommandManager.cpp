@@ -172,3 +172,47 @@ void CGoldSrcCommandMgr::for_each_cmd(const std::function<void(hl::cmd_function_
 		cmd = cmd->next;
 	}
 }
+
+std::vector<std::string> CGoldSrcCommandMgr::find_invalid_tokens_in_tokenized_buffer(const std::vector<std::string>& tokenized_buffer)
+{
+	std::vector<std::string> invalid_tokens;
+
+	for (auto& token : tokenized_buffer)
+	{
+		if (token.empty())
+		{
+			continue;
+		}
+
+		bool found = false;
+		// try cvars
+		for_each_cvar(
+			[&](hl::cvar_t*cvar)
+			{
+				if (token == cvar->name)
+				{
+					found = true;
+					return;
+				}
+			});
+
+		// try commands
+		for_each_cmd(
+			[&](hl::cmd_function_t*cmd)
+			{
+				if (token == cmd->name)
+				{
+					found = true;
+					return;
+				}
+			});
+
+		// didn't find both in cvars&cmds, invalid token
+		if (!found)
+		{
+			invalid_tokens.push_back(token);
+		}
+	}
+
+	return invalid_tokens;
+}

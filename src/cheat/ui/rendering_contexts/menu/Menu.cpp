@@ -240,6 +240,8 @@ void CUIMenu::on_render()
 	// update search filter
 	g_search_filter_context.update();
 
+	m_menu_contents_changed = false;
+
 	g_gui_widgets_i->set_next_window_pos({ 100, 100 }, ImGuiCond_Once);
 	g_gui_widgets_i->set_next_window_size(MenuStyle::menu_rect_size, ImGuiCond_Once);
 	g_gui_widgets_i->set_next_window_rounding(MenuStyle::rounding_factor, ImDrawFlags_RoundCornersTopRight | ImDrawFlags_RoundCornersBottomLeft);
@@ -287,9 +289,13 @@ void CUIMenu::on_render()
 
 					for (auto& [group_id, group] : m_tab_groups)
 					{
-						group.render(
-							m_sectab_active_offs, m_sectab_relative_active_offset,
-							child_size, m_current_context_selection);
+						bool did_change_tab = group.render(m_sectab_active_offs, m_sectab_relative_active_offset, 
+														   child_size, m_current_context_selection);
+
+						if (!m_menu_contents_changed && did_change_tab)
+						{
+							m_menu_contents_changed = true;
+						}
 					}
 				}
 			);
@@ -308,7 +314,7 @@ void CUIMenu::on_render()
 					window_size.x - MenuStyle::tab_select_width,
 					window_size.y - MenuStyle::top_region_size_h - 1.0f - MenuStyle::bottom_reserved_rect_h - 1.0f,
 				},
-				false,
+				true,
 				ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar,
 				[&]()
 				{
@@ -337,7 +343,7 @@ CMenuSearchFilterContext g_search_filter_context;
 
 void IMenuChild::render()
 {
-	g_gui_widgets_i->set_cursor_pos(m_computed_position + MenuStyle::menu_contents_padding);
+	g_gui_widgets_i->set_cursor_pos(m_computed_position);
 
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
 
@@ -504,7 +510,11 @@ bool MenuTabGroup::render(Vector2D& offset, Vector2D& relative_offset, const Vec
 	bool did_change_tab = false;
 	for (auto& [id, tab] : m_tabs)
 	{
-		did_change_tab = tab.render(offset, relative_offset, id, contents_selection);
+		if (tab.render(offset, relative_offset, id, contents_selection))
+		{
+			// it is enough when we've registered change only once.
+			did_change_tab = true;
+		}
 	}
 
 	return did_change_tab;
@@ -675,11 +685,6 @@ void CUIMenu::handle_menu_contents_rendering()
 	auto window_pos = g_gui_widgets_i->get_current_window_pos();
 	auto window_size = g_gui_widgets_i->get_current_window_size();
 
-	// how many child columns will fit on screen
-	float padding_between_childern_x = MenuStyle::child_contents_padding.x;
-	float padding_between_childern_y = MenuStyle::child_contents_padding.y;
-	int num_columns_fitted = (int)(window_size.x / (MenuStyle::child_width + padding_between_childern_x));
-
 	// blank tab, nothing selected
 	if (m_current_context_selection.id == MENU_TAB_Blank)
 	{
@@ -701,7 +706,7 @@ void CUIMenu::handle_menu_contents_rendering()
 	// handle scroll
 	//
 
-	if (m_did_change_section)
+	if (m_menu_contents_changed)
 	{
 		g_gui_widgets_i->set_scroll((*selection)->m_scroll);
 	}
@@ -714,7 +719,7 @@ void CUIMenu::handle_menu_contents_rendering()
 		}
 	}
 
-	CMenuContentsGrid::the().precompute(window_size, *(*selection), m_did_change_section);
+	CMenuContentsGrid::the().precompute(window_size, *(*selection), m_menu_contents_changed);
 
 	//
 	// render children
@@ -725,7 +730,7 @@ void CUIMenu::handle_menu_contents_rendering()
 		// shift vertically
 		g_gui_widgets_i->set_cursor_pos(
 			{ 
-				0.0f, 
+				MenuStyle::menu_contents_padding,
 				MenuStyle::tab_section_button_padding.y * 2.0f + MenuStyle::tab_section_button_size.y
 			});
 	}
@@ -761,8 +766,6 @@ void CUIMenu::render_menu_contents_section_buttons()
 {
 	float offset = MenuStyle::tab_section_button_padding.x;
 
-	m_did_change_section = false;
-
 	for (auto& [group_id, group] : m_tab_groups)
 	{
 		for (auto& [tab_id, tab] : group.m_tabs)
@@ -789,14 +792,14 @@ void CUIMenu::render_menu_contents_section_buttons()
 
 				auto button_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_18px, FDC_Regular);
 				auto label_size = g_gui_fontmgr_i->calc_font_text_size(button_font, section_id.c_str());
-				label_size += Vector2D(5.0f * 2.0f, 3.0f * 2.0f);
+				label_size += MenuStyle::tab_section_button_inner_padding * 2.0f;
 
 				g_gui_widgets_i->push_font(button_font);
 
 				bool did_change_section = section.render_button(label_size, section_id, m_current_context_selection);
-				if (!m_did_change_section && did_change_section)
+				if (!m_menu_contents_changed && did_change_section)
 				{
-					m_did_change_section = true;
+					m_menu_contents_changed = true;
 				}
 
 				g_gui_widgets_i->pop_font();

@@ -101,6 +101,7 @@ public:
 
 	void set_item_default_focus();
 	void set_keyboard_focus_here(int offset = 0);
+	bool is_last_item_focused();
 
 	void set_scroll_here_y(float center_y_ratio = 0.5f);
 
@@ -115,6 +116,9 @@ public:
 	void set_scroll(const Vector2D& xy);
 
 	ImGuiStyle& get_imgui_style();
+
+	bool is_last_widget_focused();
+	bool is_widget_focused(const char* str_id);
 
 	//
 	// Widgets
@@ -509,6 +513,11 @@ void CGUIWidgets::set_keyboard_focus_here(int offset)
 	SetKeyboardFocusHere(offset);
 }
 
+bool CGUIWidgets::is_last_item_focused()
+{
+	return IsItemFocused();
+}
+
 void CGUIWidgets::set_scroll_here_y(float center_y_ratio)
 {
 	SetScrollHereY(center_y_ratio);
@@ -561,6 +570,16 @@ void CGUIWidgets::set_scroll(const Vector2D& xy)
 ImGuiStyle& CGUIWidgets::get_imgui_style()
 {
 	return GImGui->Style;
+}
+
+bool CGUIWidgets::is_last_widget_focused()
+{
+	return GetItemID() == GImGui->ActiveId;
+}
+
+bool CGUIWidgets::is_widget_focused(const char* str_id)
+{
+	return GetID(str_id) == GImGui->ActiveId;
 }
 
 void CGUIWidgets::add_text(const std::string& text, ETextProperties properties, ImFont* font)

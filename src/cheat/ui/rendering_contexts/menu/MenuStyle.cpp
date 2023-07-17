@@ -31,7 +31,7 @@
 // Note: moved here from the header file for faster compile times
 const float MenuStyle::rounding_factor = 20.0f;
 
-const Vector2D MenuStyle::menu_rect_size = { 595, 420 };
+const Vector2D MenuStyle::menu_rect_size = { 600, 420 };
 const Vector2D MenuStyle::menu_rect_size_max = menu_rect_size * Vector2D(1.77f, 1.75f); // sized so that four child columns fit inside contents
 
 const float MenuStyle::tab_select_width = 120.0f;
@@ -44,6 +44,7 @@ const float MenuStyle::menu_contents_padding = 5.0f;
 // menu tab sections
 const Vector2D MenuStyle::tab_section_button_size = { 130.0f, 24.0f };
 const Vector2D MenuStyle::tab_section_button_padding = { 5.0f, 3.0f };
+const Vector2D MenuStyle::tab_section_button_inner_padding = { 10.0f, 2.0f };
 
 // bottom portion of the menu
 const float MenuStyle::bottom_reserved_rect_h = 15.0f;

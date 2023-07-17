@@ -136,6 +136,7 @@ public:
 
 	virtual void set_item_default_focus() = 0;
 	virtual void set_keyboard_focus_here(int offset = 0) = 0;
+	virtual bool is_last_item_focused() = 0;
 
 	virtual void set_scroll_here_y(float center_y_ratio = 0.5f) = 0;
 
@@ -150,6 +151,9 @@ public:
 	virtual void set_scroll(const Vector2D& xy) = 0; // provide -1 for no scroll
 
 	virtual ImGuiStyle& get_imgui_style() = 0;
+
+	virtual bool is_last_widget_focused() = 0;
+	virtual bool is_widget_focused(const char* str_id) = 0;
 
 	//
 	// Widgets

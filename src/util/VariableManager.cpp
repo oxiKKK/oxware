@@ -349,7 +349,7 @@ void CVariableManager::execute_command(const std::string& command_sequence, bool
 			}
 
 			// trim leading spaces, if any
-			current_command.erase(0, current_command.find_first_not_of(' '));
+			current_command = CStringTools::the().ltrim(current_command);
 
 			// execute the command in place
 			execute_internal(current_command, silent);

@@ -70,6 +70,8 @@
 
 #include <gsdecrypt/gsdecrypt.h>
 
+#include <gui/UIStatusWidget.h>
+
 //-------------------------------------------------------------------
 //
 // Shared

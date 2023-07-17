@@ -55,6 +55,23 @@ std::wstring CStringTools::fix_trailing_slashes(const std::wstring& wstr)
 	return corrected;
 }
 
+std::string& CStringTools::rtrim(std::string& s, const char* t)
+{
+	s.erase(s.find_last_not_of(t) + 1);
+	return s;
+}
+
+std::string & CStringTools::ltrim(std::string& s, const char* t)
+{
+	s.erase(0, s.find_first_not_of(t));
+	return s;
+}
+
+std::string& CStringTools::trim(std::string& s, const char* t)
+{
+	return ltrim(rtrim(s, t), t);
+}
+
 std::string CStringTools::format_timestamp_log(const std::chrono::system_clock::time_point& point)
 {
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(point.time_since_epoch()) % 1000;

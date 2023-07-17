@@ -71,6 +71,9 @@
     <Filter Include="src\interfaces">
       <UniqueIdentifier>{b54f3962-235b-417c-ac94-1728d0db4c59}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\UI\other">
+      <UniqueIdentifier>{7c8d78d7-a926-4b7a-b3d5-3a75e939fc69}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="precompiled.cpp" />
@@ -290,12 +293,6 @@
     <ClCompile Include="ui\rendering_contexts\menu\MenuWidgets.cpp">
       <Filter>src\UI\rendering_contexts\menu</Filter>
     </ClCompile>
-    <ClCompile Include="ui\InCommandBinding.cpp">
-      <Filter>src\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\KeyBinding.cpp">
-      <Filter>src\UI</Filter>
-    </ClCompile>
     <ClCompile Include="util\engine\EngineInputManager.cpp">
       <Filter>src\util\engine</Filter>
     </ClCompile>
@@ -383,6 +380,15 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="features\movement\MovementVisualInfo.cpp">
       <Filter>src\features\movement</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\InCommandBinding.cpp">
+      <Filter>src\UI\other</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\KeyBinding.cpp">
+      <Filter>src\UI\other</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\CheatSettings.cpp">
+      <Filter>src\UI\other</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -606,12 +612,6 @@
     <ClInclude Include="ui\rendering_contexts\menu\MenuWidgets.h">
       <Filter>src\UI\rendering_contexts\menu</Filter>
     </ClInclude>
-    <ClInclude Include="ui\InCommandBinding.h">
-      <Filter>src\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\KeyBinding.h">
-      <Filter>src\UI</Filter>
-    </ClInclude>
     <ClInclude Include="util\engine\build_num.h">
       <Filter>src\util\engine</Filter>
     </ClInclude>
@@ -671,6 +671,15 @@
     </ClInclude>
     <ClInclude Include="features\movement\MovementVisualInfo.h">
       <Filter>src\features\movement</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\InCommandBinding.h">
+      <Filter>src\UI\other</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\KeyBinding.h">
+      <Filter>src\UI\other</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\CheatSettings.h">
+      <Filter>src\UI\other</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

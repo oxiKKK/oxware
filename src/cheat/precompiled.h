@@ -322,6 +322,7 @@ namespace hl
 #include "ui/rendering_contexts/PerformanceProfilerVisualization.h"
 #include "ui/KeyBinding.h"
 #include "ui/InCommandBinding.h"
+#include "ui/CheatSettings.h"
 #include "ui/OxWareUI.h"
 
 #endif // PRECOMPILED_H

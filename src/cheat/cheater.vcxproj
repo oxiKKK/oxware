@@ -278,6 +278,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="ui\CheatSettings.cpp" />
     <ClCompile Include="ui\InCommandBinding.cpp" />
     <ClCompile Include="ui\KeyBinding.cpp" />
     <ClCompile Include="ui\OxWareUI.cpp" />
@@ -386,6 +387,7 @@
     <ClInclude Include="importbank_decls.h" />
     <ClInclude Include="oxware.h" />
     <ClInclude Include="precompiled.h" />
+    <ClInclude Include="ui\CheatSettings.h" />
     <ClInclude Include="ui\InCommandBinding.h" />
     <ClInclude Include="ui\KeyBinding.h" />
     <ClInclude Include="ui\OxWareUI.h" />

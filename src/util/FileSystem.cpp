@@ -208,12 +208,6 @@ bool CFileSystem::copy(const FilePath_t& from, const FilePath_t& to, ECopyOption
 
 bool CFileSystem::rename(const FilePath_t& from, const FilePath_t& to)
 {
-	// filesystem::rename can also move files, we don't want that here
-	if (!do_exist(to))
-	{
-		return false;
-	}
-
 	std::error_code errc;
 	std::filesystem::rename(from, to, errc);
 	if (errc)

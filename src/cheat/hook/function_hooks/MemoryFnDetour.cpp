@@ -98,6 +98,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 		CLogInstance__log().install();
 	}
 #endif
+	Steam_GSInitiateGameConnection().install();
 
 	CEngineSynchronization::the().resume_engine();
 
@@ -176,6 +177,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 		CLogInstance__log().uninstall();
 	}
 #endif
+	Steam_GSInitiateGameConnection().uninstall();
 
 	// must be unloaded at last, because of synchronizated cheat unload. see CEngineSynchronization for more info.
 	_Host_Frame().uninstall();
@@ -1376,5 +1378,29 @@ void CLogInstance__log_FnDetour_t::CLogInstance__log(int a1, int a2, int a3, int
 	CMemoryFnDetourMgr::the().CLogInstance__log().call(a1, a2, a3, a4, a5, a6, a7, a8, a9, message, a11);
 }
 #endif // INTERCEPT_STEAM_LOGGING
+
+//---------------------------------------------------------------------------------
+
+bool Steam_GSInitiateGameConnection_FnDetour_t::install()
+{
+	initialize("Steam_GSInitiateGameConnection", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)Steam_GSInitiateGameConnection);
+}
+
+int Steam_GSInitiateGameConnection_FnDetour_t::Steam_GSInitiateGameConnection(
+	void* pData, int cbMaxData, hl::uint64 steamID, hl::uint32 unIPServer, 
+	hl::uint16 usPortServer, hl::qboolean bSecure)
+{
+	auto spoof = CSIDSpoofer::the().spoof(pData);
+
+	if (spoof)
+	{
+		return spoof.value();
+	}
+	else
+	{
+		return CMemoryFnDetourMgr::the().Steam_GSInitiateGameConnection().call(pData, cbMaxData, steamID, unIPServer, usPortServer, bSecure);
+	}
+}
 
 //---------------------------------------------------------------------------------

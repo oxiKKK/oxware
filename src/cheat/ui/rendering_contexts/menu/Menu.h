@@ -430,6 +430,7 @@ struct MenuChilden
 		DECL_CHILD(ConsistencyBypass);
 		DECL_CHILD(FakeLatency);
 		DECL_CHILD(CvarSandbox);
+		DECL_CHILD(SIDSpoofer);
 	};
 
 	struct Configuration

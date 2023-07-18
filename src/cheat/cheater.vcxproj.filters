@@ -390,6 +390,9 @@
     <ClCompile Include="ui\CheatSettings.cpp">
       <Filter>src\UI\other</Filter>
     </ClCompile>
+    <ClCompile Include="features\SIDSpoofer.cpp">
+      <Filter>src\features\exploits</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -680,6 +683,9 @@
     </ClInclude>
     <ClInclude Include="ui\CheatSettings.h">
       <Filter>src\UI\other</Filter>
+    </ClInclude>
+    <ClInclude Include="features\SIDSpoofer.h">
+      <Filter>src\features\exploits</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

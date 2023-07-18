@@ -169,3 +169,15 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 - Fixed a bug related to mouse cursor where if you were in game alive and you'd alt+tab out of the game, you could not move your mouse.
 - Fixed a bug where if you would unload the cheat while in-game, the mouse cursor would get stuck outside of the game, unless you alt-tabbed back to the game and activated the game UI.
 - Fixed a lot of stuff and bugs.
+
+
+# v1.0.6
+
+## Additions and improvements
+
+- Improvements to cheat UI
+- Added SID changer.
+
+## Bugfixes
+
+- 

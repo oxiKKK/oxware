@@ -41,6 +41,7 @@ So stay tuned! 😉<br>
 - [imgui](https://github.com/ocornut/imgui) for literally the best light-weight GUI out there.
 - [json](https://github.com/nlohmann/json) for the very mature json library.
 - [soil](https://github.com/littlstar/soil) for its functionality over simplifying the process of loading opengl images.
+- [multiemulator](https://github.com/2010kohtep/MultiEmulator) for a set of ticket generators which I don't understand at all how they work.-
 - Voooolve for making an excelent decision of building their linux build of the game with debug symbols, making it easier to make cheats for their game 😉 ... Thanks Valve.
 - Anyone who plays using this cheat client or contributes to it somehow. 😎
 

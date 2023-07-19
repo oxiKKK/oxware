@@ -35,6 +35,7 @@ const Vector2D MenuStyle::menu_rect_size = { 600, 420 };
 const Vector2D MenuStyle::menu_rect_size_max = menu_rect_size * Vector2D(1.77f, 1.75f); // sized so that four child columns fit inside contents
 
 const float MenuStyle::tab_select_width = 120.0f;
+const Vector2D MenuStyle::tab_select_pos = { 10.0f, 50.0f };
 
 const float MenuStyle::top_region_size_h = 50.0f;
 
@@ -77,14 +78,9 @@ Vector2D MenuStyle::calc_child_size(float height)
 	return { child_width, height };
 }
 
-Vector2D MenuStyle::calc_child_size_2x(float height)
+Vector2D MenuStyle::calc_child_size_n(float n, float height)
 {
-	return { child_width * 2.0f + child_contents_padding.x, height };
-}
-
-Vector2D MenuStyle::calc_child_size_4x(float height)
-{
-	return { child_width * 4.0f + child_contents_padding.x, height };
+	return { child_width * n + child_contents_padding.x, height };
 }
 
 float MenuStyle::get_child_width_w_padding()

@@ -138,6 +138,7 @@ private:
 	Vector2D m_vieangle_delta;
 	Vector m_last_viewangles; // used to calc the delta
 
+	// set if alive, otherwise nullptr
 	CGenericPlayer* m_local_player;
 
 	bool m_in_messagemode = false;

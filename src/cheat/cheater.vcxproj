@@ -283,6 +283,7 @@
     <ClCompile Include="ui\InCommandBinding.cpp" />
     <ClCompile Include="ui\KeyBinding.cpp" />
     <ClCompile Include="ui\OxWareUI.cpp" />
+    <ClCompile Include="ui\PlayerList.cpp" />
     <ClCompile Include="ui\rendering_contexts\BackgroundRendering.cpp" />
     <ClCompile Include="ui\rendering_contexts\Console.cpp" />
     <ClCompile Include="ui\rendering_contexts\FeatureList.cpp" />
@@ -294,6 +295,7 @@
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Exploits.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Movement.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Other.cpp" />
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_PlayerList.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Rendering.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Screen.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_World.cpp" />
@@ -393,6 +395,7 @@
     <ClInclude Include="ui\InCommandBinding.h" />
     <ClInclude Include="ui\KeyBinding.h" />
     <ClInclude Include="ui\OxWareUI.h" />
+    <ClInclude Include="ui\PlayerList.h" />
     <ClInclude Include="ui\rendering_contexts\BackgroundRendering.h" />
     <ClInclude Include="ui\rendering_contexts\Console.h" />
     <ClInclude Include="ui\rendering_contexts\FeatureList.h" />

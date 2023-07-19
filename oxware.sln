@@ -151,6 +151,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "appframework", "appframewor
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gsdecrypt", "src\gsdecrypt\gsdecrypt.vcxproj", "{131501C5-E167-4A0E-AB61-BC5540F7E14C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multiemulator", "src\multiemulator\multiemulator.vcxproj", "{ACDF0221-9D65-4A84-97F1-E3967381787D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -218,6 +220,12 @@ Global
 		{131501C5-E167-4A0E-AB61-BC5540F7E14C}.Release|x86.Build.0 = Release|Win32
 		{131501C5-E167-4A0E-AB61-BC5540F7E14C}.Retail|x86.ActiveCfg = Retail|Win32
 		{131501C5-E167-4A0E-AB61-BC5540F7E14C}.Retail|x86.Build.0 = Retail|Win32
+		{ACDF0221-9D65-4A84-97F1-E3967381787D}.Debug|x86.ActiveCfg = Debug|Win32
+		{ACDF0221-9D65-4A84-97F1-E3967381787D}.Debug|x86.Build.0 = Debug|Win32
+		{ACDF0221-9D65-4A84-97F1-E3967381787D}.Release|x86.ActiveCfg = Release|Win32
+		{ACDF0221-9D65-4A84-97F1-E3967381787D}.Release|x86.Build.0 = Release|Win32
+		{ACDF0221-9D65-4A84-97F1-E3967381787D}.Retail|x86.ActiveCfg = Retail|Win32
+		{ACDF0221-9D65-4A84-97F1-E3967381787D}.Retail|x86.Build.0 = Retail|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

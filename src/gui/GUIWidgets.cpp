@@ -174,6 +174,8 @@ public:
 	bool add_tree_node(const std::string& label);
 	void pop_tree_node();
 
+	void add_separated_heading(const std::string& label);
+
 	//
 	// Tables/lists/columns
 	//
@@ -1231,6 +1233,42 @@ bool CGUIWidgets::add_tree_node(const std::string& label)
 void CGUIWidgets::pop_tree_node()
 {
 	TreePop();
+}
+
+void CGUIWidgets::add_separated_heading(const std::string& label)
+{
+	ImGuiWindow* window = GetCurrentWindow();
+
+	auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular);
+
+	float separator_padding = 1.0f;
+	float extra_padding_beneath = 1.0f;
+
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+	const ImGuiID id = window->GetID(label.c_str());
+	auto label_size = CalcTextSize(label.c_str(), NULL, true);
+	ImVec2 item_size = { window->Size.x - style.FramePadding.x * 2.0f - style.ScrollbarSize, label_size.y + separator_padding + 1.0f + extra_padding_beneath };
+
+	ImVec2 pos = window->DC.CursorPos;
+	const ImRect total_bb(pos, pos + item_size);
+
+	ItemSize(total_bb, style.FramePadding.y);
+	ItemAdd(total_bb, id);
+
+	PushStyleColor(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextLight));
+
+	// section title
+	RenderText(pos + Vector2D(3.0f, 0.0f), label.c_str());
+
+	PopStyleColor();
+
+	pos.y += label_size.y + separator_padding;
+
+	auto separator_color = g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_Separator);
+
+	// separator underneath
+	window->DrawList->AddLine(pos, pos + Vector2D(item_size.x, 0.0f), separator_color.as_u32());
 }
 
 void CGUIWidgets::add_table(const std::string& name, uint32_t columns, ImGuiTableFlags flags, 

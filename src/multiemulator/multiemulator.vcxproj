@@ -15,39 +15,37 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\public\Console.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="blob_algorithm.cpp" />
-    <ClCompile Include="decrypt.cpp" />
-    <ClCompile Include="gsdecrypt.cpp" />
-    <ClCompile Include="pe_builder.cpp" />
-    <ClCompile Include="precompiled.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">
-      </PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="emulators\AVSMP.cpp" />
+    <ClCompile Include="emulators\OldRevEmu.cpp" />
+    <ClCompile Include="emulators\RevEmu.cpp" />
+    <ClCompile Include="emulators\RevEmu2013.cpp" />
+    <ClCompile Include="emulators\SC2009.cpp" />
+    <ClCompile Include="emulators\Setti.cpp" />
+    <ClCompile Include="emulators\SmartSteamEmu.cpp" />
+    <ClCompile Include="emulators\SteamEmu.cpp" />
+    <ClCompile Include="public\crypto\CRijndael.cpp" />
+    <ClCompile Include="public\crypto\DoubleBuffering.cpp" />
+    <ClCompile Include="public\crypto\MessageDigest.cpp" />
+    <ClCompile Include="public\crypto\SHA.cpp" />
+    <ClCompile Include="public\ExternIP.cpp" />
+    <ClCompile Include="public\RevSpoofer.cpp" />
+    <ClCompile Include="public\StrUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\public\Console.h" />
-    <ClInclude Include="..\public\gsdecrypt\gsdecrypt.h" />
-    <ClInclude Include="blob_algorithm.h" />
-    <ClInclude Include="decrypt.h" />
-    <ClInclude Include="pe_builder.h" />
-    <ClInclude Include="precompiled.h" />
+    <ClInclude Include="..\public\multiemulator\multiemulator.h" />
+    <ClInclude Include="public\crypto\CRijndael.h" />
+    <ClInclude Include="public\crypto\DoubleBuffering.h" />
+    <ClInclude Include="public\crypto\MessageDigest.h" />
+    <ClInclude Include="public\crypto\SHA.h" />
+    <ClInclude Include="public\ExternIP.h" />
+    <ClInclude Include="public\HTTP.h" />
+    <ClInclude Include="public\RevSpoofer.h" />
+    <ClInclude Include="public\StrUtils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{131501C5-E167-4A0E-AB61-BC5540F7E14C}</ProjectGuid>
+    <ProjectGuid>{ACDF0221-9D65-4A84-97F1-E3967381787D}</ProjectGuid>
     <RootNamespace>tier</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -104,12 +102,12 @@
     <ClCompile>
       <WarningLevel>Level2</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions> M_GSDECRYPT;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions> M_MULTIEMUL;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)src/public/;$(SolutionDir)src/public/tier/;$(SolutionDir)src/external/phnt/;$(SolutionDir)src/external/</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp14</LanguageStandard>
       <SupportJustMyCode>false</SupportJustMyCode>
       <TreatWarningAsError>false</TreatWarningAsError>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -137,12 +135,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions> M_GSDECRYPT;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions> M_MULTIEMUL;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)src/public/;$(SolutionDir)src/public/tier/;$(SolutionDir)src/external/phnt/;$(SolutionDir)src/external/</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp14</LanguageStandard>
       <TreatWarningAsError>false</TreatWarningAsError>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -171,12 +169,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions> M_GSDECRYPT;_RETAIL;NDEBUG;WIN32;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions> M_MULTIEMUL;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING;_RETAIL;NDEBUG;WIN32;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)src/public/;$(SolutionDir)src/public/tier/;$(SolutionDir)src/external/phnt/;$(SolutionDir)src/external/</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp14</LanguageStandard>
       <TreatWarningAsError>false</TreatWarningAsError>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>

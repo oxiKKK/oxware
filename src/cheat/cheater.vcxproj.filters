@@ -393,6 +393,12 @@
     <ClCompile Include="features\SIDSpoofer.cpp">
       <Filter>src\features\exploits</Filter>
     </ClCompile>
+    <ClCompile Include="ui\PlayerList.cpp">
+      <Filter>src\UI\other</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_PlayerList.cpp">
+      <Filter>src\UI\rendering_contexts\menu\tabs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -686,6 +692,9 @@
     </ClInclude>
     <ClInclude Include="features\SIDSpoofer.h">
       <Filter>src\features\exploits</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\PlayerList.h">
+      <Filter>src\UI\other</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

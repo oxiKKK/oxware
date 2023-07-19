@@ -36,6 +36,7 @@ enum EMenuChildHeightType
 {
 	MCH_Constant,
 	MCH_2x,
+	MCH_3x,
 	MCH_4x,
 	MCH_SameAsWidth
 };
@@ -53,26 +54,33 @@ public:
 	IMenuChild(const std::string& header, int height, bool collapsible, EMenuChildHeightType type = MCH_Constant, EMenuChildFlags flags = MCHILDF_None)
 		: m_header(header), m_supports_collapse(collapsible), m_flags(flags)
 	{
+		float h = (float)height;
+
 		switch (type)
 		{
 			case MCH_Constant:
 			{
-				m_child_size = MenuStyle::calc_child_size((float)height);
+				m_child_size = MenuStyle::calc_child_size(h);
 				break;
 			}
 			case MCH_2x:
 			{
-				m_child_size = MenuStyle::calc_child_size_2x((float)height);
+				m_child_size = MenuStyle::calc_child_size_n(2.0f, h);
+				break;
+			}
+			case MCH_3x:
+			{
+				m_child_size = MenuStyle::calc_child_size_n(3.0f, h);
 				break;
 			}
 			case MCH_4x:
 			{
-				m_child_size = MenuStyle::calc_child_size_4x((float)height);
+				m_child_size = MenuStyle::calc_child_size_n(4.0f, h);
 				break;
 			}
 			case MCH_SameAsWidth:
 			{
-				m_child_size = (float)height;
+				m_child_size = h;
 				break;
 			}
 		}
@@ -133,6 +141,7 @@ enum EMenuTabId
 	// Miscellaneous
 	MENU_TAB_Exploits,
 	MENU_TAB_Movement,
+	MENU_TAB_PlayerList,
 
 	// Config
 	MENU_TAB_Config,
@@ -260,6 +269,9 @@ private:
 	// render section buttons
 	void render_menu_contents_section_buttons();
 
+	// tabs on the left
+	void render_menu_tabs();
+
 	// misc decoration rendering
 	void render_github_repo_link_decor();
 	void render_menu_decoration(const Vector2D& window_pos, const Vector2D& window_size);
@@ -268,7 +280,7 @@ private:
 
 	// Active offset for rendering tabs & section labels.
 	// Relative active offset is not counting the child position.
-	Vector2D m_sectab_active_offs, m_sectab_relative_active_offset;
+	Vector2D m_sectab_absolute_active_offset, m_sectab_relative_active_offset;
 
 	std::unordered_map<EMenuTabGroupId, MenuTabGroup> m_tab_groups;
 
@@ -431,6 +443,11 @@ struct MenuChilden
 		DECL_CHILD(FakeLatency);
 		DECL_CHILD(CvarSandbox);
 		DECL_CHILD(SIDSpoofer);
+	};
+
+	struct PlayerList
+	{
+		DECL_CHILD(PlayerList_);
 	};
 
 	struct Configuration

@@ -209,6 +209,8 @@ public:
 	virtual bool add_tree_node(const std::string& label) = 0;
 	virtual void pop_tree_node() = 0;
 
+	virtual void add_separated_heading(const std::string& label) = 0;
+
 	//
 	// Tables/lists/columns
 	//

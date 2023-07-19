@@ -58,6 +58,8 @@ void CUICheatSettings::render_ui()
 
 		g_gui_widgets_i->goto_next_column();
 
+		g_gui_widgets_i->add_text("Options on selected cfg");
+
 		render_options_on_selected();
 
 		render_actions();
@@ -127,7 +129,7 @@ void CUICheatSettings::render_actions()
 				actions_restore_defaults();
 			}
 
-			g_gui_widgets_i->pop_stylevar();
+			g_gui_widgets_i->pop_stylevar(); // window padding
 
 			autosave();
 		});
@@ -135,42 +137,40 @@ void CUICheatSettings::render_actions()
 
 void CUICheatSettings::render_options_on_selected()
 {
-	g_gui_widgets_i->add_text("Options on selected cfg");
-
 	g_gui_widgets_i->add_child(
 		"selection", { -1.0f, 60 }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[&]()
 		{
-		if (!m_selected_cfg.empty())
-		{
-			if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
+			if (!m_selected_cfg.empty())
 			{
-				g_gui_widgets_i->goto_next_column();
-
-				if (g_gui_widgets_i->add_button("load", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+				if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
 				{
-					options_load();
+					g_gui_widgets_i->goto_next_column();
+
+					if (g_gui_widgets_i->add_button("load", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+					{
+						options_load();
+					}
+
+					g_gui_widgets_i->goto_next_column();
+
+					if (g_gui_widgets_i->add_button("rename", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+					{
+						options_rename();
+					}
+
+					g_gui_widgets_i->end_columns();
 				}
 
-				g_gui_widgets_i->goto_next_column();
-
-				if (g_gui_widgets_i->add_button("rename", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+				if (g_gui_widgets_i->add_button("delete", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 				{
-					options_rename();
+					options_delete();
 				}
-
-				g_gui_widgets_i->end_columns();
 			}
-
-			if (g_gui_widgets_i->add_button("delete", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+			else
 			{
-				options_delete();
+				g_gui_widgets_i->add_window_centered_text_disabled("No cfg selected! 😶");
 			}
-		}
-		else
-		{
-			g_gui_widgets_i->add_window_centered_text_disabled("No cfg selected! 😶");
-		}
 		});
 }
 

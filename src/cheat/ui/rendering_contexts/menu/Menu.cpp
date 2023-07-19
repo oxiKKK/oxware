@@ -134,6 +134,15 @@ void CUIMenu::on_initialize()
 				tab_movement_main.m_children.push_back(new MenuChilden::Movement::AutoJOF({ "Auto JOF", 200, true }));
 			}
 		}
+
+		{
+			auto& tab_plrlist = group_misc.m_tabs[MENU_TAB_PlayerList];
+			tab_plrlist.initialize("Player list", "List of all players");
+			{
+				auto& tab_plrlist_main = tab_plrlist.m_sections["main"];
+				tab_plrlist_main.m_children.push_back(new MenuChilden::PlayerList::PlayerList_({ "Player list", -1, false, MCH_2x, MCHILDF_DontApplyFilter }));
+			}
+		}
 	}
 
 	//
@@ -270,7 +279,7 @@ void CUIMenu::on_render()
 				"menu_left",
 				Vector2D(MenuStyle::tab_select_width, window_size.y),
 				false,
-				ImGuiWindowFlags_NoScrollWithMouse,
+				ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse,
 				[&]()
 				{
 					auto child_pos = g_gui_widgets_i->get_current_window_pos();
@@ -279,25 +288,14 @@ void CUIMenu::on_render()
 					const char* label_text = "OXWARE";
 					auto label_size = g_gui_fontmgr_i->calc_font_text_size(segoeui_extra, label_text);
 
-					g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(),
-														  segoeui_extra,
-														  { child_pos.x + (child_size.x - label_size.x) / 2.0f, window_pos.y + (MenuStyle::top_region_size_h - label_size.y) / 2.0f },
-														  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark),
-														  label_text);
+					g_gui_window_rendering_i->render_text(
+						g_gui_window_rendering_i->get_current_drawlist(),
+						segoeui_extra,
+						{ child_pos.x + (child_size.x - label_size.x) / 2.0f, window_pos.y + (MenuStyle::top_region_size_h - label_size.y) / 2.0f },
+						g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark),
+						label_text);
 
-					m_sectab_relative_active_offset = { 10.0f, 50.0f };
-					m_sectab_active_offs = child_pos + m_sectab_relative_active_offset;
-
-					for (auto& [group_id, group] : m_tab_groups)
-					{
-						bool did_change_tab = group.render(m_sectab_active_offs, m_sectab_relative_active_offset, 
-														   child_size, m_current_context_selection);
-
-						if (!m_menu_contents_changed && did_change_tab)
-						{
-							m_menu_contents_changed = true;
-						}
-					}
+					render_menu_tabs();
 				}
 			);
 
@@ -471,7 +469,7 @@ bool MenuTabSection::render_button(const Vector2D& button_size, const std::strin
 
 bool MenuTab::render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId id, ContentsSelectionContext& contents_selection)
 {
-	g_gui_widgets_i->set_cursor_pos(relative_offset);
+//	g_gui_widgets_i->set_cursor_pos(relative_offset);
 
 	auto button_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Bold);
 	g_gui_widgets_i->push_font(button_font);
@@ -523,26 +521,12 @@ bool MenuTabGroup::render(Vector2D& offset, Vector2D& relative_offset, const Vec
 
 void MenuTabGroup::render_current_label(Vector2D& offset, Vector2D& relative_offset, const Vector2D& child_size)
 {
-	auto section_label_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular);
+	auto cursor_pos = g_gui_widgets_i->get_cursor_pos();
 
-	// section title
-	g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(), 
-										  section_label_font,
-										  { offset.x, offset.y + 5.0f },
-										  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextLight),
-										  m_label);
+	g_gui_widgets_i->add_separated_heading(m_label);
 
-	relative_offset.y += section_label_font->FontSize;
-	offset.y += section_label_font->FontSize;
-
-	// separator underneath
-	g_gui_window_rendering_i->render_line(g_gui_window_rendering_i->get_current_drawlist(), 
-										  { offset.x, offset.y + 4.0f },
-										  { offset.x + child_size.x - 15.0f, offset.y + 5.f },
-										  g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_Separator));
-
-	relative_offset.y += 8.f;
-	offset.y += 8.f;
+	relative_offset.y += g_gui_widgets_i->get_cursor_pos().y - cursor_pos.y;
+	offset.y += g_gui_widgets_i->get_cursor_pos().y - cursor_pos.y;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -812,6 +796,42 @@ void CUIMenu::render_menu_contents_section_buttons()
 			break;
 		}
 	}
+}
+
+void CUIMenu::render_menu_tabs()
+{
+	auto child_pos = g_gui_widgets_i->get_current_window_pos();
+	auto child_size = g_gui_widgets_i->get_current_window_size();
+
+	g_gui_widgets_i->set_next_window_pos(child_pos + Vector2D(MenuStyle::tab_select_pos.x, MenuStyle::tab_select_pos.y), ImGuiCond_Always);
+
+	g_gui_widgets_i->add_child(
+		"menu_left_tabs",
+		Vector2D(MenuStyle::tab_select_width, child_size.y),
+		false,
+		ImGuiWindowFlags_NoBackground,
+		[&]()
+		{
+			m_sectab_relative_active_offset = 0.0f;
+			m_sectab_absolute_active_offset = child_pos + m_sectab_relative_active_offset;
+
+			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_ItemSpacing, { 0.0f, 0.0f });
+
+			for (auto& [group_id, group] : m_tab_groups)
+			{
+				bool did_change_tab = group.render(m_sectab_absolute_active_offset, m_sectab_relative_active_offset,
+												   child_size, m_current_context_selection);
+
+				g_gui_widgets_i->add_padding({ 0.0f, 4.0f });
+
+				if (!m_menu_contents_changed && did_change_tab)
+				{
+					m_menu_contents_changed = true;
+				}
+			}
+
+			g_gui_widgets_i->pop_stylevar();
+		});
 }
 
 void CUIMenu::render_github_repo_link_decor()

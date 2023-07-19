@@ -41,6 +41,7 @@ public:
 	static const Vector2D	menu_rect_size_max;
 
 	static const float		tab_select_width;
+	static const Vector2D	tab_select_pos;
 
 	static const float		top_region_size_h;
 
@@ -81,8 +82,7 @@ public:
 
 	// utility functions to calculate child size based on height. Width is a constant.
 	static Vector2D			calc_child_size(float height);
-	static Vector2D			calc_child_size_2x(float height);
-	static Vector2D			calc_child_size_4x(float height);
+	static Vector2D			calc_child_size_n(float n, float height);
 
 	static float			get_child_width_w_padding();
 };

@@ -250,7 +250,7 @@
     <ClCompile Include="game\NetchanSequenceHistory.cpp" />
     <ClCompile Include="game\ParticleManMiniMemEmulation.cpp" />
     <ClCompile Include="game\VideoModeUtil.cpp" />
-    <ClCompile Include="game\LocalPlayerState.cpp" />
+    <ClCompile Include="game\LocalState.cpp" />
     <ClCompile Include="game\model\SpriteModelData.cpp" />
     <ClCompile Include="game\model\StudioModelData.cpp" />
     <ClCompile Include="game\SpriteManager.cpp" />
@@ -372,7 +372,7 @@
     <ClInclude Include="game\NetchanSequenceHistory.h" />
     <ClInclude Include="game\ParticleManMiniMemEmulation.h" />
     <ClInclude Include="game\VideoModeUtil.h" />
-    <ClInclude Include="game\LocalPlayerState.h" />
+    <ClInclude Include="game\LocalState.h" />
     <ClInclude Include="game\model\SpriteModelData.h" />
     <ClInclude Include="game\model\StudioModelData.h" />
     <ClInclude Include="game\SpriteManager.h" />

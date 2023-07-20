@@ -149,7 +149,7 @@
     <ClCompile Include="util\vanilla_halflife_dir_file_database.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-    <ClCompile Include="game\LocalPlayerState.cpp">
+    <ClCompile Include="game\LocalState.cpp">
       <Filter>src\game</Filter>
     </ClCompile>
     <ClCompile Include="features\movement\BunnyHop.cpp">
@@ -471,7 +471,7 @@
     <ClInclude Include="util\vanilla_halflife_dir_file_database.h">
       <Filter>src\util</Filter>
     </ClInclude>
-    <ClInclude Include="game\LocalPlayerState.h">
+    <ClInclude Include="game\LocalState.h">
       <Filter>src\game</Filter>
     </ClInclude>
     <ClInclude Include="features\movement\BunnyHop.h">

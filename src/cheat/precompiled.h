@@ -265,7 +265,7 @@ namespace hl
 #include "game/GenericPlayer.h"
 #include "game/EntityManager.h"
 #include "game/SpriteManager.h"
-#include "game/LocalPlayerState.h"
+#include "game/LocalState.h"
 #include "game/ClientMovementPacket.h"
 #include "game/VideoModeUtil.h"
 #include "game/ParticlemanMiniMemEmulation.h"

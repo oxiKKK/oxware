@@ -249,7 +249,7 @@ bool CBacktrack::backtrack_entity(hl::cl_entity_t* ent, float lerp_msec, Vector&
 	}
 
 	// client-side data
-	float ft = CGameUtil::the().get_engine_frametime();			// engine frametime
+	float ft = CLocalState::the().get_engine_frametime();			// engine frametime
 	auto frame = CLocalState::the().get_current_frame();		// latest frame data we received from server
 	float realtime = CMemoryHookMgr::the().cl().get()->time;	// engine timestamp
 

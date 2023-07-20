@@ -53,7 +53,7 @@ bool CStuffCmdFilter::allow_command_to_be_executed()
 		return true;
 	}
 
-	m_filtered_cmds = tokenize_user_cmd_filter(filtered_cmds);
+	m_filtered_cmds_tokenized = CGameUtil::the().tokenize_goldsrc_command(filtered_cmds.c_str());
 
 	CHLNetMessageIO::the().begin_silent_reading();
 
@@ -289,7 +289,7 @@ void CStuffCmdFilter::render_ui()
 
 bool CStuffCmdFilter::is_buffer_valid(const char* buffer)
 {
-	auto tokens = tokenize_user_cmd_filter(buffer);
+	auto tokens = CGameUtil::the().tokenize_goldsrc_command(buffer);
 
 	if (tokens.empty())
 	{
@@ -325,7 +325,7 @@ bool CStuffCmdFilter::approve_server_cmdlist(const std::string& server_cmd)
 {
 	m_block_victim.clear();
 	
-	for (const auto& token : m_filtered_cmds)
+	for (const auto& token : m_filtered_cmds_tokenized)
 	{
 		if (server_cmd.find(token) != std::string::npos)
 		{
@@ -337,38 +337,4 @@ bool CStuffCmdFilter::approve_server_cmdlist(const std::string& server_cmd)
 	}
 
 	return true;
-}
-
-std::vector<std::string> CStuffCmdFilter::tokenize_user_cmd_filter(const std::string& filtered_cmds)
-{
-	std::vector<std::string> result;
-
-	// tokenize a buffer separated by commas ";".
-	std::string current_token;
-	for (size_t i = 0; i < filtered_cmds.length(); i++)
-	{
-		const char c = filtered_cmds[i];
-
-		bool last = (i == filtered_cmds.length() - 1);
-
-		if (c == ';' || last) // the last case, too
-		{
-			if (last)
-			{
-				current_token.push_back(c);
-			}
-
-			// trim spaces, if any
-			current_token = CStringTools::the().trim(current_token);
-
-			result.push_back(current_token);
-			current_token.clear();
-		}
-		else
-		{
-			current_token.push_back(c);
-		}
-	}
-
-	return result;
 }

@@ -245,13 +245,6 @@ bool CGameUtil::is_spectator()
 	return spectator;
 }
 
-double CGameUtil::get_engine_frametime()
-{
-	auto cl = CMemoryHookMgr::the().cl().get();
-	double ft = cl->time - cl->oldtime;
-	return ft;
-}
-
 hl::SCREENINFO CGameUtil::get_engine_screen_info()
 {
 	hl::SCREENINFO info;

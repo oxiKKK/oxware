@@ -40,7 +40,7 @@ void CMovementAirStuck::update()
 	{
 		case 0: // server
 		{
-			float ft = CGameUtil::the().get_engine_frametime();
+			float ft = CLocalState::the().get_engine_frametime();
 
 			// make it somewhat fps-based so that this doesn't get affected when changing fps
 			// since this is capped to only integer resolution, it just will not work properly...

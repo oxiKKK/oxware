@@ -51,9 +51,7 @@ private:
 
 	bool approve_server_cmdlist(const std::string& server_cmd);
 
-	static std::vector<std::string> tokenize_user_cmd_filter(const std::string& filtered_cmds);
-
-	std::vector<std::string> m_filtered_cmds;
+	std::vector<std::string> m_filtered_cmds_tokenized;
 
 	// command that caused the block
 	std::string m_block_victim;

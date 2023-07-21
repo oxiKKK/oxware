@@ -118,6 +118,8 @@ public:
 	// true when specating and when in the spectator mode where 3d overview is visible
 	bool is_in_spectator_mapview();
 
+	double get_engine_frametime();
+
 private:
 	hl::frame_t* m_current_frame = nullptr;
 
@@ -142,6 +144,8 @@ private:
 	CGenericPlayer* m_local_player;
 
 	bool m_in_messagemode = false;
+
+	double m_engine_frametime = 0.0;
 };
 
 #endif // LOCALPLAYERSTATE_H

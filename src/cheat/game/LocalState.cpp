@@ -38,6 +38,8 @@ void CLocalState::update_clientmove(float frametime, hl::usercmd_t* cmd)
 {
 	// cache everything related to our client.
 
+	m_engine_frametime = frametime;
+
 	auto cl = CMemoryHookMgr::the().cl().get();
 	m_vieangle_delta = Vector2D(cl->viewangles[YAW] - m_last_viewangles[YAW], cl->viewangles[PITCH] - m_last_viewangles[PITCH]);
 	m_vieangle_delta *= -1.0f;
@@ -252,4 +254,9 @@ bool CLocalState::is_in_spectator_mapview()
 	auto spect_mode = get_spectating_mode();
 
 	return spect_mode == SPECT_MAP_FREE || spect_mode == SPECT_MAP_CHASE;
+}
+
+double CLocalState::get_engine_frametime()
+{
+	return m_engine_frametime;
 }

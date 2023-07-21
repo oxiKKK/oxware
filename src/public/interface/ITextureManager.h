@@ -26,25 +26,26 @@
 *	IN THE SOFTWARE.
 */
 
-#include "assets/compressed_font_data.h"
+#ifndef ITEXTUREMANAGER_H
+#define ITEXTUREMANAGER_H
+#pragma once
 
-std::vector<BaseFontContainer_t> g_static_fonts;
+#include <BaseTexture.h>
 
-void add_font_to_static_container(BaseFontContainer_t* basefont)
+class ITextureManager : public IBaseInterface
 {
-	g_static_fonts.push_back(*basefont);
-}
+public:
+	virtual void initialize() = 0;
+	virtual void shutdown() = 0;
 
-// ProggyClean monospace
-ProggyCleanFontContainer_t g_ProggyCleanFontContainer(
-	"proggyclean",
-	{ g_proggyclean_compressed_size, g_proggyclean_compressed_data },
-	{},
-	{});
+	virtual BaseTexture* register_texture(const char* identifier, const uint8_t* texture_filedata, uint32_t length) = 0;
+	virtual void unregister_texture(const char* identifier) = 0;
 
-// SegoeUI
-SegoeUIFontContainer_t g_SegoeUIFontContainer(
-	"segoeui",
-	{ g_segoeui_compressed_size, g_segoeui_compressed_data },
-	{ g_segoeuib_compressed_size, g_segoeuib_compressed_data },
-	{ g_segoeuil_compressed_size, g_segoeuil_compressed_data });
+	virtual BaseTexture* get_texture(const char* identifier) = 0;
+};
+
+extern ITextureManager* g_texture_manager_i;
+
+#define ITEXTUREMANAGER_INTERFACEID "ITextureManager"
+
+#endif // ITEXTUREMANAGER_H

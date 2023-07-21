@@ -84,6 +84,8 @@ private:
 	void render_imgui();
 	void post_render();
 
+	void initialize_textures();
+
 	void instantiate_rendering_contexts();
 	void destroy_rendering_contexts();
 

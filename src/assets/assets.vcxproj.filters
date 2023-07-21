@@ -4,45 +4,54 @@
     <Filter Include="src">
       <UniqueIdentifier>{1f922678-c967-491e-ac9b-94dd1226e001}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\segoeui">
-      <UniqueIdentifier>{4b40a3e6-5f29-4fb0-879b-4108316dcf61}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\proggy_clean">
-      <UniqueIdentifier>{4f52ff01-dbb1-4692-83ab-a688ad043534}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\icon">
       <UniqueIdentifier>{524dc739-a6d5-4ff5-8d78-77dc23279969}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\files">
+      <UniqueIdentifier>{f43e6953-b724-41e9-9559-0eff0f9b46c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\files\textures">
+      <UniqueIdentifier>{d145a88c-6eb7-45ba-b426-42a6de7e71d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\fonts">
+      <UniqueIdentifier>{c172e317-9dbd-43b6-9b5c-9aaa3e28185f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="segoeuib_c.cpp">
-      <Filter>src\segoeui</Filter>
-    </ClCompile>
-    <ClCompile Include="segoeuil_c.cpp">
-      <Filter>src\segoeui</Filter>
-    </ClCompile>
-    <ClCompile Include="proggy_clean_c.cpp">
-      <Filter>src\proggy_clean</Filter>
-    </ClCompile>
-    <ClCompile Include="compressed_font_data.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="segoeui_c.cpp">
-      <Filter>src\segoeui</Filter>
-    </ClCompile>
     <ClCompile Include="oxware_48_c.cpp">
       <Filter>src\icon</Filter>
     </ClCompile>
-    <ClCompile Include="seguiemj_c.cpp">
-      <Filter>src\segoeui</Filter>
+    <ClCompile Include="fonts\proggy_clean_c.cpp">
+      <Filter>src\fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="fonts\segoeui_c.cpp">
+      <Filter>src\fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="fonts\segoeuib_c.cpp">
+      <Filter>src\fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="fonts\segoeuil_c.cpp">
+      <Filter>src\fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="fonts\seguiemj_c.cpp">
+      <Filter>src\fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="fonts\compressed_font_data.cpp">
+      <Filter>src\fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="textures\unknown_pfp.cpp">
+      <Filter>src\files\textures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\public\assets\compressed_font_data.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\public\assets\fonts\compressed_font_data.h">
+      <Filter>src\fonts</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\assets\compressed_png_data.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\public\assets\fonts\compressed_png_data.h">
+      <Filter>src\fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\assets\textures.h">
+      <Filter>src\files\textures</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

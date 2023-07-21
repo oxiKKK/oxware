@@ -95,7 +95,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assets.lib;soil.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;$(SolutionDir)src/external/discord/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -126,7 +126,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assets.lib;soil.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;$(SolutionDir)src/external/discord/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -157,12 +157,17 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assets.lib;soil.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;$(SolutionDir)src/external/discord/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\public\BaseInCommand.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\public\BaseTexture.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -279,6 +284,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="ui\CheatSettings.cpp" />
     <ClCompile Include="ui\InCommandBinding.cpp" />
     <ClCompile Include="ui\KeyBinding.cpp" />
@@ -320,6 +326,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\BaseInCommand.h" />
+    <ClInclude Include="..\public\BaseTexture.h" />
     <ClInclude Include="..\public\BaseVariable.h" />
     <ClInclude Include="..\public\code_performace_profile.h" />
     <ClInclude Include="..\public\Console.h" />

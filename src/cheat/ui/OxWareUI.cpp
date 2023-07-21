@@ -106,6 +106,8 @@ void COxWareUI::destroy()
 		}
 	}
 
+	g_texture_manager_i->shutdown();
+
 	destroy_rendering_contexts();
 
 	g_window_msg_handler_i->destroy();
@@ -240,6 +242,8 @@ void COxWareUI::run_ui()
 		return;
 	}
 
+
+
 	m_is_any_interactible_rendering_context_active = false;
 	m_contexts_to_be_rendered.clear();
 
@@ -296,6 +300,9 @@ void COxWareUI::render_imgui()
 {
 	g_gui_widgets_i->block_input_on_all_except_popup(is_in_popup_dialog() || g_user_input_i->is_in_key_binding_mode());
 
+	// we need to initialize textures here, otherwise it won't work.
+	initialize_textures();
+
 	for (IRenderingContext* ctx : m_contexts_to_be_rendered)
 	{
 		ctx->on_render();
@@ -322,6 +329,16 @@ void COxWareUI::render_imgui()
 void COxWareUI::post_render()
 {
 	handle_ingame_mouseevents();
+}
+
+void COxWareUI::initialize_textures()
+{
+	static bool f = false;
+	if (!f)
+	{
+		g_texture_manager_i->initialize();
+		f = true;
+	}
 }
 
 void COxWareUI::create_welcome_popup()

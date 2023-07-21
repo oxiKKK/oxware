@@ -211,6 +211,8 @@ public:
 
 	virtual void add_separated_heading(const std::string& label) = 0;
 
+	virtual void add_image(ImTextureID id, const Vector2D& size) = 0;
+
 	//
 	// Tables/lists/columns
 	//

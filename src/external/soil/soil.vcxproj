@@ -19,9 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\util\ByteBuffer.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="image_dxt.c" />
     <ClCompile Include="image_helper.c" />
     <ClCompile Include="soil.c" />
@@ -117,8 +114,8 @@
       <AdditionalDependencies>glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release|Win32'">
@@ -147,10 +144,10 @@
       <AdditionalDependencies>glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)src\lib\ /Y</Command>
+      <Command>xcopy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)src\lib\" /Y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copied $(TargetName)$(TargetExt) to a shared src\lib\ directory.</Message>
+      <Message>Copied "$(TargetName)$(TargetExt)" to a shared "src\lib\" directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'">

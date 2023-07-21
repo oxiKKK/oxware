@@ -15,37 +15,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="compressed_font_data.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="fonts\compressed_font_data.cpp" />
+    <ClCompile Include="fonts\proggy_clean_c.cpp" />
+    <ClCompile Include="fonts\segoeuib_c.cpp" />
+    <ClCompile Include="fonts\segoeuil_c.cpp" />
+    <ClCompile Include="fonts\segoeui_c.cpp" />
+    <ClCompile Include="fonts\seguiemj_c.cpp" />
     <ClCompile Include="oxware_48_c.cpp" />
-    <ClCompile Include="proggy_clean_c.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="segoeuib_c.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="segoeuil_c.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="segoeui_c.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="seguiemj_c.cpp" />
+    <ClCompile Include="textures\unknown_pfp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\public\assets\compressed_font_data.h" />
-    <ClInclude Include="..\public\assets\compressed_png_data.h" />
+    <ClInclude Include="..\public\assets\fonts\compressed_font_data.h" />
+    <ClInclude Include="..\public\assets\fonts\compressed_png_data.h" />
+    <ClInclude Include="..\public\assets\textures.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

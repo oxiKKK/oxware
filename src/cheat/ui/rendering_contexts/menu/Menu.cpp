@@ -140,7 +140,7 @@ void CUIMenu::on_initialize()
 			tab_plrlist.initialize("Player list", "List of all players");
 			{
 				auto& tab_plrlist_main = tab_plrlist.m_sections["main"];
-				tab_plrlist_main.m_children.push_back(new MenuChilden::PlayerList::PlayerList_({ "Player list", -1, false, MCH_2x, MCHILDF_DontApplyFilter }));
+				tab_plrlist_main.m_children.push_back(new MenuChilden::PlayerList::PlayerList_({ "Player list", -1, false, MCH_3x, MCHILDF_DontApplyFilter }));
 			}
 		}
 	}

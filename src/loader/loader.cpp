@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-#include "assets/compressed_png_data.h"
+#include "assets/fonts/compressed_png_data.h"
 
 #include "resource/resource.h"
 

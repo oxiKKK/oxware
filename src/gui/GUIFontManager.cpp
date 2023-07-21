@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-#include "assets/compressed_font_data.h"
+#include "assets/fonts/compressed_font_data.h"
 
 #include <imgui_internal.h>
 

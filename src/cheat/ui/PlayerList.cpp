@@ -125,5 +125,25 @@ void CUIPlayerList::render_selected_player_info()
 	auto& player = CEntityMgr::the().m_known_players[m_selected_plr_idx];
 	auto pinfo = player.get_playerinfo();
 
-	g_gui_widgets_i->add_text(pinfo->name, TEXTPROP_None, g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_18px, FDC_Bold));
+	auto window_size = g_gui_widgets_i->get_current_window_size();
+
+	if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
+	{
+		float pfp_size = 65.0f;
+		g_gui_widgets_i->setup_column_fixed_width(window_size.x - (pfp_size + 20.0f));
+
+		g_gui_widgets_i->goto_next_column();
+
+		g_gui_widgets_i->add_text("asd");
+
+		g_gui_widgets_i->goto_next_column();
+
+		auto unknown_pfp = g_texture_manager_i->get_texture("unknown_pfp");
+		if (unknown_pfp)
+		{
+			g_gui_widgets_i->add_image((GLuint*)unknown_pfp->get_gl_id(), Vector2D(pfp_size, pfp_size));
+		}
+
+		g_gui_widgets_i->end_columns();
+	}
 }

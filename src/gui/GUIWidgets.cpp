@@ -176,6 +176,8 @@ public:
 
 	void add_separated_heading(const std::string& label);
 
+	void add_image(ImTextureID id, const Vector2D& size);
+
 	//
 	// Tables/lists/columns
 	//
@@ -1269,6 +1271,11 @@ void CGUIWidgets::add_separated_heading(const std::string& label)
 
 	// separator underneath
 	window->DrawList->AddLine(pos, pos + Vector2D(item_size.x, 0.0f), separator_color.as_u32());
+}
+
+void CGUIWidgets::add_image(ImTextureID id, const Vector2D& size)
+{
+	Image(id, size);
 }
 
 void CGUIWidgets::add_table(const std::string& name, uint32_t columns, ImGuiTableFlags flags, 

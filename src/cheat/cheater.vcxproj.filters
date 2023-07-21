@@ -399,6 +399,12 @@
     <ClCompile Include="ui\rendering_contexts\menu\Menu_PlayerList.cpp">
       <Filter>src\UI\rendering_contexts\menu\tabs</Filter>
     </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>src\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\BaseTexture.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -695,6 +701,9 @@
     </ClInclude>
     <ClInclude Include="ui\PlayerList.h">
       <Filter>src\UI\other</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\BaseTexture.h">
+      <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

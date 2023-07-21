@@ -47,6 +47,7 @@
 #include <interface/IBytePatternBank.h>
 #include <interface/IInCommands.h>
 #include <interface/ICheatInfo.h>
+#include <interface/ITextureManager.h>
 
 #include <interface/gui/IGLFWApp.h>
 #include <interface/gui/IGUIWidgets.h>
@@ -71,6 +72,8 @@
 #include <gsdecrypt/gsdecrypt.h>
 
 #include <gui/UIStatusWidget.h>
+
+#include <assets/textures.h>
 
 //-------------------------------------------------------------------
 //

@@ -35,4 +35,9 @@ extern unsigned int g_unknown_pfp_size_raw;
 extern unsigned int g_unknown_pfp_size;
 extern unsigned char g_unknown_pfp[6563];
 
+// checkerboard
+extern unsigned int g_checkerboard_size_raw;
+extern unsigned int g_checkerboard_size;
+extern unsigned char g_checkerboard[2246];
+
 #endif // ASSETS_TEXTURES_H

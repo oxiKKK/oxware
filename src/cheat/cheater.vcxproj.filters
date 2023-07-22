@@ -393,17 +393,20 @@
     <ClCompile Include="features\SIDSpoofer.cpp">
       <Filter>src\features\exploits</Filter>
     </ClCompile>
-    <ClCompile Include="ui\PlayerList.cpp">
-      <Filter>src\UI\other</Filter>
-    </ClCompile>
     <ClCompile Include="ui\rendering_contexts\menu\Menu_PlayerList.cpp">
       <Filter>src\UI\rendering_contexts\menu\tabs</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
       <Filter>src\interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\BaseTexture.cpp">
+    <ClCompile Include="ui\PlayerList.cpp">
+      <Filter>src\UI\rendering_contexts</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\steamid.cpp">
       <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="util\SteamIDUtil.cpp">
+      <Filter>src\util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -702,8 +705,8 @@
     <ClInclude Include="ui\PlayerList.h">
       <Filter>src\UI\other</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\BaseTexture.h">
-      <Filter>public</Filter>
+    <ClInclude Include="util\SteamIDUtil.h">
+      <Filter>src\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

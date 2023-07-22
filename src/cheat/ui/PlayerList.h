@@ -30,6 +30,16 @@
 #define PLAYERLIST_H
 #pragma once
 
+struct cached_player_info_t
+{
+	cached_player_info_t()
+	{}
+
+	BaseTexture m_avatar_picture;
+
+	SteamID_t m_steam_id;
+};
+
 class CUIPlayerList
 {
 public:
@@ -39,10 +49,32 @@ public:
 	void render_ui();
 
 private:
+	void initialize();
+
 	void render_players();
 	void render_selected_player_info();
 
+	void render_player_info(const cached_player_info_t& cached_player);
+	void render_player_avatar(const cached_player_info_t& cached_player, float avatar_size);
+
+	void manage_timers();
+	
 	int m_selected_plr_idx;
+
+	// cached player info
+	std::array<cached_player_info_t, MAX_CLIENTS> m_cached_players;
+	void create_cached_player_info(int id, const CGenericPlayer& player);
+	void update_avatars(int id, cached_player_info_t& cached_player);
+	bool m_update_player_cache = false;
+	uint32_t m_last_cache_update_time = 0;
+
+	// avatar pictures
+	bool m_precache_avatar_picture = false;
+	uint32_t m_last_avatar_precache_time = 0;
+
+	BaseTexture m_unknown_profile_picture;
+
+	std::string get_avatar_texture_playerid(int id);
 };
 
 #endif // PLAYERLIST_H

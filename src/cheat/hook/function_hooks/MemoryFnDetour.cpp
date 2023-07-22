@@ -1204,7 +1204,7 @@ bool HUD_CreateEntities_FnDetour_t::install()
 
 void HUD_CreateEntities_FnDetour_t::HUD_CreateEntities()
 {
-	// Function called inside CL_EmitEntitiesA().
+	// Function called inside CL_EmitEntities().
 
 	CMemoryFnDetourMgr::the().HUD_CreateEntities().call();
 

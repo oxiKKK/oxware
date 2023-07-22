@@ -42,6 +42,9 @@
     <ClCompile Include="textures\unknown_pfp.cpp">
       <Filter>src\files\textures</Filter>
     </ClCompile>
+    <ClCompile Include="textures\checkerboard.cpp">
+      <Filter>src\files\textures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\assets\fonts\compressed_font_data.h">

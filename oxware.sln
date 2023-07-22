@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "public", "public", "{F4728D12-12D0-4669-9EB0-1D59EF1AEC00}"
 	ProjectSection(SolutionItems) = preProject
 		src\public\basetypes.h = src\public\basetypes.h
+		src\public\ByteBuffer.h = src\public\ByteBuffer.h
 		src\public\BytePattern.h = src\public\BytePattern.h
 		src\public\color.h = src\public\color.h
 		src\public\commondefs.h = src\public\commondefs.h
@@ -154,6 +155,61 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multiemulator", "src\multiemulator\multiemulator.vcxproj", "{ACDF0221-9D65-4A84-97F1-E3967381787D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "soil", "src\external\soil\soil.vcxproj", "{0EC14D9F-F54C-4681-8DE9-BF5100B6BA1F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{79607133-6DF6-4C25-A5B6-D4CD4FCF9774}"
+	ProjectSection(SolutionItems) = preProject
+		src\public\assets\textures.h = src\public\assets\textures.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fonts", "fonts", "{37095BF1-A828-4C6F-9A27-04B9C3F79D40}"
+	ProjectSection(SolutionItems) = preProject
+		src\public\assets\fonts\compressed_font_data.h = src\public\assets\fonts\compressed_font_data.h
+		src\public\assets\fonts\compressed_png_data.h = src\public\assets\fonts\compressed_png_data.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gsdecrypt", "gsdecrypt", "{177E039E-5B75-4ED4-87F9-947F84DD0B76}"
+	ProjectSection(SolutionItems) = preProject
+		src\public\gsdecrypt\blob.h = src\public\gsdecrypt\blob.h
+		src\public\gsdecrypt\gsdecrypt.h = src\public\gsdecrypt\gsdecrypt.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gui", "gui", "{131C5C36-B876-46F2-AF7C-48388FB742C9}"
+	ProjectSection(SolutionItems) = preProject
+		src\public\gui\UIStatusWidget.h = src\public\gui\UIStatusWidget.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "injection", "injection", "{543F0349-31C7-46FF-9116-F348BE9EA3D3}"
+	ProjectSection(SolutionItems) = preProject
+		src\public\injection\BaseInjector.h = src\public\injection\BaseInjector.h
+		src\public\injection\IBaseInjector.cpp = src\public\injection\IBaseInjector.cpp
+		src\public\injection\IBaseInjector.h = src\public\injection\IBaseInjector.h
+		src\public\injection\InjectedDllIPCInterface.h = src\public\injection\InjectedDllIPCInterface.h
+		src\public\injection\PortableExecutableObject.h = src\public\injection\PortableExecutableObject.h
+		src\public\injection\VirtualMemoryManager.h = src\public\injection\VirtualMemoryManager.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "multiemulator", "multiemulator", "{E16B9C48-14DA-4D81-9C26-F5210D77B167}"
+	ProjectSection(SolutionItems) = preProject
+		src\public\multiemulator\multiemulator.h = src\public\multiemulator\multiemulator.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tier", "tier", "{0ABD9162-319B-4584-91C2-3B02C90D9F8A}"
+	ProjectSection(SolutionItems) = preProject
+		src\public\tier\GenericUtil.h = src\public\tier\GenericUtil.h
+		src\public\tier\MessageBox.h = src\public\tier\MessageBox.h
+		src\public\tier\StringTools.h = src\public\tier\StringTools.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "loadlibrary", "loadlibrary", "{387DCFFD-D12D-48C7-9397-F133917AF4BD}"
+	ProjectSection(SolutionItems) = preProject
+		src\public\injection\loadlibrary\LoadLibrareredDll.h = src\public\injection\loadlibrary\LoadLibrareredDll.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mmap", "mmap", "{1B9B824F-F07B-4C18-A66C-49D0480B9211}"
+	ProjectSection(SolutionItems) = preProject
+		src\public\injection\mmap\ManualMappedDll.h = src\public\injection\mmap\ManualMappedDll.h
+		src\public\injection\mmap\ManualMappedDllCurrentProcess.h = src\public\injection\mmap\ManualMappedDllCurrentProcess.h
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -327,6 +383,15 @@ Global
 		{98717374-EA99-45D9-83C4-698D341AEC18} = {8DF7D839-FA63-4FD2-BBE6-CD8A7D641464}
 		{D715372E-B37D-41F2-B67D-F04BC45330A5} = {5DBC2167-676B-4A7A-866F-837BFE2FE31A}
 		{0EC14D9F-F54C-4681-8DE9-BF5100B6BA1F} = {6F421B66-7A42-47C6-B9F6-EE61468B91FE}
+		{79607133-6DF6-4C25-A5B6-D4CD4FCF9774} = {F4728D12-12D0-4669-9EB0-1D59EF1AEC00}
+		{37095BF1-A828-4C6F-9A27-04B9C3F79D40} = {79607133-6DF6-4C25-A5B6-D4CD4FCF9774}
+		{177E039E-5B75-4ED4-87F9-947F84DD0B76} = {F4728D12-12D0-4669-9EB0-1D59EF1AEC00}
+		{131C5C36-B876-46F2-AF7C-48388FB742C9} = {F4728D12-12D0-4669-9EB0-1D59EF1AEC00}
+		{543F0349-31C7-46FF-9116-F348BE9EA3D3} = {F4728D12-12D0-4669-9EB0-1D59EF1AEC00}
+		{E16B9C48-14DA-4D81-9C26-F5210D77B167} = {F4728D12-12D0-4669-9EB0-1D59EF1AEC00}
+		{0ABD9162-319B-4584-91C2-3B02C90D9F8A} = {F4728D12-12D0-4669-9EB0-1D59EF1AEC00}
+		{387DCFFD-D12D-48C7-9397-F133917AF4BD} = {543F0349-31C7-46FF-9116-F348BE9EA3D3}
+		{1B9B824F-F07B-4C18-A66C-49D0480B9211} = {543F0349-31C7-46FF-9116-F348BE9EA3D3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {61AAF24A-12CB-41AB-95DA-570F5D0CBFB6}

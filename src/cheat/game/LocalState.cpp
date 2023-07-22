@@ -79,6 +79,12 @@ void CLocalState::update_clientmove(float frametime, hl::usercmd_t* cmd)
 			m_local_player = nullptr;
 		}
 	}
+
+	if (CHLInterfaceHook::the().ISteamUser())
+	{
+		// TODO: set only once?
+		m_local_steamid = CHLInterfaceHook::the().ISteamUser()->GetSteamID();
+	}
 }
 
 int CLocalState::get_player_flags()
@@ -259,4 +265,9 @@ bool CLocalState::is_in_spectator_mapview()
 double CLocalState::get_engine_frametime()
 {
 	return m_engine_frametime;
+}
+
+hl::CSteamID CLocalState::get_local_steamid()
+{
+	return m_local_steamid;
 }

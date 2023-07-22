@@ -62,6 +62,9 @@ public:
 	Vector get_default_bounding_box_min() const { return Vector(-16.0f, -16.0f, -18.0f); }
 	Vector get_default_bounding_box_max() const { return Vector(16.0f, 16.0f, 18.0f); }
 
+	// returns steam id of a player. takes care of local player, too
+	uint64_t get_steam_id() const;
+
 private:
 	hl::extra_player_info_t* m_extra_playerinfo = nullptr;
 	hl::player_info_t* m_playerinfo = nullptr;

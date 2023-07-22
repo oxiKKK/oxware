@@ -119,6 +119,7 @@ public:
 	bool is_in_spectator_mapview();
 
 	double get_engine_frametime();
+	hl::CSteamID get_local_steamid();
 
 private:
 	hl::frame_t* m_current_frame = nullptr;
@@ -146,6 +147,9 @@ private:
 	bool m_in_messagemode = false;
 
 	double m_engine_frametime = 0.0;
+
+	// the m_nSteamID field inside player_info_t doesn't actually get set for local player.. heh
+	hl::CSteamID m_local_steamid;
 };
 
 #endif // LOCALPLAYERSTATE_H

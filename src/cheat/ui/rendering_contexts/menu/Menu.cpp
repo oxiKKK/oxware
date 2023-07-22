@@ -140,7 +140,7 @@ void CUIMenu::on_initialize()
 			tab_plrlist.initialize("Player list", "List of all players");
 			{
 				auto& tab_plrlist_main = tab_plrlist.m_sections["main"];
-				tab_plrlist_main.m_children.push_back(new MenuChilden::PlayerList::PlayerList_({ "Player list", -1, false, MCH_3x, MCHILDF_DontApplyFilter }));
+				tab_plrlist_main.m_children.push_back(new MenuChilden::PlayerList::PlayerList_({ "Player list", -1, false, MCH_2_5x, MCHILDF_DontApplyFilter }));
 			}
 		}
 	}
@@ -902,7 +902,7 @@ void CUIMenu::render_menu_decoration(const Vector2D& window_pos, const Vector2D&
 
 	// this gets filled automatically by a python script.
 	// DO NOT EDIT FOLLOWING LINE OR THE SCRIPT WILL BREAK.
-	auto lines_label = std::format(/*LINES&FILESMARKER*/"{} lines in {} files", "65,330", "319");
+	auto lines_label = std::format(/*LINES&FILESMARKER*/"{} lines in {} files", "70,573", "354");
 	g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(),
 										  topside_font,
 										 { window_pos.x + MenuStyle::tab_select_width + 5.0f, window_pos.y + 30.0f + 3.0f },

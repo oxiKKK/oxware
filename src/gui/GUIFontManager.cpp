@@ -348,6 +348,7 @@ void CGUIFontManager::precache_all_fonts()
 	precache_font(FID_SegoeUI, FSZ_13px, FDC_Regular);
 
 	precache_font(FID_SegoeUI, FSZ_14px, FDC_Regular);
+	precache_font(FID_SegoeUI, FSZ_14px, FDC_Bold);
 
 	precache_font(FID_SegoeUI, FSZ_16px, FDC_Bold);
 	precache_font(FID_SegoeUI, FSZ_16px, FDC_Regular);

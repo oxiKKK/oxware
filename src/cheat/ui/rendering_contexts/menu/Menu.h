@@ -36,6 +36,7 @@ enum EMenuChildHeightType
 {
 	MCH_Constant,
 	MCH_2x,
+	MCH_2_5x,
 	MCH_3x,
 	MCH_4x,
 	MCH_SameAsWidth
@@ -66,6 +67,11 @@ public:
 			case MCH_2x:
 			{
 				m_child_size = MenuStyle::calc_child_size_n(2.0f, h);
+				break;
+			}
+			case MCH_2_5x:
+			{
+				m_child_size = MenuStyle::calc_child_size_n(2.5f, h);
 				break;
 			}
 			case MCH_3x:

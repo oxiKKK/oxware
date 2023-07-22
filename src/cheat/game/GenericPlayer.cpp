@@ -51,7 +51,9 @@ void CGenericPlayer::update_player_info(int index, hl::player_info_t* pinfo)
 bool CGenericPlayer::is_alive() const
 {
 	if (!m_extra_playerinfo)
+	{
 		return false;
+	}
 
 	return m_extra_playerinfo->dead == false;
 }
@@ -79,10 +81,30 @@ CColor CGenericPlayer::get_color_based_on_team() const
 
 bool CGenericPlayer::is_local_player() const
 {
+	if (!m_ent)
+	{
+		return false;
+	}
+
 	return m_ent->index == CMemoryHookMgr::the().cl().get()->playernum + 1;
 }
 
 bool CGenericPlayer::is_local_spectating() const
 {
+	if (!m_ent)
+	{
+		return false;
+	}
+
 	return m_ent->index == CLocalState::the().get_spectating_player() && CLocalState::the().get_spectating_mode() == SPECT_FIRST_PERSON;
+}
+
+uint64_t CGenericPlayer::get_steam_id() const
+{
+	if (!m_playerinfo)
+	{
+		return 0ull;
+	}
+
+	return is_local_player() ? CLocalState::the().get_local_steamid().ConvertToUint64() : m_playerinfo->m_nSteamID;
 }

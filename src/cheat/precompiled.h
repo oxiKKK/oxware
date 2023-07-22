@@ -92,6 +92,13 @@
 
 //-------------------------------------------------------------------
 //
+// SOIL
+// 
+//-------------------------------------------------------------------
+#include <soil/soil.h>
+
+//-------------------------------------------------------------------
+//
 // C++ Standard
 // 
 //-------------------------------------------------------------------
@@ -212,6 +219,11 @@ namespace hl
 #include <hlsdk/interface/IFileSystem.h>
 #include <hlsdk/interface/IVideoMode.h>
 
+// steam
+#include <hlsdk/steam/isteamfriends.h>
+#include <hlsdk/steam/isteamutils.h>
+#include <hlsdk/steam/isteamuser.h>
+
 // game_shared
 #include <hlsdk/game_shared/shareddefs.h>
 #include <hlsdk/game_shared/cstrike/cs_shareddefs.h>
@@ -247,6 +259,7 @@ namespace hl
 // util
 #include "util/GameUtil.h"
 #include "util/MathUtil.h"
+#include "util/SteamIDUtil.h"
 #include "util/engine/HLNetMessageIO.h"
 #include "util/engine/build_num.h"
 #include "util/engine/EngineInputManager.h"

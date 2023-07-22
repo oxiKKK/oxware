@@ -22,6 +22,7 @@
     <ClCompile Include="fonts\segoeui_c.cpp" />
     <ClCompile Include="fonts\seguiemj_c.cpp" />
     <ClCompile Include="oxware_48_c.cpp" />
+    <ClCompile Include="textures\checkerboard.cpp" />
     <ClCompile Include="textures\unknown_pfp.cpp" />
   </ItemGroup>
   <ItemGroup>

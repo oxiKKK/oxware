@@ -30,10 +30,25 @@
 #define ASSETS_TEXTURES_H
 #pragma once
 
-// unknown pfp jpeg
-extern unsigned int g_unknown_pfp_size_raw;
-extern unsigned int g_unknown_pfp_size;
-extern unsigned char g_unknown_pfp[6563];
+// bot pfp jpeg
+extern unsigned int g_bot_pfp_size_raw;
+extern unsigned int g_bot_pfp_size;
+extern unsigned char g_bot_pfp[4752];
+
+// nonsteam pfp jpeg
+extern unsigned int g_nonsteam_pfp_size_raw;
+extern unsigned int g_nonsteam_pfp_size;
+extern unsigned char g_nonsteam_pfp[5486];
+
+// invalid pfp jpeg
+extern unsigned int g_invalid_pfp_size_raw;
+extern unsigned int g_invalid_pfp_size;
+extern unsigned char g_invalid_pfp[4574];
+
+// avatar not found
+extern unsigned int g_avatar_not_found_size_raw;
+extern unsigned int g_avatar_not_found_size;
+extern unsigned char g_avatar_not_found[5865];
 
 // checkerboard
 extern unsigned int g_checkerboard_size_raw;

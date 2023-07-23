@@ -30,7 +30,7 @@
 // SteamIDUtil.cpp -- various steam id utilities.
 // 
 //------------------------------------------------------------------------------
-// STEAM ID 2:
+// STEAM 3 ID #1:
 // 
 //	STEAM_X:Y:Z where:
 // 
@@ -39,7 +39,7 @@
 //	-	Z is the "account number".
 // 
 //------------------------------------------------------------------------------
-// STEAM ID 3:
+// STEAM 3 ID #2:
 // 
 //	[letter:X:Y] where:
 //
@@ -47,69 +47,105 @@
 //	-	X is the universe ID.
 //	-	Y account id
 // 
-// NOTE: that there can be more forms of sid3. See code below for various forms.
+// NOTE: that there can be more forms of this sid. See code below for various forms.
 //
 
 #include "precompiled.h"
 
-std::string CSteamIDUtil::render_steam3_id(SteamID_t steam_id)
+std::string CSteamIDUtil::render_steam3_id_variant_1(Steam3ID_t steam3_id)
 {
 	std::string steam3;
 	
-	if (hl::k_EAccountTypeAnonGameServer == steam_id.m_EAccountType)
+	if (hl::k_EAccountTypeAnonGameServer == steam3_id.m_EAccountType)
 	{
-		steam3 = std::format("[A-{}:{}({})]", (int)steam_id.m_EUniverse, (unsigned int)steam_id.m_unAccountID, (unsigned int)steam_id.m_unAccountInstance);
+		steam3 = std::format("[A-{}:{}({})]", (uint8_t)steam3_id.m_EUniverse, (uint32_t)steam3_id.m_unAccountID, (uint32_t)steam3_id.m_unAccountInstance);
 	}
-	else if (hl::k_EAccountTypeGameServer == steam_id.m_EAccountType)
+	else if (hl::k_EAccountTypeGameServer == steam3_id.m_EAccountType)
 	{
-		steam3 = std::format("[G-{}:{}]", (int)steam_id.m_EUniverse, (unsigned int)steam_id.m_unAccountID);
+		steam3 = std::format("[G-{}:{}]", (uint8_t)steam3_id.m_EUniverse, (uint32_t)steam3_id.m_unAccountID);
 	}
-	else if (hl::k_EAccountTypeMultiseat == steam_id.m_EAccountType)
+	else if (hl::k_EAccountTypeMultiseat == steam3_id.m_EAccountType)
 	{
-		steam3 = std::format("[{}:{}({}%)]", (int)steam_id.m_EUniverse, (unsigned int)steam_id.m_unAccountID, (unsigned int)steam_id.m_unAccountInstance);
+		steam3 = std::format("[{}:{}({}%)]", (uint8_t)steam3_id.m_EUniverse, (uint32_t)steam3_id.m_unAccountID, (uint32_t)steam3_id.m_unAccountInstance);
 	}
-	else if (hl::k_EAccountTypePending == steam_id.m_EAccountType)
+	else if (hl::k_EAccountTypePending == steam3_id.m_EAccountType)
 	{
-		steam3 = std::format("[{}:{}(pending)]", (int)steam_id.m_EUniverse, (unsigned int)steam_id.m_unAccountID);
+		steam3 = std::format("[{}:{}(pending)]", (uint8_t)steam3_id.m_EUniverse, (uint32_t)steam3_id.m_unAccountID);
 	}
-	else if (hl::k_EAccountTypeContentServer == steam_id.m_EAccountType)
+	else if (hl::k_EAccountTypeContentServer == steam3_id.m_EAccountType)
 	{
-		steam3 = std::format("[C-{}:{}]", (int)steam_id.m_EUniverse, (unsigned int)steam_id.m_unAccountID);
+		steam3 = std::format("[C-{}:{}]", (uint8_t)steam3_id.m_EUniverse, (uint32_t)steam3_id.m_unAccountID);
 	}
 	else
 	{
-		steam3 = std::format("[{}:{}]", (int)steam_id.m_EUniverse, (unsigned int)steam_id.m_unAccountID);
+		steam3 = std::format("[{:}:{:}]", (uint8_t)steam3_id.m_EUniverse, (uint32_t)steam3_id.m_unAccountID);
 	}
 
 	return steam3;
 }
 
-std::string CSteamIDUtil::render_steam2_id(SteamID_t steam_id)
+std::string CSteamIDUtil::render_steam3_id_variant_2(Steam3ID_t steam3_id)
 {
 	std::string steam2;
 
-	bool is_steam = is_steam_user(steam_id);
+	bool is_steam = is_steam_user(steam3_id);
 
-	steam2 = std::format("{}_{:1}:{:1}:{:010}", 
+	steam2 = std::format("{}_{:01}:{:01}:{:010}", 
 						 (is_steam ? "STEAM" : "VALVE"),
-						 (int)steam_id.m_EUniverse, 
-						 (unsigned int)steam_id.High32bits,
-						 (unsigned int)steam_id.Low32bits);
+						 (uint8_t)steam3_id.m_EUniverse, 
+						 (uint32_t)steam3_id.High32bits,
+						 (uint32_t)steam3_id.Low32bits);
 
 	return steam2;
 }
 
-std::string CSteamIDUtil::steam_id_to_url(SteamID_t steam_id)
+std::string CSteamIDUtil::render_steam2_id_variant_2(Steam3ID_t steam3_id)
 {
-	std::string sub_path = sub_path_from_account_type(steam_id);
-	SteamID_t community_id = convert_to_steam_community_id(steam_id);
+	std::string steam2;
+
+	bool is_steam = is_steam_user(steam3_id);
+	auto steam2_id = to_steam2(steam3_id);
+
+	steam2 = std::format("{}_{:01}:{:01}:{:010}",
+						 (is_steam ? "STEAM" : "VALVE"),
+						 (uint16_t)steam2_id.m_SteamInstanceID, // should be always 0 tho
+						 (uint32_t)steam2_id.m_SteamLocalUserID.Split.High32bits,
+						 (uint32_t)steam2_id.m_SteamLocalUserID.Split.Low32bits);
+
+	return steam2;
+}
+
+std::string CSteamIDUtil::render_steam_account(Steam3ID_t steam3_id)
+{
+	switch (steam3_id.m_EAccountType)
+	{
+		case hl::k_EAccountTypeInvalid:				return "invalid";
+		case hl::k_EAccountTypeIndividual:			return "individual";
+		case hl::k_EAccountTypeMultiseat:			return "multiseat";
+		case hl::k_EAccountTypeGameServer:			return "game server";
+		case hl::k_EAccountTypeAnonGameServer:		return "anon game server";
+		case hl::k_EAccountTypePending:				return "pending";
+		case hl::k_EAccountTypeContentServer:		return "content server";
+		case hl::k_EAccountTypeClan:				return "clan";
+		case hl::k_EAccountTypeChat:				return "chat";
+		case hl::k_EAccountTypeConsoleUser:			return "console user";
+		case hl::k_EAccountTypeAnonUser:			return "anon user";
+	}
+
+	return std::to_string(steam3_id.m_EAccountType);
+}
+
+std::string CSteamIDUtil::steam_id_to_url(Steam3ID_t steam3_id)
+{
+	std::string sub_path = sub_path_from_account_type(steam3_id);
+	Steam3ID_t community_id = convert_to_steam_community_id(steam3_id);
 
 	return "www.steamcommunity.com/" + sub_path + "/" + std::to_string(community_id.m_unAll64Bits);
 }
 
-std::string CSteamIDUtil::sub_path_from_account_type(SteamID_t steam_id)
+std::string CSteamIDUtil::sub_path_from_account_type(Steam3ID_t steam3_id)
 {
-	switch (steam_id.m_EAccountType)
+	switch (steam3_id.m_EAccountType)
 	{
 		case hl::k_EAccountTypeIndividual:
 		{
@@ -126,11 +162,11 @@ std::string CSteamIDUtil::sub_path_from_account_type(SteamID_t steam_id)
 	}
 }
 
-SteamID_t CSteamIDUtil::get_steam_id_account_identifier(SteamID_t steam_id)
+Steam3ID_t CSteamIDUtil::get_steam_id_account_identifier(Steam3ID_t steam3_id)
 {
-	SteamID_t result{};
+	Steam3ID_t result{};
 
-	switch (steam_id.m_EAccountType)
+	switch (steam3_id.m_EAccountType)
 	{
 		case hl::k_EAccountTypeIndividual:
 		{
@@ -153,38 +189,67 @@ SteamID_t CSteamIDUtil::get_steam_id_account_identifier(SteamID_t steam_id)
 	return result;
 }
 
-SteamID_t CSteamIDUtil::convert_to_steam_community_id(SteamID_t steam_id)
+Steam3ID_t CSteamIDUtil::convert_to_steam_community_id(Steam3ID_t steam3_id)
 {
 	// https://developer.valvesoftware.com/wiki/SteamID#Steam_ID_as_a_Steam_Community_ID
 
-	SteamID_t result;
-	SteamID_t sid2 = to_steam_id2(steam_id);
-	SteamID_t sid_64_identifier = get_steam_id_account_identifier(steam_id);
+	Steam3ID_t result;
+	Steam2ID_t sid2 = to_steam2(steam3_id);
+	Steam3ID_t sid_64_identifier = get_steam_id_account_identifier(steam3_id);
 
-	result.m_unAll64Bits = (sid2.Low32bits * 2 + sid_64_identifier.m_unAll64Bits + sid2.High32bits);
+	result.m_unAll64Bits = (sid2.m_SteamLocalUserID.Split.Low32bits * 2 + sid_64_identifier.m_unAll64Bits + sid2.m_SteamLocalUserID.Split.High32bits);
 
 	return result;
 }
 
-SteamID_t CSteamIDUtil::to_steam_id2(SteamID_t steam_id)
+Steam2ID_t CSteamIDUtil::to_steam2(Steam3ID_t steam3_id)
 {
-	SteamID_t sid2;
+	// see CSteamID::ConvertToSteam2
 
-	sid2.High32bits = steam_id.m_unAccountID % 2;
-	sid2.Low32bits = steam_id.m_unAccountID / 2;
+	Steam2ID_t sid2;
+
+	sid2.m_SteamInstanceID = 0;
+	sid2.m_SteamLocalUserID.Split.High32bits = steam3_id.m_unAccountID % 2;
+	sid2.m_SteamLocalUserID.Split.Low32bits = steam3_id.m_unAccountID / 2;
 
 	return sid2;
 }
 
-bool CSteamIDUtil::is_steam_user(SteamID_t steam_id)
+bool CSteamIDUtil::is_steam_user(Steam3ID_t steam3_id)
 {
-	//	This is kind of weird way to check, but if the player
-	//	is a steam player, the first 7 digits will be always
-	//	the same for every player.
-	//
-	//	return sid64 / 10000000000 == 7656119;
+	// This is kind of weird way to check, but if the player
+	// is a steam player, the first 7 digits will be always
+	// the same for every player.
+	// 
+	// return sid64 / 10000000000 == 7656119;
 	return
-		steam_id.m_EAccountType == hl::k_EAccountTypeIndividual &&
-		steam_id.m_EUniverse == hl::k_EUniversePublic &&
-		steam_id.m_unAccountInstance == hl::k_unSteamUserDesktopInstance;
+		steam3_id.m_EAccountType == hl::k_EAccountTypeIndividual &&
+		steam3_id.m_EUniverse == hl::k_EUniversePublic &&
+		steam3_id.m_unAccountInstance == hl::k_unSteamUserDesktopInstance;
+}
+
+bool CSteamIDUtil::is_bot(Steam3ID_t steam3_id)
+{
+	return steam3_id.m_unAll64Bits == 0ULL;
+}
+
+bool CSteamIDUtil::is_valid(Steam3ID_t steam3_id)
+{
+	hl::CSteamID csid = steam3_id.m_unAll64Bits;
+	return csid.IsValid();
+}
+
+bool CSteamIDUtil::is_using_sid_changer(Steam3ID_t steam3_id)
+{
+	// TODO: Note sure about that meh, on some servers they can just disable scoreboard avatars by the new cvar.
+
+	if (!is_steam_user(steam3_id))
+	{
+		return false;
+	}
+
+	// if this fails and the user is steam user, he is using steamid changer
+	int image_id = CHLInterfaceHook::the().ISteamFriends()->GetMediumFriendAvatar(steam3_id.m_unAll64Bits);
+
+	return image_id == 0;
 }

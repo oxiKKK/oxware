@@ -79,8 +79,6 @@ void CEntityMgr::update_screen()
 			continue;
 		}
 
-		auto cl_ent = p.cl_entity();
-
 		CEngineFontRendering::the().render_debug("{:<2}: {}", id, p.get_playerinfo()->name);
 	}
 

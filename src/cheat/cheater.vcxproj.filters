@@ -399,14 +399,14 @@
     <ClCompile Include="TextureManager.cpp">
       <Filter>src\interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="ui\PlayerList.cpp">
-      <Filter>src\UI\rendering_contexts</Filter>
-    </ClCompile>
     <ClCompile Include="..\public\steamid.cpp">
       <Filter>public</Filter>
     </ClCompile>
     <ClCompile Include="util\SteamIDUtil.cpp">
       <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\PlayerList.cpp">
+      <Filter>src\UI\other</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

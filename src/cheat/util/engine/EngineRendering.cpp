@@ -222,6 +222,7 @@ void CEngineFontRendering::render_information()
 	render_debug("iuser1: {}", clientdata->iuser1);
 	render_debug("iuser2: {}", clientdata->iuser2);
 	render_debug("key_dest: {}", (int)*CMemoryHookMgr::the().key_dest().get());
+	render_debug("playernum: {}", cl->playernum);
 
 	auto va_delta = CLocalState::the().get_viewangle_delta();
 	render_debug("VA delta: {}", va_delta);

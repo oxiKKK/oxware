@@ -1229,7 +1229,14 @@ bool CGUIWidgets::add_floating_button(const std::string& label, const Vector2D& 
 
 bool CGUIWidgets::add_tree_node(const std::string& label)
 {
-	return TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth);
+	bool ret = TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth);
+
+	if (IsItemHovered())
+	{
+		g_imgui_platform_layer_i->override_cursor(GUICURSOR_Hand);
+	}
+
+	return ret;
 }
 
 void CGUIWidgets::pop_tree_node()

@@ -42,8 +42,6 @@ void CViewmodelOffset::update()
 	if (!local)
 		return;
 
-	auto& uptodate_state = local->cl_entity()->curstate;
-
 	if (CGameUtil::the().is_spectator())
 	{
 		return;

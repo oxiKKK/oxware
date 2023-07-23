@@ -63,3 +63,66 @@ struct std::formatter<hl::FORCE_TYPE> : std::formatter<std::string> {
 	}
 };
 
+// hl::EUniverse
+template <>
+struct std::formatter<hl::EUniverse> : std::formatter<std::string> {
+	auto format(hl::EUniverse type, std::format_context& ctx) {
+
+		switch (type)
+		{
+			case hl::k_EUniverseInvalid:		return std::formatter<string>::format("invalid", ctx);
+			case hl::k_EUniversePublic:			return std::formatter<string>::format("public", ctx);
+			case hl::k_EUniverseBeta:			return std::formatter<string>::format("beta", ctx);
+			case hl::k_EUniverseInternal:		return std::formatter<string>::format("internal", ctx);
+			case hl::k_EUniverseDev:			return std::formatter<string>::format("dev", ctx);
+		}
+		return std::formatter<string>::format("invalid (" + std::to_string((int)type) + ")", ctx);
+	}
+};
+
+
+// hl::EAccountType
+template <>
+struct std::formatter<hl::EAccountType> : std::formatter<std::string> {
+	auto format(hl::EAccountType type, std::format_context& ctx) {
+
+		switch (type)
+		{
+			case hl::k_EAccountTypeInvalid:			return std::formatter<string>::format("invalid", ctx);
+			case hl::k_EAccountTypeIndividual:		return std::formatter<string>::format("individual", ctx);
+			case hl::k_EAccountTypeMultiseat:		return std::formatter<string>::format("multiseat", ctx);
+			case hl::k_EAccountTypeGameServer:		return std::formatter<string>::format("gameserver", ctx);
+			case hl::k_EAccountTypeAnonGameServer:	return std::formatter<string>::format("anongameserver", ctx);
+			case hl::k_EAccountTypePending:			return std::formatter<string>::format("pedning", ctx);
+			case hl::k_EAccountTypeContentServer:	return std::formatter<string>::format("contentserver", ctx);
+			case hl::k_EAccountTypeClan:			return std::formatter<string>::format("clan", ctx);
+			case hl::k_EAccountTypeChat:			return std::formatter<string>::format("chat", ctx);
+			case hl::k_EAccountTypeConsoleUser:		return std::formatter<string>::format("consoleuser", ctx);
+			case hl::k_EAccountTypeAnonUser:		return std::formatter<string>::format("anonuser", ctx);
+		}
+
+		return std::formatter<string>::format("invalid (" + std::to_string((int)type) + ")", ctx);
+	}
+};
+
+
+// hl::EPersonaState
+template <>
+struct std::formatter<hl::EPersonaState> : std::formatter<std::string> {
+	auto format(hl::EPersonaState type, std::format_context& ctx) {
+
+		switch (type)
+		{
+			case hl::k_EPersonaStateOffline:		return std::formatter<string>::format("offline", ctx);
+			case hl::k_EPersonaStateOnline:			return std::formatter<string>::format("online", ctx);
+			case hl::k_EPersonaStateBusy:			return std::formatter<string>::format("busy", ctx);
+			case hl::k_EPersonaStateAway:			return std::formatter<string>::format("away", ctx);
+			case hl::k_EPersonaStateSnooze:			return std::formatter<string>::format("snooze", ctx);
+			case hl::k_EPersonaStateLookingToTrade: return std::formatter<string>::format("lookingtotrade", ctx);
+			case hl::k_EPersonaStateLookingToPlay:	return std::formatter<string>::format("lookingtoplay", ctx);
+		}
+
+		return std::formatter<string>::format("invalid (" + std::to_string((int)type) + ")", ctx);
+	}
+};
+

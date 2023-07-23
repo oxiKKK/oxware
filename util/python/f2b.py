@@ -3,7 +3,10 @@
 #
 # Copyright oxiKKK (c) 2023
 #
-# Version 1.0
+# Version 1.1
+#
+# 1.1 Changes:
+#   - removed variable declaration options.
 #
 
 import argparse
@@ -168,18 +171,6 @@ def get_type_by_lang_and_style():
     return datatype
 
 
-def variable_declaration_by_lang():
-    """returns language-specific declaration"""
-
-    var_decl = ""
-    if args.lang == "C++":
-        var_decl = "const"
-    elif args.lang == "C":
-        var_decl = "const"
-
-    return var_decl
-
-
 def get_output_file(a):
     """
     appends '_out' string to the input file name, such as 'img_out.extension'.
@@ -263,7 +254,6 @@ def write_raw_byte_array_data(output_file_handle):
 def write_bytearray(output_file_handle):
     """write resulting C++ or other language array to the file"""
 
-    decl = variable_declaration_by_lang()
     datatype = get_type_by_lang_and_style()
     variable_names = get_variable_names()
     size_by_datatype = get_total_bytes_size_by_datatype()
@@ -279,13 +269,13 @@ def write_bytearray(output_file_handle):
 
     output_file_handle.write("\n")
     output_file_handle.write(
-        f"{decl} unsigned int {variable_names['size_raw']} = {input_file_size};\n"
+        f"unsigned int {variable_names['size_raw']} = {input_file_size};\n"
     )
     output_file_handle.write(
-        f"{decl} unsigned int {variable_names['size']} = {size_by_datatype};\n"
+        f"unsigned int {variable_names['size']} = {size_by_datatype};\n"
     )
     output_file_handle.write(
-        f"{decl} {datatype} {variable_names['data']}[{size_by_datatype}] = \n"
+        f"{datatype} {variable_names['data']}[{size_by_datatype}] = \n"
     )
     output_file_handle.write("{\n\t")
 

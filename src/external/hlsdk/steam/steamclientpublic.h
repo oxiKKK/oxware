@@ -719,7 +719,7 @@ private:
 	CSteamID( int32 );
 
 	// 64 bits total
-	union SteamID_t
+	union Steam3ID_t
 	{
 		struct SteamIDComponent_t
 		{

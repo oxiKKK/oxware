@@ -471,11 +471,7 @@ struct MenuChilden
 		DECL_CHILD(CommandList);
 		DECL_CHILD(UI);
 		DECL_CHILD(Storage);
-	};
-
-	struct Debug
-	{
-		DECL_CHILD(Debugging);
+		DECL_CHILD(Debug);
 	};
 };
 

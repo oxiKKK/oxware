@@ -230,6 +230,7 @@ void CUIMenu::on_initialize()
 			{
 				auto& tab_other_main = tab_other.m_sections["main"];
 				tab_other_main.m_children.push_back(new MenuChilden::Other::UI({ "UI", 350, false }));
+				tab_other_main.m_children.push_back(new MenuChilden::Other::Debug({ "Debug", 320, false }));
 				tab_other_main.m_children.push_back(new MenuChilden::Other::Storage({ "📂 Storage", 200, false }));
 			}
 		}

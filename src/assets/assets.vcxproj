@@ -22,8 +22,11 @@
     <ClCompile Include="fonts\segoeui_c.cpp" />
     <ClCompile Include="fonts\seguiemj_c.cpp" />
     <ClCompile Include="oxware_48_c.cpp" />
+    <ClCompile Include="textures\avatar_not_found.cpp" />
+    <ClCompile Include="textures\bot_pfp.cpp" />
     <ClCompile Include="textures\checkerboard.cpp" />
-    <ClCompile Include="textures\unknown_pfp.cpp" />
+    <ClCompile Include="textures\invalid_pfp.cpp" />
+    <ClCompile Include="textures\nonsteam_pfp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\assets\fonts\compressed_font_data.h" />

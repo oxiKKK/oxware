@@ -39,10 +39,19 @@
     <ClCompile Include="fonts\compressed_font_data.cpp">
       <Filter>src\fonts</Filter>
     </ClCompile>
-    <ClCompile Include="textures\unknown_pfp.cpp">
+    <ClCompile Include="textures\checkerboard.cpp">
       <Filter>src\files\textures</Filter>
     </ClCompile>
-    <ClCompile Include="textures\checkerboard.cpp">
+    <ClCompile Include="textures\bot_pfp.cpp">
+      <Filter>src\files\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="textures\nonsteam_pfp.cpp">
+      <Filter>src\files\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="textures\invalid_pfp.cpp">
+      <Filter>src\files\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="textures\avatar_not_found.cpp">
       <Filter>src\files\textures</Filter>
     </ClCompile>
   </ItemGroup>

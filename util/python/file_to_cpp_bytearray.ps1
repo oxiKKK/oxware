@@ -39,8 +39,10 @@ if (!(Test-Path $input))
 
 # full filename
 $input_file_full = $input
+$input_filename = (Get-Item $input ).Basename  
+$global_var_name = "g_" + $input_filename
 
 Write-Output("Running the script on '" + $input_file_full + "'...")
 
 # execute the command
-python f2b.py $input_file_full -l "C++" -s "uint8" -r 32
+python f2b.py $input_file_full -l "C++" -s "uint8" -r 32 -n $global_var_name

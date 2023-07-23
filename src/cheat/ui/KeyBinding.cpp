@@ -333,8 +333,12 @@ void CUIKeyBinding::render_decoration(const Vector2D& last_cursor_pos)
 	if (g_gui_widgets_i->add_floating_button("?", last_cursor_pos, { window_size.x - x_pad - button_size.x - x_spacing - button1_size.x - x_spacing - button_size.x, 0.0f },
 											 button_size, false, BUTTONFLAG_CenterLabel))
 	{
-		COxWareUI::the().schedule_popup(
-			"Binding help", { 450, 400 },
+		auto bindhelp_dialog = CUIWindowPopups::the().create_popup_context<UIDecoratedWithTitlePopup>("bind_help");
+
+		bindhelp_dialog->provide_window_size(Vector2D(450, 400));
+		bindhelp_dialog->provide_window_title("Binding help");
+
+		bindhelp_dialog->provide_contents_fn(
 			[]()
 			{
 				g_gui_widgets_i->add_separtor_with_text("Types of binds");
@@ -368,7 +372,12 @@ void CUIKeyBinding::render_decoration(const Vector2D& last_cursor_pos)
 				g_gui_widgets_i->add_padding({ 0.0f, 10.0f });
 				g_gui_widgets_i->add_separtor_with_text("Binding through the UI");
 
-				g_gui_widgets_i->add_text("Use the UI to bind any command sequence to a key. Inside the \"Bind manager\" tab, there are all of the current binds listed.", TEXTPROP_Wrapped);			});
+				g_gui_widgets_i->add_text("Use the UI to bind any command sequence to a key. Inside the \"Bind manager\" tab, there are all of the current binds listed.", TEXTPROP_Wrapped);
+
+				return false;
+			});
+
+		CUIWindowPopups::the().schedule_popup(bindhelp_dialog);
 	}
 }
 

@@ -306,6 +306,7 @@
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Screen.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_World.cpp" />
     <ClCompile Include="ui\rendering_contexts\PerformanceProfilerVisualization.cpp" />
+    <ClCompile Include="ui\UIWindowPopups.cpp" />
     <ClCompile Include="util\engine\build_num.cpp" />
     <ClCompile Include="util\engine\EngineInputManager.cpp" />
     <ClCompile Include="util\engine\EngineRendering.cpp" />
@@ -412,6 +413,7 @@
     <ClInclude Include="ui\rendering_contexts\menu\MenuStyle.h" />
     <ClInclude Include="ui\rendering_contexts\menu\MenuWidgets.h" />
     <ClInclude Include="ui\rendering_contexts\PerformanceProfilerVisualization.h" />
+    <ClInclude Include="ui\UIWindowPopups.h" />
     <ClInclude Include="util\engine\build_num.h" />
     <ClInclude Include="util\engine\EngineInputManager.h" />
     <ClInclude Include="util\engine\EngineRendering.h" />

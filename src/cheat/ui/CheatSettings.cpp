@@ -214,28 +214,20 @@ void CUICheatSettings::options_load()
 
 void CUICheatSettings::options_rename()
 {
-	static char rename_buffer[64];
-	COxWareUI::the().schedule_popup(
-		"", Vector2D(210, 170),
-		[]()
+	static char rename_buffer[MAX_PATH];
+
+	auto rename_dialog = CUIWindowPopups::the().create_popup_context<UIDecoratedPopup>("config_rename");
+
+	rename_dialog->provide_window_size(Vector2D(210, 170));
+	rename_dialog->provide_window_flags(ImGuiWindowFlags_NoResize);
+	rename_dialog->provide_on_close_fn(
+		[&]()
 		{
-			if (g_gui_widgets_i->add_text_input("Rename to", rename_buffer, sizeof(rename_buffer), ImGuiInputTextFlags_EnterReturnsTrue, true))
-			{
-				// enter returns true:
-				COxWareUI::the().close_current_popup();
-			}
-
-			g_gui_widgets_i->add_text("Enter name of the config");
-
-			g_gui_widgets_i->add_text("Will be renamed to:");
-
-			if (rename_buffer[0])
-			{
-				g_gui_widgets_i->add_text(std::format("'{}.json'", rename_buffer),
-										  TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
-			}
-		},
-		[&]() // on close
+			// don't do nothing at all, just close the popuú. this is in order to make the "close button to render"
+			strcpy(rename_buffer, "");
+		});
+	rename_dialog->provide_on_okay_fn(
+		[&]()
 		{
 			if (!rename_buffer[0])
 			{
@@ -254,7 +246,7 @@ void CUICheatSettings::options_rename()
 
 			if (g_filesystem_i->do_exist(to_full))
 			{
-				m_status_widget.update_status(std::format("'{}' cannot be renamed to '{}' because the file already exists.", 
+				m_status_widget.update_status(std::format("'{}' cannot be renamed to '{}' because the file already exists.",
 														  m_selected_cfg, path.filename().string()), UIStatusWidget::Error);
 			}
 			else
@@ -270,7 +262,32 @@ void CUICheatSettings::options_rename()
 			}
 
 			strcpy(rename_buffer, "");
-		}, ImGuiWindowFlags_NoResize);
+		});
+
+	rename_dialog->provide_contents_fn(
+		[]()
+		{
+			bool close = false;
+			if (g_gui_widgets_i->add_text_input("Rename to", rename_buffer, sizeof(rename_buffer), ImGuiInputTextFlags_EnterReturnsTrue, true))
+			{
+				// enter returns true:
+				close = true;
+			}
+
+			g_gui_widgets_i->add_text("Enter name of the config");
+
+			g_gui_widgets_i->add_text("Will be renamed to:");
+
+			if (rename_buffer[0])
+			{
+				g_gui_widgets_i->add_text(std::format("'{}.json'", rename_buffer),
+										  TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
+			}
+
+			return close;
+		});
+
+	CUIWindowPopups::the().schedule_popup(rename_dialog);
 }
 
 void CUICheatSettings::options_delete()
@@ -287,28 +304,22 @@ void CUICheatSettings::options_delete()
 
 void CUICheatSettings::actions_create_new()
 {
-	static char name_buffer[64];
-	COxWareUI::the().schedule_popup(
-		"", Vector2D(210, 170),
-		[]()
+	static char name_buffer[MAX_PATH];
+
+	auto create_dialog = CUIWindowPopups::the().create_popup_context<UIDecoratedPopup>("config_create");
+
+	create_dialog->provide_window_size(Vector2D(210, 170));
+	create_dialog->provide_window_flags(ImGuiWindowFlags_NoResize);
+	
+	create_dialog->provide_on_close_fn(
+		[&]()
 		{
-			if (g_gui_widgets_i->add_text_input("Config name", name_buffer, sizeof(name_buffer), ImGuiInputTextFlags_EnterReturnsTrue, true))
-			{
-				// enter returns true:
-				COxWareUI::the().close_current_popup();
-			}
+			// don't do nothing at all, just close the popuú. this is in order to make the "close button to render"
+			strcpy(name_buffer, "");
+		});
 
-			g_gui_widgets_i->add_text("Enter name of the config");
-
-			g_gui_widgets_i->add_text("Will be saved as:");
-
-			if (name_buffer[0])
-			{
-				g_gui_widgets_i->add_text(std::format("'{}.json'", name_buffer),
-										  TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
-			}
-		},
-		[&]() // on close
+	create_dialog->provide_on_okay_fn(
+		[&]()
 		{
 			if (!name_buffer[0])
 			{
@@ -332,7 +343,32 @@ void CUICheatSettings::actions_create_new()
 			}
 
 			strcpy(name_buffer, "");
-		}, ImGuiWindowFlags_NoResize);
+		});
+
+	create_dialog->provide_contents_fn(
+		[]()
+		{
+			bool close = false;
+			if (g_gui_widgets_i->add_text_input("Config name", name_buffer, sizeof(name_buffer), ImGuiInputTextFlags_EnterReturnsTrue, true))
+			{
+				// enter returns true:
+				close = true;
+			}
+
+			g_gui_widgets_i->add_text("Enter name of the config");
+
+			g_gui_widgets_i->add_text("Will be saved as:");
+
+			if (name_buffer[0])
+			{
+				g_gui_widgets_i->add_text(std::format("'{}.json'", name_buffer),
+										  TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
+			}
+
+			return close;
+		});
+
+	CUIWindowPopups::the().schedule_popup(create_dialog);
 }
 
 void CUICheatSettings::actions_open_config_dir()
@@ -363,7 +399,14 @@ void CUICheatSettings::actions_restore_defaults()
 	}
 	else
 	{
-		m_status_widget.update_status("Failed to restore defaults!", UIStatusWidget::Error);
+		// if we fail, most likely the "default.json" file was deleted. created it back again and load that.
+		g_config_mgr_i->write_configuration(CFG_CheatSettings, "default.json");
+
+		if (!g_config_mgr_i->load_configuration(CFG_CheatSettings, "default.json"))
+		{
+			// idk... xd shouldn't happen
+			m_status_widget.update_status("Failed to restore defaults!", UIStatusWidget::Error);
+		}
 	}
 }
 

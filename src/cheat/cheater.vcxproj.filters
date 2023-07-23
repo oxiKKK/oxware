@@ -408,6 +408,9 @@
     <ClCompile Include="ui\PlayerList.cpp">
       <Filter>src\UI\other</Filter>
     </ClCompile>
+    <ClCompile Include="ui\UIWindowPopups.cpp">
+      <Filter>src\UI\other</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -707,6 +710,9 @@
     </ClInclude>
     <ClInclude Include="util\SteamIDUtil.h">
       <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\UIWindowPopups.h">
+      <Filter>src\UI\other</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

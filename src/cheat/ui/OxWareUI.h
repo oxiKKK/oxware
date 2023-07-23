@@ -51,12 +51,6 @@ public:
 
 	IRenderingContext* find_context(const std::string& id) const;
 
-	bool is_in_popup_dialog() const { return m_popup_callback != nullptr; }
-
-	void schedule_popup(const std::string& window_title, const Vector2D& window_size,
-						const std::function<void()>& contents, const std::function<void()>& on_close_callback = 0,
-						ImGuiWindowFlags window_flags = 0);
-
 	void add_background_rendering_constrain(const std::function<bool()>& callback)
 	{
 		ctx_BackgroundRendering->add_render_constain(callback);
@@ -67,15 +61,13 @@ public:
 		ctx_BackgroundRendering->add_render_code(callback);
 	}
 
-	void close_current_popup()
-	{
-		m_popup_close_requested = true;
-	}
-
-	// aka the "about" dialog
-	void create_welcome_popup();
-
 	inline HWND get_window_handle() const { return m_hwnd; }
+
+	// forces interactible context rendering. don't use this.
+	void internal_force_interactible_rendering()
+	{
+		m_is_any_interactible_rendering_context_active = true;
+	}
 
 private:
 	void initialize(HWND wnd);
@@ -97,6 +89,8 @@ private:
 	void lock_interaction_on_all_contexts();
 	void unlock_interaction_on_all_contexts();
 
+	void handle_popups_inputs();
+
 private:
 	bool m_is_any_interactible_rendering_context_active = false;
 
@@ -115,17 +109,6 @@ private:
 	CUIBackgroundRendering		*ctx_BackgroundRendering = nullptr;
 
 	std::vector<IRenderingContext*> m_contexts_to_be_rendered;
-
-	std::function<void()> m_popup_callback;
-	std::function<void()> m_on_close_callback;
-	Vector2D m_popup_window_size;
-	std::string m_popup_window_title;
-	ImGuiWindowFlags m_popup_window_flags;
-
-	bool m_popup_close_requested = false;
-
-	void render_popup();
-	void on_popup_close();
 };
 
 template<typename T>

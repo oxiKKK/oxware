@@ -328,6 +328,7 @@ namespace hl
 #include "features/movement/Movement.h"
 
 // ui
+#include "ui/UIWindowPopups.h"
 #include "ui/rendering_contexts/IRendererContext.h"
 #include "ui/rendering_contexts/menu/MenuWidgets.h"
 #include "ui/rendering_contexts/menu/MenuStyle.h"

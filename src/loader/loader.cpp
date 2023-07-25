@@ -210,8 +210,6 @@ bool CMainLoader::run_frame()
 {
 	frame_start = std::chrono::high_resolution_clock::now();
 
-	update_app_title();
-
 	if (!g_glfw_app_i->on_tick())
 	{
 		return false;
@@ -225,23 +223,10 @@ bool CMainLoader::run_frame()
 	}
 
 	frame_end = std::chrono::high_resolution_clock::now();
-	compute_avg_fps();
+
+	std::this_thread::sleep_for(1ms);
 
 	return true;
-}
-
-void CMainLoader::update_app_title()
-{
-	std::string title_text = std::format(DEFAULT_APP_TITLE " | {:.3} fps", m_avg_fps);
-	g_glfw_app_i->update_window_title(title_text);
-}
-
-// https://en.wikipedia.org/wiki/Moving_average
-void CMainLoader::compute_avg_fps()
-{
-	static constexpr double alpha = 0.9;
-
-	m_avg_fps = alpha * m_avg_fps + (1.0 - alpha) * get_fps();
 }
 
 void CMainLoader::set_window_icon()

@@ -215,7 +215,7 @@ static constexpr size_t k_havent_received_hbeat_in_seconds = 5;
 
 // client parent module specific
 #define k_IPCLayerStatus_Unloading			0xF0000000 // injector requested dll unload
-#define k_IPCLayerStatus_InjectorStopBeat	0xF0000000 // injector stopped sending heart beats, exit
+#define k_IPCLayerStatus_InjectorStopBeat	0xF0000001 // injector stopped sending heart beats, exit
 
 typedef int IPCLayerStatus;
 

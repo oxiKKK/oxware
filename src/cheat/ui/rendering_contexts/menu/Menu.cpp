@@ -114,7 +114,7 @@ void CUIMenu::on_initialize()
 				tab_exploits_other.m_children.push_back(new MenuChilden::Exploits::FrameSkipper({ "Frame skipper", 215, true }));
 				tab_exploits_other.m_children.push_back(new MenuChilden::Exploits::ConsistencyBypass({ "Consistency bypass", 135, true }));
 				tab_exploits_other.m_children.push_back(new MenuChilden::Exploits::FakeLatency({ "Fake latency", 85, true }));
-				tab_exploits_other.m_children.push_back(new MenuChilden::Exploits::SIDSpoofer({ "SID Spoofer", 60, true }));
+				tab_exploits_other.m_children.push_back(new MenuChilden::Exploits::SIDSpoofer({ "SID Spoofer", 160, true }));
 			}
 		}
 

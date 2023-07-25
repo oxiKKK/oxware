@@ -1391,16 +1391,36 @@ int Steam_GSInitiateGameConnection_FnDetour_t::Steam_GSInitiateGameConnection(
 	void* pData, int cbMaxData, hl::uint64 steamID, hl::uint32 unIPServer, 
 	hl::uint16 usPortServer, hl::qboolean bSecure)
 {
-	auto spoof = CSIDSpoofer::the().spoof(pData);
+	auto spoof = CSIDSpoofer::the().spoof(pData, cbMaxData);
 
+	int ret = 0;
 	if (spoof)
 	{
-		return spoof.value();
+		ret = spoof.value();
 	}
 	else
 	{
-		return CMemoryFnDetourMgr::the().Steam_GSInitiateGameConnection().call(pData, cbMaxData, steamID, unIPServer, usPortServer, bSecure);
+		ret = CMemoryFnDetourMgr::the().Steam_GSInitiateGameConnection().call(pData, cbMaxData, steamID, unIPServer, usPortServer, bSecure);
 	}
+
+#if 0
+	uint32_t* pTicket = (uint32_t*)pData;
+	for (int i = 0; i < cbMaxData / 4; i++)
+	{
+		uint8_t bytes[] =
+		{
+			*(((uint8_t*)(&pTicket[i])) + 0),
+			*(((uint8_t*)(&pTicket[i])) + 1),
+			*(((uint8_t*)(&pTicket[i])) + 2),
+			*(((uint8_t*)(&pTicket[i])) + 3),
+		};
+		CConsole::the().info("{:<2}: \\x{:08X} ({:<16}) '{}'", i, pTicket[i], pTicket[i], std::format("{}{}{}{}",
+																									  (char)bytes[3], (char)bytes[2],
+																									  (char)bytes[1], (char)bytes[0]));
+	}
+#endif
+
+	return ret;
 }
 
 //---------------------------------------------------------------------------------

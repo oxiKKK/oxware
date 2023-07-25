@@ -71,7 +71,10 @@ bool COxWare::run(injector_information_package_t* ifp)
 	// tell injector we've initialized.
 	CInjectedDllIPCLayerClient::the().write_code(C2I_Init_OK);
 
-	while (run_frame()) {}
+	while (run_frame()) 
+	{
+		std::this_thread::sleep_for(10ms);
+	}
 
 	m_unloading_cheat = true;
 
@@ -337,16 +340,7 @@ bool COxWare::run_frame()
 		CConsole::the().info("Someone requested cheat exit. Exiting cheat main frame loop.");
 		return false;
 	}
-
-	if (!can_update_frame())
-	{
-		return true;
-	}
-	else
-	{
-		m_main_frame_update_ms = GetTickCount();
-	}
-
+	
 	// keep communication with the injector on
 	if (CInjectedDllIPCLayerClient::the().dispatch() != k_IPCLayerStatus_Ok)
 	{

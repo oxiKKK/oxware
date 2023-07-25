@@ -54,10 +54,6 @@ private:
 
 	bool run_frame();
 
-	void update_app_title();
-
-	void compute_avg_fps();
-
 	void set_window_icon();
 
 	bool is_already_launched();

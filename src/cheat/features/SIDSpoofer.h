@@ -31,6 +31,9 @@
 #pragma once
 
 extern VarBoolean sid_spoofer_enable;
+extern VarInteger sid_spoofer_type;
+
+extern std::vector<std::string> g_sid_emulators;
 
 class CSIDSpoofer
 {
@@ -38,7 +41,7 @@ public:
 	DECL_BASIC_CLASS(CSIDSpoofer);
 
 public:
-	std::optional<int> spoof(void* pAuthBlob);
+	std::optional<int> spoof(void* pAuthBlob, int cbLength);
 };
 
 #endif // SIDSPOOFER_H

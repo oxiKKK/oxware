@@ -28,57 +28,56 @@
 
 #include "precompiled.h"
 
-typedef struct revEmuTicket_s {
-	uint32_t version;
-	uint32_t highPartAuthID;
-	uint32_t signature;
-	uint32_t secondSignature;
-	uint32_t authID;
-	uint32_t thirdSignature;
-	uint8_t  hash[128];
-} revEmuTicket_t;
-
-namespace RevEmu
-{
-
-uint8_t HashSymbolTable[36] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
-
-uint32_t Hash(const char* str)
-{
-	uint32_t hash = 0x4E67C6A7;
-
-	for (const char* pch = str; *pch != '\0'; pch++)
-		hash ^= (hash >> 2) + (hash << 5) + *pch;
-
-	return hash;
-}
-
-}
-
 VarBoolean sid_spoofer_enable("sid_spoofer_enable", "Enables SID changer", false);
+VarInteger sid_spoofer_type("sid_spoofer_type", "Type of the ticket generator", 0, 0, 7);
 
-std::optional<int> CSIDSpoofer::spoof(void* pAuthBlob)
+std::vector<std::string> g_sid_emulators =
+{ { "revemu2013", "revemu regular", "revemu old", "avsmp", "sc2009", "setti", "smart steam emu", "steam emu" } };
+
+std::optional<int> CSIDSpoofer::spoof(void* pAuthBlob, int cbLength)
 {
 	if (!sid_spoofer_enable.get_value())
 	{
 		return std::nullopt;
 	}
 
-	revEmuTicket_t revEmuTicket;
+	int type = sid_spoofer_type.get_value();
 
-	std::srand(time(0));
-
-	for (size_t i = 0; i < 7; i++)
-		revEmuTicket.hash[i] = RevEmu::HashSymbolTable[std::rand() % sizeof(RevEmu::HashSymbolTable)];
-
-	revEmuTicket.hash[7] = '\0';
-	revEmuTicket.version = 'J';
-	revEmuTicket.highPartAuthID = RevEmu::Hash((const char*)revEmuTicket.hash) & 0x7FFFFFFF;
-	revEmuTicket.signature = 'rev';
-	revEmuTicket.secondSignature = 0;
-	revEmuTicket.authID = RevEmu::Hash((const char*)revEmuTicket.hash) << 1;
-	revEmuTicket.thirdSignature = 0x01100001;
-	memcpy(pAuthBlob, &revEmuTicket, sizeof(revEmuTicket));
-
-	return std::make_optional(sizeof(revEmuTicket));
+	CConsole::the().info("Generating SID using '{}' ticket generator.", g_sid_emulators[type]);
+	switch (type)
+	{
+		default:
+		case 0: // revemu2013
+		{
+			return GenerateRevEmu2013(pAuthBlob, rand() % std::numeric_limits<int32_t>::max());
+		}
+		case 1: // revemu regular
+		{
+			return GenerateRevEmu(pAuthBlob, rand() % std::numeric_limits<int32_t>::max());
+		}
+		case 2: // revemu old
+		{
+			return GenerateOldRevEmu(pAuthBlob, rand() % std::numeric_limits<int32_t>::max());
+		}
+		case 3: // avsmp
+		{
+			return GenerateAVSMP(pAuthBlob, rand() % std::numeric_limits<int32_t>::max());
+		}
+		case 4: // sc2009
+		{
+			return GenerateSC2009(pAuthBlob, rand() % std::numeric_limits<int32_t>::max());
+		}
+		case 5: // setti
+		{
+			return GenerateSetti(pAuthBlob);
+		}
+		case 6: // smart steam emu
+		{
+			return GenerateSmartSteamEmu(pAuthBlob, rand() % std::numeric_limits<int32_t>::max());
+		}
+		case 7: // steam emu
+		{
+			return GenerateSteamEmu(pAuthBlob, rand() % std::numeric_limits<int32_t>::max());
+		}
+	}
 }

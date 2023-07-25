@@ -95,7 +95,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>assets.lib;soil.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>multiemulator.lib;assets.lib;soil.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;$(SolutionDir)src/external/discord/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -126,7 +126,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>assets.lib;soil.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>multiemulator.lib;assets.lib;soil.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;$(SolutionDir)src/external/discord/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -157,7 +157,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>assets.lib;soil.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>multiemulator.lib;assets.lib;soil.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;$(SolutionDir)src/external/discord/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

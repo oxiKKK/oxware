@@ -75,6 +75,8 @@
 
 #include <assets/textures.h>
 
+#include <multiemulator/multiemulator.h>
+
 //-------------------------------------------------------------------
 //
 // Shared
@@ -108,6 +110,7 @@
 #include <numbers>
 #include <thread>
 #include <set>
+#include <future>
 
 //-------------------------------------------------------------------
 //

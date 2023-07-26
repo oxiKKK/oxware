@@ -411,6 +411,9 @@
     <ClCompile Include="ui\UIWindowPopups.cpp">
       <Filter>src\UI\other</Filter>
     </ClCompile>
+    <ClCompile Include="ui\ThemeEditor.cpp">
+      <Filter>src\UI\other</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.h" />
@@ -712,6 +715,9 @@
       <Filter>src\util</Filter>
     </ClInclude>
     <ClInclude Include="ui\UIWindowPopups.h">
+      <Filter>src\UI\other</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ThemeEditor.h">
       <Filter>src\UI\other</Filter>
     </ClInclude>
   </ItemGroup>

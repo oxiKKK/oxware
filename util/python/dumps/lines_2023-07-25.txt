@@ -1,0 +1,20 @@
+//
+// File generated automatically by cntlines.py script
+// Generated at: 2023-07-25.
+// Version: 1.0
+//
+
+-----------------------------------------
+total lines: 72283 in 363 files.
+
+Top 10 files by line count:
+0: C:\Programming\oxware\util\python\..\..\src\cheat\util\vanilla_halflife_dir_file_database.cpp: 5107 lines
+1: C:\Programming\oxware\util\python\..\..\src\gui\GUIWidgets.cpp: 2513 lines
+2: C:\Programming\oxware\util\python\..\..\src\public\vector.h: 1623 lines
+3: C:\Programming\oxware\util\python\..\..\src\cheat\hook\function_hooks\MemoryFnDetour.cpp: 1426 lines
+4: C:\Programming\oxware\util\python\..\..\src\cheat\ui\UIMenu.cpp: 1409 lines
+5: C:\Programming\oxware\util\python\..\..\src\multiemulator\public\crypto\CRijndael.cpp: 1376 lines
+6: C:\Programming\oxware\util\python\..\..\src\cheat\ui\rendering_contexts\menu\Menu.cpp: 1078 lines
+7: C:\Programming\oxware\util\python\..\..\src\cheat\hook\SecurityModuleHook.cpp: 1042 lines
+8: C:\Programming\oxware\util\python\..\..\src\cheat\features\EnvironmentalEffects.cpp: 876 lines
+9: C:\Programming\oxware\util\python\..\..\src\util\BindManager.cpp: 847 lines

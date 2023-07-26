@@ -142,6 +142,8 @@ bool CMainLoader::load_and_initialize_dependencies()
 		return false;
 	}
 
+	g_gui_thememgr_i->initialize();
+
 	g_variablemgr_i->register_variables_and_commands_per_module(&g_static_variable_container, &g_static_command_container, MODULE_LOADER);
 
 	// after all modules have been loaded

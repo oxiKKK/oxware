@@ -157,7 +157,7 @@ BaseCommand unbind(
 	}
 );
 
-class CBindManager : public IBindManager
+class CBindManager : public IBindManager, IConfigIOOperations
 {
 public:
 	CBindManager();
@@ -165,8 +165,8 @@ public:
 
 	void initialize();
 
-	void create_binds_from_json(const nlohmann::json& json);
-	void export_binds_to_json(nlohmann::json& json);
+	void create_binds_from_json(const nh::json& json);
+	void export_binds_to_json(nh::json& json);
 
 	void add_bind(int virtual_key, const std::string& command_sequence, EBindFlags flags, bool silent);
 	void add_bind(const std::string& key_name, const std::string& command_sequence, EBindFlags flags, bool silent);
@@ -202,6 +202,7 @@ private:
 	void register_bind_internal(int virtual_key, UserKey_t& key, const std::string& command_seq, 
 								const std::string& command_seq1, EBindType type, EBindFlags flags, bool silent);
 
+	// config I/O provider
 	void provide_cfg_load_export_callbacks();
 
 private:
@@ -235,9 +236,9 @@ void CBindManager::initialize()
 	CConsole::the().info("Bind Manager initialized.");
 }
 
-void CBindManager::create_binds_from_json(const nlohmann::json& json)
+void CBindManager::create_binds_from_json(const nh::json& json)
 {
-	const nlohmann::json* binds = nullptr;
+	const nh::json* binds = nullptr;
 
 	try
 	{
@@ -354,7 +355,7 @@ void CBindManager::create_binds_from_json(const nlohmann::json& json)
 	}
 }
 
-void CBindManager::export_binds_to_json(nlohmann::json& json)
+void CBindManager::export_binds_to_json(nh::json& json)
 {
 	for (const auto& [vk, bind] : m_registerd_binds)
 	{
@@ -380,7 +381,7 @@ void CBindManager::export_binds_to_json(nlohmann::json& json)
 			{
 				json["binds"][key_name][name] = value;
 			}
-			catch (const nlohmann::json::exception& e)
+			catch (const nh::json::exception& e)
 			{
 				CConsole::the().error("JSON error while trying to write key '{}' and value '{}': {}", name, value, e.what());
 			}
@@ -403,7 +404,7 @@ void CBindManager::export_binds_to_json(nlohmann::json& json)
 			
 			json["binds"][key_name]["flags"] = flags_str;
 		}
-		catch (const nlohmann::json::exception& e)
+		catch (const nh::json::exception& e)
 		{
 			CConsole::the().error("JSON error: {}", e.what());
 		}
@@ -817,26 +818,30 @@ void CBindManager::register_bind_internal(int virtual_key, UserKey_t& key, const
 void CBindManager::provide_cfg_load_export_callbacks()
 {
 	auto cheat_settings = g_config_mgr_i->query_config_file_type("cheat_settings");
+	if (!cheat_settings)
+	{
+		return;
+	}
 
 	//
 	// provide config load function.
 	//
 
-	auto load_fn = [](nlohmann::json& json)
+	auto load_fn = [](nh::json& json)
 	{
 		g_bindmgr_i->create_binds_from_json(json);
 	};
 
-	cheat_settings->provide_load_fn(load_fn);
+	(*cheat_settings)->provide_load_fn(load_fn);
 
 	//
 	// provide config export function.
 	//
 
-	auto export_fn = [](nlohmann::json& json)
+	auto export_fn = [](nh::json& json)
 	{
 		g_bindmgr_i->export_binds_to_json(json);
 	};
 
-	cheat_settings->provide_export_fn(export_fn);
+	(*cheat_settings)->provide_export_fn(export_fn);
 }

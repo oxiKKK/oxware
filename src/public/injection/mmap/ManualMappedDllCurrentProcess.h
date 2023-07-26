@@ -39,7 +39,7 @@
 class CManualMappedDllCurrentProcess : public IInjectableModuleObject
 {
 public:	
-	CManualMappedDllCurrentProcess(const FilePath_t& dll_path)
+	CManualMappedDllCurrentProcess(const std::filesystem::path& dll_path)
 	{
 		m_dll_filepath = dll_path;
 		m_exe_name = {};

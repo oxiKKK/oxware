@@ -545,7 +545,8 @@ public:
 //--------------------------------------------------------------------------------------------------------------------
 
 // maximum amount of variables that our list can hold
-static constexpr size_t k_max_variables_per_module = 256; // 5th June, increased from 128 to 256
+static constexpr size_t k_max_variables_per_module = 1024; // 5th June, increased from 128 to 256
+														   // 25th July, increased from 256 to 1024 so that we don't have to deal with this no more.
 static constexpr size_t k_max_variables_absolute = 1024; // used in VariableManager
 
 // This class is used in order to register/unregister all variables that are declared globally. Note that this is only

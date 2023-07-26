@@ -26,26 +26,29 @@
 *	IN THE SOFTWARE.
 */
 
-#ifndef IAPPDATAMANAGER_H
-#define IAPPDATAMANAGER_H
+#ifndef THEMEEDITOR_H
+#define THEMEEDITOR_H
 #pragma once
 
-#include "IBaseModule.h"
-#include "IFileSystem.h"
-
-#include <string>
-
-class IAppDataManager : public IBaseInterface
+class CUIThemeEditor
 {
 public:
-	virtual bool initialize_directory_hirearchy() = 0;
+	DECL_BASIC_CLASS(CUIThemeEditor);
 
-	virtual bool register_and_create_directory(const std::string& relative_dir) = 0;
-	virtual std::filesystem::path get_known(const std::string& relative_dir) = 0;
+public:
+	void render_ui();
+
+private:
+	void search_for_configs();
+
+	void render_color_palette();
+	void render_file_list();
+
+	std::vector<std::filesystem::path> m_theme_cfgs;
+
+	static UIStatusWidget m_status_widget;
+
+	std::filesystem::path m_selected_cfg = {};
 };
 
-extern IAppDataManager* g_appdata_mgr_i;
-
-#define IAPPDATAMANAGER_INTERFACEID "IAppDataManager"
-
-#endif // IAPPDATAMANAGER_H
+#endif // THEMEEDITOR_H

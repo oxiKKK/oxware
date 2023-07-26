@@ -41,6 +41,7 @@ IDeveloperConsole* g_devconsole_i = nullptr;
 
 // Util
 IVariableManager* g_variablemgr_i = nullptr;
+IConfigManager* g_config_mgr_i = nullptr;
 
 class COxUIModule final : public IBaseModule
 {
@@ -75,6 +76,7 @@ bool COxUIModule::initialize(ModuleInitializationContext* context)
 	CConsole::the().initialize(EOutputModule::GUI, g_devconsole_i);
 
 	g_variablemgr_i = LocateExportedInterface<IVariableManager>(WMODULE_UTIL, IVARIABLEMANAGER_INTERFACEID);
+	g_config_mgr_i = LocateExportedInterface<IConfigManager>(WMODULE_UTIL, ICONFIGMANAGER_INTERFACEID);
 
 	g_variablemgr_i->register_variables_and_commands_per_module(&g_static_variable_container, &g_static_command_container, MODULE_GUI);
 
@@ -91,6 +93,7 @@ void COxUIModule::destroy()
 
 	// Util
 	g_variablemgr_i = nullptr;
+	g_config_mgr_i = nullptr;
 }
 
 EUpdateStatus COxUIModule::update()

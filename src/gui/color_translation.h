@@ -26,43 +26,18 @@
 *	IN THE SOFTWARE.
 */
 
-#ifndef IINCOMMANDS_H
-#define IINCOMMANDS_H
+#ifndef COLORTRANSLATION_H
+#define COLORTRANSLATION_H
 #pragma once
 
-#include "interface.h"
+#include <gui/GUIColors.h>
 
-#include "BaseInCommand.h"
-
-class IInCommands : public IBaseInterface
+struct gui_color_translation_t
 {
-public:
-	virtual void initialize() = 0;
-
-	// call this in the beginning of engine frame, but not too early. CL_Move is enough (CL_CreateMove, too)
-	virtual void update_activation_conditions() = 0;
-
-	virtual void add_command(BaseInCommand* in_cmd) = 0;
-
-	virtual void register_incommands_per_module(StaticInCommandContainer* incommand_container, const char* module_name) = 0;
-
-	virtual void for_each_incommand(const std::function<void(BaseInCommand* in_cmd)>& callback) = 0;
-
-	virtual void create_incommands_from_json(const nh::json& json) = 0;
-	virtual void export_incommands_to_json(nh::json& json) = 0;
-
-	virtual BaseInCommand* get_incommand(const std::string& id) = 0;
-
-	virtual bool is_key_bound_and_active(int vk) = 0;
-
-	// user can explicitly tell whenever we should execute the engine key as well or block it.
-	virtual bool should_block_engine_key(int vk) = 0;
-
-	virtual bool does_meet_activation_conditions(EActivationCondition act_cond) = 0;
+	EGUIColorId	id;
+	const char* name;
 };
 
-extern IInCommands* g_in_commands_i;
+extern gui_color_translation_t g_gui_color_translation[GUICLR_MAX];
 
-#define IINCOMMANDS_INTERFACEID "IInCommands"
-
-#endif // IINCOMMANDS_H
+#endif // COLORTRANSLATION_H

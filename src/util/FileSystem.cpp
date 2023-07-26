@@ -40,30 +40,30 @@ public:
 	// File system operations
 	//
 
-	bool is_directory(const FilePath_t& path);
-	bool is_file(const FilePath_t& path);
-	bool do_exist(const FilePath_t& path);
+	bool is_directory(const std::filesystem::path& path);
+	bool is_file(const std::filesystem::path& path);
+	bool do_exist(const std::filesystem::path& path);
 
-	uintmax_t file_size(const FilePath_t& path);
-	uintmax_t directory_size(const FilePath_t& path);
+	uintmax_t file_size(const std::filesystem::path& path);
+	uintmax_t directory_size(const std::filesystem::path& path);
 
-	bool copy(const FilePath_t& from, const FilePath_t& to, ECopyOptions options = ECopyOptions::none);
-	bool rename(const FilePath_t& from, const FilePath_t& to);
-	bool move(const FilePath_t& from, const FilePath_t& to);
-	bool replace(const FilePath_t& what, const FilePath_t& with);
-	bool remove(const FilePath_t& path);
-	bool remove_all(const FilePath_t& directory);
-	bool create_file(const FilePath_t& path); 
-	bool create_directory(const FilePath_t& path); 
+	bool copy(const std::filesystem::path& from, const std::filesystem::path& to, ECopyOptions options = ECopyOptions::none);
+	bool rename(const std::filesystem::path& from, const std::filesystem::path& to);
+	bool move(const std::filesystem::path& from, const std::filesystem::path& to);
+	bool replace(const std::filesystem::path& what, const std::filesystem::path& with);
+	bool remove(const std::filesystem::path& path);
+	bool remove_all(const std::filesystem::path& directory);
+	bool create_file(const std::filesystem::path& path); 
+	bool create_directory(const std::filesystem::path& path); 
 
-	void iterate_through_files(const FilePath_t& directory, bool recursive, const std::function<void(const FilePath_t& file)>& callback);
+	void iterate_through_files(const std::filesystem::path& directory, bool recursive, const std::function<void(const std::filesystem::path& file)>& callback);
 
-	FilePath_t locate_halflife_dir();
-	FilePath_t path_relative_to_hl_dir(const FilePath_t& relative_path = "");
-	FilePath_t get_loader_exe_filepath(const FilePath_t& relative_path = "");
-	FilePath_t get_appdata_path(const FilePath_t& relative_path = "");
-	FilePath_t get_relative_to_appdata(const FilePath_t& full_path);
-	FilePath_t get_relative_to_appdata_ex(const FilePath_t& additional_path, const FilePath_t& full_path);
+	std::filesystem::path locate_halflife_dir();
+	std::filesystem::path path_relative_to_hl_dir(const std::filesystem::path& relative_path = "");
+	std::filesystem::path get_loader_exe_filepath(const std::filesystem::path& relative_path = "");
+	std::filesystem::path get_appdata_path(const std::filesystem::path& relative_path = "");
+	std::filesystem::path get_relative_to_appdata(const std::filesystem::path& full_path);
+	std::filesystem::path get_relative_to_appdata_ex(const std::filesystem::path& additional_path, const std::filesystem::path& full_path);
 
 	//
 	// Other
@@ -101,7 +101,7 @@ CFileSystem::~CFileSystem()
 	m_last_error = {};
 }
 
-bool CFileSystem::is_directory(const FilePath_t& path)
+bool CFileSystem::is_directory(const std::filesystem::path& path)
 {
 	std::error_code errc;
 	bool ret = std::filesystem::is_directory(path, errc);
@@ -113,7 +113,7 @@ bool CFileSystem::is_directory(const FilePath_t& path)
 	return ret;
 }
 
-bool CFileSystem::is_file(const FilePath_t& path)
+bool CFileSystem::is_file(const std::filesystem::path& path)
 {
 	std::error_code errc;
 	bool ret = std::filesystem::is_regular_file(path, errc);
@@ -125,7 +125,7 @@ bool CFileSystem::is_file(const FilePath_t& path)
 	return ret;
 }
 
-bool CFileSystem::do_exist(const FilePath_t& path)
+bool CFileSystem::do_exist(const std::filesystem::path& path)
 {
 	std::error_code errc;
 	bool ret = std::filesystem::exists(path, errc);
@@ -137,7 +137,7 @@ bool CFileSystem::do_exist(const FilePath_t& path)
 	return ret;
 }
 
-uintmax_t CFileSystem::file_size(const FilePath_t& path)
+uintmax_t CFileSystem::file_size(const std::filesystem::path& path)
 {
 	std::error_code errc;
 	uintmax_t size = std::filesystem::file_size(path, errc);
@@ -149,14 +149,14 @@ uintmax_t CFileSystem::file_size(const FilePath_t& path)
 	return size;
 }
 
-uintmax_t CFileSystem::directory_size(const FilePath_t& path)
+uintmax_t CFileSystem::directory_size(const std::filesystem::path& path)
 {
 	std::error_code errc;
 	uintmax_t size = 0;
 
 	iterate_through_files(
 		path, true, 
-		[&](const FilePath_t& directory)
+		[&](const std::filesystem::path& directory)
 		{
 			if (!is_file(directory))
 			{
@@ -174,7 +174,7 @@ uintmax_t CFileSystem::directory_size(const FilePath_t& path)
 	return size;
 }
 
-bool CFileSystem::copy(const FilePath_t& from, const FilePath_t& to, ECopyOptions options)
+bool CFileSystem::copy(const std::filesystem::path& from, const std::filesystem::path& to, ECopyOptions options)
 {
 	std::filesystem::copy_options cpyo = std::filesystem::copy_options::none;
 
@@ -206,7 +206,7 @@ bool CFileSystem::copy(const FilePath_t& from, const FilePath_t& to, ECopyOption
 	return true;
 }
 
-bool CFileSystem::rename(const FilePath_t& from, const FilePath_t& to)
+bool CFileSystem::rename(const std::filesystem::path& from, const std::filesystem::path& to)
 {
 	std::error_code errc;
 	std::filesystem::rename(from, to, errc);
@@ -219,7 +219,7 @@ bool CFileSystem::rename(const FilePath_t& from, const FilePath_t& to)
 	return true;
 }
 
-bool CFileSystem::move(const FilePath_t& from, const FilePath_t& to)
+bool CFileSystem::move(const std::filesystem::path& from, const std::filesystem::path& to)
 {
 	// overwrite the destination with source and remove the source
 
@@ -236,7 +236,7 @@ bool CFileSystem::move(const FilePath_t& from, const FilePath_t& to)
 	return true;
 }
 
-bool CFileSystem::replace(const FilePath_t& what, const FilePath_t& with)
+bool CFileSystem::replace(const std::filesystem::path& what, const std::filesystem::path& with)
 {
 	// overwrite the destination with source
 
@@ -248,7 +248,7 @@ bool CFileSystem::replace(const FilePath_t& what, const FilePath_t& with)
 	return true;
 }
 
-bool CFileSystem::remove(const FilePath_t& path)
+bool CFileSystem::remove(const std::filesystem::path& path)
 {
 	std::error_code errc;
 	bool ret = std::filesystem::remove(path, errc);
@@ -261,7 +261,7 @@ bool CFileSystem::remove(const FilePath_t& path)
 	return true;
 }
 
-bool CFileSystem::remove_all(const FilePath_t& path)
+bool CFileSystem::remove_all(const std::filesystem::path& path)
 {
 	std::error_code errc;
 	std::filesystem::remove_all(path, errc);
@@ -274,7 +274,7 @@ bool CFileSystem::remove_all(const FilePath_t& path)
 	return true;
 }
 
-bool CFileSystem::create_file(const FilePath_t& path)
+bool CFileSystem::create_file(const std::filesystem::path& path)
 {
 	std::ofstream ofs(path);
 	if (!ofs.bad())
@@ -285,7 +285,7 @@ bool CFileSystem::create_file(const FilePath_t& path)
 	return true;
 }
 
-bool CFileSystem::create_directory(const FilePath_t& path)
+bool CFileSystem::create_directory(const std::filesystem::path& path)
 {
 	std::error_code errc;
 	std::filesystem::create_directory(path, errc);
@@ -298,7 +298,7 @@ bool CFileSystem::create_directory(const FilePath_t& path)
 	return true;
 }
 
-void CFileSystem::iterate_through_files(const FilePath_t& directory, bool recursive, const std::function<void(const FilePath_t&directory)>& callback)
+void CFileSystem::iterate_through_files(const std::filesystem::path& directory, bool recursive, const std::function<void(const std::filesystem::path&directory)>& callback)
 {
 	std::error_code errc;
 	if (recursive)
@@ -322,7 +322,7 @@ void CFileSystem::iterate_through_files(const FilePath_t& directory, bool recurs
 	}
 }
 
-FilePath_t CFileSystem::locate_halflife_dir()
+std::filesystem::path CFileSystem::locate_halflife_dir()
 {
 	uintptr_t base;
 	PLDR_DATA_TABLE_ENTRY ldr_data;
@@ -333,7 +333,7 @@ FilePath_t CFileSystem::locate_halflife_dir()
 		ldr_data = g_libloader_i->get_target_loaded_dll_data_table_entry(L"cstrike.exe");
 	}
 
-	FilePath_t halflife_dir;
+	std::filesystem::path halflife_dir;
 
 	if (ldr_data)
 	{
@@ -353,40 +353,40 @@ FilePath_t CFileSystem::locate_halflife_dir()
 		// TODO: Parse 'libraryfolders.vdf' inside 'steamapps/'. There are directories to 
 		//		 more steamapps/ directories, if any.
 
-		halflife_dir = FilePath_t(path + std::string("\\steamapps\\common\\Half-Life\\"));
+		halflife_dir = std::filesystem::path(path + std::string("\\steamapps\\common\\Half-Life\\"));
 	}
 
 	return halflife_dir;
 }
 
-FilePath_t CFileSystem::path_relative_to_hl_dir(const FilePath_t& relative_path)
+std::filesystem::path CFileSystem::path_relative_to_hl_dir(const std::filesystem::path& relative_path)
 {
 	return locate_halflife_dir().string() + relative_path.string();
 }
 
-FilePath_t CFileSystem::get_loader_exe_filepath(const FilePath_t& relative_path)
+std::filesystem::path CFileSystem::get_loader_exe_filepath(const std::filesystem::path& relative_path)
 {
 	WCHAR path[MAX_PATH];
 	GetCurrentDirectoryW(sizeof(path), path);
-	return FilePath_t(path) / relative_path;
+	return std::filesystem::path(path) / relative_path;
 }
 
-FilePath_t CFileSystem::get_appdata_path(const FilePath_t& relative_path)
+std::filesystem::path CFileSystem::get_appdata_path(const std::filesystem::path& relative_path)
 {
 	PWSTR pwstr_appdata_directory;
 	HRESULT result = SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, NULL, &pwstr_appdata_directory);
 	assert(SUCCEEDED(result));
-	FilePath_t ret = pwstr_appdata_directory;
+	std::filesystem::path ret = pwstr_appdata_directory;
 	CoTaskMemFree(pwstr_appdata_directory);
 	return ret / "oxware" / relative_path;
 }
 
-FilePath_t CFileSystem::get_relative_to_appdata(const FilePath_t& full_path)
+std::filesystem::path CFileSystem::get_relative_to_appdata(const std::filesystem::path& full_path)
 {
 	return full_path.lexically_relative(get_appdata_path());
 }
 
-FilePath_t CFileSystem::get_relative_to_appdata_ex(const FilePath_t& additional_path, const FilePath_t& full_path)
+std::filesystem::path CFileSystem::get_relative_to_appdata_ex(const std::filesystem::path& additional_path, const std::filesystem::path& full_path)
 {
 	return full_path.lexically_relative(get_appdata_path(additional_path));
 }

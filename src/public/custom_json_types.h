@@ -26,43 +26,36 @@
 *	IN THE SOFTWARE.
 */
 
-#ifndef IINCOMMANDS_H
-#define IINCOMMANDS_H
+//
+// custom_json_types.h -- custom types for nh::json
+// 
+// NOTE: You don't have to include this file directly, json.h already does.
+//
+
+#ifndef JSONCUSTOMTYPES_H
+#define JSONCUSTOMTYPES_H
 #pragma once
 
-#include "interface.h"
+#include "Color.h"
 
-#include "BaseInCommand.h"
+#define DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Type, ...)  \
+    inline void to_json(nh::json& nlohmann_json_j, const Type& nlohmann_json_t) { NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
+    inline void from_json(const nh::json& nlohmann_json_j, Type& nlohmann_json_t) { Type nlohmann_json_default_obj; NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM_WITH_DEFAULT, __VA_ARGS__)) }
 
-class IInCommands : public IBaseInterface
-{
-public:
-	virtual void initialize() = 0;
+//
+// CColor
+//
+inline void to_json(nh::json& j, const CColor& p) {
+	auto c = p.as_255_based();
+	j = nh::json{ {"r", (int)c.r}, {"g", (int)c.g}, {"b", (int)c.b}, {"a", (int)c.a} };
+}
 
-	// call this in the beginning of engine frame, but not too early. CL_Move is enough (CL_CreateMove, too)
-	virtual void update_activation_conditions() = 0;
+inline void from_json(const nh::json& j, CColor& p) {
+	auto c = p.as_255_based();
+	j.at("r").get_to(p.r);
+	j.at("g").get_to(p.g);
+	j.at("b").get_to(p.b);
+	j.at("a").get_to(p.a);
+}
 
-	virtual void add_command(BaseInCommand* in_cmd) = 0;
-
-	virtual void register_incommands_per_module(StaticInCommandContainer* incommand_container, const char* module_name) = 0;
-
-	virtual void for_each_incommand(const std::function<void(BaseInCommand* in_cmd)>& callback) = 0;
-
-	virtual void create_incommands_from_json(const nh::json& json) = 0;
-	virtual void export_incommands_to_json(nh::json& json) = 0;
-
-	virtual BaseInCommand* get_incommand(const std::string& id) = 0;
-
-	virtual bool is_key_bound_and_active(int vk) = 0;
-
-	// user can explicitly tell whenever we should execute the engine key as well or block it.
-	virtual bool should_block_engine_key(int vk) = 0;
-
-	virtual bool does_meet_activation_conditions(EActivationCondition act_cond) = 0;
-};
-
-extern IInCommands* g_in_commands_i;
-
-#define IINCOMMANDS_INTERFACEID "IInCommands"
-
-#endif // IINCOMMANDS_H
+#endif // JSONCUSTOMTYPES_H

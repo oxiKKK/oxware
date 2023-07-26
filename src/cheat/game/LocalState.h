@@ -30,13 +30,6 @@
 #define LOCALPLAYERSTATE_H
 #pragma once
 
-enum EPlayerHull
-{
-	HULL_STANDING,
-	HULL_DUCKING,
-	HULL_POINT,
-};
-
 enum ESpectatingMode
 {
 	SPECT_NOT_SPECTATING,

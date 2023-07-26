@@ -74,7 +74,7 @@ public:
 
 	bool add_directory_to_search_list(const wchar_t* absolute_directory);
 
-	FilePath_t get_windows_directory(const FilePath_t& subdir);
+	std::filesystem::path get_windows_directory(const std::filesystem::path& subdir);
 
 	bool is_dll_loaded(const wchar_t* library_name);
 
@@ -668,10 +668,10 @@ bool CLibraryLoader::add_directory_to_search_list(const wchar_t* absolute_direct
 	return success;
 }
 
-FilePath_t CLibraryLoader::get_windows_directory(const FilePath_t& subdir)
+std::filesystem::path CLibraryLoader::get_windows_directory(const std::filesystem::path& subdir)
 {
 	uintptr_t* volatile pNtSystemRoot = (uintptr_t*)0x7FFE0030;
-	return FilePath_t((const wchar_t*)pNtSystemRoot) / subdir; // cool, isn't it?
+	return std::filesystem::path((const wchar_t*)pNtSystemRoot) / subdir; // cool, isn't it?
 }
 
 bool CLibraryLoader::is_dll_loaded(const wchar_t* library_name)

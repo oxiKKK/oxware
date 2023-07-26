@@ -38,7 +38,7 @@
 class CPortableExecutableObject
 {
 public:
-	bool create(const FilePath_t& dll_path);
+	bool create(const std::filesystem::path& dll_path);
 	void destroy();
 
 	// ------- API ---------
@@ -71,7 +71,7 @@ private:
 	inline T* assert_get(T* what) const { assert(what); return what; }
 
 private:
-	FilePath_t m_dll_path;
+	std::filesystem::path m_dll_path;
 	ByteBuffer<uintptr_t> m_dll_contents;
 
 	PIMAGE_DOS_HEADER m_dos;

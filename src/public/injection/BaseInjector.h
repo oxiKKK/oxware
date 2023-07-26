@@ -55,9 +55,9 @@ public:
 	static constexpr size_t k_update_threshold_ms = 250; // update every 250ms
 	void update();
 
-	bool inject_to_target_process(const char* execuatable_name, const FilePath_t& dll_path);
+	bool inject_to_target_process(const char* execuatable_name, const std::filesystem::path& dll_path);
 
-	IInjectableModuleObject* get_injected_dll(const FilePath_t& dll_path)
+	IInjectableModuleObject* get_injected_dll(const std::filesystem::path& dll_path)
 	{
 		for (auto& [key, dll] : m_injected_dlls)
 		{
@@ -69,13 +69,13 @@ public:
 	}
 
 private:
-	void prepare_for_reinjection(const char* execuatable_name, const FilePath_t& dll_path);
+	void prepare_for_reinjection(const char* execuatable_name, const std::filesystem::path& dll_path);
 	bool m_should_reinject = false;
 
 	struct reinjection_data_t
 	{
 		std::string exe_name;
-		FilePath_t dll_path;
+		std::filesystem::path dll_path;
 	};
 	reinjection_data_t m_reinjection_data;
 
@@ -87,10 +87,10 @@ private:
 #else
 	inline static constexpr size_t k_max_module_unload_wait_time_sec = 10; // give the module N seconds before we'll force the unload.
 #endif
-	EModuleUnloadWaitResult hang_till_module_unloads(const FilePath_t& module_path, IInjectableModuleObject* module,
+	EModuleUnloadWaitResult hang_till_module_unloads(const std::filesystem::path& module_path, IInjectableModuleObject* module,
 													 std::chrono::high_resolution_clock::time_point wait_start);
 
-	inline IInjectableModuleObject* create_injected_dll(const char* execuatable_name, const FilePath_t& dll_path)
+	inline IInjectableModuleObject* create_injected_dll(const char* execuatable_name, const std::filesystem::path& dll_path)
 	{
 		switch (m_technique)
 		{
@@ -109,7 +109,7 @@ private:
 	}
 
 private:
-	std::unordered_map<FilePath_t, IInjectableModuleObject*> m_injected_dlls;
+	std::unordered_map<std::filesystem::path, IInjectableModuleObject*> m_injected_dlls;
 };
 
 #endif // BASEINJECTOR_H

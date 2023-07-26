@@ -52,7 +52,7 @@ bool CImGUILayerGLFW::initialize()
 	g_gui_fontmgr_i->initialize();
 
 	ImGui::StyleColorsDark();
-	g_gui_thememgr_i->initialize();
+	g_gui_thememgr_i->initialize_imgui();
 
 	// Setup Platform/Renderer backends
 	const char* glsl_version = "#version 130";

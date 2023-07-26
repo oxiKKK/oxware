@@ -35,7 +35,7 @@ void MenuChilden::Configuration::Config::contents()
 
 void MenuChilden::Configuration::Theme::contents()
 {
-	g_gui_widgets_i->add_window_centered_text_disabled("To be done... Soon... 😉");
+	CUIThemeEditor::the().render_ui();
 }
 
 void MenuChilden::Configuration::Language::contents()

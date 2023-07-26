@@ -55,11 +55,11 @@ private:
 	void actions_restore_defaults();
 	void autosave();
 
-	std::vector<FilePath_t> m_configs;
+	std::vector<std::filesystem::path> m_configs;
 
 	static UIStatusWidget m_status_widget;
 
-	FilePath_t m_selected_cfg = {};
+	std::filesystem::path m_selected_cfg = {};
 };
 
 #endif // CHEATSETTINGS_H

@@ -50,7 +50,7 @@ void CUICheatSettings::render_ui()
 		g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, Vector2D(5, 5));
 
 		g_gui_widgets_i->add_child(
-			"m_configs", { -1.0f, -1.0f - s_status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			"config_filelist", { -1.0f, -1.0f - s_status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
 			[this]()
 			{
 				render_file_list();
@@ -90,11 +90,10 @@ void CUICheatSettings::search_for_configs()
 		m_configs.clear();
 
 		g_config_mgr_i->for_each_cfg(
-			[this](const FilePath_t& cfg_path)
+			[this](const std::filesystem::path& relative_cfg_path)
 			{
-					auto relative_cfg_path = g_filesystem_i->get_relative_to_appdata_ex("config\\", cfg_path);
-
-					m_configs.push_back(relative_cfg_path);
+				auto full_cfg_path = g_filesystem_i->get_relative_to_appdata_ex("config\\", relative_cfg_path);
+				m_configs.push_back(full_cfg_path);
 			});
 
 		last_searched = GetTickCount();
@@ -235,11 +234,7 @@ void CUICheatSettings::options_rename()
 			}
 
 			auto path = g_config_mgr_i->get_config_directory(rename_buffer);
-
-			if (!path.has_extension() || path.extension() != ".json")
-			{
-				path.replace_extension("json");
-			}
+			g_config_mgr_i->fix_config_file_extension(path);
 
 			auto from_full = g_appdata_mgr_i->get_known("config\\") / m_selected_cfg;
 			auto to_full = g_appdata_mgr_i->get_known("config\\") / path.filename();
@@ -327,11 +322,7 @@ void CUICheatSettings::actions_create_new()
 			}
 
 			auto path = g_config_mgr_i->get_config_directory(name_buffer);
-
-			if (!path.has_extension() || path.extension() != ".json")
-			{
-				path.replace_extension("json");
-			}
+			g_config_mgr_i->fix_config_file_extension(path);
 
 			if (g_config_mgr_i->write_configuration(CFG_CheatSettings, path.filename().string()))
 			{

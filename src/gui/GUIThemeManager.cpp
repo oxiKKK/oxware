@@ -1,7 +1,29 @@
 /*
 *	OXWARE developed by oxiKKK
-*
 *	Copyright (c) 2023
+*
+*	This program is licensed under the MIT license. By downloading, copying,
+*	installing or using this software you agree to this license.
+*
+*	License Agreement
+*
+*	Permission is hereby granted, free of charge, to any person obtaining a
+*	copy of this software and associated documentation files (the "Software"),
+*	to deal in the Software without restriction, including without limitation
+*	the rights to use, copy, modify, merge, publish, distribute, sublicense,
+*	and/or sell copies of the Software, and to permit persons to whom the
+*	Software is furnished to do so, subject to the following conditions:
+*
+*	The above copyright notice and this permission notice shall be included
+*	in all copies or substantial portions of the Software.
+*
+*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+*	IN THE SOFTWARE.
 */
 
 #include "precompiled.h"
@@ -11,13 +33,13 @@
 
 struct PushedColor
 {
-	EGUIColor id;
+	EGUIColorId id;
 	CColor original_color;
 };
 
 IGUIThemeManager* g_gui_thememgr_i = nullptr;
 
-class CGUIThemeManager : public IGUIThemeManager
+class CGUIThemeManager : public IGUIThemeManager, IConfigIOOperations
 {
 public:
 	CGUIThemeManager();
@@ -25,25 +47,49 @@ public:
 
 	void initialize();
 
-	GUIThemeObject_t* get_theme_by_name(const char* name_identifier);
-	GUIThemeObject_t* get_current_theme();
-	void set_new_theme(const char* name_identifier);
+	std::optional<const CGUITheme*> get_theme_by_id(const std::string& id);
 
-	void push_color(EGUIColor id, const CColor& color);
-	void push_color(EGUIColor id, float alpha);
+	CGUITheme& create_theme(const std::string& id);
+
+	bool set_new_theme(const std::string& id);
+
+	CGUITheme* get_current_theme();
+	std::string get_current_theme_name();
+
+	void push_color(EGUIColorId id, const CColor& color);
 	void pop_color(size_t amount = 1);
+
+	void load_theme_from_json(const nh::json& json);
+	void export_theme_to_json(nh::json& json);
+
+	EGUIColorId string_to_color_id(const std::string& id);
+	std::string color_id_to_string(EGUIColorId id);
+
+	void initialize_imgui();
 
 private:
 	void sync_with_imgui();
 
-	void add_themes();
+	void initialize_default_themes();
+
+	// config I/O provider
+	void provide_cfg_load_export_callbacks();
 
 private:
-	GUIThemeObject_t* m_current_theme; // always set
+	// theme name and object
+	std::pair<std::string, CGUITheme*> m_current_theme; // always set
 
-	std::unordered_map<std::string, GUIThemeObject_t> m_themes;
+	std::unordered_map<std::string, CGUITheme> m_themes;
 
 	std::vector<PushedColor> m_pushed_colors;
+
+	// translation lookup cache tables
+	std::unordered_map<std::string, EGUIColorId> m_string_to_id;
+	std::unordered_map<EGUIColorId, std::string> m_id_to_string;
+
+	void create_translation_lookup_cache_tables();
+
+	bool m_imgui_initialized = false;
 };
 
 CGUIThemeManager g_gui_thememgr;
@@ -67,46 +113,68 @@ CGUIThemeManager::~CGUIThemeManager()
 
 void CGUIThemeManager::initialize()
 {
-	add_themes();
+	// do this as a first thing
+	create_translation_lookup_cache_tables();
 
-	CConsole::the().info("GUI ThemeManager initialized");
+	initialize_default_themes();
+
+	// set default theme
+	set_new_theme("white");
+
+	provide_cfg_load_export_callbacks();
+
+	CConsole::the().info("GUI ThemeManager initialized.");
 }
 
-GUIThemeObject_t* CGUIThemeManager::get_theme_by_name(const char* name_identifier)
+std::optional<const CGUITheme*> CGUIThemeManager::get_theme_by_id(const std::string& id)
 {
-	for (auto& [name, theme] : m_themes)
+	try
 	{
-		if (name == name_identifier)
-			return &theme;
+		return &m_themes.at(id);
 	}
-
-	assert(0);
-	return nullptr;
+	catch (...)
+	{
+		assert(0 && "Could not get theme by id. Unknown theme ID?");
+		return std::nullopt;
+	}
 }
 
-GUIThemeObject_t* CGUIThemeManager::get_current_theme()
+CGUITheme& CGUIThemeManager::create_theme(const std::string& id)
 {
-	assert(m_current_theme);
-	return m_current_theme;
+	// just create a blank theme object
+	return m_themes[id];
 }
 
-void CGUIThemeManager::set_new_theme(const char* name_identifier)
+CGUITheme* CGUIThemeManager::get_current_theme()
 {
-	auto theme = get_theme_by_name(name_identifier);
+	// should not return nullptr.
+	assert(m_current_theme.second && "Current theme pointer wasn't initialized yet.");
+	return m_current_theme.second;
+}
+
+std::string CGUIThemeManager::get_current_theme_name()
+{
+	return m_current_theme.first;
+}
+
+bool CGUIThemeManager::set_new_theme(const std::string& id)
+{
+	auto theme = get_theme_by_id(id);
 	if (!theme)
 	{
-		CConsole::the().error("Couldn't find theme: {}", name_identifier);
-		return;
+		CConsole::the().error("Unknown theme ID: {}", id);
+		return false;
 	}
 
-	m_current_theme = theme;
+	m_current_theme = std::make_pair(id, (CGUITheme*)theme.value());
 	sync_with_imgui();
+	return true;
 }
 
-void CGUIThemeManager::push_color(EGUIColor id, const CColor& color)
+void CGUIThemeManager::push_color(EGUIColorId id, const CColor& color)
 {
 	m_pushed_colors.push_back({ id, get_current_theme()->get_color(id)});
-	get_current_theme()->set_using_color(id, color);
+	get_current_theme()->set_color(id, color);
 }
 
 void CGUIThemeManager::pop_color(size_t amount)
@@ -116,13 +184,157 @@ void CGUIThemeManager::pop_color(size_t amount)
 	while (amount--)
 	{
 		auto last = m_pushed_colors.back();
-		get_current_theme()->set_using_color(last.id, last.original_color);
+		get_current_theme()->set_color(last.id, last.original_color);
 		m_pushed_colors.pop_back();
 	}
 }
 
+void CGUIThemeManager::load_theme_from_json(const nh::json& json)
+{
+	/*
+	"theme_name": "blahblah",
+	"colors": {
+		"window_bg": ...
+		...
+	}
+	*/
+
+	std::string theme_name = "";
+
+	try
+	{
+		theme_name = json.at("theme_name").get<std::string>();
+	}
+	catch (...)
+	{
+	}
+
+	if (theme_name.empty())
+	{
+		CConsole::the().error("Got empty theme name.");
+		return;
+	}
+
+	// this could be either already existing theme or a new one.
+	auto& new_theme = create_theme(theme_name);
+
+	try
+	{
+		auto& colors = json.at("colors");
+
+		if (colors.empty())
+		{
+			CConsole::the().error("Got theme '{}' with no colors.", theme_name);
+			return;
+		}
+
+		for (auto& [key, value] : colors.items())
+		{
+			if (key == "invalid")
+			{
+				continue; // skip the invalid entry.
+			}
+
+			CColor color = value.get<CColor>();
+			CConsole::the().info("Got '{:<32}: {}'", key, color);
+
+			EGUIColorId id = string_to_color_id(key);
+			if (id == GUICLR_Invalid)
+			{
+				CConsole::the().error("Unrecognized color: '{}'", key);
+				continue;
+			}
+
+			new_theme.set_color(id, color.as_1_based());
+		}
+	}
+	catch (const nh::json::exception& e)
+	{
+		CConsole::the().error("JSON: {}", e.what());
+		return;
+	}
+}
+
+void CGUIThemeManager::export_theme_to_json(nh::json& json)
+{
+	/*
+	"theme_name": "blahblah",
+	"colors": {
+		"window_bg": ...
+		...
+	}
+	*/
+
+	auto current_theme_name = get_current_theme_name();
+	if (current_theme_name.empty())
+	{
+		// should not happen. current theme should be ALWAYS set.
+		return;
+	}
+
+	json["theme_name"] = current_theme_name;
+
+	try
+	{
+		auto current_theme = get_current_theme();
+
+		for (size_t i = GUICLR_TextLight; i < GUICLR_MAX; i++)
+		{
+			auto id = (EGUIColorId)i;
+			auto& color = current_theme->get_color(id);
+			std::string name = color_id_to_string(id); // cannot possibly fail (I hope :D)
+
+			json["colors"][name] = color;
+		}
+	}
+	catch (const nh::json::exception& e)
+	{
+		CConsole::the().error("JSON: {}", e.what());
+		return;
+	}
+}
+
+EGUIColorId CGUIThemeManager::string_to_color_id(const std::string& id)
+{
+	try
+	{
+		return m_string_to_id.at(id);
+	}
+	catch (...)
+	{
+		assert(0 && "unknown color string id");
+		return GUICLR_Invalid;
+	}
+}
+
+std::string CGUIThemeManager::color_id_to_string(EGUIColorId id)
+{
+	try
+	{
+		return m_id_to_string.at(id);
+	}
+	catch (...)
+	{
+		assert(0 && "unknown color id");
+		return "";
+	}
+}
+
+void CGUIThemeManager::initialize_imgui()
+{
+	m_imgui_initialized = true; // must be set before the call!
+
+	sync_with_imgui();
+}
+
 void CGUIThemeManager::sync_with_imgui()
 {
+	if (!m_imgui_initialized)
+	{
+		// cannot call this before imgui, since it needs to be called after ImGui::CreateContext().
+		return;
+	}
+
 	auto& style = ImGui::GetStyle();
 
 	style.Colors[ImGuiCol_WindowBg] = get_current_theme()->get_color<GUICLR_WindowBackground>();
@@ -151,77 +363,98 @@ void CGUIThemeManager::sync_with_imgui()
 	style.WindowPadding = { 10.f, 15.f };
 }
 
-//------------------------------------------------------------------------------------
-// Themes
-//
-
-void CGUIThemeManager::add_themes()
+void CGUIThemeManager::provide_cfg_load_export_callbacks()
 {
-	// White
-	m_themes.insert({
-		"white",
-		{
-			{
-				CColor(  0,   0,   0,   0), // GUICLR_NONE
+	auto cheat_theme = g_config_mgr_i->query_config_file_type("cheat_theme");
+	if (!cheat_theme)
+	{
+		return;
+	}
 
-				CColor(161, 161, 161, 255), // GUICLR_TextLight
-				CColor(112, 112, 112, 255), // GUICLR_TextRegular
-				CColor( 84,  84,  84, 255), // GUICLR_TextDark
-				CColor( 44,  44,  44, 255), // GUICLR_TextBlack
-				CColor(255, 255, 255, 255), // GUICLR_TextWhite
+	//
+	// provide config load function.
+	//
 
-				CColor(255, 255, 255, 255), // GUICLR_WindowBackground
-				CColor(240, 240, 240, 255), // GUICLR_ChildBackground
-				CColor(240, 240, 240, 255), // GUICLR_PopupBackground
-				
-				CColor(112, 112, 112,  51), // GUICLR_Button
-				CColor(112, 112, 112, 128), // GUICLR_ButtonHovered
-				CColor(112, 112, 112, 170), // GUICLR_ButtonActive
-				CColor(112, 112, 112, 101), // GUICLR_ButtonSelected
-				
-				CColor(112, 112, 112, 255), // GUICLR_HyperTextLink
-				CColor(  0, 136, 255, 170), // GUICLR_HyperTextLinkHovered
-				CColor(  0, 136, 255, 255), // GUICLR_HyperTextLinkActive
+	auto load_fn = [](nh::json& json)
+	{
+		g_gui_thememgr_i->load_theme_from_json(json);
+	};
 
-				CColor(240, 240, 240, 255), // GUICLR_ScrollbarBackground
-				CColor(150, 150, 150, 255), // GUICLR_ScrollbarGrab
+	(*cheat_theme)->provide_load_fn(load_fn);
 
-				CColor(255, 255, 255, 255), // GUICLR_CheckBoxBackground,
-				CColor(196, 196, 196, 255), // GUICLR_CheckBoxOutline,
-				CColor(  0, 136, 255, 255), // GUICLR_CheckBoxSelected,
-				CColor(255, 255, 255, 255), // GUICLR_CheckBoxCheckmark,
+	//
+	// provide config export function.
+	//
 
-				CColor(196, 196, 196, 255), // GUICLR_SliderFrameBg,
-				CColor(  0, 136, 255, 255), // GUICLR_SliderGrab,
-				CColor(  0, 136, 255,  90), // GUICLR_SliderHovered,
-				CColor(  0, 136, 255, 255), // GUICLR_SliderActive,
+	auto export_fn = [](nh::json& json)
+	{
+		g_gui_thememgr_i->export_theme_to_json(json);
+	};
 
-				CColor(255, 255, 255, 255), // GUICLR_InputTextBg,
+	(*cheat_theme)->provide_export_fn(export_fn);
+}
 
-				CColor(  0, 136, 255, 255), // GUICLR_ColorButtonBorderHovered,
+void CGUIThemeManager::create_translation_lookup_cache_tables()
+{
+	//
+	// string->id
+	//
+	for (size_t i = 0; i < GUICLR_MAX; i++)
+	{
+		m_string_to_id[g_gui_color_translation[i].name] = static_cast<EGUIColorId>(i);
+	}
 
-				CColor(196, 196, 196, 255), // GUICLR_Separator
+	//
+	// id->string
+	//
+	for (size_t i = 0; i < GUICLR_MAX; i++)
+	{
+		m_id_to_string[g_gui_color_translation[i].id] = g_gui_color_translation[i].name;
+	}
+}
 
-				CColor(112, 112, 112,  51), // GUICLR_Tab
-				CColor(112, 112, 112, 170), // GUICLR_TabHovered
-				CColor(112, 112, 112, 128), // GUICLR_TabActive
+void CGUIThemeManager::initialize_default_themes()
+{
+	auto& white = create_theme("white");
 
-				CColor(   0, 136, 255, 255),// GUICLR_ProgressBar
-
-				CColor(112, 112, 112,  51), // GUICLR_ResizeGrip
-				CColor(112, 112, 112, 128), // GUICLR_ResizeGripHovered
-				CColor(112, 112, 112, 170), // GUICLR_ResizeGripActive
-
-				CColor(  0,   0,   0,   0), // GUICLR_TableHeaderBg
-
-				CColor( 20,  20,  20,  20), // GUICLR_ListBoxBackground
-				CColor(170, 170, 170, 170), // GUICLR_ListBoxBorder
-				CColor(  0, 136, 255, 255), // GUICLR_ListBoxBorderHovered
-				CColor( 40,  40,  40,  40), // GUICLR_ListBoxArrowBoxBackground
-			}
-		}});
-
-	// TODO: More themes
-
-	set_new_theme("white"); // default
+	white.set_color(GUICLR_TextLight,					CColor(161, 161, 161, 255));
+	white.set_color(GUICLR_TextRegular,					CColor(112, 112, 112, 255));
+	white.set_color(GUICLR_TextDark,					CColor(84, 84, 84, 255));
+	white.set_color(GUICLR_TextBlack,					CColor(44, 44, 44, 255));
+	white.set_color(GUICLR_TextWhite,					CColor(255, 255, 255, 255));
+	white.set_color(GUICLR_WindowBackground,			CColor(255, 255, 255, 255));
+	white.set_color(GUICLR_ChildBackground,				CColor(240, 240, 240, 255));
+	white.set_color(GUICLR_PopupBackground,				CColor(240, 240, 240, 255));
+	white.set_color(GUICLR_Button,						CColor(112, 112, 112, 51));
+	white.set_color(GUICLR_ButtonHovered,				CColor(112, 112, 112, 128));
+	white.set_color(GUICLR_ButtonActive,				CColor(112, 112, 112, 170));
+	white.set_color(GUICLR_ButtonSelected,				CColor(112, 112, 112, 101));
+	white.set_color(GUICLR_HyperTextLink,				CColor(112, 112, 112, 255));
+	white.set_color(GUICLR_HyperTextLinkHovered,		CColor(0, 136, 255, 170));
+	white.set_color(GUICLR_HyperTextLinkActive,			CColor(0, 136, 255, 255));
+	white.set_color(GUICLR_ScrollbarBackground,			CColor(240, 240, 240, 255));
+	white.set_color(GUICLR_ScrollbarGrab,				CColor(150, 150, 150, 255));
+	white.set_color(GUICLR_CheckBoxBackground,			CColor(255, 255, 255, 255));
+	white.set_color(GUICLR_CheckBoxOutline,				CColor(196, 196, 196, 255));
+	white.set_color(GUICLR_CheckBoxSelected,			CColor(0, 136, 255, 255));
+	white.set_color(GUICLR_CheckBoxCheckmark,			CColor(255, 255, 255, 255));
+	white.set_color(GUICLR_SliderFrameBg,				CColor(196, 196, 196, 255));
+	white.set_color(GUICLR_SliderGrab,					CColor(0, 136, 255, 255));
+	white.set_color(GUICLR_SliderHovered,				CColor(0, 136, 255, 90));
+	white.set_color(GUICLR_SliderActive,				CColor(0, 136, 255, 255));
+	white.set_color(GUICLR_InputTextBg,					CColor(255, 255, 255, 255));
+	white.set_color(GUICLR_ColorButtonBorderHovered,	CColor(0, 136, 255, 255));
+	white.set_color(GUICLR_Separator,					CColor(196, 196, 196, 255));
+	white.set_color(GUICLR_Tab,							CColor(112, 112, 112, 51));
+	white.set_color(GUICLR_TabHovered,					CColor(112, 112, 112, 170));
+	white.set_color(GUICLR_TabActive,					CColor(112, 112, 112, 128));
+	white.set_color(GUICLR_ProgressBar,					CColor(0, 136, 255, 255));
+	white.set_color(GUICLR_ResizeGrip,					CColor(112, 112, 112, 51));
+	white.set_color(GUICLR_ResizeGripHovered, 			CColor(112, 112, 112, 128));
+	white.set_color(GUICLR_ResizeGripActive,			CColor(112, 112, 112, 170));
+	white.set_color(GUICLR_TableHeaderBg,				CColor(0, 0, 0, 0));
+	white.set_color(GUICLR_ListBoxBackground,			CColor(20, 20, 20, 20));
+	white.set_color(GUICLR_ListBoxBorder,				CColor(170, 170, 170, 170));
+	white.set_color(GUICLR_ListBoxBorderHovered,		CColor(0, 136, 255, 255));
+	white.set_color(GUICLR_ListBoxArrowBoxBackground,	CColor( 40,  40,  40,  40));
 }

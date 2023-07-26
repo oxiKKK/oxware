@@ -121,13 +121,6 @@
 
 //-------------------------------------------------------------------
 //
-// JSON
-// 
-//-------------------------------------------------------------------
-#include <nlohmann/json.hpp>
-
-//-------------------------------------------------------------------
-//
 // OpenGL
 // 
 //-------------------------------------------------------------------
@@ -240,6 +233,13 @@ namespace hl
 // include after hlsdk.
 #include "custom_format_cheat.h"
 
+enum EPlayerHull
+{
+	HULL_STANDING,
+	HULL_DUCKING,
+	HULL_POINT,
+};
+
 //-------------------------------------------------------------------
 //
 // Current project
@@ -342,6 +342,7 @@ namespace hl
 #include "ui/rendering_contexts/BackgroundRendering.h"
 #include "ui/rendering_contexts/PerformanceProfilerVisualization.h"
 #include "ui/KeyBinding.h"
+#include "ui/ThemeEditor.h"
 #include "ui/InCommandBinding.h"
 #include "ui/CheatSettings.h"
 #include "ui/PlayerList.h"

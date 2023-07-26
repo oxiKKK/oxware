@@ -233,7 +233,7 @@ void MenuChilden::Other::Storage::contents()
 	{
 		g_filesystem_i->iterate_through_files(
 			cheat_directory / "log", false, 
-			[](const FilePath_t& dir)
+			[](const std::filesystem::path& dir)
 			{
 				if (g_filesystem_i->is_file(dir))
 				{

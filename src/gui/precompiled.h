@@ -39,6 +39,7 @@
 #include <interface.h>
 
 #include <interface/IBaseModule.h>
+#include <interface/IConfigManager.h>
 
 #include <interface/gui/IGLFWApp.h>
 #include <interface/gui/IGUIWidgets.h>
@@ -99,5 +100,6 @@
 //-------------------------------------------------------------------
 #include "ImGUILayerGLFW.h"
 #include "ImGUILayerWin32.h"
+#include "color_translation.h"
 
 #endif // PRECOMPILED_H

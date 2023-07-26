@@ -65,7 +65,7 @@ public:
 	virtual HMODULE load_library(const wchar_t* path_to, const wchar_t* name) = 0;
 	virtual void unload_library(HMODULE module) = 0;
 	
-	virtual FilePath_t get_windows_directory(const FilePath_t& subdir = "") = 0;
+	virtual std::filesystem::path get_windows_directory(const std::filesystem::path& subdir = "") = 0;
 
 	virtual bool is_dll_loaded(const wchar_t* library_name) = 0;
 };

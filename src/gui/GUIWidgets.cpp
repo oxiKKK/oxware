@@ -259,9 +259,9 @@ private:
 	bool add_slider_internal(const char* label, T* value, T* min, T* max, const char* format, ImGuiDataType data_type, bool no_label, ImGuiSliderFlags flags = ImGuiSliderFlags_None);
 
 	// helpers
-	template<EGUIColor clr> requires(clr > GUICLR_NONE && clr < GUICLR_MAX)
+	template<EGUIColorId clr> requires(clr > GUICLR_Invalid && clr < GUICLR_MAX)
 	const CColor& get_color() const { return g_gui_thememgr_i->get_current_theme()->get_color<clr>(); }
-	template<EGUIColor clr> requires(clr > GUICLR_NONE && clr < GUICLR_MAX)
+	template<EGUIColorId clr> requires(clr > GUICLR_Invalid && clr < GUICLR_MAX)
 	const uint32_t get_color_u32() const { return g_gui_thememgr_i->get_current_theme()->get_color_u32<clr>(); }
 
 	bool m_block_input_on_all = false;

@@ -30,6 +30,7 @@
 
 VarInteger save_cfg_interval_sec("save_cfg_interval_sec", "Iterval in seconds for how often current settings should be saved.", 30, 9, 60);
 
+// writes a cheat settings config file from the configs/ directory.
 BaseCommand export_config(
 	"export_config", "<config name>", "Exports a json config file",
 	[&](BaseCommand* cmd, const CmdArgs& args)
@@ -47,6 +48,7 @@ BaseCommand export_config(
 	}
 );
 
+// loads a cheat settings config file from the configs/ directory.
 BaseCommand load_config(
 	"load_config", "<config name>", "Loads a json config file",
 	[&](BaseCommand* cmd, const CmdArgs& args)
@@ -64,6 +66,8 @@ BaseCommand load_config(
 	}
 );
 
+//-------------------------------------------------------------------------------------------------
+
 IConfigManager* g_config_mgr_i = nullptr;
 
 class CConfigManager : public IConfigManager
@@ -78,42 +82,36 @@ public:
 	// should by called by only one thread.
 	void update();
 
-	bool load_configuration(ECfgType type, const std::string& filename, bool silent = false);
-	bool write_configuration(ECfgType type, const std::string& filename, bool silent = false);
+	bool load_configuration(ECfgType type, const std::string& path_to_cfg, bool silent = false);
+	bool write_configuration(ECfgType type, const std::string& path_to_cfg, bool silent = false);
 
-	VarInteger* get_save_cfg_interval_var() { return &save_cfg_interval_sec; }
+	VarInteger* get_save_cfg_interval_var();
 
-	float get_duration_last_saved_sec() const { return std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - m_last_saved).count(); }
+	float get_duration_last_saved_sec() const;
 
-	FilePath_t get_config_directory(const FilePath_t& relative = "");
+	std::filesystem::path get_config_directory(const std::filesystem::path& relative = "");
 
-	void for_each_cfg(const std::function<void(const FilePath_t& cfg_path)>& callback);
+	void for_each_cfg(const std::function<void(const std::filesystem::path& relative_cfg_path)>& callback, const std::filesystem::path& directory);
 
-	GenericConfigFile* query_config_file_type(const std::string& id)
-	{
-		try
-		{
-			return m_registered_config_types.at(id);
-		}
-		catch (...)
-		{
-			assert(0 && "Failed config type query. Did you add your config type to the init_config_types() function?");
-			CConsole::the().error("Invalid config file type query: '{}'", id);
-			return nullptr;
-		}
-	}
+	std::optional<GenericConfigFile*> query_config_file_type(const std::string& id);
+
+	void fix_config_file_extension(std::filesystem::path& path);
 
 private:
 	std::chrono::high_resolution_clock::time_point m_last_saved;
 
 	CfgFile_CheatSettings m_cheat_settings_cfg;
+	CfgFile_CheatTheme m_cheat_theme_cfg;
 
 	// just to access it through query from external code.
 	std::unordered_map<std::string, GenericConfigFile*> m_registered_config_types;
 
 	void init_config_types()
 	{
+		// NOTE: that this is called in ctor.
+
 		m_registered_config_types["cheat_settings"] = &m_cheat_settings_cfg;
+		m_registered_config_types["cheat_theme"] = &m_cheat_theme_cfg;
 
 		// DON'T FORGET TO ADD NEW ONES AS YOU ADD THEM AS CLASS MEMBERS.
 	}
@@ -147,6 +145,10 @@ bool CConfigManager::initialize()
 	write_configuration(CFG_CheatSettings, "default.json");
 	load_configuration(CFG_CheatSettings, "saved.json");
 
+	// save default theme and load saved one
+	write_configuration(CFG_CheatTheme, "theme\\default.json");
+	load_configuration(CFG_CheatTheme, "theme\\saved.json");
+
 	m_last_saved = std::chrono::high_resolution_clock::now();
 
 	CConsole::the().info("Config Manager initialized");
@@ -155,8 +157,11 @@ bool CConfigManager::initialize()
 
 void CConfigManager::shutdown()
 {
+	CConsole::the().info("Shutting down Config Manager...");
+
 	// write changed settings
 	write_configuration(CFG_CheatSettings, "saved.json");
+	write_configuration(CFG_CheatTheme, "theme\\saved.json");
 }
 
 void CConfigManager::update()
@@ -174,17 +179,12 @@ void CConfigManager::update()
 	}
 }
 
-bool CConfigManager::load_configuration(ECfgType type, const std::string& filename, bool silent)
+bool CConfigManager::load_configuration(ECfgType type, const std::string& path_to_cfg, bool silent)
 {
-	auto full_path = get_config_directory(filename);
-
-	if (!full_path.has_extension() || full_path.extension() != ".json")
-	{
-		full_path.replace_extension("json");
-	}
+	auto full_path = get_config_directory(path_to_cfg);
+	fix_config_file_extension(full_path);
 
 	bool success = false;
-
 	switch (type)
 	{
 		case CFG_CheatSettings:
@@ -193,9 +193,15 @@ bool CConfigManager::load_configuration(ECfgType type, const std::string& filena
 			success = m_cheat_settings_cfg.load(full_path);
 			break;
 		}
+		case CFG_CheatTheme:
+		{
+			m_cheat_theme_cfg.be_silent(silent);
+			success = m_cheat_theme_cfg.load(full_path);
+			break;
+		}
 		default:
 		{
-			assert(0 && "Called " __FUNCTION__ " with invalid config type!");
+			assert(0 && "Called CConfigManager::load_configuration with invalid config type!");
 			break;
 		}
 	}
@@ -203,17 +209,12 @@ bool CConfigManager::load_configuration(ECfgType type, const std::string& filena
 	return success;
 }
 
-bool CConfigManager::write_configuration(ECfgType type, const std::string& filename, bool silent)
+bool CConfigManager::write_configuration(ECfgType type, const std::string& path_to_cfg, bool silent)
 {
-	auto full_path = get_config_directory(filename);
-
-	if (!full_path.has_extension() || full_path.extension() != ".json")
-	{
-		full_path.replace_extension("json");
-	}
+	auto full_path = get_config_directory(path_to_cfg);
+	fix_config_file_extension(full_path);
 
 	bool success = false;
-
 	switch (type)
 	{
 		case CFG_CheatSettings:
@@ -222,9 +223,15 @@ bool CConfigManager::write_configuration(ECfgType type, const std::string& filen
 			success = m_cheat_settings_cfg.write(full_path);
 			break;
 		}
+		case CFG_CheatTheme:
+		{
+			m_cheat_theme_cfg.be_silent(silent);
+			success = m_cheat_theme_cfg.write(full_path);
+			break;
+		}
 		default:
 		{
-			assert(0 && "Called " __FUNCTION__ " with invalid config type!");
+			assert(0 && "Called CConfigManager::write_configuration with invalid config type!");
 			break;
 		}
 	}
@@ -232,22 +239,64 @@ bool CConfigManager::write_configuration(ECfgType type, const std::string& filen
 	return success;
 }
 
-FilePath_t CConfigManager::get_config_directory(const FilePath_t& relative)
+VarInteger* CConfigManager::get_save_cfg_interval_var()
+{
+	return &save_cfg_interval_sec;
+}
+
+float CConfigManager::get_duration_last_saved_sec() const
+{
+	return std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - m_last_saved).count();
+}
+
+std::filesystem::path CConfigManager::get_config_directory(const std::filesystem::path& relative)
 {
 	return g_appdata_mgr_i->get_known("config\\") / relative;
 }
 
-void CConfigManager::for_each_cfg(const std::function<void(const FilePath_t& cfg_path)>& callback)
+void CConfigManager::for_each_cfg(const std::function<void(const std::filesystem::path& relative_cfg_path)>& callback, const std::filesystem::path& directory)
 {
 	g_filesystem_i->iterate_through_files(
 		get_config_directory(), true, 
-		[&callback](const FilePath_t& filepath)
+		[&](const std::filesystem::path& filepath)
 		{
-			if (filepath.extension() == ".json")
+			// if filtering by directory, we must check whenever we're in the directory specified.
+			bool directory_filter = true;
+			if (directory.string() != "." && !directory.empty())
+			{
+				auto relative_to_appdata = g_filesystem_i->get_relative_to_appdata_ex("config", filepath.parent_path());
+				if (relative_to_appdata != directory)
+				{
+					directory_filter = false;
+				}
+			}
+
+			if (directory_filter && filepath.extension() == ".json")
 			{
 				callback(filepath);
 			}
 		}
 	);
+}
+
+std::optional<GenericConfigFile*> CConfigManager::query_config_file_type(const std::string& id)
+{
+	try
+	{
+		return m_registered_config_types.at(id);
+	}
+	catch (...)
+	{
+		assert(0 && "Failed config type query. Did you add your config type to the init_config_types() function?");
+		return std::nullopt;
+	}
+}
+
+void CConfigManager::fix_config_file_extension(std::filesystem::path& path)
+{
+	if (!path.has_extension() || path.extension() != ".json")
+	{
+		path.replace_extension("json");
+	}
 }
 

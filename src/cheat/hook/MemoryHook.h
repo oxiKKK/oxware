@@ -176,7 +176,7 @@ inline bool GenericMemoryHook<T>::install_using_bytepattern(size_t dereference_c
 	}
 
 	CBytePattern p = g_bytepattern_bank_i->get_pattern(m_name);
-	CConsole::the().dinfo("{}", p.pattern_as_string()); // print pattern
+//	CConsole::the().dinfo("{}", p.pattern_as_string()); // print pattern
 	if (p.empty())
 	{
 		on_hook_install_fail("Couldn't find byte pattern for current hook inside the bank!!!");

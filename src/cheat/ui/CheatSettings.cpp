@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-UIStatusWidget CUICheatSettings::m_status_widget = UIStatusWidget(2500);
+UIStatusWidget CUICheatSettings::m_status_widget = UIStatusWidget(k_StatusWidgetStandardLifeDur);
 
 static float s_status_bar_footer_height = 33.0f;
 
@@ -49,12 +49,7 @@ void CUICheatSettings::render_ui()
 
 		g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, Vector2D(5, 5));
 
-		g_gui_widgets_i->add_child(
-			"config_filelist", { -1.0f, -1.0f - s_status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
-			[this]()
-			{
-				render_file_list();
-			});
+		render_file_list();
 
 		g_gui_widgets_i->goto_next_column();
 
@@ -86,7 +81,6 @@ void CUICheatSettings::search_for_configs()
 	static constexpr uint32_t interval_ms = 250;
 	if (GetTickCount() - last_searched > interval_ms)
 	{
-
 		m_configs.clear();
 
 		g_config_mgr_i->for_each_cfg(
@@ -108,22 +102,22 @@ void CUICheatSettings::render_actions()
 		"actions", { -1.0f, -1.0f - s_status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
 		[&]()
 		{
-			if (g_gui_widgets_i->add_button("create new", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+			if (g_gui_widgets_i->add_button("Export as", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 			{
-				actions_create_new();
+				actions_export_as();
 			}
 
-			if (g_gui_widgets_i->add_button("open config directory", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+			if (g_gui_widgets_i->add_button("Open config directory", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 			{
 				actions_open_config_dir();
 			}
 
-			if (g_gui_widgets_i->add_button("save current", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+			if (g_gui_widgets_i->add_button("Save current to saved.json", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 			{
 				actions_save_current();
 			}
 
-			if (g_gui_widgets_i->add_button("restore defaults", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+			if (g_gui_widgets_i->add_button("Restore defaults", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 			{
 				actions_restore_defaults();
 			}
@@ -146,14 +140,14 @@ void CUICheatSettings::render_options_on_selected()
 				{
 					g_gui_widgets_i->goto_next_column();
 
-					if (g_gui_widgets_i->add_button("load", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+					if (g_gui_widgets_i->add_button("Load", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 					{
 						options_load();
 					}
 
 					g_gui_widgets_i->goto_next_column();
 
-					if (g_gui_widgets_i->add_button("rename", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+					if (g_gui_widgets_i->add_button("Rename", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 					{
 						options_rename();
 					}
@@ -161,7 +155,7 @@ void CUICheatSettings::render_options_on_selected()
 					g_gui_widgets_i->end_columns();
 				}
 
-				if (g_gui_widgets_i->add_button("delete", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+				if (g_gui_widgets_i->add_button("Delete file", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 				{
 					options_delete();
 				}
@@ -175,28 +169,33 @@ void CUICheatSettings::render_options_on_selected()
 
 void CUICheatSettings::render_file_list()
 {
-	if (m_configs.empty())
-	{
-		g_gui_widgets_i->add_window_centered_text_disabled("No configuration files available 😥");
-		return;
-	}
-
-	for (const auto& cfg_path : m_configs)
-	{
-		bool is_selected = (m_selected_cfg == cfg_path);
-		if (g_gui_widgets_i->add_toggle_button(cfg_path.string(), { -1.0f, 0.0f }, is_selected, false))
+	g_gui_widgets_i->add_child(
+		"config_filelist", { -1.0f, -1.0f - s_status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[this]()
 		{
-			if (is_selected)
+			if (m_configs.empty())
 			{
-				// clicking on currently selected entry, toggle it.
-				m_selected_cfg.clear();
+				g_gui_widgets_i->add_window_centered_text_disabled("No configuration files available 😥");
+				return;
 			}
-			else
+
+			for (const auto& cfg_path : m_configs)
 			{
-				m_selected_cfg = cfg_path;
+				bool is_selected = (m_selected_cfg == cfg_path);
+				if (g_gui_widgets_i->add_toggle_button(cfg_path.string(), { -1.0f, 0.0f }, is_selected, false))
+				{
+					if (is_selected)
+					{
+						// clicking on currently selected entry, toggle it.
+						m_selected_cfg.clear();
+					}
+					else
+					{
+						m_selected_cfg = cfg_path;
+					}
+				}
 			}
-		}
-	}
+		});
 }
 
 void CUICheatSettings::options_load()
@@ -217,12 +216,12 @@ void CUICheatSettings::options_rename()
 
 	auto rename_dialog = CUIWindowPopups::the().create_popup_context<UIDecoratedPopup>("config_rename");
 
-	rename_dialog->provide_window_size(Vector2D(210, 170));
+	rename_dialog->provide_window_size(Vector2D(220, 170));
 	rename_dialog->provide_window_flags(ImGuiWindowFlags_NoResize);
-	rename_dialog->provide_on_close_fn(
+	rename_dialog->provide_on_cancel_fn(
 		[&]()
 		{
-			// don't do nothing at all, just close the popuú. this is in order to make the "close button to render"
+			// don't do nothing at all, just close the popup. this is in order to make the "close button to render"
 			strcpy(rename_buffer, "");
 		});
 	rename_dialog->provide_on_okay_fn(
@@ -262,14 +261,9 @@ void CUICheatSettings::options_rename()
 	rename_dialog->provide_contents_fn(
 		[]()
 		{
-			bool close = false;
-			if (g_gui_widgets_i->add_text_input("Rename to", rename_buffer, sizeof(rename_buffer), ImGuiInputTextFlags_EnterReturnsTrue, true))
-			{
-				// enter returns true:
-				close = true;
-			}
+			g_gui_widgets_i->add_text("Rename to");
 
-			g_gui_widgets_i->add_text("Enter name of the config");
+			g_gui_widgets_i->add_text_input("rename_to_input", rename_buffer, sizeof(rename_buffer), ImGuiInputTextFlags_None, true);
 
 			g_gui_widgets_i->add_text("Will be renamed to:");
 
@@ -279,7 +273,7 @@ void CUICheatSettings::options_rename()
 										  TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
 			}
 
-			return close;
+			return false;
 		});
 
 	CUIWindowPopups::the().schedule_popup(rename_dialog);
@@ -297,19 +291,19 @@ void CUICheatSettings::options_delete()
 	}
 }
 
-void CUICheatSettings::actions_create_new()
+void CUICheatSettings::actions_export_as()
 {
 	static char name_buffer[MAX_PATH];
 
-	auto create_dialog = CUIWindowPopups::the().create_popup_context<UIDecoratedPopup>("config_create");
+	auto create_dialog = CUIWindowPopups::the().create_popup_context<UIDecoratedPopup>("config_export_as");
 
-	create_dialog->provide_window_size(Vector2D(210, 170));
+	create_dialog->provide_window_size(Vector2D(220, 170));
 	create_dialog->provide_window_flags(ImGuiWindowFlags_NoResize);
 	
-	create_dialog->provide_on_close_fn(
+	create_dialog->provide_on_cancel_fn(
 		[&]()
 		{
-			// don't do nothing at all, just close the popuú. this is in order to make the "close button to render"
+			// don't do nothing at all, just close the popup. this is in order to make the "close button to render"
 			strcpy(name_buffer, "");
 		});
 
@@ -321,16 +315,13 @@ void CUICheatSettings::actions_create_new()
 				return;
 			}
 
-			auto path = g_config_mgr_i->get_config_directory(name_buffer);
-			g_config_mgr_i->fix_config_file_extension(path);
-
-			if (g_config_mgr_i->write_configuration(CFG_CheatSettings, path.filename().string()))
+			if (g_config_mgr_i->write_configuration(CFG_CheatSettings, name_buffer))
 			{
-				m_status_widget.update_status(std::format("Saved '{}'.", path.filename().string()), UIStatusWidget::Success);
+				m_status_widget.update_status(std::format("Exported as '{}'.", name_buffer), UIStatusWidget::Success);
 			}
 			else
 			{
-				m_status_widget.update_status(std::format("Couldn't save '{}'.", path.filename().string()), UIStatusWidget::Error);
+				m_status_widget.update_status(std::format("Couldn't export as '{}'.", name_buffer), UIStatusWidget::Error);
 			}
 
 			strcpy(name_buffer, "");
@@ -339,16 +330,11 @@ void CUICheatSettings::actions_create_new()
 	create_dialog->provide_contents_fn(
 		[]()
 		{
-			bool close = false;
-			if (g_gui_widgets_i->add_text_input("Config name", name_buffer, sizeof(name_buffer), ImGuiInputTextFlags_EnterReturnsTrue, true))
-			{
-				// enter returns true:
-				close = true;
-			}
+			g_gui_widgets_i->add_text("Export as");
 
-			g_gui_widgets_i->add_text("Enter name of the config");
+			g_gui_widgets_i->add_text_input("export_as_input", name_buffer, sizeof(name_buffer), ImGuiInputTextFlags_None, true);
 
-			g_gui_widgets_i->add_text("Will be saved as:");
+			g_gui_widgets_i->add_text("Will be exported as:");
 
 			if (name_buffer[0])
 			{
@@ -356,7 +342,7 @@ void CUICheatSettings::actions_create_new()
 										  TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
 			}
 
-			return close;
+			return false;
 		});
 
 	CUIWindowPopups::the().schedule_popup(create_dialog);

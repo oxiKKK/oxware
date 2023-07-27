@@ -120,6 +120,10 @@ public:
 	bool is_last_widget_focused();
 	bool is_widget_focused(const char* str_id);
 
+	void push_id(const std::string& id);
+	void push_id(int id);
+	void pop_id();
+
 	//
 	// Widgets
 	//
@@ -135,13 +139,13 @@ public:
 	bool add_toggle_button_custom(const std::string& label, const Vector2D& size, bool selected = false, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None);
 	bool add_invisible_button_behaviour(const std::string& label, const Vector2D& pos, const Vector2D& size);
 
-	bool add_hypertext_link(const std::string& label);
+	bool add_url_text(const std::string& label);
 
 	bool add_checkbox(const std::string& label, float* value);
 	bool add_checkbox(const std::string& label, bool* value);
-	bool add_checkbox_with_color(const std::string& label, float* value, float rgba[4], ImGuiColorEditFlags flags);
+	bool add_checkbox_with_color(const std::string& label, float* value, float rgba[4], bool input_values, ImGuiColorEditFlags flags);
 
-	bool add_color_edit(const std::string& label, float rgba[4], ImGuiColorEditFlags flags);
+	bool add_color_edit(const std::string& label, float rgba[4], bool input_values, ImGuiColorEditFlags flags);
 
 	bool add_slider(const std::string& label, float* value, float* min, float* max, const char* format, bool no_label);
 	bool add_slider(const std::string& label, int* value, int* min, int* max, const char* format, bool no_label);
@@ -244,13 +248,13 @@ private:
 
 	template<typename T>
 	bool add_checkbox_internal(const char*label, T* value);
-	bool add_checkbox_with_color_internal(const char* label, float* value, float rgba[4], ImGuiColorEditFlags flags);
+	bool add_checkbox_with_color_internal(const char* label, float* value, float rgba[4], bool input_values, ImGuiColorEditFlags flags);
 
 	void add_text_wrapped(const char* text);
 
-	bool color_edit_4_internal(const char* label, float rgba[4], ImGuiColorEditFlags flags);
-	bool color_picker_4_internal(const char* label, float rgba[4], ImGuiColorEditFlags flags, float* ref_col = NULL);
-	void color_picker_options_popup(const float* ref_col, ImGuiColorEditFlags flags);
+	bool color_edit_4_internal(const char* label, float rgba[4], bool input_values, ImGuiColorEditFlags flags);
+	bool color_picker_4_internal(const char* label, float rgba[4], bool input_values, ImGuiColorEditFlags flags, float* ref_col = NULL);
+	void color_picker_options_popup(const float* ref_col, bool input_values, ImGuiColorEditFlags flags);
 	bool color_button_internal(const char* desc_id, const ImVec4& col, ImGuiColorEditFlags flags, const ImVec2& size_arg = {});
 
 	bool begin_combo_internal(const char* label, const char* preview_label, ImGuiComboFlags flags = 0);
@@ -586,6 +590,21 @@ bool CGUIWidgets::is_widget_focused(const char* str_id)
 	return GetID(str_id) == GImGui->ActiveId;
 }
 
+void CGUIWidgets::push_id(const std::string& id)
+{
+	PushID(id.c_str());
+}
+
+void CGUIWidgets::push_id(int id)
+{
+	PushID(id);
+}
+
+void CGUIWidgets::pop_id()
+{
+	PopID();
+}
+
 void CGUIWidgets::add_text(const std::string& text, ETextProperties properties, ImFont* font)
 {
 	//
@@ -725,7 +744,7 @@ bool CGUIWidgets::add_toggle_button(const std::string& label, const Vector2D& si
 	// use the default button color as hover color and disable the default one.
 	auto prev_default_color = g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_Button>();
 	g_gui_thememgr_i->push_color(GUICLR_Button, unselected_color);
-	g_gui_thememgr_i->push_color(GUICLR_ButtonHovered, prev_default_color);
+	g_gui_thememgr_i->push_color(GUICLR_FrameBgHovered, prev_default_color);
 
 	bool ret = add_button_internal(label.c_str(), size, selected, flags);
 	
@@ -783,7 +802,7 @@ bool CGUIWidgets::add_invisible_button_behaviour(const std::string& label, const
 	return pressed;
 }
 
-bool CGUIWidgets::add_hypertext_link(const std::string& label)
+bool CGUIWidgets::add_url_text(const std::string& label)
 {
 	ImGuiWindow* window = GetCurrentWindow();
 	if (window->SkipItems)
@@ -811,15 +830,15 @@ bool CGUIWidgets::add_hypertext_link(const std::string& label)
 	CColor color_4f;
 	if (held && hovered)
 	{
-		color_4f = get_color<GUICLR_HyperTextLinkActive>();
+		color_4f = get_color<GUICLR_FrameActive>();
 	}
 	else if (hovered)
 	{
-		color_4f = get_color<GUICLR_HyperTextLinkHovered>();
+		color_4f = get_color<GUICLR_URLHovered>();
 	}
 	else
 	{
-		color_4f = get_color<GUICLR_HyperTextLink>();
+		color_4f = get_color<GUICLR_TextRegular>();
 	}
 
 	push_color(ImGuiCol_Text, color_4f);
@@ -861,9 +880,9 @@ bool CGUIWidgets::add_checkbox(const std::string& label, bool* value)
 	return ret;
 }
 
-bool CGUIWidgets::add_checkbox_with_color(const std::string& label, float* value, float rgba[4], ImGuiColorEditFlags flags)
+bool CGUIWidgets::add_checkbox_with_color(const std::string& label, float* value, float rgba[4], bool input_values, ImGuiColorEditFlags flags)
 {
-	bool ret = add_checkbox_with_color_internal(label.c_str(), value, rgba, flags);
+	bool ret = add_checkbox_with_color_internal(label.c_str(), value, rgba, input_values, flags);
 
 	if (IsItemHovered())
 	{
@@ -873,7 +892,7 @@ bool CGUIWidgets::add_checkbox_with_color(const std::string& label, float* value
 	return ret;
 }
 
-bool CGUIWidgets::add_color_edit(const std::string& label, float rgba[4], ImGuiColorEditFlags flags)
+bool CGUIWidgets::add_color_edit(const std::string& label, float rgba[4], bool input_values, ImGuiColorEditFlags flags)
 {
 	add_text(label);
 
@@ -885,10 +904,10 @@ bool CGUIWidgets::add_color_edit(const std::string& label, float rgba[4], ImGuiC
 	PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f);
 	PushStyleVar(ImGuiStyleVar_PopupRounding, 6.0f);
 
-	bool ret = color_edit_4_internal(buffer, rgba,
+	bool ret = color_edit_4_internal(buffer, rgba, input_values,
 									 flags |
 									 ImGuiColorEditFlags_NoInputs |
-									 ImGuiColorEditFlags_NoOptions |
+//									 ImGuiColorEditFlags_NoOptions |
 									 ImGuiColorEditFlags_NoTooltip |
 									 ImGuiColorEditFlags_NoLabel |
 									 ImGuiColorEditFlags_NoDragDrop);
@@ -1120,8 +1139,8 @@ void CGUIWidgets::add_progress_bar(const std::string& id, const Vector2D& size, 
 		return;
 	}
 
-	auto clr = get_color<GUICLR_ProgressBar>();
-	auto clr1 = get_color<GUICLR_ProgressBar>();
+	auto clr = get_color<GUICLR_FrameActive>();
+	auto clr1 = get_color<GUICLR_FrameActive>();
 
 	//clr.a = (current / max);
 	clr1.a = 0.1f;
@@ -1448,15 +1467,15 @@ bool CGUIWidgets::add_button_internal(const char* label, const Vector2D& size, b
 	CColor color_4f;
 	if (held && hovered)
 	{
-		color_4f = get_color<GUICLR_ButtonActive>();
+		color_4f = get_color<GUICLR_FrameBgActive>();
 	}
 	else if (hovered)
 	{
-		color_4f = get_color<GUICLR_ButtonHovered>();
+		color_4f = get_color<GUICLR_FrameBgHovered>();
 	}
 	else if (selected)
 	{
-		color_4f = get_color<GUICLR_ButtonSelected>();
+		color_4f = get_color<GUICLR_FrameBgSelected>();
 	}
 	else
 	{
@@ -1514,11 +1533,11 @@ bool CGUIWidgets::add_checkbox_internal(const char* label, T* value)
 	CColor color_4f;
 	if (*value)
 	{
-		color_4f = get_color<GUICLR_CheckBoxSelected>();
+		color_4f = get_color<GUICLR_FrameActive>();
 	}
 	else if (held)
 	{
-		color_4f = get_color<GUICLR_CheckBoxSelected>();
+		color_4f = get_color<GUICLR_FrameActive>();
 	}
 	else
 	{
@@ -1534,7 +1553,7 @@ bool CGUIWidgets::add_checkbox_internal(const char* label, T* value)
 	{
 		if (hovered)
 		{
-			PushStyleColor(ImGuiCol_Border, get_color_u32<GUICLR_CheckBoxSelected>());
+			PushStyleColor(ImGuiCol_Border, get_color_u32<GUICLR_FrameActive>());
 			PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f);
 		}
 
@@ -1547,7 +1566,7 @@ bool CGUIWidgets::add_checkbox_internal(const char* label, T* value)
 		}
 	}
 
-	ImU32 check_col = get_color_u32<GUICLR_CheckBoxCheckmark>();
+	ImU32 check_col = get_color_u32<GUICLR_CheckBoxCheckMark>();
 	bool mixed_value = (g.LastItemData.InFlags & ImGuiItemFlags_MixedValue) != 0;
 	if (mixed_value)
 	{
@@ -1572,7 +1591,7 @@ bool CGUIWidgets::add_checkbox_internal(const char* label, T* value)
 	return pressed;
 }
 
-bool CGUIWidgets::add_checkbox_with_color_internal(const char* label, float* value, float rgba[4], ImGuiColorEditFlags flags)
+bool CGUIWidgets::add_checkbox_with_color_internal(const char* label, float* value, float rgba[4], bool input_values, ImGuiColorEditFlags flags)
 {
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
@@ -1592,12 +1611,12 @@ bool CGUIWidgets::add_checkbox_with_color_internal(const char* label, float* val
 	PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f);
 	PushStyleVar(ImGuiStyleVar_PopupRounding, 6.0f);
 
-	color_edit_4_internal(buffer, rgba,
+	color_edit_4_internal(buffer, rgba, input_values,
 						  flags |
 						  ImGuiColorEditFlags_NoInputs |
 						  ImGuiColorEditFlags_NoOptions |
 						  ImGuiColorEditFlags_NoTooltip |
-						  ImGuiColorEditFlags_NoLabel |
+						  ImGuiColorEditFlags_NoLabel | 
 						  ImGuiColorEditFlags_NoDragDrop);
 
 	PopStyleVar(2);
@@ -1671,7 +1690,7 @@ bool CGUIWidgets::color_button_internal(const char* desc_id, const ImVec4& col, 
 		if (g.Style.FrameBorderSize > 0.0f)
 		{
 			if (hovered)
-				PushStyleColor(ImGuiCol_Border, get_color<GUICLR_ColorButtonBorderHovered>());
+				PushStyleColor(ImGuiCol_Border, get_color<GUICLR_FrameActive>());
 
 			RenderFrameBorder(bb.Min, bb.Max, rounding);
 
@@ -1749,7 +1768,7 @@ bool CGUIWidgets::begin_combo_internal(const char* label, const char* preview_la
 		window->DrawList->AddRectFilled(bb.Min, ImVec2(value_x2, bb.Max.y), frame_col, style.FrameRounding, (flags & ImGuiComboFlags_NoArrowButton) ? ImDrawFlags_RoundCornersAll : ImDrawFlags_RoundCornersLeft);
 	if (!(flags & ImGuiComboFlags_NoArrowButton))
 	{
-		ImU32 bg_col = get_color<GUICLR_ListBoxArrowBoxBackground>().as_u32();
+		ImU32 bg_col = get_color<GUICLR_ListBoxArrowBackground>().as_u32();
 		ImU32 text_col = GetColorU32(ImGuiCol_Text);
 		window->DrawList->AddRectFilled(ImVec2(value_x2, bb.Min.y), bb.Max, bg_col, style.FrameRounding, (w <= arrow_size.x) ? ImDrawFlags_RoundCornersAll : ImDrawFlags_RoundCornersRight);
 		if (value_x2 + arrow_size.x - style.FramePadding.x <= bb.Max.x)
@@ -1760,7 +1779,7 @@ bool CGUIWidgets::begin_combo_internal(const char* label, const char* preview_la
 
 	if (hovered)
 	{
-		PushStyleColor(ImGuiCol_Border, get_color_u32<GUICLR_ListBoxBorderHovered>());
+		PushStyleColor(ImGuiCol_Border, get_color_u32<GUICLR_FrameActive>());
 		border_size = 2.0f;
 	}
 	else
@@ -1803,7 +1822,7 @@ bool CGUIWidgets::begin_combo_internal(const char* label, const char* preview_la
 	return BeginComboPopup(popup_id, bb, flags);
 }
 
-bool CGUIWidgets::color_edit_4_internal(const char * label, float rgba[4], ImGuiColorEditFlags flags)
+bool CGUIWidgets::color_edit_4_internal(const char * label, float rgba[4], bool input_values, ImGuiColorEditFlags flags)
 {
 	ImGuiWindow* window = GetCurrentWindow();
 	if (window->SkipItems)
@@ -1869,6 +1888,74 @@ bool CGUIWidgets::color_edit_4_internal(const char * label, float rgba[4], ImGui
 	const float inputs_offset_x = (style.ColorButtonPosition == ImGuiDir_Left) ? w_button : 0.0f;
 	window->DC.CursorPos.x = pos.x + inputs_offset_x;
 
+	if (input_values && (flags & (ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_DisplayHSV)) != 0 && (flags & ImGuiColorEditFlags_NoInputs) == 0)
+	{
+		// RGB/HSV 0..255 Sliders
+		const float w_item_one = ImMax(1.0f, IM_FLOOR((w_inputs - (style.ItemInnerSpacing.x) * (components - 1)) / (float)components));
+		const float w_item_last = ImMax(1.0f, IM_FLOOR(w_inputs - (w_item_one + style.ItemInnerSpacing.x) * (components - 1)));
+
+		const bool hide_prefix = (w_item_one <= CalcTextSize((flags & ImGuiColorEditFlags_Float) ? "M:0.000" : "M:000").x);
+		static const char* ids[4] = { "##X", "##Y", "##Z", "##W" };
+		static const char* fmt_table_int[2][4] =
+		{
+			{   "%3d",   "%3d",   "%3d",   "%3d" }, // Short display
+			{ "R:%3d", "G:%3d", "B:%3d", "A:%3d" }, // Long display for RGBA
+		};
+		static const char* fmt_table_float[3][4] =
+		{
+			{   "%0.3f",   "%0.3f",   "%0.3f",   "%0.3f" }, // Short display
+			{ "R:%0.3f", "G:%0.3f", "B:%0.3f", "A:%0.3f" }, // Long display for RGBA
+		};
+		const int fmt_idx = hide_prefix ? 0 : 1;
+
+		for (int n = 0; n < components; n++)
+		{
+			if (n > 0)
+				SameLine(0, style.ItemInnerSpacing.x);
+			SetNextItemWidth((n + 1 < components) ? w_item_one : w_item_last);
+
+			// FIXME: When ImGuiColorEditFlags_HDR flag is passed HS values snap in weird ways when SV values go below 0.
+			if (flags & ImGuiColorEditFlags_Float)
+			{
+				value_changed |= DragFloat(ids[n], &f[n], 1.0f / 255.0f, 0.0f, hdr ? 0.0f : 1.0f, fmt_table_float[fmt_idx][n]);
+				value_changed_as_float |= value_changed;
+			}
+			else
+			{
+				value_changed |= DragInt(ids[n], &i[n], 1.0f, 0, hdr ? 0 : 255, fmt_table_int[fmt_idx][n]);
+			}
+			if (!(flags & ImGuiColorEditFlags_NoOptions))
+				OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
+		}
+	}
+	else if (input_values && (flags & ImGuiColorEditFlags_DisplayHex) != 0 && (flags & ImGuiColorEditFlags_NoInputs) == 0)
+	{
+		// RGB Hexadecimal Input
+		char buf[64];
+		if (alpha)
+			ImFormatString(buf, IM_ARRAYSIZE(buf), "#%02X%02X%02X%02X", ImClamp(i[0], 0, 255), ImClamp(i[1], 0, 255), ImClamp(i[2], 0, 255), ImClamp(i[3], 0, 255));
+		else
+			ImFormatString(buf, IM_ARRAYSIZE(buf), "#%02X%02X%02X", ImClamp(i[0], 0, 255), ImClamp(i[1], 0, 255), ImClamp(i[2], 0, 255));
+		SetNextItemWidth(w_inputs);
+		if (InputText("##Text", buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_CharsUppercase))
+		{
+			value_changed = true;
+			char* p = buf;
+			while (*p == '#' || ImCharIsBlankA(*p))
+				p++;
+			i[0] = i[1] = i[2] = 0;
+			i[3] = 0xFF; // alpha default to 255 is not parsed by scanf (e.g. inputting #FFFFFF omitting alpha)
+			int r;
+			if (alpha)
+				r = sscanf(p, "%02X%02X%02X%02X", (unsigned int*)&i[0], (unsigned int*)&i[1], (unsigned int*)&i[2], (unsigned int*)&i[3]); // Treat at unsigned (%X is unsigned)
+			else
+				r = sscanf(p, "%02X%02X%02X", (unsigned int*)&i[0], (unsigned int*)&i[1], (unsigned int*)&i[2]);
+			IM_UNUSED(r); // Fixes C6031: Return value ignored: 'sscanf'.
+		}
+		if (!(flags & ImGuiColorEditFlags_NoOptions))
+			OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
+	}
+
 	ImGuiWindow* picker_active_window = NULL;
 	if (!(flags & ImGuiColorEditFlags_NoSmallPreview))
 	{
@@ -1902,7 +1989,7 @@ bool CGUIWidgets::color_edit_4_internal(const char * label, float rgba[4], ImGui
 				ImGuiColorEditFlags picker_flags_to_forward = ImGuiColorEditFlags_DataTypeMask_ | ImGuiColorEditFlags_PickerMask_ | ImGuiColorEditFlags_InputMask_ | ImGuiColorEditFlags_HDR | ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_AlphaBar;
 				ImGuiColorEditFlags picker_flags = (flags_untouched & picker_flags_to_forward) | ImGuiColorEditFlags_DisplayMask_ | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaPreviewHalf;
 				SetNextItemWidth(square_sz * 12.0f); // Use 256 + bar sizes?
-				value_changed |= color_picker_4_internal("##picker", rgba, picker_flags, &g.ColorPickerRef.x);
+				value_changed |= color_picker_4_internal("##picker", rgba, input_values, picker_flags, &g.ColorPickerRef.x);
 			}
 			EndPopup();
 		}
@@ -1978,7 +2065,7 @@ bool CGUIWidgets::color_edit_4_internal(const char * label, float rgba[4], ImGui
 	return value_changed;
 }
 
-bool CGUIWidgets::color_picker_4_internal(const char * label, float rgba[4], ImGuiColorEditFlags flags, float * ref_col)
+bool CGUIWidgets::color_picker_4_internal(const char * label, float rgba[4], bool input_values, ImGuiColorEditFlags flags, float * ref_col)
 {
 	ImGuiContext& g = *GImGui;
 	ImGuiWindow* window = GetCurrentWindow();
@@ -2003,7 +2090,7 @@ bool CGUIWidgets::color_picker_4_internal(const char * label, float rgba[4], ImG
 
 	// Context menu: display and store options.
 	if (!(flags & ImGuiColorEditFlags_NoOptions))
-		color_picker_options_popup(rgba, flags);
+		color_picker_options_popup(rgba, input_values, flags);
 
 	// Read stored options
 	if (!(flags & ImGuiColorEditFlags_PickerMask_))
@@ -2197,7 +2284,7 @@ bool CGUIWidgets::color_picker_4_internal(const char * label, float rgba[4], ImG
 		ImGuiColorEditFlags sub_flags_to_forward = ImGuiColorEditFlags_DataTypeMask_ | ImGuiColorEditFlags_InputMask_ | ImGuiColorEditFlags_HDR | ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoOptions | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaPreviewHalf;
 		ImGuiColorEditFlags sub_flags = (flags & sub_flags_to_forward) | ImGuiColorEditFlags_NoPicker;
 		if (flags & ImGuiColorEditFlags_DisplayRGB || (flags & ImGuiColorEditFlags_DisplayMask_) == 0)
-			if (color_edit_4_internal("##rgb", rgba, sub_flags | ImGuiColorEditFlags_DisplayRGB))
+			if (color_edit_4_internal("##rgb", rgba, input_values, sub_flags | ImGuiColorEditFlags_DisplayRGB))
 			{
 				// FIXME: Hackily differentiating using the DragInt (ActiveId != 0 && !ActiveIdAllowOverlap) vs. using the InputText or DropTarget.
 				// For the later we don't want to run the hue-wrap canceling code. If you are well versed in HSV picker please provide your input! (See #2050)
@@ -2205,9 +2292,9 @@ bool CGUIWidgets::color_picker_4_internal(const char * label, float rgba[4], ImG
 				value_changed = true;
 			}
 		if (flags & ImGuiColorEditFlags_DisplayHSV || (flags & ImGuiColorEditFlags_DisplayMask_) == 0)
-			value_changed |= color_edit_4_internal("##hsv", rgba, sub_flags | ImGuiColorEditFlags_DisplayHSV);
+			value_changed |= color_edit_4_internal("##hsv", rgba, input_values, sub_flags | ImGuiColorEditFlags_DisplayHSV);
 		if (flags & ImGuiColorEditFlags_DisplayHex || (flags & ImGuiColorEditFlags_DisplayMask_) == 0)
-			value_changed |= color_edit_4_internal("##hex", rgba, sub_flags | ImGuiColorEditFlags_DisplayHex);
+			value_changed |= color_edit_4_internal("##hex", rgba, input_values, sub_flags | ImGuiColorEditFlags_DisplayHex);
 		PopItemWidth();
 	}
 
@@ -2350,7 +2437,7 @@ bool CGUIWidgets::color_picker_4_internal(const char * label, float rgba[4], ImG
 	return value_changed;
 }
 
-void CGUIWidgets::color_picker_options_popup(const float* ref_col, ImGuiColorEditFlags flags)
+void CGUIWidgets::color_picker_options_popup(const float* ref_col, bool input_values, ImGuiColorEditFlags flags)
 {
 	bool allow_opt_picker = !(flags & ImGuiColorEditFlags_PickerMask_);
 	bool allow_opt_alpha_bar = !(flags & ImGuiColorEditFlags_NoAlpha) && !(flags & ImGuiColorEditFlags_AlphaBar);
@@ -2375,7 +2462,7 @@ void CGUIWidgets::color_picker_options_popup(const float* ref_col, ImGuiColorEdi
 			SetCursorScreenPos(backup_pos);
 			ImVec4 previewing_ref_col;
 			memcpy(&previewing_ref_col, ref_col, sizeof(float) * ((picker_flags & ImGuiColorEditFlags_NoAlpha) ? 3 : 4));
-			color_picker_4_internal("##previewing_picker", &previewing_ref_col.x, picker_flags);
+			color_picker_4_internal("##previewing_picker", &previewing_ref_col.x, input_values, picker_flags);
 			PopID();
 		}
 		PopItemWidth();
@@ -2475,7 +2562,7 @@ bool CGUIWidgets::add_slider_internal(const char* label, T* value, T* min, T* ma
 	}
 	else
 	{
-		frame_col = get_color<GUICLR_SliderFrameBg>();
+		frame_col = get_color<GUICLR_FrameBg>();
 	}
 
 	const float width = 5.0f;
@@ -2487,12 +2574,12 @@ bool CGUIWidgets::add_slider_internal(const char* label, T* value, T* min, T* ma
 	// Render grab
 	if (grab_bb.Max.x > grab_bb.Min.x)
 		window->DrawList->AddCircleFilled(grab_bb.Min + grab_bb_size, grab_bb_size.x + grab_bb_oversize_add,
-										  get_color_u32<GUICLR_SliderGrab>(), 12);
+										  get_color_u32<GUICLR_FrameActive>(), 12);
 
 	// Render blue active field behind grab
 	RenderFrame(frame_bb_thin_min,
 				{ grab_bb.Min.x + grab_bb_size.x, frame_bb_thin_max.y },
-				get_color_u32<GUICLR_SliderActive>(), false, 1.f);
+				get_color_u32<GUICLR_FrameActive>(), false, 1.f);
 
 	// Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
 	char value_buf[64];

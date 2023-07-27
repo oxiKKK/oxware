@@ -371,7 +371,7 @@ void IMenuChild::render()
 		Vector2D header_text_pos = { child_pos.x + MenuStyle::childhdr_text_padding_x, child_pos.y + MenuStyle::childhdr_text_padding_y };
 
 		auto header_color = (m_supports_collapse && m_is_hovered) ? 
-			g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_HyperTextLinkHovered>() :
+			g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_URLHovered>() :
 			g_gui_thememgr_i->get_current_theme()->get_color<GUICLR_TextRegular>();
 
 		// header text
@@ -441,9 +441,9 @@ bool MenuTabSection::render_button(const Vector2D& button_size, const std::strin
 	// text color
 	g_gui_widgets_i->push_color(ImGuiCol_Text, g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_TextDark));
 
-	auto selected_button_clr = g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_ButtonSelected);
+	auto selected_button_clr = g_gui_thememgr_i->get_current_theme()->get_color(GUICLR_FrameBgSelected);
 	selected_button_clr.a *= 1.25f;
-	g_gui_thememgr_i->push_color(GUICLR_ButtonSelected, selected_button_clr);
+	g_gui_thememgr_i->push_color(GUICLR_FrameBgSelected, selected_button_clr);
 
 	bool ret = false;
 
@@ -857,7 +857,7 @@ void CUIMenu::render_github_repo_link_decor()
 		"github_link", window_flags1,
 		[&]()
 		{
-			if (g_gui_widgets_i->add_hypertext_link(lnk_label))
+			if (g_gui_widgets_i->add_url_text(lnk_label))
 			{
 				CGenericUtil::the().open_link_inside_browser(lnk_label);
 			}

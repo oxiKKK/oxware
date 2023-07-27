@@ -43,12 +43,14 @@ private:
 
 	void render_color_palette();
 	void render_file_list();
+	void render_actions();
+
+	void actions_export_current_theme_as();
+	void actions_open_config_dir();
 
 	std::vector<std::filesystem::path> m_theme_cfgs;
 
 	static UIStatusWidget m_status_widget;
-
-	std::filesystem::path m_selected_cfg = {};
 };
 
 #endif // THEMEEDITOR_H

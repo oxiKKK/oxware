@@ -30,6 +30,8 @@
 #define UI_STATUSWIDGET_H
 #pragma once
 
+#define k_StatusWidgetStandardLifeDur 2500
+
 class UIStatusWidget
 {
 public:

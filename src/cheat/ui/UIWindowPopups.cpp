@@ -56,7 +56,10 @@ void UIBasePopupContext::render()
 			// derived classes can do whatever they want here
 			if (m_popup_custom_contents_fn)
 			{
-				m_popup_custom_contents_fn();
+				if (m_popup_custom_contents_fn())
+				{
+					closing_popup = true;
+				}
 			}
 			else
 			{
@@ -72,22 +75,22 @@ void UIBasePopupContext::render()
 
 			g_gui_widgets_i->add_spacing();
 
-			bool has_both = m_on_close_fn && m_on_okay_fn;
+			bool has_both = m_on_cancel_fn && m_on_okay_fn;
 
-			assert((m_on_close_fn || m_on_okay_fn) && "You have to specify either on_close or on_okay popup callbacks!");
+			assert((m_on_cancel_fn || m_on_okay_fn) && "You have to specify either on_cancel or on_okay popup callbacks!");
 
 			if (g_gui_widgets_i->begin_columns("popup_window_column", has_both ? 3 : 2, ImGuiTableFlags_SizingStretchSame))
 			{
 				g_gui_widgets_i->goto_next_column();
 
-				if (m_on_close_fn)
+				if (m_on_cancel_fn)
 				{
 					g_gui_widgets_i->goto_next_column();
 					
-					if (g_gui_widgets_i->add_button("Close", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+					if (g_gui_widgets_i->add_button("Cancel", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 					{
 						closing_popup = true;
-						m_on_close_fn();
+						m_on_cancel_fn();
 					}
 				}
 
@@ -142,8 +145,10 @@ void UIBasePopupContext::render_background()
 
 //-----------------------------------------------------------------------------------------------
 
-void UIDecoratedPopup::popup_window_contents()
+bool UIDecoratedPopup::popup_window_contents()
 {
+	bool ret = false;
+
 	g_gui_widgets_i->add_child(
 		"popup_window_child",
 		Vector2D(-1, -1 - 20), true, ImGuiWindowFlags_None,
@@ -151,12 +156,16 @@ void UIDecoratedPopup::popup_window_contents()
 		{
 			if (m_contents_fn)
 			{
-				m_contents_fn();
+				ret = m_contents_fn();
 			}
 		});
+
+	return ret;
 }
 
-void UIDecoratedWithTitlePopup::popup_window_contents()
+//-----------------------------------------------------------------------------------------------
+
+bool UIDecoratedWithTitlePopup::popup_window_contents()
 {
 	if (!m_title.empty())
 	{
@@ -165,7 +174,7 @@ void UIDecoratedWithTitlePopup::popup_window_contents()
 	}
 
 	// render child window
-	UIDecoratedPopup::popup_window_contents();
+	return UIDecoratedPopup::popup_window_contents();
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -220,7 +229,7 @@ void CUIWindowPopups::create_welcome_popup()
 
 	welcome_popup->provide_window_title("About");
 	welcome_popup->provide_window_size(Vector2D(350, 420));
-	welcome_popup->provide_on_close_fn(
+	welcome_popup->provide_on_cancel_fn(
 		[]()
 		{
 			g_registry_i->write_int(REG_OXWARE, "already_shown_welcome_popup", 1);
@@ -251,7 +260,7 @@ void CUIWindowPopups::create_welcome_popup()
 			g_gui_widgets_i->add_bullet_text("And more!");
 
 			g_gui_widgets_i->add_spacing();
-			if (g_gui_widgets_i->add_hypertext_link("github.com/oxiKKK/oxware"))
+			if (g_gui_widgets_i->add_url_text("github.com/oxiKKK/oxware"))
 			{
 				CGenericUtil::the().open_link_inside_browser("https://github.com/oxiKKK/oxware");
 			}
@@ -264,7 +273,7 @@ void CUIWindowPopups::create_welcome_popup()
 			g_gui_widgets_i->add_padding({ 0.0f, sections_padding });
 			g_gui_widgets_i->add_separtor_with_text("Bugs / feature requests");
 			g_gui_widgets_i->add_text("🐞 If you find any bugs or you just want something to be added, please, create an issue here:", TEXTPROP_Wrapped);
-			if (g_gui_widgets_i->add_hypertext_link("github.com/oxiKKK/oxware/issues"))
+			if (g_gui_widgets_i->add_url_text("github.com/oxiKKK/oxware/issues"))
 			{
 				CGenericUtil::the().open_link_inside_browser("https://github.com/oxiKKK/oxware/issues");
 			}
@@ -288,7 +297,7 @@ void CUIWindowPopups::create_welcome_popup()
 
 				g_gui_widgets_i->add_text("Steam");
 				g_gui_widgets_i->goto_next_column();
-				if (g_gui_widgets_i->add_hypertext_link("steamcommunity.com/id/oxiKKK"))
+				if (g_gui_widgets_i->add_url_text("steamcommunity.com/id/oxiKKK"))
 				{
 					CGenericUtil::the().open_link_inside_browser("https://steamcommunity.com/id/oxiKKK");
 				}
@@ -296,7 +305,7 @@ void CUIWindowPopups::create_welcome_popup()
 
 				g_gui_widgets_i->add_text("YouTube");
 				g_gui_widgets_i->goto_next_column();
-				if (g_gui_widgets_i->add_hypertext_link("www.youtube.com/@OX666"))
+				if (g_gui_widgets_i->add_url_text("www.youtube.com/@OX666"))
 				{
 					CGenericUtil::the().open_link_inside_browser("https://steamcommunity.com/id/oxiKKK");
 				}
@@ -304,7 +313,7 @@ void CUIWindowPopups::create_welcome_popup()
 
 				g_gui_widgets_i->add_text("GitHub");
 				g_gui_widgets_i->goto_next_column();
-				if (g_gui_widgets_i->add_hypertext_link("github.com/oxiKKK"))
+				if (g_gui_widgets_i->add_url_text("github.com/oxiKKK"))
 				{
 					CGenericUtil::the().open_link_inside_browser("https://github.com/oxiKKK");
 				}

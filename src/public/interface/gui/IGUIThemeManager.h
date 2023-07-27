@@ -40,13 +40,13 @@ class CGUITheme
 public:
 	// compile-time
 	template<EGUIColorId clr> requires(clr > GUICLR_Invalid && clr < GUICLR_MAX)
-	const CColor& get_color() const { return m_colors[clr]; }
+	const CColor& get_color() const { return m_mutable_colors[clr]; }
 	template<EGUIColorId clr> requires(clr > GUICLR_Invalid && clr < GUICLR_MAX)
-	const uint32_t get_color_u32() const { return m_colors[clr].as_u32(); }
+	const uint32_t get_color_u32() const { return m_mutable_colors[clr].as_u32(); }
 
 	// run-time
-	const CColor& get_color(EGUIColorId clr) const { return m_colors[clr]; }
-	const uint32_t get_color_u32(EGUIColorId clr) const { return m_colors[clr].as_u32(); }
+	const CColor& get_color(EGUIColorId clr) const { return m_mutable_colors[clr]; }
+	const uint32_t get_color_u32(EGUIColorId clr) const { return m_mutable_colors[clr].as_u32(); }
 
 	//
 	// [INTERNAL]
@@ -56,11 +56,32 @@ public:
 	void set_color(EGUIColorId id, const CColor& clr)
 	{
 		assert(id > GUICLR_Invalid && id < GUICLR_MAX);
-		m_colors[id] = clr;
+		m_mutable_colors[id] = clr;
 	}
 
+	// used to initialize both color lists. called when both colors need to be re-set.
+	void initialize_colors(EGUIColorId id, const CColor& clr)
+	{
+		assert(id > GUICLR_Invalid && id < GUICLR_MAX);
+		m_mutable_colors[id] = m_immutable_colors[id] = clr;
+	}
+
+	// should be avoided, this is used in the color changer code.
+	inline std::array<CColor, GUICLR_MAX>& immutable_color_list()
+	{
+		return m_immutable_colors;
+	}
+
+	// getters for immutable
+	const CColor& get_immutable_color(EGUIColorId clr) const { return m_immutable_colors[clr]; }
+	const uint32_t get_immutable_color_u32(EGUIColorId clr) const { return m_immutable_colors[clr].as_u32(); }
+
 private:
-	std::array<CColor, GUICLR_MAX> m_colors;
+
+	// we got two lists of colors: 1) that can be affected by push/pop 
+	// operations, and 2) that cannot.
+	std::array<CColor, GUICLR_MAX> m_mutable_colors;
+	std::array<CColor, GUICLR_MAX> m_immutable_colors;
 };
 
 //----------------------------------------------------------------------------------------
@@ -73,6 +94,9 @@ public:
 
 	// returns theme by id
 	virtual std::optional<const CGUITheme*> get_theme_by_id(const std::string& id) = 0;
+
+	// returns true if theme exist
+	virtual bool does_theme_exist(const std::string& id) = 0;
 
 	// create new theme object. if the theme already exist, the function returns the already existing theme.
 	// use this object to modify the contens of the theme (colors).
@@ -97,6 +121,15 @@ public:
 	// the function doesn't print any errors, handle errors yourself.
 	virtual EGUIColorId string_to_color_id(const std::string& id) = 0;
 	virtual std::string color_id_to_string(EGUIColorId id) = 0;
+
+	// opens the theme file and reads json filed "theme_name" and returns it.
+	// returns empty string on failure.
+	virtual std::string extract_theme_name_from_file(const std::filesystem::path& theme_file) = 0;
+
+	// should be called after you change some color. we still use some imgui colors such as text, windowbg, etc.
+	// so that we don't need to push our color before literally every add_text call. this is good when you need
+	// to change colors in real-time, e.g. in the color palette editor.
+	virtual void sync_colors_with_imgui() = 0;
 };
 
 extern IGUIThemeManager* g_gui_thememgr_i;

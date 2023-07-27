@@ -46,16 +46,16 @@
 // CColor
 //
 inline void to_json(nh::json& j, const CColor& p) {
-	auto c = p.as_255_based();
-	j = nh::json{ {"r", (int)c.r}, {"g", (int)c.g}, {"b", (int)c.b}, {"a", (int)c.a} };
+	// as_u32 wants 0-1 based.
+	auto ul = p.as_u32();
+	j = std::format("#{:08X}", ul);
 }
 
 inline void from_json(const nh::json& j, CColor& p) {
-	auto c = p.as_255_based();
-	j.at("r").get_to(p.r);
-	j.at("g").get_to(p.g);
-	j.at("b").get_to(p.b);
-	j.at("a").get_to(p.a);
+	auto clr_str = j.get<std::string>();
+	clr_str = "0x" + clr_str.substr(1); // skip the hash
+	auto ul = std::stoul(clr_str, NULL, 16);
+	p = CColor(ul);
 }
 
 #endif // JSONCUSTOMTYPES_H

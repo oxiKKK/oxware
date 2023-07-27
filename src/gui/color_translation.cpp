@@ -33,72 +33,60 @@ gui_color_translation_t g_gui_color_translation[GUICLR_MAX] =
 	{ GUICLR_Invalid,						"invalid" },
 
 	// text
-	{ GUICLR_TextLight,						"text_light" },
-	{ GUICLR_TextRegular,					"text_regular" },
-	{ GUICLR_TextDark,						"text_dark" },
-	{ GUICLR_TextBlack,						"text_black" },
-	{ GUICLR_TextWhite,						"text_white" },
+	{ GUICLR_TextLight,						"Text light" },
+	{ GUICLR_TextRegular,					"Text regular" },
+	{ GUICLR_TextDark,						"Text dark" },
+	{ GUICLR_TextBlack,						"Text black" },
+	{ GUICLR_TextWhite,						"Text white" },
+
+	// active color
+	{ GUICLR_FrameBg,						"Frame bg" },
+	{ GUICLR_FrameBgHovered,				"Frame bg hovered" },
+	{ GUICLR_FrameBgActive,					"Frame bg active" },
+	{ GUICLR_FrameBgSelected,				"Frame bg selected" },
+	{ GUICLR_FrameActive,					"Frame active" },
 
 	// windows
-	{ GUICLR_WindowBackground,				"window_bg" },
-	{ GUICLR_ChildBackground,				"child_bg" },
-	{ GUICLR_PopupBackground,				"popup_bg" },
+	{ GUICLR_WindowBackground,				"Window bg" },
+	{ GUICLR_ChildBackground,				"Child bg" },
 
 	// buttons
-	{ GUICLR_Button,						"button" },
-	{ GUICLR_ButtonHovered,					"button_hovered" },
-	{ GUICLR_ButtonActive,					"button_active" },
-	{ GUICLR_ButtonSelected,				"button_selected" },
+	{ GUICLR_Button,						"Button" },
 
 	// url
-	{ GUICLR_HyperTextLink,					"urltext" },
-	{ GUICLR_HyperTextLinkHovered,			"urltext_hovered" },
-	{ GUICLR_HyperTextLinkActive,			"urltext_active" },
+	{ GUICLR_URLHovered,					"URL hovered" },
 
 	// scrollbar
-	{ GUICLR_ScrollbarBackground,			"scrollbar_bg" },
-	{ GUICLR_ScrollbarGrab,					"scrollbar_grab" },
+	{ GUICLR_ScrollbarGrab,					"Scrollbar grab" },
 
 	// checkbox
-	{ GUICLR_CheckBoxBackground,			"checkbox_bg" },
-	{ GUICLR_CheckBoxOutline,				"checkbox_outline" },
-	{ GUICLR_CheckBoxSelected,				"checkbox_selected" },
-	{ GUICLR_CheckBoxCheckmark,				"checkbox_checkmark" },
+	{ GUICLR_CheckBoxBackground,			"Checkbox bg" },
+	{ GUICLR_CheckBoxCheckMark,				"Checkbox check mark" },
 
 	// slider
-	{ GUICLR_SliderFrameBg,					"slider_bg" },
-	{ GUICLR_SliderGrab,					"slider_grab" },
-	{ GUICLR_SliderHovered,					"slider_hovered" },
-	{ GUICLR_SliderActive,					"slider_active" },
+	{ GUICLR_SliderHovered,					"Slider hovered" },
 
 	// input text
-	{ GUICLR_InputTextBg,					"inputtext_bg" },
-
-	// color button
-	{ GUICLR_ColorButtonBorderHovered,		"colorbutton_border_hovered" },
+	{ GUICLR_InputTextBg,					"Intput text bg" },
 
 	// separator
-	{ GUICLR_Separator,						"separator" },
+	{ GUICLR_Separator,						"Separator" },
 
 	// tabs
-	{ GUICLR_Tab,							"tab" },
-	{ GUICLR_TabHovered,					"tab_hovered" },
-	{ GUICLR_TabActive,						"tab_active" },
-
-	// progressbar
-	{ GUICLR_ProgressBar,					"progressbar" },
+	{ GUICLR_Tab,							"Tab" },
+	{ GUICLR_TabHovered,					"Tab hovered" },
+	{ GUICLR_TabActive,						"Tab active" },
 
 	// resize grip
-	{ GUICLR_ResizeGrip,					"resize_grip" },
-	{ GUICLR_ResizeGripHovered,				"resize_grip_hovered" },
-	{ GUICLR_ResizeGripActive,				"resize_grip_active" },
+	{ GUICLR_ResizeGrip,					"Resize grip" },
+	{ GUICLR_ResizeGripHovered,				"Resize grip hovered" },
+	{ GUICLR_ResizeGripActive,				"Resize grip active" },
 
 	// tables
-	{ GUICLR_TableHeaderBg,					"table_header_bg" },
+	{ GUICLR_TableHeaderBg,					"Table header bg" },
 
 	// listbox
-	{ GUICLR_ListBoxBackground,				"listbox_bg" },
-	{ GUICLR_ListBoxBorder,					"listbox_border" },
-	{ GUICLR_ListBoxBorderHovered,			"listbox_border_hovered" },
-	{ GUICLR_ListBoxArrowBoxBackground,		"listbox_arrow_box_background" },
+	{ GUICLR_ListBoxBackground,				"Listbox bg" },
+	{ GUICLR_ListBoxBorder,					"Listbox border" },
+	{ GUICLR_ListBoxArrowBackground,		"Listbox arrow bg" },
 };

@@ -49,7 +49,7 @@ private:
 	void options_rename();
 	void options_delete();
 
-	void actions_create_new();
+	void actions_export_as();
 	void actions_open_config_dir();
 	void actions_save_current();
 	void actions_restore_defaults();

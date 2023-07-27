@@ -307,6 +307,7 @@ void CDeveloperConsole::render()
 					g_gui_widgets_i->add_text("] ", TEXTPROP_ColorRegular);
 					g_gui_widgets_i->sameline();
 
+					// render preamble
 					const char* which[] = { "", "error: ", "warning: " };
 
 					if (line.category != EOutputCategory::INFO)
@@ -314,7 +315,17 @@ void CDeveloperConsole::render()
 						g_gui_widgets_i->add_colored_text(s_category_color_table[(int)line.category].color, which[(int)line.category]);
 						g_gui_widgets_i->sameline();
 					}
-					g_gui_widgets_i->add_colored_text(s_category_color_table[(int)line.category].color, line.contents);
+
+					// render text
+
+					if (line.category != EOutputCategory::INFO)
+					{
+						g_gui_widgets_i->add_colored_text(s_category_color_table[(int)line.category].color, line.contents);
+					}
+					else
+					{
+						g_gui_widgets_i->add_text(line.contents);
+					}
 
 					g_gui_widgets_i->pop_font();
 

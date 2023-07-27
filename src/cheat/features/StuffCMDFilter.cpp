@@ -37,7 +37,7 @@ VarString cmdfilter_filtered_commands("cmdfilter_filtered_commands", "List of co
 // enable this to measure in ms how long does it take to query through cvars and cmds when searching for the command
 //#define DEBUG_MSR_CMDCVAR_QUERY
 
-UIStatusWidget CStuffCmdFilter::m_status_widget = UIStatusWidget(2500);
+UIStatusWidget CStuffCmdFilter::m_status_widget = UIStatusWidget(k_StatusWidgetStandardLifeDur);
 
 bool CStuffCmdFilter::allow_command_to_be_executed()
 {

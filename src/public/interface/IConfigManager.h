@@ -57,8 +57,8 @@ public:
 	virtual void update() = 0;
 
 	// load and write configuration by type from/to the config/ directory.
-	virtual bool load_configuration(ECfgType type, const std::string& path_to_cfg, bool silent = false) = 0;
-	virtual bool write_configuration(ECfgType type, const std::string& path_to_cfg, bool silent = false) = 0;
+	virtual bool load_configuration(ECfgType type, const std::string& relative_cfg_path, bool silent = false) = 0;
+	virtual bool write_configuration(ECfgType type, const std::string& relative_cfg_path, bool silent = false) = 0;
 
 	// returns the variable that controls the cheat settings config interval.
 	virtual VarInteger* get_save_cfg_interval_var() = 0;
@@ -69,10 +69,10 @@ public:
 	// returns "%appdata%\\oxware\\config\\" + the relative path/filename specified.
 	virtual std::filesystem::path get_config_directory(const std::filesystem::path& relative = "") = 0;
 
-	// iterate through all configs inside a specific directory _recursively_. if no directory is specified, then
-	// the function iterates through the config\\ directory. 
+	// iterate through all configs inside the config\\ directory or additional subdirectory, if specified
 	// function only goes through files with ".json" extension.
-	virtual void for_each_cfg(const std::function<void(const std::filesystem::path& relative_cfg_path)>& callback, const std::filesystem::path& directory = ".") = 0;
+	virtual void for_each_cfg(const std::function<void(const std::filesystem::path& relative_cfg_path)>& callback, 
+							  const std::filesystem::path& subdirectory = "") = 0;
 
 	// get config file by id.
 	virtual std::optional<GenericConfigFile*> query_config_file_type(const std::string& id) = 0;

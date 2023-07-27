@@ -47,43 +47,35 @@ enum EGUIColorId
 	GUICLR_TextBlack,
 	GUICLR_TextWhite,
 
+	// frame
+	GUICLR_FrameBg,
+	GUICLR_FrameBgHovered,
+	GUICLR_FrameBgActive,
+	GUICLR_FrameBgSelected,
+	GUICLR_FrameActive,
+
 	// windows
 	GUICLR_WindowBackground,
 	GUICLR_ChildBackground,
-	GUICLR_PopupBackground,
 
 	// buttons
 	GUICLR_Button,
-	GUICLR_ButtonHovered,
-	GUICLR_ButtonActive,
-	GUICLR_ButtonSelected,
 
 	// url
-	GUICLR_HyperTextLink,
-	GUICLR_HyperTextLinkHovered,
-	GUICLR_HyperTextLinkActive,
+	GUICLR_URLHovered,
 
 	// scrollbar
-	GUICLR_ScrollbarBackground,
 	GUICLR_ScrollbarGrab,
 
 	// checkbox
 	GUICLR_CheckBoxBackground,
-	GUICLR_CheckBoxOutline,
-	GUICLR_CheckBoxSelected,
-	GUICLR_CheckBoxCheckmark,
+	GUICLR_CheckBoxCheckMark,
 
 	// slider
-	GUICLR_SliderFrameBg,
-	GUICLR_SliderGrab,
 	GUICLR_SliderHovered,
-	GUICLR_SliderActive,
 
 	// input text
 	GUICLR_InputTextBg,
-
-	// color button
-	GUICLR_ColorButtonBorderHovered,
 
 	// separator
 	GUICLR_Separator,
@@ -92,9 +84,6 @@ enum EGUIColorId
 	GUICLR_Tab,
 	GUICLR_TabHovered,
 	GUICLR_TabActive,
-
-	// progressbar
-	GUICLR_ProgressBar,
 
 	// resize grip
 	GUICLR_ResizeGrip,
@@ -107,8 +96,7 @@ enum EGUIColorId
 	// listbox
 	GUICLR_ListBoxBackground,
 	GUICLR_ListBoxBorder,
-	GUICLR_ListBoxBorderHovered,
-	GUICLR_ListBoxArrowBoxBackground,
+	GUICLR_ListBoxArrowBackground,
 
 	GUICLR_MAX
 };

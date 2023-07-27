@@ -48,6 +48,13 @@ public:
 	{
 		set(0.0f, 0.0f, 0.0f, 0.0f);
 	}
+	constexpr CColor(uint32_t hex)
+	{
+		set((int)(uint8_t)(hex & 0x000000FF), 
+			(int)(uint8_t)((hex & 0x0000FF00) >> 8),
+			(int)(uint8_t)((hex & 0x00FF0000) >> 16),
+			(int)(uint8_t)((hex & 0xFF000000) >> 24));
+	}
 	constexpr CColor(int _r, int _g, int _b)
 	{
 		set(_r, _g, _b, 0);
@@ -103,26 +110,12 @@ public:
 
 	CColor as_255_based() const
 	{
-		if (r <= 1.0f && g <= 1.0f && b <= 1.0f && a <= 1.0f)
-		{
-			return CColor(r * 255.0f, g * 255.0f, b * 255.0f, a * 255.0f);
-		}
-		else
-		{
-			return *this;
-		}
+		return CColor(r * 255.0f, g * 255.0f, b * 255.0f, a * 255.0f);
 	}
 
 	CColor as_1_based() const
 	{
-		if (r > 1.0f && g > 1.0f && b > 1.0f && a > 1.0f)
-		{
-			return CColor(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
-		}
-		else
-		{
-			return *this;
-		}
+		return CColor(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 	}
 
 	float* get_base()

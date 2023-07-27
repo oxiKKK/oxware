@@ -279,13 +279,13 @@ void CUIKeyBinding::render_list()
 			{
 				switch_to_key_binding_mode(&m_key_scan_button_info["new_key"], [&](key_scan_button_info_t* info, int vk)
 					{
-				// create new fresh bind
-				if (!g_bindmgr_i->is_key_bound(vk))
-				{
-					g_bindmgr_i->add_bind(vk, "");
-					update_keyscan_button_title(vk);
-				}
-				close_current_popup = true;
+						// create new fresh bind
+						if (!g_bindmgr_i->is_key_bound(vk))
+						{
+							g_bindmgr_i->add_bind(vk, "");
+							update_keyscan_button_title(vk);
+						}
+						close_current_popup = true;
 					});
 			}
 	
@@ -293,13 +293,13 @@ void CUIKeyBinding::render_list()
 			{
 				switch_to_key_binding_mode(&m_key_scan_button_info["new_key"], [&](key_scan_button_info_t* info, int vk)
 					{
-				// create new fresh bind
-				if (!g_bindmgr_i->is_key_bound(vk))
-				{
-					g_bindmgr_i->add_bind_on_push_and_release(vk, "", "");
-					update_keyscan_button_title(vk);
-				}
-				close_current_popup = true;
+						// create new fresh bind
+						if (!g_bindmgr_i->is_key_bound(vk))
+						{
+							g_bindmgr_i->add_bind_on_push_and_release(vk, "", "");
+							update_keyscan_button_title(vk);
+						}
+						close_current_popup = true;
 					});
 			}
 		});

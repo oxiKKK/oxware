@@ -38,9 +38,10 @@ public:
 	{
 		m_window_size = { -1.0f, -1.0f };
 		m_contents_fn = NULL;
-		m_on_close_fn = NULL;
+		m_on_cancel_fn = NULL;
 		m_on_okay_fn = NULL;
 		m_window_flags = ImGuiWindowFlags_None;
+		m_popup_custom_contents_fn = NULL;
 	}
 
 	virtual ~UIBasePopupContext() {}
@@ -64,12 +65,12 @@ public:
 	}
 
 	//
-	// okay or close button. a popup must have at least one provided.
+	// okay or cancel button. a popup must have at least one provided.
 	//
 
-	virtual void provide_on_close_fn(const std::function<void()>& fn)
+	virtual void provide_on_cancel_fn(const std::function<void()>& fn)
 	{
-		m_on_close_fn = fn;
+		m_on_cancel_fn = fn;
 	}
 
 	virtual void provide_on_okay_fn(const std::function<void()>& fn)
@@ -105,14 +106,14 @@ protected:
 
 	// callbacks
 	std::function<bool()> m_contents_fn; // on return true the popup closes
-	std::function<void()> m_on_close_fn;
+	std::function<void()> m_on_cancel_fn;
 	std::function<void()> m_on_okay_fn;
 
 	ImGuiWindowFlags m_window_flags;
 
 	// data shared only between this class and the class that inherits.
-	// this can be set by the derived class.
-	std::function<void()> m_popup_custom_contents_fn;
+	// this can be set by the derived class. if returns true, popup will close.
+	std::function<bool()> m_popup_custom_contents_fn;
 };
 
 // popup with child window
@@ -121,11 +122,11 @@ class UIDecoratedPopup : public virtual UIBasePopupContext
 public:
 	UIDecoratedPopup() : UIBasePopupContext()
 	{
-		m_popup_custom_contents_fn = [this]() { popup_window_contents(); };
+		m_popup_custom_contents_fn = [this]() { return popup_window_contents(); };
 	}
 
 protected:
-	virtual void popup_window_contents();
+	virtual bool popup_window_contents();
 };
 
 // popup with child window and a title
@@ -136,7 +137,7 @@ public:
 	{
 		m_title = "None";
 
-		m_popup_custom_contents_fn = [this]() { popup_window_contents(); };
+		m_popup_custom_contents_fn = [this]() { return popup_window_contents(); };
 	}
 
 	virtual void provide_window_title(const std::string& title)
@@ -145,7 +146,7 @@ public:
 	}
 
 protected:
-	virtual void popup_window_contents();
+	virtual bool popup_window_contents();
 
 private:
 	std::string m_title;

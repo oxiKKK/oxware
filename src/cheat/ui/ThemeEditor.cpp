@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-UIStatusWidget CUIThemeEditor::m_status_widget = UIStatusWidget(2500);
+UIStatusWidget CUIThemeEditor::m_status_widget = UIStatusWidget(k_StatusWidgetStandardLifeDur);
 
 static float s_status_bar_footer_height = 33.0f;
 
@@ -36,33 +36,23 @@ void CUIThemeEditor::render_ui()
 {
 	search_for_configs();
 
-	if (m_theme_cfgs.empty() && !m_selected_cfg.empty())
-	{
-		m_selected_cfg.clear();
-	}
-
 	if (g_gui_widgets_i->begin_columns(__FUNCTION__, 2))
 	{
 		g_gui_widgets_i->goto_next_column();
 
-		g_gui_widgets_i->add_text(std::format("Theme files ({} 📂)", m_theme_cfgs.size()));
-
-		g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, Vector2D(5, 5));
-
-		g_gui_widgets_i->add_child(
-			"theme_filelist", { -1.0f, -1.0f - s_status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
-			[this]()
-			{
-				render_file_list();
-			});
+		g_gui_widgets_i->add_text("Color palette");
+		
+		render_color_palette();
 
 		g_gui_widgets_i->goto_next_column();
 
-		g_gui_widgets_i->add_text("Color palette");
+		g_gui_widgets_i->add_text("Actions");
 
-		render_color_palette();
+		render_actions();
 
-		g_gui_widgets_i->pop_stylevar(); // window padding
+		g_gui_widgets_i->add_text(std::format("Theme files ({} 📂)", m_theme_cfgs.size()));
+
+		render_file_list();
 
 		g_gui_widgets_i->end_columns();
 	}
@@ -98,33 +88,169 @@ void CUIThemeEditor::search_for_configs()
 		last_searched = GetTickCount();
 	}
 }
+
 void CUIThemeEditor::render_color_palette()
 {
+	g_gui_widgets_i->add_child(
+		"color_palette", { -1.0f, -1.0f - s_status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[&]()
+		{
+			auto current_theme = g_gui_thememgr_i->get_current_theme();
+
+			for (size_t i = GUICLR_TextLight; i < GUICLR_MAX; i++)
+			{
+				auto id = (EGUIColorId)i;
+				auto& color = current_theme->immutable_color_list()[i];
+				std::string color_name = g_gui_thememgr_i->color_id_to_string(id);
+
+				if (g_gui_widgets_i->add_color_edit(
+					color_name, color.get_base(), true,
+					ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB))
+				{
+					g_gui_thememgr_i->sync_colors_with_imgui();
+				}
+
+				// re-set both of the colors
+				current_theme->initialize_colors(id, color);
+			}
+		});
 }
 
 void CUIThemeEditor::render_file_list()
 {
-	if (m_theme_cfgs.empty())
-	{
-		g_gui_widgets_i->add_window_centered_text_disabled("No theme configuration files available 😥");
-		return;
-	}
-
-	for (const auto& rel_cfg_path : m_theme_cfgs)
-	{
-		bool is_selected = (m_selected_cfg == rel_cfg_path);
-		if (g_gui_widgets_i->add_toggle_button(rel_cfg_path.string(), { -1.0f, 0.0f }, is_selected, false))
+	g_gui_widgets_i->add_child(
+		"theme_filelist", { -1.0f, -1.0f - s_status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[this]()
 		{
-			if (is_selected)
+			if (m_theme_cfgs.empty())
 			{
-				// clicking on currently selected entry, toggle it.
-				m_selected_cfg.clear();
+				g_gui_widgets_i->add_window_centered_text_disabled("No theme configuration files available 😥");
+				return;
+			}
+
+			auto window_size = g_gui_widgets_i->get_current_window_size();
+
+			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_CellPadding, { 1.0f, 1.0f });
+
+			if (g_gui_widgets_i->begin_columns("theme_filelist", 2))
+			{
+				g_gui_widgets_i->setup_column_fixed_width(window_size.x - 60.0f);
+
+				for (const auto& rel_cfg_path : m_theme_cfgs)
+				{
+					g_gui_widgets_i->push_id(rel_cfg_path.string());
+
+					g_gui_widgets_i->goto_next_column();
+
+					g_gui_widgets_i->add_text(rel_cfg_path.string());
+
+					g_gui_widgets_i->goto_next_column();
+
+					if (g_gui_widgets_i->add_button("Load", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+					{
+						auto theme_rel_path = "theme" / rel_cfg_path;
+
+						if (g_config_mgr_i->load_configuration(CFG_CheatTheme, theme_rel_path.string()))
+						{
+							m_status_widget.update_status(std::format("Loaded from {}.", theme_rel_path.string()), UIStatusWidget::Success);
+						}
+						else
+						{
+							m_status_widget.update_status(std::format("Failed to load {}!", theme_rel_path.string()), UIStatusWidget::Error);
+						}
+					}
+
+					g_gui_widgets_i->pop_id();
+				}
+
+				g_gui_widgets_i->end_columns();
+			}
+
+			g_gui_widgets_i->pop_stylevar(); // cell padding
+		});
+}
+
+void CUIThemeEditor::render_actions()
+{
+	g_gui_widgets_i->add_child(
+		"actions", { -1.0f, 53.0f }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
+		[&]()
+		{
+			if (g_gui_widgets_i->add_button("Export as", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+			{
+				actions_export_current_theme_as();
+			}
+
+			if (g_gui_widgets_i->add_button("Open theme directory", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+			{
+				actions_open_config_dir();
+			}
+		});
+}
+
+void CUIThemeEditor::actions_open_config_dir()
+{
+	auto dir = g_config_mgr_i->get_config_directory().string();
+	CGenericUtil::the().open_folder_inside_explorer(dir);
+	m_status_widget.update_status("Opened config directory.", UIStatusWidget::Success);
+}
+
+void CUIThemeEditor::actions_export_current_theme_as()
+{
+	static char name_buffer[MAX_PATH];
+
+	auto create_dialog = CUIWindowPopups::the().create_popup_context<UIDecoratedPopup>("export_theme_as");
+
+	create_dialog->provide_window_size(Vector2D(220, 170));
+	create_dialog->provide_window_flags(ImGuiWindowFlags_NoResize);
+
+	create_dialog->provide_on_cancel_fn(
+		[&]()
+		{
+			// don't do nothing at all, just close the popup. this is in order to make the "close button to render"
+			strcpy(name_buffer, "");
+		});
+
+	create_dialog->provide_on_okay_fn(
+		[&]()
+		{
+			if (!name_buffer[0])
+			{
+				return;
+			}
+
+			std::filesystem::path path = "theme\\" + std::string(name_buffer);
+			g_config_mgr_i->fix_config_file_extension(path);
+
+			if (g_config_mgr_i->write_configuration(CFG_CheatTheme, path.string()))
+			{
+				m_status_widget.update_status(std::format("Exported as '{}'.", path.string()), UIStatusWidget::Success);
 			}
 			else
 			{
-				m_selected_cfg = rel_cfg_path;
+				m_status_widget.update_status(std::format("Couldn't export '{}'.", path.string()), UIStatusWidget::Error);
 			}
-		}
-	}
-}
 
+			strcpy(name_buffer, "");
+		});
+
+	create_dialog->provide_contents_fn(
+		[]()
+		{
+			g_gui_widgets_i->add_text("Export as");
+
+			g_gui_widgets_i->add_text_input("export_as_input", name_buffer, sizeof(name_buffer), ImGuiInputTextFlags_None, true);
+
+			g_gui_widgets_i->add_text("Will be exported as:");
+
+			if (name_buffer[0])
+			{
+				g_gui_widgets_i->add_text(std::format("'{}.json'", name_buffer),
+										  TEXTPROP_Wrapped, g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular));
+			}
+
+			return false;
+		});
+
+	CUIWindowPopups::the().schedule_popup(create_dialog);
+}

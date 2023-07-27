@@ -343,7 +343,7 @@ void CUIPlayerList::add_steam_community_profile_link(const cached_player_info_t&
 	}
 
 	std::string url = CSteamIDUtil::the().steam_id_to_url(cached_player.m_steam3_id);
-	if (g_gui_widgets_i->add_hypertext_link("Open steam profile in browser"))
+	if (g_gui_widgets_i->add_url_text("Open steam profile in browser"))
 	{
 		CGenericUtil::the().open_link_inside_browser(url);
 	}

@@ -1,4 +1,4 @@
-<div align="center">
+![image](https://github.com/oxiKKK/oxware/assets/28988905/d0d08df7-3bfb-4087-84d3-a849bb575c72)<div align="center">
 
 <img src="https://i.imgur.com/rMxVH3j.png" width="27%" height="27%"></img>
 
@@ -13,7 +13,7 @@ Welcome to **oxWARE**! A free Counter-Strike 1.6 cheat built with love and passi
 This cheat is still in <b>alpha stage</b> of development!<br>
 I will be contributing to it in the near future as much as possible, adding new features et cetera.<br>
 So stay tuned! 😉<br>
-![The cheat](https://i.imgur.com/eqC8HHW.jpg)
+![The cheat](https://i.imgur.com/J907LLW.png)
 
 </div>
 

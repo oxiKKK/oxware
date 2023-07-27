@@ -1,4 +1,4 @@
-![image](https://github.com/oxiKKK/oxware/assets/28988905/d0d08df7-3bfb-4087-84d3-a849bb575c72)<div align="center">
+<div align="center">
 
 <img src="https://i.imgur.com/rMxVH3j.png" width="27%" height="27%"></img>
 

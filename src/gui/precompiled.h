@@ -40,6 +40,7 @@
 
 #include <interface/IBaseModule.h>
 #include <interface/IConfigManager.h>
+#include <interface/IRegistry.h>
 
 #include <interface/gui/IGLFWApp.h>
 #include <interface/gui/IGUIWidgets.h>

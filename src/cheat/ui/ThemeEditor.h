@@ -43,6 +43,7 @@ private:
 
 	void render_color_palette();
 	void render_file_list();
+	void render_built_in_list();
 	void render_actions();
 
 	void actions_export_current_theme_as();

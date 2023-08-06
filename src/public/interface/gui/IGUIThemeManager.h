@@ -77,7 +77,6 @@ public:
 	const uint32_t get_immutable_color_u32(EGUIColorId clr) const { return m_immutable_colors[clr].as_u32(); }
 
 private:
-
 	// we got two lists of colors: 1) that can be affected by push/pop 
 	// operations, and 2) that cannot.
 	std::array<CColor, GUICLR_MAX> m_mutable_colors;
@@ -90,6 +89,7 @@ class IGUIThemeManager : public IBaseInterface
 {
 public:
 	virtual void initialize() = 0;
+	virtual void load_font_from_file_if_present() = 0; // called inside cheat at late initialization.
 	virtual void initialize_imgui() = 0; // call this after ImGui::CreateContext
 
 	// returns theme by id
@@ -117,6 +117,10 @@ public:
 	virtual void load_theme_from_json(const nh::json& json) = 0;
 	virtual void export_theme_to_json(nh::json& json) = 0;
 
+	// convenience funcs
+	virtual void set_current_theme_export_name(const std::string& name) = 0;
+	virtual void reset_current_theme_export_name() = 0;
+
 	// translation. if an invalid id is passed, the function returns 1) GUICLR_Invalid and 2) "" (empty string).
 	// the function doesn't print any errors, handle errors yourself.
 	virtual EGUIColorId string_to_color_id(const std::string& id) = 0;
@@ -130,6 +134,12 @@ public:
 	// so that we don't need to push our color before literally every add_text call. this is good when you need
 	// to change colors in real-time, e.g. in the color palette editor.
 	virtual void sync_colors_with_imgui() = 0;
+
+	// number of built-in themes
+	virtual size_t get_num_themes() = 0;
+
+	// iterate for each built-in themes
+	virtual void for_each_built_in(const std::function<void(const std::string& id, const CGUITheme& theme)>& callback) = 0;
 };
 
 extern IGUIThemeManager* g_gui_thememgr_i;

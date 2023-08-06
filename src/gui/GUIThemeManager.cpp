@@ -46,6 +46,7 @@ public:
 	~CGUIThemeManager();
 
 	void initialize();
+	void load_font_from_file_if_present();
 
 	std::optional<const CGUITheme*> get_theme_by_id(const std::string& id);
 
@@ -64,6 +65,9 @@ public:
 	void load_theme_from_json(const nh::json& json);
 	void export_theme_to_json(nh::json& json);
 
+	void set_current_theme_export_name(const std::string& name);
+	void reset_current_theme_export_name();
+
 	EGUIColorId string_to_color_id(const std::string& id);
 	std::string color_id_to_string(EGUIColorId id);
 
@@ -73,9 +77,13 @@ public:
 
 	void sync_colors_with_imgui();
 
-private:
-	void write_default_theme_configs();
+	size_t get_num_themes();
 
+	void for_each_built_in(const std::function<void(const std::string& id, const CGUITheme& theme)>& callback);
+
+	bool is_builtin_theme(const std::string& id);
+
+private:
 	void initialize_default_themes();
 
 	// config I/O provider
@@ -93,6 +101,10 @@ private:
 	// translation lookup cache tables
 	std::unordered_map<std::string, EGUIColorId> m_string_to_id;
 	std::unordered_map<EGUIColorId, std::string> m_id_to_string;
+	
+	std::vector<std::string> m_builtin_themes;
+
+	std::string m_current_exported_theme_name;
 
 	void create_translation_lookup_cache_tables();
 
@@ -125,14 +137,45 @@ void CGUIThemeManager::initialize()
 
 	initialize_default_themes();
 
-	write_default_theme_configs();
-
 	// set default theme before we load the saved one.
 	set_new_theme("white");
+
+	g_config_mgr_i->provide_on_save_callback(
+		[]()
+		{
+			auto current_theme_name = g_gui_thememgr_i->get_current_theme_name();
+			g_registry_i->write_string(REG_OXWARE, "theme_file", current_theme_name.c_str());
+		});
 
 	provide_cfg_load_export_callbacks();
 
 	CConsole::the().info("GUI ThemeManager initialized.");
+}
+
+void CGUIThemeManager::load_font_from_file_if_present()
+{
+	// look for saved font
+	const char* theme_file = g_registry_i->read_string(REG_OXWARE, "theme_file");
+	if (theme_file != nullptr)
+	{
+		// look for this first
+		auto built_in_theme = get_theme_by_id(theme_file);
+		if (built_in_theme)
+		{
+			set_new_theme(theme_file);
+		}
+		else
+		{
+			// look for a file
+			std::filesystem::path theme_path = "theme\\" + std::string(theme_file);
+			g_config_mgr_i->fix_config_file_extension(theme_path);
+			if (!g_config_mgr_i->load_configuration(CFG_CheatTheme, theme_path.string()))
+			{
+				// default to white...
+				set_new_theme("white");
+			}
+		}
+	}
 }
 
 std::optional<const CGUITheme*> CGUIThemeManager::get_theme_by_id(const std::string& id)
@@ -143,7 +186,6 @@ std::optional<const CGUITheme*> CGUIThemeManager::get_theme_by_id(const std::str
 	}
 	catch (...)
 	{
-		assert(0 && "Could not get theme by id. Unknown theme ID?");
 		return std::nullopt;
 	}
 }
@@ -229,7 +271,12 @@ void CGUIThemeManager::load_theme_from_json(const nh::json& json)
 		return;
 	}
 
-	// this could be either already existing theme or a new one.
+	if (does_theme_exist(theme_name) && is_builtin_theme(theme_name))
+	{
+		CConsole::the().warning("Theme with same name ({}) already exist", theme_name);
+		return;
+	}
+
 	auto& new_theme = create_theme(theme_name);
 
 	try
@@ -261,16 +308,17 @@ void CGUIThemeManager::load_theme_from_json(const nh::json& json)
 			}
 
 			// re-set colors inside the list
-			new_theme.initialize_colors(id, color	);
+			new_theme.initialize_colors(id, color);
 		}
+
+		set_new_theme(theme_name);
+		sync_colors_with_imgui();
 	}
 	catch (const nh::json::exception& e)
 	{
 		CConsole::the().error("JSON: {}", e.what());
 		return;
 	}
-
-	sync_colors_with_imgui();
 }
 
 void CGUIThemeManager::export_theme_to_json(nh::json& json)
@@ -283,14 +331,13 @@ void CGUIThemeManager::export_theme_to_json(nh::json& json)
 	}
 	*/
 
-	auto current_theme_name = get_current_theme_name();
-	if (current_theme_name.empty())
+	if (m_current_exported_theme_name.empty())
 	{
 		// should not happen. current theme should be ALWAYS set.
 		return;
 	}
 
-	json["theme_name"] = current_theme_name;
+	json["theme_name"] = m_current_exported_theme_name;
 
 	try
 	{
@@ -310,6 +357,19 @@ void CGUIThemeManager::export_theme_to_json(nh::json& json)
 		CConsole::the().error("JSON: {}", e.what());
 		return;
 	}
+}
+
+void CGUIThemeManager::set_current_theme_export_name(const std::string& name)
+{
+	if (m_current_exported_theme_name.empty()) // only if hasn't been set already.
+	{
+		m_current_exported_theme_name = name;
+	}
+}
+
+void CGUIThemeManager::reset_current_theme_export_name()
+{
+	m_current_exported_theme_name.clear();
 }
 
 EGUIColorId CGUIThemeManager::string_to_color_id(const std::string& id)
@@ -424,6 +484,29 @@ void CGUIThemeManager::sync_colors_with_imgui()
 	style.Colors[ImGuiCol_TableHeaderBg] = get_current_theme()->get_color<GUICLR_TableHeaderBg>();
 }
 
+size_t CGUIThemeManager::get_num_themes()
+{
+	return m_themes.size();
+}
+
+void CGUIThemeManager::for_each_built_in(const std::function<void(const std::string&id, const CGUITheme&theme)>& callback)
+{
+	for (auto& [id, theme] : m_themes)
+	{
+		if (!is_builtin_theme(id))
+		{
+			continue;
+		}
+
+		callback(id, theme);
+	}
+}
+
+bool CGUIThemeManager::is_builtin_theme(const std::string & id)
+{
+	return std::find(m_builtin_themes.begin(), m_builtin_themes.end(), id) != m_builtin_themes.end();
+}
+
 void CGUIThemeManager::provide_cfg_load_export_callbacks()
 {
 	auto cheat_theme = g_config_mgr_i->query_config_file_type("cheat_theme");
@@ -449,6 +532,7 @@ void CGUIThemeManager::provide_cfg_load_export_callbacks()
 
 	auto export_fn = [](nh::json& json)
 	{
+		g_gui_thememgr_i->set_current_theme_export_name(g_gui_thememgr_i->get_current_theme_name());
 		g_gui_thememgr_i->export_theme_to_json(json);
 	};
 
@@ -474,24 +558,10 @@ void CGUIThemeManager::create_translation_lookup_cache_tables()
 	}
 }
 
-void CGUIThemeManager::write_default_theme_configs()
-{
-	// write default themes into the config directory.
-	auto write_helper = [&](const std::string& theme_name)
-	{
-		assert(set_new_theme(theme_name));
-		g_config_mgr_i->write_configuration(CFG_CheatTheme, std::format("theme\\{}.json", theme_name), true);
-	};
-
-	write_helper("white");
-	write_helper("dark");
-
-	CConsole::the().info("Wrote default theme configs.");
-}
-
 void CGUIThemeManager::initialize_default_themes()
 {
 	auto& white = create_theme("white");
+	m_builtin_themes.push_back("white");
 
 	// text
 	white.initialize_colors(GUICLR_TextLight,					CColor(161, 161, 161, 255));
@@ -554,6 +624,7 @@ void CGUIThemeManager::initialize_default_themes()
 	//---------------------------------------------------------------------------------------------------------
 	
 	auto& dark = create_theme("dark");
+	m_builtin_themes.push_back("dark");
 
 	// text
 	dark.initialize_colors(GUICLR_TextLight,					CColor(161, 161, 161, 255));

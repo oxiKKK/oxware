@@ -903,7 +903,7 @@ void CUIMenu::render_menu_decoration(const Vector2D& window_pos, const Vector2D&
 
 	// this gets filled automatically by a python script.
 	// DO NOT EDIT FOLLOWING LINE OR THE SCRIPT WILL BREAK.
-	auto lines_label = std::format(/*LINES&FILESMARKER*/"{} lines in {} files", "72,283", "363");
+	auto lines_label = std::format(/*LINES&FILESMARKER*/"{} lines in {} files", "72,841", "363");
 	g_gui_window_rendering_i->render_text(g_gui_window_rendering_i->get_current_drawlist(),
 										  topside_font,
 										 { window_pos.x + MenuStyle::tab_select_width + 5.0f, window_pos.y + 30.0f + 3.0f },

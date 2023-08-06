@@ -79,6 +79,9 @@ public:
 
 	// replaces the extension with ".json" if the extension is missing or is not json.
 	virtual void fix_config_file_extension(std::filesystem::path& path) = 0;
+
+	// provide callback that will be ran each config save interval.
+	virtual void provide_on_save_callback(const std::function<void()>& callback) = 0;
 };
 
 extern IConfigManager* g_config_mgr_i;

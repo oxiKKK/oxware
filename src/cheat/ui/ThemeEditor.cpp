@@ -31,6 +31,7 @@
 UIStatusWidget CUIThemeEditor::m_status_widget = UIStatusWidget(k_StatusWidgetStandardLifeDur);
 
 static float s_status_bar_footer_height = 33.0f;
+static float s_current_theme_text_footer_height = 33.0f;
 
 void CUIThemeEditor::render_ui()
 {
@@ -50,9 +51,31 @@ void CUIThemeEditor::render_ui()
 
 		render_actions();
 
-		g_gui_widgets_i->add_text(std::format("Theme files ({} 📂)", m_theme_cfgs.size()));
+		g_gui_widgets_i->begin_tab("themes", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
 
-		render_file_list();
+		g_gui_widgets_i->add_tab_item(
+			std::format("📂 Files ({})", m_theme_cfgs.size()), true, { -1.0f, -1.0f - (s_status_bar_footer_height + s_current_theme_text_footer_height) },
+			[this]()
+			{
+				render_file_list();
+			});
+
+		g_gui_widgets_i->add_tab_item(
+			std::format("Built-in ({})", g_gui_thememgr_i->get_num_themes()), true, { -1.0f, -1.0f - (s_status_bar_footer_height + s_current_theme_text_footer_height) },
+			[this]()
+			{
+				render_built_in_list();
+			});
+
+		g_gui_widgets_i->end_tab();
+
+		g_gui_widgets_i->add_child(
+			"current_theme", { -1.0f, -1.0f - s_status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
+			[&]()
+			{
+				auto current_theme = g_gui_thememgr_i->get_current_theme_name();
+				g_gui_widgets_i->add_text(std::format("Current theme: {}", current_theme));
+			});
 
 		g_gui_widgets_i->end_columns();
 	}
@@ -118,56 +141,93 @@ void CUIThemeEditor::render_color_palette()
 
 void CUIThemeEditor::render_file_list()
 {
-	g_gui_widgets_i->add_child(
-		"theme_filelist", { -1.0f, -1.0f - s_status_bar_footer_height }, true, ImGuiWindowFlags_AlwaysUseWindowPadding,
-		[this]()
+	if (m_theme_cfgs.empty())
+	{
+		g_gui_widgets_i->add_window_centered_text_disabled("No theme configuration files available 😥");
+		return;
+	}
+
+	auto window_size = g_gui_widgets_i->get_current_window_size();
+
+	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_CellPadding, { 1.0f, 1.0f });
+
+	if (g_gui_widgets_i->begin_columns("theme_filelist", 2))
+	{
+		g_gui_widgets_i->setup_column_fixed_width(window_size.x - 60.0f);
+
+		for (const auto& rel_cfg_path : m_theme_cfgs)
 		{
-			if (m_theme_cfgs.empty())
+			g_gui_widgets_i->push_id(rel_cfg_path.string());
+
+			g_gui_widgets_i->goto_next_column();
+
+			g_gui_widgets_i->add_text(rel_cfg_path.string());
+
+			g_gui_widgets_i->goto_next_column();
+
+			if (g_gui_widgets_i->add_button("Load", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 			{
-				g_gui_widgets_i->add_window_centered_text_disabled("No theme configuration files available 😥");
-				return;
+				auto theme_rel_path = "theme" / rel_cfg_path;
+
+				if (g_config_mgr_i->load_configuration(CFG_CheatTheme, theme_rel_path.string()))
+				{
+					m_status_widget.update_status(std::format("Loaded from {}.", theme_rel_path.string()), UIStatusWidget::Success);
+				}
+				else
+				{
+					m_status_widget.update_status(std::format("Failed to load {}!", theme_rel_path.string()), UIStatusWidget::Error);
+				}
 			}
 
-			auto window_size = g_gui_widgets_i->get_current_window_size();
+			g_gui_widgets_i->pop_id();
+		}
 
-			g_gui_widgets_i->push_stylevar(ImGuiStyleVar_CellPadding, { 1.0f, 1.0f });
+		g_gui_widgets_i->end_columns();
+	}
 
-			if (g_gui_widgets_i->begin_columns("theme_filelist", 2))
+	g_gui_widgets_i->pop_stylevar(); // cell padding
+}
+
+void CUIThemeEditor::render_built_in_list()
+{
+	auto window_size = g_gui_widgets_i->get_current_window_size();
+
+	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_CellPadding, { 1.0f, 1.0f });
+
+	if (g_gui_widgets_i->begin_columns("theme_builtinlist", 2))
+	{
+		g_gui_widgets_i->setup_column_fixed_width(window_size.x - 60.0f);
+
+		g_gui_thememgr_i->for_each_built_in(
+			[](const std::string& id, const CGUITheme& theme)
 			{
-				g_gui_widgets_i->setup_column_fixed_width(window_size.x - 60.0f);
+				g_gui_widgets_i->push_id(id);
 
-				for (const auto& rel_cfg_path : m_theme_cfgs)
+				g_gui_widgets_i->goto_next_column();
+
+				g_gui_widgets_i->add_text(id);
+
+				g_gui_widgets_i->goto_next_column();
+
+				if (g_gui_widgets_i->add_button("Use", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
 				{
-					g_gui_widgets_i->push_id(rel_cfg_path.string());
-
-					g_gui_widgets_i->goto_next_column();
-
-					g_gui_widgets_i->add_text(rel_cfg_path.string());
-
-					g_gui_widgets_i->goto_next_column();
-
-					if (g_gui_widgets_i->add_button("Load", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
+					if (g_gui_thememgr_i->set_new_theme(id))
 					{
-						auto theme_rel_path = "theme" / rel_cfg_path;
-
-						if (g_config_mgr_i->load_configuration(CFG_CheatTheme, theme_rel_path.string()))
-						{
-							m_status_widget.update_status(std::format("Loaded from {}.", theme_rel_path.string()), UIStatusWidget::Success);
-						}
-						else
-						{
-							m_status_widget.update_status(std::format("Failed to load {}!", theme_rel_path.string()), UIStatusWidget::Error);
-						}
+						m_status_widget.update_status(std::format("Now using '{}' theme.", id), UIStatusWidget::Success);
 					}
-
-					g_gui_widgets_i->pop_id();
+					else
+					{
+						m_status_widget.update_status(std::format("Couldn't use theme '{}'!", id), UIStatusWidget::Error);
+					}
 				}
 
-				g_gui_widgets_i->end_columns();
-			}
+				g_gui_widgets_i->pop_id();
+			});
 
-			g_gui_widgets_i->pop_stylevar(); // cell padding
-		});
+		g_gui_widgets_i->end_columns();
+	}
+
+	g_gui_widgets_i->pop_stylevar(); // cell padding
 }
 
 void CUIThemeEditor::render_actions()
@@ -222,6 +282,8 @@ void CUIThemeEditor::actions_export_current_theme_as()
 			std::filesystem::path path = "theme\\" + std::string(name_buffer);
 			g_config_mgr_i->fix_config_file_extension(path);
 
+			g_gui_thememgr_i->set_current_theme_export_name(name_buffer);
+
 			if (g_config_mgr_i->write_configuration(CFG_CheatTheme, path.string()))
 			{
 				m_status_widget.update_status(std::format("Exported as '{}'.", path.string()), UIStatusWidget::Success);
@@ -230,6 +292,8 @@ void CUIThemeEditor::actions_export_current_theme_as()
 			{
 				m_status_widget.update_status(std::format("Couldn't export '{}'.", path.string()), UIStatusWidget::Error);
 			}
+
+			g_gui_thememgr_i->reset_current_theme_export_name();
 
 			strcpy(name_buffer, "");
 		});

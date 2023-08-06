@@ -98,6 +98,8 @@ public:
 
 	void fix_config_file_extension(std::filesystem::path& path);
 
+	void provide_on_save_callback(const std::function<void()>& callback);
+
 private:
 	std::chrono::high_resolution_clock::time_point m_last_saved;
 
@@ -116,6 +118,8 @@ private:
 
 		// DON'T FORGET TO ADD NEW ONES AS YOU ADD THEM AS CLASS MEMBERS.
 	}
+
+	std::vector<std::function<void()>> m_on_save_callbacks;
 };
 
 CConfigManager g_config_mgr;
@@ -146,9 +150,6 @@ bool CConfigManager::initialize()
 	write_configuration(CFG_CheatSettings, "default.json");
 	load_configuration(CFG_CheatSettings, "saved.json");
 
-	// load saved theme
-	load_configuration(CFG_CheatTheme, "theme\\saved.json");
-
 	m_last_saved = std::chrono::high_resolution_clock::now();
 
 	CConsole::the().info("Config Manager initialized");
@@ -161,7 +162,11 @@ void CConfigManager::shutdown()
 
 	// write changed settings
 	write_configuration(CFG_CheatSettings, "saved.json");
-	write_configuration(CFG_CheatTheme, "theme\\saved.json");
+
+	for (auto& callback : m_on_save_callbacks)
+	{
+		callback();
+	}
 }
 
 void CConfigManager::update()
@@ -175,6 +180,13 @@ void CConfigManager::update()
 	if (get_duration_last_saved_sec() > save_cfg_interval_sec.get_value())
 	{
 		write_configuration(CFG_CheatSettings, "saved.json", true);
+
+		// execute on-save callbacks.
+		for (auto& callback : m_on_save_callbacks)
+		{
+			callback();
+		}
+
 		m_last_saved = std::chrono::high_resolution_clock::now();
 	}
 }
@@ -289,5 +301,10 @@ void CConfigManager::fix_config_file_extension(std::filesystem::path& path)
 	{
 		path.replace_extension("json");
 	}
+}
+
+void CConfigManager::provide_on_save_callback(const std::function<void()>& callback)
+{
+	m_on_save_callbacks.push_back(callback);
 }
 

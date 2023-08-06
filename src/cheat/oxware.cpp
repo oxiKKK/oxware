@@ -107,6 +107,8 @@ bool COxWare::initialize_phase2()
 	g_code_perf_profiler_i->register_profile_report(&g_module_profile_report);
 #endif
 
+	g_gui_thememgr_i->load_font_from_file_if_present();
+
 	CConsole::the().info("Cheat module fully initialized.");
 	m_fully_initialized = true;
 	return true;

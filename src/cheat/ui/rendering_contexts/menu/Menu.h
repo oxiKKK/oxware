@@ -30,49 +30,14 @@
 #define UIMENU_H
 #pragma once
 
-enum EMenuTabId
-{
-	UIMENU_Blank,
-
-	// AI
-	UIMENU_RageBot,
-	UIMENU_LegitBot,
-	UIMENU_AntiBot,
-	UIMENU_WayBot,
-
-	// Visuals
-	UIMENU_Viewmodel,
-	UIMENU_World,
-	UIMENU_Rendering,
-	UIMENU_Screen,
-
-	// Miscellaneous
-	UIMENU_Exploits,
-	UIMENU_Movement,
-	UIMENU_Miscellaneous2,
-	UIMENU_Miscellaneous3,
-
-	// Config
-	UIMENU_Config,
-	UIMENU_Theme,
-	UIMENU_Language,
-	UIMENU_Binds,
-	UIMENU_InCommands,
-
-	// Other
-	UIMENU_VariableList,
-	UIMENU_CommandList,
-	UIMENU_Others,
-
-	UIMENU_Max,
-};
-
 class CUIMenu;
 
 enum EMenuChildHeightType
 {
 	MCH_Constant,
 	MCH_2x,
+	MCH_2_5x,
+	MCH_3x,
 	MCH_4x,
 	MCH_SameAsWidth
 };
@@ -90,26 +55,38 @@ public:
 	IMenuChild(const std::string& header, int height, bool collapsible, EMenuChildHeightType type = MCH_Constant, EMenuChildFlags flags = MCHILDF_None)
 		: m_header(header), m_supports_collapse(collapsible), m_flags(flags)
 	{
+		float h = (float)height;
+
 		switch (type)
 		{
 			case MCH_Constant:
 			{
-				m_child_size = MenuStyle::calc_child_size((float)height);
+				m_child_size = MenuStyle::calc_child_size(h);
 				break;
 			}
 			case MCH_2x:
 			{
-				m_child_size = MenuStyle::calc_child_size_2x((float)height);
+				m_child_size = MenuStyle::calc_child_size_n(2.0f, h);
+				break;
+			}
+			case MCH_2_5x:
+			{
+				m_child_size = MenuStyle::calc_child_size_n(2.5f, h);
+				break;
+			}
+			case MCH_3x:
+			{
+				m_child_size = MenuStyle::calc_child_size_n(3.0f, h);
 				break;
 			}
 			case MCH_4x:
 			{
-				m_child_size = MenuStyle::calc_child_size_4x((float)height);
+				m_child_size = MenuStyle::calc_child_size_n(4.0f, h);
 				break;
 			}
 			case MCH_SameAsWidth:
 			{
-				m_child_size = (float)height;
+				m_child_size = h;
 				break;
 			}
 		}
@@ -130,7 +107,6 @@ public:
 	inline auto get_flags() const { return m_flags; }
 
 	Vector2D m_computed_position;
-
 
 private:
 	void validate()
@@ -157,6 +133,81 @@ protected:
 	EMenuChildFlags m_flags = MCHILDF_None;
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
+enum EMenuTabId
+{
+	MENU_TAB_Blank,
+
+	// Visuals
+	MENU_TAB_World,
+	MENU_TAB_Rendering,
+	MENU_TAB_Screen,
+
+	// Miscellaneous
+	MENU_TAB_Exploits,
+	MENU_TAB_Movement,
+	MENU_TAB_PlayerList,
+
+	// Config
+	MENU_TAB_Config,
+	MENU_TAB_Theme,
+	MENU_TAB_Language,
+	MENU_TAB_Binds,
+	MENU_TAB_InCommands,
+
+	// Other
+	MENU_TAB_VariableList,
+	MENU_TAB_CommandList,
+	MENU_TAB_Others,
+	MENU_TAB_Debug,
+
+	MENU_TAB_Max,
+};
+
+enum EMenuTabGroupId
+{
+	MENU_TAB_GROUP_Visuals,
+	MENU_TAB_GROUP_Miscellaneous,
+	MENU_TAB_GROUP_Configuration,
+	MENU_TAB_GROUP_Other,
+
+	MENU_TAB_GROUP_COUNT,
+};
+
+// used inside menu to determine what is currently selected
+struct ContentsSelectionContext
+{
+	EMenuTabId	id;
+	std::string	section;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// optional division of menu tab
+class MenuTabSection
+{
+public:
+	MenuTabSection()
+	{
+	}
+
+	void initialize(const char* desc)
+	{
+		m_desc = desc;
+	}
+
+	bool render_button(const Vector2D& button_size, const std::string& section_id, ContentsSelectionContext& contents_selection);
+
+	std::vector<IMenuChild*> m_children;
+
+	Vector2D m_scroll;
+
+	std::string m_desc;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 // represents an entry within a tab section
 class MenuTab
 {
@@ -165,31 +216,84 @@ public:
 	{
 	}
 
-	inline void initialize(const char* label, const char* desc)
+	void initialize(const char* label, const char* desc) 
 	{
 		m_label = label;
 		m_desc = desc;
 	}
 
-	void render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId id, EMenuTabId& active_id);
+	bool render(Vector2D& offset, Vector2D& relative_offset, EMenuTabId id, ContentsSelectionContext& contents_selection);
+
+	std::unordered_map<std::string, MenuTabSection> m_sections;
 
 	std::string m_label, m_desc;
-
-	std::vector<IMenuChild*> m_children;
-
-	Vector2D m_scroll;
 };
+
+//----------------------------------------------------------------------------------------------------------------------
 
 // represents group containing several menu entries
 class MenuTabGroup
 {
 public:
-	void render(const std::string& label, Vector2D& offset, Vector2D& relative_offset, const Vector2D& child_size, EMenuTabId& active_id);
+	MenuTabGroup()
+	{
+	}
+
+	void initialize(const char* label)
+	{
+		m_label = label;
+	}
+
+	bool render(Vector2D& offset, Vector2D& relative_offset, const Vector2D& child_size, ContentsSelectionContext& contents_selection);
 
 	std::unordered_map<EMenuTabId, MenuTab> m_tabs;
 
+	std::string m_label;
+
 private:
-	void render_current_label(const std::string& label, Vector2D& offset, Vector2D& relative_offset, const Vector2D& child_size);
+	void render_current_label(Vector2D& offset, Vector2D& relative_offset, const Vector2D& child_size);
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class CUIMenu final : public IRenderingContext_Generic
+{
+public:
+	CUIMenu(const std::string& id) :
+		IRenderingContext_Generic(id)
+	{
+	}
+
+	void on_initialize();
+	void on_render();
+	void on_destroy();
+
+private:
+	// menu contents
+	void handle_menu_contents_rendering();
+
+	// render section buttons
+	void render_menu_contents_section_buttons();
+
+	// tabs on the left
+	void render_menu_tabs();
+
+	// misc decoration rendering
+	void render_github_repo_link_decor();
+	void render_menu_decoration(const Vector2D& window_pos, const Vector2D& window_size);
+
+	ContentsSelectionContext m_current_context_selection;
+
+	// Active offset for rendering tabs & section labels.
+	// Relative active offset is not counting the child position.
+	Vector2D m_sectab_absolute_active_offset, m_sectab_relative_active_offset;
+
+	std::unordered_map<EMenuTabGroupId, MenuTabGroup> m_tab_groups;
+
+	bool m_menu_contents_changed = false;
+
+	// helper
+	std::optional<MenuTabSection*> get_selected_section();
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -201,7 +305,7 @@ public:
 
 public:
 	// precompute the grid for a tab section
-	void precompute(const Vector2D& contents_size, const MenuTab& tab, bool force_compute = false);
+	void precompute(const Vector2D& contents_size, const MenuTabSection& section, bool force_compute = false);
 
 	inline float get_accumulated_height() { return m_accumulated_height; }
 
@@ -255,40 +359,6 @@ private:
 };
 
 extern CMenuSearchFilterContext g_search_filter_context;
-
-//----------------------------------------------------------------------------------------------------------------------
-//
-// Menu class
-//
-
-class CUIMenu final : public IRenderingContext_Generic
-{
-public:
-	CUIMenu(const std::string& id) :
-		IRenderingContext_Generic(id)
-	{
-	}
-
-	void on_initialize();
-	void on_render();
-	void on_destroy();
-
-private:
-	// menu contents
-	void handle_menu_contents_rendering();
-
-	// misc decoration rendering
-	void render_github_repo_link_decor();
-	void render_menu_decoration(const Vector2D& window_pos, const Vector2D& window_size);
-
-	EMenuTabId m_active_tab;
-
-	std::unordered_map<std::string, MenuTabGroup> m_tab_groups;
-
-	// Active offset for rendering tabs & section labels.
-	// Relative active offset is not counting the child position.
-	Vector2D m_sectab_active_offs, m_sectab_relative_active_offset;
-};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -378,6 +448,12 @@ struct MenuChilden
 		DECL_CHILD(ConsistencyBypass);
 		DECL_CHILD(FakeLatency);
 		DECL_CHILD(CvarSandbox);
+		DECL_CHILD(SIDSpoofer);
+	};
+
+	struct PlayerList
+	{
+		DECL_CHILD(PlayerList_);
 	};
 
 	struct Configuration
@@ -394,8 +470,8 @@ struct MenuChilden
 		DECL_CHILD(VariableList);
 		DECL_CHILD(CommandList);
 		DECL_CHILD(UI);
-		DECL_CHILD(Debug);
 		DECL_CHILD(Storage);
+		DECL_CHILD(Debug);
 	};
 };
 

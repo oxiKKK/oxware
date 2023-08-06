@@ -95,7 +95,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>multiemulator.lib;assets.lib;soil.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;$(SolutionDir)src/external/discord/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -126,7 +126,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>multiemulator.lib;assets.lib;soil.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;$(SolutionDir)src/external/discord/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -157,7 +157,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>multiemulator.lib;assets.lib;soil.lib;gsdecrypt.lib;version.lib;opengl32.lib;injector.lib;tier.lib;detours.lib;ntdll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)src/lib/;$(SolutionDir)src/external/glfw/;$(SolutionDir)src/external/discord/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -202,6 +202,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\public\steamid.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="CheatInfo.cpp" />
     <ClCompile Include="features\AntiDemoRecorder.cpp" />
     <ClCompile Include="features\AntiScreen.cpp" />
@@ -232,6 +237,7 @@
     <ClCompile Include="features\ModelChams.cpp" />
     <ClCompile Include="features\Removals.cpp" />
     <ClCompile Include="features\CvarSandbox.cpp" />
+    <ClCompile Include="features\SIDSpoofer.cpp" />
     <ClCompile Include="features\SmokeVisuals.cpp" />
     <ClCompile Include="features\StuffCMDFilter.cpp" />
     <ClCompile Include="features\ThirdPerson.cpp" />
@@ -249,7 +255,7 @@
     <ClCompile Include="game\NetchanSequenceHistory.cpp" />
     <ClCompile Include="game\ParticleManMiniMemEmulation.cpp" />
     <ClCompile Include="game\VideoModeUtil.cpp" />
-    <ClCompile Include="game\LocalPlayerState.cpp" />
+    <ClCompile Include="game\LocalState.cpp" />
     <ClCompile Include="game\model\SpriteModelData.cpp" />
     <ClCompile Include="game\model\StudioModelData.cpp" />
     <ClCompile Include="game\SpriteManager.cpp" />
@@ -278,9 +284,12 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="ui\CheatSettings.cpp" />
     <ClCompile Include="ui\InCommandBinding.cpp" />
     <ClCompile Include="ui\KeyBinding.cpp" />
     <ClCompile Include="ui\OxWareUI.cpp" />
+    <ClCompile Include="ui\PlayerList.cpp" />
     <ClCompile Include="ui\rendering_contexts\BackgroundRendering.cpp" />
     <ClCompile Include="ui\rendering_contexts\Console.cpp" />
     <ClCompile Include="ui\rendering_contexts\FeatureList.cpp" />
@@ -292,10 +301,13 @@
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Exploits.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Movement.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Other.cpp" />
+    <ClCompile Include="ui\rendering_contexts\menu\Menu_PlayerList.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Rendering.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_Screen.cpp" />
     <ClCompile Include="ui\rendering_contexts\menu\Menu_World.cpp" />
     <ClCompile Include="ui\rendering_contexts\PerformanceProfilerVisualization.cpp" />
+    <ClCompile Include="ui\ThemeEditor.cpp" />
+    <ClCompile Include="ui\UIWindowPopups.cpp" />
     <ClCompile Include="util\engine\build_num.cpp" />
     <ClCompile Include="util\engine\EngineInputManager.cpp" />
     <ClCompile Include="util\engine\EngineRendering.cpp" />
@@ -308,6 +320,7 @@
     <ClCompile Include="util\engine\parsemsg.cpp" />
     <ClCompile Include="util\GameUtil.cpp" />
     <ClCompile Include="util\MathUtil.cpp" />
+    <ClCompile Include="util\SteamIDUtil.cpp" />
     <ClCompile Include="util\vanilla_halflife_dir_file_database.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
@@ -351,6 +364,7 @@
     <ClInclude Include="features\ModelChams.h" />
     <ClInclude Include="features\Removals.h" />
     <ClInclude Include="features\CvarSandbox.h" />
+    <ClInclude Include="features\SIDSpoofer.h" />
     <ClInclude Include="features\SmokeVisuals.h" />
     <ClInclude Include="features\StuffCMDFilter.h" />
     <ClInclude Include="features\ThirdPerson.h" />
@@ -367,7 +381,7 @@
     <ClInclude Include="game\NetchanSequenceHistory.h" />
     <ClInclude Include="game\ParticleManMiniMemEmulation.h" />
     <ClInclude Include="game\VideoModeUtil.h" />
-    <ClInclude Include="game\LocalPlayerState.h" />
+    <ClInclude Include="game\LocalState.h" />
     <ClInclude Include="game\model\SpriteModelData.h" />
     <ClInclude Include="game\model\StudioModelData.h" />
     <ClInclude Include="game\SpriteManager.h" />
@@ -386,9 +400,11 @@
     <ClInclude Include="importbank_decls.h" />
     <ClInclude Include="oxware.h" />
     <ClInclude Include="precompiled.h" />
+    <ClInclude Include="ui\CheatSettings.h" />
     <ClInclude Include="ui\InCommandBinding.h" />
     <ClInclude Include="ui\KeyBinding.h" />
     <ClInclude Include="ui\OxWareUI.h" />
+    <ClInclude Include="ui\PlayerList.h" />
     <ClInclude Include="ui\rendering_contexts\BackgroundRendering.h" />
     <ClInclude Include="ui\rendering_contexts\Console.h" />
     <ClInclude Include="ui\rendering_contexts\FeatureList.h" />
@@ -398,6 +414,8 @@
     <ClInclude Include="ui\rendering_contexts\menu\MenuStyle.h" />
     <ClInclude Include="ui\rendering_contexts\menu\MenuWidgets.h" />
     <ClInclude Include="ui\rendering_contexts\PerformanceProfilerVisualization.h" />
+    <ClInclude Include="ui\ThemeEditor.h" />
+    <ClInclude Include="ui\UIWindowPopups.h" />
     <ClInclude Include="util\engine\build_num.h" />
     <ClInclude Include="util\engine\EngineInputManager.h" />
     <ClInclude Include="util\engine\EngineRendering.h" />
@@ -410,6 +428,7 @@
     <ClInclude Include="util\engine\parsemsg.h" />
     <ClInclude Include="util\GameUtil.h" />
     <ClInclude Include="util\MathUtil.h" />
+    <ClInclude Include="util\SteamIDUtil.h" />
     <ClInclude Include="util\vanilla_halflife_dir_file_database.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

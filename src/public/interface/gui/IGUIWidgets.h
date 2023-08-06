@@ -136,6 +136,7 @@ public:
 
 	virtual void set_item_default_focus() = 0;
 	virtual void set_keyboard_focus_here(int offset = 0) = 0;
+	virtual bool is_last_item_focused() = 0;
 
 	virtual void set_scroll_here_y(float center_y_ratio = 0.5f) = 0;
 
@@ -151,6 +152,13 @@ public:
 
 	virtual ImGuiStyle& get_imgui_style() = 0;
 
+	virtual bool is_last_widget_focused() = 0;
+	virtual bool is_widget_focused(const char* str_id) = 0;
+
+	virtual void push_id(const std::string& id) = 0;
+	virtual void push_id(int id) = 0;
+	virtual void pop_id() = 0;
+
 	//
 	// Widgets
 	//
@@ -163,15 +171,16 @@ public:
 
 	virtual bool add_button(const std::string& label, const Vector2D& size, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None) = 0;
 	virtual bool add_toggle_button(const std::string& label, const Vector2D& size, bool selected = false, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None, CColor unselected_color = CColor(0, 0, 0, 0)) = 0;
+	virtual bool add_toggle_button_custom(const std::string& label, const Vector2D& size, bool selected = false, bool disabled = false, EButtonFlags flags = BUTTONFLAG_None) = 0;
 	virtual bool add_invisible_button_behaviour(const std::string& label, const Vector2D& pos, const Vector2D& size) = 0;
 
-	virtual bool add_hypertext_link(const std::string& label) = 0;
+	virtual bool add_url_text(const std::string& label) = 0;
 
 	virtual bool add_checkbox(const std::string& label, float* value) = 0;
 	virtual bool add_checkbox(const std::string& label, bool* value) = 0;
-	virtual bool add_checkbox_with_color(const std::string& label, float* value, float rgba[4], ImGuiColorEditFlags flags = ImGuiColorEditFlags_None) = 0;
+	virtual bool add_checkbox_with_color(const std::string& label, float* value, float rgba[4], bool input_values = false, ImGuiColorEditFlags flags = ImGuiColorEditFlags_None) = 0;
 
-	virtual bool add_color_edit(const std::string& label, float rgba[4], ImGuiColorEditFlags flags = ImGuiColorEditFlags_None) = 0;
+	virtual bool add_color_edit(const std::string& label, float rgba[4], bool input_values = false, ImGuiColorEditFlags flags = ImGuiColorEditFlags_None) = 0;
 
 	virtual bool add_slider(const std::string& label, float* value, float* min, float* max, const char* format, bool no_label = false) = 0;
 	virtual bool add_slider(const std::string& label, int* value, int* min, int* max, const char* format, bool no_label = false) = 0;
@@ -203,6 +212,10 @@ public:
 
 	virtual bool add_tree_node(const std::string& label) = 0;
 	virtual void pop_tree_node() = 0;
+
+	virtual void add_separated_heading(const std::string& label) = 0;
+
+	virtual void add_image(ImTextureID id, const Vector2D& size) = 0;
 
 	//
 	// Tables/lists/columns

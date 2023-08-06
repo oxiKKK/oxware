@@ -5,3 +5,4 @@ loader          -   The base executable that will inject the dll into the game a
 injector	-   Static library that provides functionality of injecting and managing injected dlls.
 tier		-   Static lib, similar to util however, shared within modules, without interfaces. Common shared code.
 gsdecrypt	-   Utility module for old builds that are encrypted with valve block algorithm.
+multiemulator	-   https://github.com/2010kohtep/MultiEmulator, thanks

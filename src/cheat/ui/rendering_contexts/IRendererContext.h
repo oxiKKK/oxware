@@ -65,6 +65,7 @@ public:
 
 	inline void lock_interaction() { m_interaction_is_locked = true; }
 	inline void unlock_interaction() { m_interaction_is_locked = false; }
+	inline bool is_interaction_blocked() { return m_interaction_is_locked; }
 
 protected:
 	std::string m_identifier = "uninitialized";

@@ -98,6 +98,11 @@ void CEnvironmentalEffects::shutdown()
 
 void CEnvironmentalEffects::restart()
 {
+	if (!env_enable.get_value())
+	{
+		return;
+	}
+
 	shutdown();
 	initialize();
 }

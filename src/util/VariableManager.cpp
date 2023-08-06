@@ -114,7 +114,7 @@ BaseCommand tokenize(
 
 IVariableManager* g_variablemgr_i = nullptr;
 
-class CVariableManager : public IVariableManager
+class CVariableManager : public IVariableManager, IConfigIOOperations
 {
 public:
 	CVariableManager();
@@ -167,6 +167,7 @@ private:
 
 	m_hl_execute_cmd_pfn_t m_hl_execute_cmd_pfn;
 
+	// config I/O provider
 	void provide_cfg_load_export_callbacks();
 };
 
@@ -349,7 +350,7 @@ void CVariableManager::execute_command(const std::string& command_sequence, bool
 			}
 
 			// trim leading spaces, if any
-			current_command.erase(0, current_command.find_first_not_of(' '));
+			current_command = CStringTools::the().ltrim(current_command);
 
 			// execute the command in place
 			execute_internal(current_command, silent);
@@ -482,12 +483,16 @@ void CVariableManager::execute_halflife_command(const std::string& full_hl_comma
 void CVariableManager::provide_cfg_load_export_callbacks()
 {
 	auto cheat_settings = g_config_mgr_i->query_config_file_type("cheat_settings");
+	if (!cheat_settings)
+	{
+		return;
+	}
 
 	//
 	// provide config load function.
 	//
 
-	auto load_fn = [](nlohmann::json& json)
+	auto load_fn = [](nh::json& json)
 	{
 		g_variablemgr_i->for_each_variable(
 			[&](BaseVariable* var)
@@ -496,20 +501,20 @@ void CVariableManager::provide_cfg_load_export_callbacks()
 				{
 					var->set_from_string(json[var->get_current_module_name()][var->get_name()].get<std::string>());
 				}
-				catch (const nlohmann::json::exception& e)
+				catch (const nh::json::exception& e)
 				{
 					CConsole::the().error("JSON error: {}", e.what());
 				}
 			});
 	};
 
-	cheat_settings->provide_load_fn(load_fn);
+	(*cheat_settings)->provide_load_fn(load_fn);
 
 	//
 	// provide config export function.
 	//
 
-	auto export_fn = [](nlohmann::json& json)
+	auto export_fn = [](nh::json& json)
 	{
 		g_variablemgr_i->for_each_variable(
 			[&](BaseVariable* var)
@@ -518,14 +523,14 @@ void CVariableManager::provide_cfg_load_export_callbacks()
 				{
 					json[var->get_current_module_name()][var->get_name()] = var->get_value_string();
 				}
-				catch (const nlohmann::json::exception& e)
+				catch (const nh::json::exception& e)
 				{
 					CConsole::the().error("JSON error: {}", e.what());
 				}
 			});
 	};
 
-	cheat_settings->provide_export_fn(export_fn);
+	(*cheat_settings)->provide_export_fn(export_fn);
 }
 
 //--------------------------------------------------------------------------------------------------------------------

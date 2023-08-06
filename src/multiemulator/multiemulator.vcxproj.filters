@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{ca63dc75-9cae-4c66-9408-64f4fe08281e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{dda144dd-29c0-4ee9-add0-e30e68e319d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\emulators">
+      <UniqueIdentifier>{24062399-c22c-46be-91f6-3ed6edd058b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\public">
+      <UniqueIdentifier>{3abb6d7c-4ddd-47d4-b586-ff8d49f799dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\public\crypto">
+      <UniqueIdentifier>{8d953f7d-5816-4622-9095-c80274891297}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="emulators\AVSMP.cpp">
+      <Filter>src\emulators</Filter>
+    </ClCompile>
+    <ClCompile Include="emulators\OldRevEmu.cpp">
+      <Filter>src\emulators</Filter>
+    </ClCompile>
+    <ClCompile Include="emulators\RevEmu.cpp">
+      <Filter>src\emulators</Filter>
+    </ClCompile>
+    <ClCompile Include="emulators\RevEmu2013.cpp">
+      <Filter>src\emulators</Filter>
+    </ClCompile>
+    <ClCompile Include="emulators\SC2009.cpp">
+      <Filter>src\emulators</Filter>
+    </ClCompile>
+    <ClCompile Include="emulators\Setti.cpp">
+      <Filter>src\emulators</Filter>
+    </ClCompile>
+    <ClCompile Include="emulators\SmartSteamEmu.cpp">
+      <Filter>src\emulators</Filter>
+    </ClCompile>
+    <ClCompile Include="emulators\SteamEmu.cpp">
+      <Filter>src\emulators</Filter>
+    </ClCompile>
+    <ClCompile Include="public\ExternIP.cpp">
+      <Filter>src\public</Filter>
+    </ClCompile>
+    <ClCompile Include="public\RevSpoofer.cpp">
+      <Filter>src\public</Filter>
+    </ClCompile>
+    <ClCompile Include="public\StrUtils.cpp">
+      <Filter>src\public</Filter>
+    </ClCompile>
+    <ClCompile Include="public\crypto\DoubleBuffering.cpp">
+      <Filter>src\public\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="public\crypto\MessageDigest.cpp">
+      <Filter>src\public\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="public\crypto\SHA.cpp">
+      <Filter>src\public\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="public\crypto\CRijndael.cpp">
+      <Filter>src\public\crypto</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="public\ExternIP.h">
+      <Filter>src\public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\HTTP.h">
+      <Filter>src\public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\RevSpoofer.h">
+      <Filter>src\public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\StrUtils.h">
+      <Filter>src\public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\crypto\CRijndael.h">
+      <Filter>src\public\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="public\crypto\DoubleBuffering.h">
+      <Filter>src\public\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="public\crypto\MessageDigest.h">
+      <Filter>src\public\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="public\crypto\SHA.h">
+      <Filter>src\public\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\multiemulator\multiemulator.h">
+      <Filter>src\emulators</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

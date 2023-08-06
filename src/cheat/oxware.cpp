@@ -71,7 +71,10 @@ bool COxWare::run(injector_information_package_t* ifp)
 	// tell injector we've initialized.
 	CInjectedDllIPCLayerClient::the().write_code(C2I_Init_OK);
 
-	while (run_frame()) {}
+	while (run_frame()) 
+	{
+		std::this_thread::sleep_for(10ms);
+	}
 
 	m_unloading_cheat = true;
 
@@ -103,6 +106,8 @@ bool COxWare::initialize_phase2()
 #ifdef OX_ENABLE_CODE_PROFILE
 	g_code_perf_profiler_i->register_profile_report(&g_module_profile_report);
 #endif
+
+	g_gui_thememgr_i->load_font_from_file_if_present();
 
 	CConsole::the().info("Cheat module fully initialized.");
 	m_fully_initialized = true;
@@ -155,7 +160,8 @@ bool COxWare::initialize()
 	g_in_commands_i->initialize();
 
 	// call all interface initialization routines that provide load&export callbacks before config manager initializes, 
-	// because otherwise those callbacks wouldn't be provided and the cfgmgr would load configs without these callbacks.
+	// because otherwise those callbacks wouldn't be provided and the cfgmgr would load configs without these callbacks at 
+	// startup.
 	g_config_mgr_i->initialize();
 
 	check_for_clientside_protectors();
@@ -280,7 +286,7 @@ bool COxWare::load_and_initialize_dependencies()
 	assert(get_injection_technique() != INJECT_UNINITIALIZED); // just sanity checks
 	ELoadType type = (get_injection_technique() == INJECT_MANUALMAP) ? LOADTYPE_MANUALMAP : LOADTYPE_NATIVE;
 
-	auto loader_path = FilePath_t(m_ifp->m_loader_path);
+	auto loader_path = std::filesystem::path(m_ifp->m_loader_path);
 
 	// Util
 	if (!CDependencyLoader::the().load_and_initialize_module(type, loader_path, WMODULE_UTIL, [&](const auto& mod)
@@ -318,6 +324,8 @@ bool COxWare::load_and_initialize_dependencies()
 		return false;
 	}
 
+	g_gui_thememgr_i->initialize();
+
 	g_variablemgr_i->register_variables_and_commands_per_module(&g_static_variable_container, &g_static_command_container, MODULE_CHEAT);
 
 	// after all modules have been loaded
@@ -337,16 +345,7 @@ bool COxWare::run_frame()
 		CConsole::the().info("Someone requested cheat exit. Exiting cheat main frame loop.");
 		return false;
 	}
-
-	if (!can_update_frame())
-	{
-		return true;
-	}
-	else
-	{
-		m_main_frame_update_ms = GetTickCount();
-	}
-
+	
 	// keep communication with the injector on
 	if (CInjectedDllIPCLayerClient::the().dispatch() != k_IPCLayerStatus_Ok)
 	{

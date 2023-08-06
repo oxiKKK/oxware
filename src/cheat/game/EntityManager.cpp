@@ -28,6 +28,8 @@
 
 #include "precompiled.h"
 
+VarBoolean debug_render_player_info("debug_render_player_info", "Displays information about players", false);
+
 void CEntityMgr::entity_state_update(hl::cl_entity_t* ent)
 {
 	if (ent->player)
@@ -60,7 +62,11 @@ void CEntityMgr::player_info_update(int index)
 
 void CEntityMgr::update_screen()
 {
-	return; // TODO
+	if (!debug_render_player_info.get_value())
+	{
+		return;
+	}
+
 	CEngineFontRendering::the().push_render_side(CEngineFontRendering::RIGHT);
 
 	CEngineFontRendering::the().render_debug("--- Player info ---");
@@ -73,9 +79,7 @@ void CEntityMgr::update_screen()
 			continue;
 		}
 
-		auto cl_ent = p.cl_entity();
-
-		CEngineFontRendering::the().render_debug("{:<2}: {} | {}", id, p.get_playerinfo()->name, cl_ent->curstate.iuser1);
+		CEngineFontRendering::the().render_debug("{:<2}: {}", id, p.get_playerinfo()->name);
 	}
 
 	CEngineFontRendering::the().pop_render_side();

@@ -93,8 +93,6 @@ public:
 
 	bool is_spectator();
 
-	double get_engine_frametime();
-
 	hl::SCREENINFO get_engine_screen_info();
 
 	std::string parse_viewmodel_name(hl::model_t* model);

@@ -98,6 +98,7 @@ bool CMemoryFnDetourMgr::install_hooks()
 		CLogInstance__log().install();
 	}
 #endif
+	Steam_GSInitiateGameConnection().install();
 
 	CEngineSynchronization::the().resume_engine();
 
@@ -176,6 +177,7 @@ void CMemoryFnDetourMgr::uninstall_hooks()
 		CLogInstance__log().uninstall();
 	}
 #endif
+	Steam_GSInitiateGameConnection().uninstall();
 
 	// must be unloaded at last, because of synchronizated cheat unload. see CEngineSynchronization for more info.
 	_Host_Frame().uninstall();
@@ -1202,7 +1204,7 @@ bool HUD_CreateEntities_FnDetour_t::install()
 
 void HUD_CreateEntities_FnDetour_t::HUD_CreateEntities()
 {
-	// Function called inside CL_EmitEntitiesA().
+	// Function called inside CL_EmitEntities().
 
 	CMemoryFnDetourMgr::the().HUD_CreateEntities().call();
 
@@ -1376,5 +1378,49 @@ void CLogInstance__log_FnDetour_t::CLogInstance__log(int a1, int a2, int a3, int
 	CMemoryFnDetourMgr::the().CLogInstance__log().call(a1, a2, a3, a4, a5, a6, a7, a8, a9, message, a11);
 }
 #endif // INTERCEPT_STEAM_LOGGING
+
+//---------------------------------------------------------------------------------
+
+bool Steam_GSInitiateGameConnection_FnDetour_t::install()
+{
+	initialize("Steam_GSInitiateGameConnection", L"hw.dll");
+	return detour_using_bytepattern((uintptr_t*)Steam_GSInitiateGameConnection);
+}
+
+int Steam_GSInitiateGameConnection_FnDetour_t::Steam_GSInitiateGameConnection(
+	void* pData, int cbMaxData, hl::uint64 steamID, hl::uint32 unIPServer, 
+	hl::uint16 usPortServer, hl::qboolean bSecure)
+{
+	auto spoof = CSIDSpoofer::the().spoof(pData, cbMaxData);
+
+	int ret = 0;
+	if (spoof)
+	{
+		ret = spoof.value();
+	}
+	else
+	{
+		ret = CMemoryFnDetourMgr::the().Steam_GSInitiateGameConnection().call(pData, cbMaxData, steamID, unIPServer, usPortServer, bSecure);
+	}
+
+#if 0
+	uint32_t* pTicket = (uint32_t*)pData;
+	for (int i = 0; i < cbMaxData / 4; i++)
+	{
+		uint8_t bytes[] =
+		{
+			*(((uint8_t*)(&pTicket[i])) + 0),
+			*(((uint8_t*)(&pTicket[i])) + 1),
+			*(((uint8_t*)(&pTicket[i])) + 2),
+			*(((uint8_t*)(&pTicket[i])) + 3),
+		};
+		CConsole::the().info("{:<2}: \\x{:08X} ({:<16}) '{}'", i, pTicket[i], pTicket[i], std::format("{}{}{}{}",
+																									  (char)bytes[3], (char)bytes[2],
+																									  (char)bytes[1], (char)bytes[0]));
+	}
+#endif
+
+	return ret;
+}
 
 //---------------------------------------------------------------------------------

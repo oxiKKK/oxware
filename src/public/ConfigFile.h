@@ -34,20 +34,21 @@
 
 #include "Console.h"
 
-#include <nlohmann/json.hpp>
+#include <json.h>
 
 enum ECfgType
 {
-	CFG_CheatSettings, // under variables there're also binds
-	// ...
+	CFG_CheatSettings,	// under variables there're also binds
+	CFG_CheatTheme,		// theme
 };
 
 static const char* cfg_type_to_string[] =
 {
 	/*CFG_CheatSettings*/	"Cheat settings",
+	/*CFG_CheatTheme*/		"Cheat theme",
 };
 
-using fnLoadExportCallback = void(*)(nlohmann::json& json);
+using fnLoadExportCallback = void(*)(nh::json& json);
 
 class GenericConfigFile
 {
@@ -57,20 +58,20 @@ public:
 	{
 	}
 
-	bool write(const FilePath_t& full_path)
+	bool write(const std::filesystem::path& full_path)
 	{
 		std::ofstream ofs(full_path);
 
 		if (!m_silent)
 		{
-			CConsole::the().info("Writing config '{}' of type {}...", 
+			CConsole::the().info("Writing config '{}' of type '{}'...",
 								 g_filesystem_i->get_relative_to_appdata(full_path),
 								 cfg_type_to_string[m_cfg_type]);
 		}
 
 		if (!ofs.good())
 		{
-			CConsole::the().error("Couldn't open config file");
+			CConsole::the().error("Couldn't open config file.");
 			return false;
 		}
 
@@ -98,13 +99,13 @@ public:
 		return true;
 	}
 
-	bool load(const FilePath_t& full_path)
+	bool load(const std::filesystem::path& full_path)
 	{
 		std::ifstream ifs(full_path);
 
 		if (!m_silent)
 		{
-			CConsole::the().info("Reading config '{}' of type {}...", 
+			CConsole::the().info("Reading config '{}' of type '{}'...",
 								 g_filesystem_i->get_relative_to_appdata(full_path),
 								 cfg_type_to_string[m_cfg_type]);
 		}
@@ -117,9 +118,9 @@ public:
 
 		try
 		{
-			m_json = nlohmann::json::parse(ifs);
+			m_json = nh::json::parse(ifs);
 		}
-		catch (const nlohmann::json::exception& e)
+		catch (const nh::json::exception& e)
 		{
 			CConsole::the().error("JSON error: {}", e.what());
 		}
@@ -153,7 +154,7 @@ public:
 	}
 
 protected:
-	nlohmann::json m_json;
+	nh::json m_json;
 
 	ECfgType m_cfg_type;
 
@@ -178,6 +179,16 @@ class CfgFile_CheatSettings : public GenericConfigFile
 public:
 	CfgFile_CheatSettings()
 		: GenericConfigFile(CFG_CheatSettings)
+	{
+	}
+};
+
+// theme container -- stores colors
+class CfgFile_CheatTheme : public GenericConfigFile
+{
+public:
+	CfgFile_CheatTheme()
+		: GenericConfigFile(CFG_CheatTheme)
 	{
 	}
 };

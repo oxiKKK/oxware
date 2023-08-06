@@ -41,7 +41,7 @@ public:
 	virtual bool initialize_directory_hirearchy() = 0;
 
 	virtual bool register_and_create_directory(const std::string& relative_dir) = 0;
-	virtual FilePath_t get_known(const std::string& relative_dir) = 0;
+	virtual std::filesystem::path get_known(const std::string& relative_dir) = 0;
 };
 
 extern IAppDataManager* g_appdata_mgr_i;

@@ -6,9 +6,9 @@
 [![CS 1.6](https://img.shields.io/badge/game-CS1.6-yellow.svg?style=plastic)](https://store.steampowered.com/app/10/Counter-Strike) 
 [![License](https://img.shields.io/github/license/oxiKKK/oxware.svg?style=plastic)](LICENSE)
 [![Github All Releases](https://img.shields.io/github/downloads/oxiKKK/oxware/total.svg?style=plastic&color=orange)]()
-[![release](https://img.shields.io/badge/latest%20release-1.0.5-blue.svg?style=plastic)](https://store.steampowered.com/app/10/Counter-Strike) 
+[![release](https://img.shields.io/badge/latest%20release-1.0.4-blue.svg?style=plastic)](https://store.steampowered.com/app/10/Counter-Strike) 
 
-Welcome to **oxWARE**! A free Counter-Strike 1.6 cheat built with love and passion, featuring **64,502 lines of C++ code in 316 source files!**
+Welcome to **oxWARE**! A free Counter-Strike 1.6 cheat built with love and passion, featuring **72,841 lines of C++ code in 363 source files!**
 
 This cheat is still in <b>alpha stage</b> of development!<br>
 I will be contributing to it in the near future as much as possible, adding new features et cetera.<br>
@@ -41,22 +41,23 @@ So stay tuned! 😉<br>
 - [imgui](https://github.com/ocornut/imgui) for literally the best light-weight GUI out there.
 - [json](https://github.com/nlohmann/json) for the very mature json library.
 - [soil](https://github.com/littlstar/soil) for its functionality over simplifying the process of loading opengl images.
+- [multiemulator](https://github.com/2010kohtep/MultiEmulator) for a set of ticket generators which I don't understand at all how they work at all.
 - Voooolve for making an excelent decision of building their linux build of the game with debug symbols, making it easier to make cheats for their game 😉 ... Thanks Valve.
 - Anyone who plays using this cheat client or contributes to it somehow. 😎
 
 ## Usage
 
-The cheat is composed out of two parts: **the loader (oxware.exe)** and **the cheat module (cheater.dll)**. By using the loader you can inject the cheat module to the game. After injecting the cheat, you can use <kbd>INSERT</kbd> key to open up the menu. 
+The cheat is composed out of two parts: **the loader (oxware.exe)** and **the cheat module (cheater.dll)**. By using the loader you can inject the cheat module to the game. After injecting the cheat, you can use <kbd>INSERT</kbd> key to open up the menu`. 
 
 Both the cheat and loader have developer consoles built inside of them that you can access at any time. (inside the cheat it is the <kbd>~</kbd> key, below the escape key)
 
 ## The loader
 
-![The loader](https://i.imgur.com/aiCq0HM.png)
+![The loader](https://i.imgur.com/OgpykJQ.png)
 
 # Support on other operating systems
 
-This cheat is currently only available on `Windows 10 and newer`. I will try to make this cheat compatible with Windows 7+ in the near future.
+This cheat is currently only available on `Windows 10 and newer`.
 
 While making this cheat cross-platform (e.g. porting to Linux or OSX) isn't completely impossible, it would take a lot of effort, because from the beginning I designed this cheat mainly for Windows. But that being said, it isn't impossible to port.
 
@@ -66,7 +67,7 @@ This cheat currently supports following builds:
 
 - `8684 steam version`
 - `4554 non-steam version`
-- `3266 non-steam version` (unstable)
+- `3266 non-steam version`
 - xguard, gsclient or other custom implementations **aren't supported**.
 
 ## Uninstalling
@@ -179,10 +180,12 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - Aspect ratio changer
 - Anti demo recorder
 - Visual panic
+- SID changer
 - Rechecker bypass, see [this video](https://youtu.be/Razs0s7sgno)
 - Instantaneous cheat unload (either via loader or cheat menu)
 - Injection using manual mapping 🗺
 - Custom UI (modified version of imgui)
+- Theme manager
 - Key binding
 - Configuration files ⚙
 

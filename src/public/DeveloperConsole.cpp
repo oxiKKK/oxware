@@ -75,8 +75,8 @@ public:
 	void register_module(EOutputModule which);
 	void unregister_module(EOutputModule which);
 
-	FilePath_t get_logfile_path();
-	FilePath_t get_logfile_path_fancy(); // with %appdata% instead of the actual directory
+	std::filesystem::path get_logfile_path();
+	std::filesystem::path get_logfile_path_fancy(); // with %appdata% instead of the actual directory
 
 	void enable_tooltip(bool enable)
 	{
@@ -307,6 +307,7 @@ void CDeveloperConsole::render()
 					g_gui_widgets_i->add_text("] ", TEXTPROP_ColorRegular);
 					g_gui_widgets_i->sameline();
 
+					// render preamble
 					const char* which[] = { "", "error: ", "warning: " };
 
 					if (line.category != EOutputCategory::INFO)
@@ -314,7 +315,17 @@ void CDeveloperConsole::render()
 						g_gui_widgets_i->add_colored_text(s_category_color_table[(int)line.category].color, which[(int)line.category]);
 						g_gui_widgets_i->sameline();
 					}
-					g_gui_widgets_i->add_colored_text(s_category_color_table[(int)line.category].color, line.contents);
+
+					// render text
+
+					if (line.category != EOutputCategory::INFO)
+					{
+						g_gui_widgets_i->add_colored_text(s_category_color_table[(int)line.category].color, line.contents);
+					}
+					else
+					{
+						g_gui_widgets_i->add_text(line.contents);
+					}
 
 					g_gui_widgets_i->pop_font();
 
@@ -474,24 +485,24 @@ void CDeveloperConsole::unregister_module(EOutputModule which)
 // just a little hack over the fact that this code already exists inside the FileSystem code.. since we
 // want to have the console ready right as soon as the application starts, we cannot just use the appdata manager
 // or the filesystem, so yeah.. this kinda sucks but whatever, its worth it so that we can log as soon as we start..
-static FilePath_t get_appdata_dir()
+static std::filesystem::path get_appdata_dir()
 {
 	PWSTR pwstr_appdata_directory;
 	HRESULT result = SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, NULL, &pwstr_appdata_directory);
 	assert(SUCCEEDED(result));
-	FilePath_t ret = pwstr_appdata_directory;
+	std::filesystem::path ret = pwstr_appdata_directory;
 	CoTaskMemFree(pwstr_appdata_directory);
 	return ret / "oxware";
 }
 
-FilePath_t CDeveloperConsole::get_logfile_path()
+std::filesystem::path CDeveloperConsole::get_logfile_path()
 {
 	auto logdir = get_appdata_dir() / m_logfile_path_current;
 	auto logfile = logdir / generate_logfilename();
 	return logfile;
 }
 
-FilePath_t CDeveloperConsole::get_logfile_path_fancy()
+std::filesystem::path CDeveloperConsole::get_logfile_path_fancy()
 {
 	auto logdir = std::filesystem::path("%appdata%") / m_logfile_path_current;
 	auto logfile = logdir / generate_logfilename();

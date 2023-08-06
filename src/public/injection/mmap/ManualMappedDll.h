@@ -40,7 +40,7 @@
 class CManualMappedDll : public IInjectableModuleObject
 {
 public:
-	CManualMappedDll(const char* execuatable_name, const FilePath_t& dll_path)
+	CManualMappedDll(const char* execuatable_name, const std::filesystem::path& dll_path)
 	{
 		m_dll_filepath = dll_path;
 		m_exe_name = execuatable_name;

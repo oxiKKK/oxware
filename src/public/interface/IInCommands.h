@@ -32,8 +32,6 @@
 
 #include "interface.h"
 
-#include <nlohmann/json.hpp>
-
 #include "BaseInCommand.h"
 
 class IInCommands : public IBaseInterface
@@ -50,8 +48,8 @@ public:
 
 	virtual void for_each_incommand(const std::function<void(BaseInCommand* in_cmd)>& callback) = 0;
 
-	virtual void create_incommands_from_json(const nlohmann::json& json) = 0;
-	virtual void export_incommands_to_json(nlohmann::json& json) = 0;
+	virtual void create_incommands_from_json(const nh::json& json) = 0;
+	virtual void export_incommands_to_json(nh::json& json) = 0;
 
 	virtual BaseInCommand* get_incommand(const std::string& id) = 0;
 

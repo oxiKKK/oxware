@@ -188,7 +188,7 @@ void MenuChilden::World::NonSteamFpsFix::contents()
 				"\nFor more technical details, follow this link:");
 
 			g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Regular));
-			if (g_gui_widgets_i->add_hypertext_link("github.com/ValveSoftware/halflife/issues/1940"))
+			if (g_gui_widgets_i->add_url_text("github.com/ValveSoftware/halflife/issues/1940"))
 			{
 				CGenericUtil::the().open_link_inside_browser("https://github.com/ValveSoftware/halflife/issues/1940");
 			}

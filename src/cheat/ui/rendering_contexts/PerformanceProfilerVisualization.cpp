@@ -106,8 +106,8 @@ void CUIPerfProfilerVisualization::on_render()
 							g_gui_widgets_i->add_separator();
 							g_gui_widgets_i->add_text(std::format("sum avg: {:2.3f} ms (engine: {:2.3f} ms), {:2.1f} % overhead",
 																  g_code_perf_profiler_i->get_ms_total(),
-																  CGameUtil::the().get_engine_frametime() * 1000.0,
-																  ((g_code_perf_profiler_i->get_ms_total() / 1000.0) / CGameUtil::the().get_engine_frametime()) * 100.0));
+																  CLocalState::the().get_engine_frametime() * 1000.0,
+																  ((g_code_perf_profiler_i->get_ms_total() / 1000.0) / CLocalState::the().get_engine_frametime()) * 100.0));
 						});
 				});
 		});

@@ -42,7 +42,7 @@ class ByteBuffer
 {
 public:
 	// Create data from filepath
-	bool create(const FilePath_t& filepath, A size);
+	bool create(const std::filesystem::path& filepath, A size);
 
 	// Create data from a buffer
 	bool create(uint8_t* data, A size);
@@ -61,7 +61,7 @@ private:
 	void deallocate();
 
 	// Copy data from filepath
-	bool copy_data(const FilePath_t& filepath);
+	bool copy_data(const std::filesystem::path& filepath);
 
 	// Copy data from buffer
 	bool copy_data(uint8_t* data);
@@ -95,7 +95,7 @@ private:
 };
 
 template<typename A> requires(std::is_integral<A>::value)
-inline bool ByteBuffer<A>::create(const FilePath_t& filepath, A size)
+inline bool ByteBuffer<A>::create(const std::filesystem::path& filepath, A size)
 {
 	if (!allocate(size))
 		return false;
@@ -151,7 +151,7 @@ inline void ByteBuffer<A>::deallocate()
 }
 
 template<typename A> requires(std::is_integral<A>::value)
-inline bool ByteBuffer<A>::copy_data(const FilePath_t& filepath)
+inline bool ByteBuffer<A>::copy_data(const std::filesystem::path& filepath)
 {
 	std::ifstream ifs(filepath, std::ios_base::in | std::ios_base::binary);
 

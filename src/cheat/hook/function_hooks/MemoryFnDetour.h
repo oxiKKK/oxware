@@ -581,6 +581,13 @@ struct CLogInstance__log_FnDetour_t final : public GenericMemoryFnDetour_cdecl<v
 };
 #endif // /INTERCEPT_STEAM_LOGGING
 
+// int Steam_GSInitiateGameConnection(void* pData, int cbMaxData, uint64 steamID, uint32 unIPServer, uint16 usPortServer, qboolean bSecure);
+struct Steam_GSInitiateGameConnection_FnDetour_t final : public GenericMemoryFnDetour_cdecl<int, void*, int, hl::uint64, hl::uint32, hl::uint16, hl::qboolean>
+{
+	bool install();
+	static int Steam_GSInitiateGameConnection(void* pData, int cbMaxData, hl::uint64 steamID, hl::uint32 unIPServer, hl::uint16 usPortServer, hl::qboolean bSecure);
+};
+
 //---------------------------------------------------------------------------------
 
 class CMemoryFnDetourMgr
@@ -648,6 +655,7 @@ public:
 #ifdef INTERCEPT_STEAM_LOGGING
 	inline auto& CLogInstance__log() { static CLogInstance__log_FnDetour_t fnhook; return fnhook; }
 #endif
+	inline auto& Steam_GSInitiateGameConnection() { static Steam_GSInitiateGameConnection_FnDetour_t fnhook; return fnhook; }
 
 	void toggle_unloading_from_CEngine__Unload()
 	{

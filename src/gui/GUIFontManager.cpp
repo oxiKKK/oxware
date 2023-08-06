@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-#include "assets/compressed_font_data.h"
+#include "assets/fonts/compressed_font_data.h"
 
 #include <imgui_internal.h>
 
@@ -101,6 +101,7 @@ ImWchar CGlyphRanges::s_emojis_range[] =
 	U'⚙', U'⚙',	  // cog
 	U'📂', U'📂',	  // file
 	U'👈', U'👈',	  // left-pointing finger
+	U'👆', U'👆',	  // up-pointing finger
 	U'🧐', U'🧐',	  // 
 	U'🐇', U'🐇',	  // bunny
 	U'👥', U'👥',	  // 2x gray person
@@ -347,6 +348,7 @@ void CGUIFontManager::precache_all_fonts()
 	precache_font(FID_SegoeUI, FSZ_13px, FDC_Regular);
 
 	precache_font(FID_SegoeUI, FSZ_14px, FDC_Regular);
+	precache_font(FID_SegoeUI, FSZ_14px, FDC_Bold);
 
 	precache_font(FID_SegoeUI, FSZ_16px, FDC_Bold);
 	precache_font(FID_SegoeUI, FSZ_16px, FDC_Regular);

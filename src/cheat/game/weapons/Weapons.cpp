@@ -145,7 +145,7 @@ bool CCSWeapon::is_in_burst() const
 
 bool CCSWeapon::can_attack() const
 {
-	return next_primary_attack_delay() <= 0.0f && next_primary_attack_delay() <= 0.0f/* &&
+	return next_primary_attack_delay() <= 0.0f/* &&
 			!IsReloading() &&
 			!g_LocalPlayer.IsInFreezePeriod() &&
 			g_LocalPlayer.CanShoot() &&

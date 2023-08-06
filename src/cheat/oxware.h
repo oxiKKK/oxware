@@ -96,11 +96,6 @@ private:
 	// check for valve blob encryption
 	bool check_for_encrypted_modules();
 
-	// updating main frame function inside of the cheat every time is expensive.
-	inline static size_t k_main_frame_update_interval_ms = 500;
-	bool can_update_frame() const { return (GetTickCount() - m_main_frame_update_ms) > k_main_frame_update_interval_ms; }
-	int m_main_frame_update_ms;
-
 private:
 	injector_information_package_t* m_ifp;
 

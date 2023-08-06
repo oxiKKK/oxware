@@ -39,14 +39,14 @@ public:
 	bool initialize_directory_hirearchy();
 
 	bool register_and_create_directory(const std::string& relative_dir);
-	FilePath_t get_known(const std::string& relative_dir);
+	std::filesystem::path get_known(const std::string& relative_dir);
 
 private:
-	inline FilePath_t get_full(const FilePath_t& relative_dir = "") const { return g_filesystem_i->get_appdata_path(relative_dir); }
+	inline std::filesystem::path get_full(const std::filesystem::path& relative_dir = "") const { return g_filesystem_i->get_appdata_path(relative_dir); }
 
 public:
 	// Holds relative directories as keys, absolute directories as values.
-	std::map<std::string, FilePath_t> m_directories;
+	std::map<std::string, std::filesystem::path> m_directories;
 };
 
 CAppDataManager g_appdata_mgr;
@@ -78,8 +78,9 @@ bool CAppDataManager::initialize_directory_hirearchy()
 		return false;
 	}
 
-	register_and_create_directory("config\\");		/* oxware\\config\\		*/
-	register_and_create_directory("log\\");			/* oxware\\log\\		*/
+	register_and_create_directory("config\\");		/* oxware\\config\\			*/
+	register_and_create_directory("config\\theme");	/* oxware\\config\\theme\\	*/
+	register_and_create_directory("log\\");			/* oxware\\log\\			*/
 	// add more here if you wish to...
 
 	CConsole::the().info("Created directory hirearchy.");
@@ -100,7 +101,7 @@ bool CAppDataManager::register_and_create_directory(const std::string& relative_
 	return true;
 }
 
-FilePath_t CAppDataManager::get_known(const std::string& relative_dir)
+std::filesystem::path CAppDataManager::get_known(const std::string& relative_dir)
 {
 	return m_directories[relative_dir];
 }

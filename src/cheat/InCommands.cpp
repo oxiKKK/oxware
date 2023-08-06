@@ -30,7 +30,7 @@
 
 IInCommands* g_in_commands_i = nullptr;
 
-class CInCommands : public IInCommands
+class CInCommands : public IInCommands, IConfigIOOperations
 {
 public:
 	CInCommands();
@@ -44,8 +44,8 @@ public:
 
 	void register_incommands_per_module(StaticInCommandContainer* incommand_container, const char* module_name);
 
-	void create_incommands_from_json(const nlohmann::json& json);
-	void export_incommands_to_json(nlohmann::json& json);
+	void create_incommands_from_json(const nh::json& json);
+	void export_incommands_to_json(nh::json& json);
 
 	void for_each_incommand(const std::function<void(BaseInCommand* in_cmd)>& callback);
 
@@ -58,6 +58,7 @@ public:
 	bool does_meet_activation_conditions(EActivationCondition act_cond);
 
 private:
+	// config I/O provider
 	void provide_cfg_load_export_callbacks();
 
 	EInCommandFlags parse_flags_out_of_string(const std::string& flags_str);
@@ -149,9 +150,9 @@ void CInCommands::register_incommands_per_module(StaticInCommandContainer* incom
 	}
 }
 
-void CInCommands::create_incommands_from_json(const nlohmann::json& json)
+void CInCommands::create_incommands_from_json(const nh::json& json)
 {
-	const nlohmann::json* in_commands = nullptr;
+	const nh::json* in_commands = nullptr;
 
 	try
 	{
@@ -233,7 +234,7 @@ void CInCommands::create_incommands_from_json(const nlohmann::json& json)
 	}
 }
 
-void CInCommands::export_incommands_to_json(nlohmann::json& json)
+void CInCommands::export_incommands_to_json(nh::json& json)
 {
 	for (const auto& [name, in_cmd] : m_in_commands)
 	{
@@ -310,28 +311,32 @@ bool CInCommands::should_block_engine_key(int vk)
 void CInCommands::provide_cfg_load_export_callbacks()
 {
 	auto cheat_settings = g_config_mgr_i->query_config_file_type("cheat_settings");
+	if (!cheat_settings)
+	{
+		return;
+	}
 
 	//
 	// provide config load function.
 	//
 
-	auto load_fn = [](nlohmann::json& json)
+	auto load_fn = [](nh::json& json)
 	{
 		g_in_commands_i->create_incommands_from_json(json);
 	};
 
-	cheat_settings->provide_load_fn(load_fn);
+	(*cheat_settings)->provide_load_fn(load_fn);
 
 	//
 	// provide config export function.
 	//
 
-	auto export_fn = [](nlohmann::json& json)
+	auto export_fn = [](nh::json& json)
 	{
 		g_in_commands_i->export_incommands_to_json(json);
 	};
 
-	cheat_settings->provide_export_fn(export_fn);
+	(*cheat_settings)->provide_export_fn(export_fn);
 }
 
 EInCommandFlags CInCommands::parse_flags_out_of_string(const std::string & flags_str)
@@ -382,5 +387,5 @@ bool CInCommands::does_meet_activation_conditions(EActivationCondition act_cond)
 		return true;
 	}
 
-	return (m_activation_conditions_for_this_frame & act_cond) != 0;
+	return (m_activation_conditions_for_this_frame & act_cond) == act_cond;
 }

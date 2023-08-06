@@ -71,7 +71,7 @@ void CIngameScreenRendering::better_cl_showfps()
 	auto level_name = cl->levelname;
 	bool is_on_map = level_name[0];
 
-	double ft = CGameUtil::the().get_engine_frametime();
+	double ft = CLocalState::the().get_engine_frametime();
 
 #define FPS_AVG_FRAC 0.9 // how fast the number changes
 	static double rolling_ft = 0.0;

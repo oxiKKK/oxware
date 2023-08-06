@@ -47,6 +47,7 @@
 #include <interface/IBytePatternBank.h>
 #include <interface/IInCommands.h>
 #include <interface/ICheatInfo.h>
+#include <interface/ITextureManager.h>
 
 #include <interface/gui/IGLFWApp.h>
 #include <interface/gui/IGUIWidgets.h>
@@ -70,6 +71,12 @@
 
 #include <gsdecrypt/gsdecrypt.h>
 
+#include <gui/UIStatusWidget.h>
+
+#include <assets/textures.h>
+
+#include <multiemulator/multiemulator.h>
+
 //-------------------------------------------------------------------
 //
 // Shared
@@ -87,6 +94,13 @@
 
 //-------------------------------------------------------------------
 //
+// SOIL
+// 
+//-------------------------------------------------------------------
+#include <soil/soil.h>
+
+//-------------------------------------------------------------------
+//
 // C++ Standard
 // 
 //-------------------------------------------------------------------
@@ -96,6 +110,7 @@
 #include <numbers>
 #include <thread>
 #include <set>
+#include <future>
 
 //-------------------------------------------------------------------
 //
@@ -103,13 +118,6 @@
 // 
 //-------------------------------------------------------------------
 #include <GLFW/glfw3.h>
-
-//-------------------------------------------------------------------
-//
-// JSON
-// 
-//-------------------------------------------------------------------
-#include <nlohmann/json.hpp>
 
 //-------------------------------------------------------------------
 //
@@ -207,6 +215,11 @@ namespace hl
 #include <hlsdk/interface/IFileSystem.h>
 #include <hlsdk/interface/IVideoMode.h>
 
+// steam
+#include <hlsdk/steam/isteamfriends.h>
+#include <hlsdk/steam/isteamutils.h>
+#include <hlsdk/steam/isteamuser.h>
+
 // game_shared
 #include <hlsdk/game_shared/shareddefs.h>
 #include <hlsdk/game_shared/cstrike/cs_shareddefs.h>
@@ -219,6 +232,13 @@ namespace hl
 
 // include after hlsdk.
 #include "custom_format_cheat.h"
+
+enum EPlayerHull
+{
+	HULL_STANDING,
+	HULL_DUCKING,
+	HULL_POINT,
+};
 
 //-------------------------------------------------------------------
 //
@@ -242,6 +262,7 @@ namespace hl
 // util
 #include "util/GameUtil.h"
 #include "util/MathUtil.h"
+#include "util/SteamIDUtil.h"
 #include "util/engine/HLNetMessageIO.h"
 #include "util/engine/build_num.h"
 #include "util/engine/EngineInputManager.h"
@@ -263,7 +284,7 @@ namespace hl
 #include "game/GenericPlayer.h"
 #include "game/EntityManager.h"
 #include "game/SpriteManager.h"
-#include "game/LocalPlayerState.h"
+#include "game/LocalState.h"
 #include "game/ClientMovementPacket.h"
 #include "game/VideoModeUtil.h"
 #include "game/ParticlemanMiniMemEmulation.h"
@@ -297,6 +318,7 @@ namespace hl
 #include "features/EnvironmentalEffects.h"
 #include "features/BackTrack.h"
 #include "features/Panic.h"
+#include "features/SIDSpoofer.h"
 #include "features/movement/BunnyHop.h"
 #include "features/movement/AirStuck.h"
 #include "features/movement/GroundStrafe.h"
@@ -309,6 +331,7 @@ namespace hl
 #include "features/movement/Movement.h"
 
 // ui
+#include "ui/UIWindowPopups.h"
 #include "ui/rendering_contexts/IRendererContext.h"
 #include "ui/rendering_contexts/menu/MenuWidgets.h"
 #include "ui/rendering_contexts/menu/MenuStyle.h"
@@ -319,7 +342,10 @@ namespace hl
 #include "ui/rendering_contexts/BackgroundRendering.h"
 #include "ui/rendering_contexts/PerformanceProfilerVisualization.h"
 #include "ui/KeyBinding.h"
+#include "ui/ThemeEditor.h"
 #include "ui/InCommandBinding.h"
+#include "ui/CheatSettings.h"
+#include "ui/PlayerList.h"
 #include "ui/OxWareUI.h"
 
 #endif // PRECOMPILED_H

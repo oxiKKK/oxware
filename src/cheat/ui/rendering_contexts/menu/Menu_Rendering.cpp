@@ -65,7 +65,7 @@ void MenuChilden::Rendering::StudioRenderer::contents()
 
 	CUIMenuWidgets::the().add_description_text_ex("You can see this why this is useful here:", nullptr, true);
 	g_gui_widgets_i->push_font(g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_13px, FDC_Regular));
-	if (g_gui_widgets_i->add_hypertext_link("https://youtu.be/xMd9m3McNvo"))
+	if (g_gui_widgets_i->add_url_text("https://youtu.be/xMd9m3McNvo"))
 	{
 		CGenericUtil::the().open_link_inside_browser("https://youtu.be/xMd9m3McNvo");
 	}

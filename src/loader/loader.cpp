@@ -28,7 +28,7 @@
 
 #include "precompiled.h"
 
-#include "assets/compressed_png_data.h"
+#include "assets/fonts/compressed_png_data.h"
 
 #include "resource/resource.h"
 
@@ -142,6 +142,8 @@ bool CMainLoader::load_and_initialize_dependencies()
 		return false;
 	}
 
+	g_gui_thememgr_i->initialize();
+
 	g_variablemgr_i->register_variables_and_commands_per_module(&g_static_variable_container, &g_static_command_container, MODULE_LOADER);
 
 	// after all modules have been loaded
@@ -210,8 +212,6 @@ bool CMainLoader::run_frame()
 {
 	frame_start = std::chrono::high_resolution_clock::now();
 
-	update_app_title();
-
 	if (!g_glfw_app_i->on_tick())
 	{
 		return false;
@@ -225,23 +225,10 @@ bool CMainLoader::run_frame()
 	}
 
 	frame_end = std::chrono::high_resolution_clock::now();
-	compute_avg_fps();
+
+	std::this_thread::sleep_for(1ms);
 
 	return true;
-}
-
-void CMainLoader::update_app_title()
-{
-	std::string title_text = std::format(DEFAULT_APP_TITLE " | {:.3} fps", m_avg_fps);
-	g_glfw_app_i->update_window_title(title_text);
-}
-
-// https://en.wikipedia.org/wiki/Moving_average
-void CMainLoader::compute_avg_fps()
-{
-	static constexpr double alpha = 0.9;
-
-	m_avg_fps = alpha * m_avg_fps + (1.0 - alpha) * get_fps();
 }
 
 void CMainLoader::set_window_icon()

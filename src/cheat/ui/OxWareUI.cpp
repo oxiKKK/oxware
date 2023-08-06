@@ -106,6 +106,8 @@ void COxWareUI::destroy()
 		}
 	}
 
+	g_texture_manager_i->shutdown();
+
 	destroy_rendering_contexts();
 
 	g_window_msg_handler_i->destroy();
@@ -126,17 +128,6 @@ IRenderingContext* COxWareUI::find_context(const std::string& id) const
 	
 	assert(0);
 	return nullptr;
-}
-
-void COxWareUI::schedule_popup(const std::string& window_title, const Vector2D& window_size, 
-							   const std::function<void()>& contents, const std::function<void()>& on_close_callback, 
-							   ImGuiWindowFlags window_flags)
-{
-	m_popup_callback = contents;
-	m_on_close_callback = on_close_callback;
-	m_popup_window_size = window_size;
-	m_popup_window_title = window_title;
-	m_popup_window_flags = window_flags;
 }
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -243,10 +234,7 @@ void COxWareUI::run_ui()
 	m_is_any_interactible_rendering_context_active = false;
 	m_contexts_to_be_rendered.clear();
 
-	if (is_in_popup_dialog())
-	{
-		lock_interaction_on_all_contexts();
-	}
+	handle_popups_inputs();
 
 	for (IRenderingContext* ctx : m_rendering_contexts)
 	{
@@ -262,20 +250,9 @@ void COxWareUI::run_ui()
 		}
 	}
 
-	// welcoming popup dialog
-	static bool once = false;
-	if (!once && (COxWare::the().at_least_once_focused() || GetFocus() == m_hwnd))
-	{
-		bool show_welcome_popup = g_registry_i->read_int(REG_OXWARE, "already_shown_welcome_popup") == 0;
-		if (show_welcome_popup)
-		{
-			create_welcome_popup();
-		}
-	
-		once = true;
-	}
+	CUIWindowPopups::the().pre_render();
 
-	if (!m_contexts_to_be_rendered.empty() || (m_popup_callback != nullptr))
+	if (!m_contexts_to_be_rendered.empty() || CUIWindowPopups::the().is_in_popup_dialog())
 	{
 		// push new
 		wglMakeCurrent(m_hdc, m_cheat_context);
@@ -294,21 +271,17 @@ void COxWareUI::run_ui()
 
 void COxWareUI::render_imgui()
 {
-	g_gui_widgets_i->block_input_on_all_except_popup(is_in_popup_dialog() || g_user_input_i->is_in_key_binding_mode());
+	g_gui_widgets_i->block_input_on_all_except_popup(CUIWindowPopups::the().is_in_popup_dialog() || g_user_input_i->is_in_key_binding_mode());
+
+	// we need to initialize textures here, otherwise it won't work.
+	initialize_textures();
 
 	for (IRenderingContext* ctx : m_contexts_to_be_rendered)
 	{
 		ctx->on_render();
 	}
 
-	if (is_in_popup_dialog())
-	{
-		g_gui_widgets_i->push_executing_popup_code();
-
-		render_popup();
-
-		g_gui_widgets_i->pop_executing_popup_code();
-	}
+	CUIWindowPopups::the().render();
 
 	if (g_user_input_i->is_in_key_binding_mode())
 	{
@@ -324,103 +297,14 @@ void COxWareUI::post_render()
 	handle_ingame_mouseevents();
 }
 
-void COxWareUI::create_welcome_popup()
+void COxWareUI::initialize_textures()
 {
-	schedule_popup(
-		"About", Vector2D(350, 420),
-		[this]()
-		{
-			g_gui_widgets_i->add_separtor_with_text("Introduction");
-			g_gui_widgets_i->add_text("Welcome to oxWARE " OXVER_STRING "🥳! A public open-source cheat for CS 1.6.", TEXTPROP_Wrapped);
-			g_gui_widgets_i->add_spacing();
-			g_gui_widgets_i->add_text("Please, note that this cheat is still in development! It's nowhere near finished! 😉", TEXTPROP_Wrapped);
-
-			g_gui_widgets_i->add_spacing();
-
-			g_gui_widgets_i->add_text("Press INSERT to begin the cheating experience! 😁 Or simply re-bind the key to whatever you like using the Bind manager!", TEXTPROP_Wrapped);
-
-			float sections_padding = 10.0f;
-
-			g_gui_widgets_i->add_padding({ 0.0f, sections_padding });
-			g_gui_widgets_i->add_separtor_with_text("Project GitHub repository");
-
-			g_gui_widgets_i->add_text("Please, don't forget to visit the project repository on GitHub! You can find there information such as:", TEXTPROP_Wrapped);
-			g_gui_widgets_i->add_bullet_text("TODO list");
-			g_gui_widgets_i->add_bullet_text("ChangeLog for each version");
-			g_gui_widgets_i->add_bullet_text("Feature list");
-			g_gui_widgets_i->add_bullet_text("Non-steam support");
-			g_gui_widgets_i->add_bullet_text("And more!");
-
-			g_gui_widgets_i->add_spacing();
-			if (g_gui_widgets_i->add_hypertext_link("github.com/oxiKKK/oxware"))
-			{
-				CGenericUtil::the().open_link_inside_browser("https://github.com/oxiKKK/oxware");
-			}
-
-			g_gui_widgets_i->add_padding({ 0.0f, sections_padding });
-			g_gui_widgets_i->add_separtor_with_text("Availability");
-
-			g_gui_widgets_i->add_text(std::format("The cheat is currently available on following builds: {}", g_bytepattern_bank_i->supported_builds_as_str()), TEXTPROP_Wrapped);
-
-			g_gui_widgets_i->add_padding({ 0.0f, sections_padding });
-			g_gui_widgets_i->add_separtor_with_text("Bugs / feature requests");
-			g_gui_widgets_i->add_text("🐞 If you find any bugs or you just want something to be added, please, create an issue here:", TEXTPROP_Wrapped);
-			if (g_gui_widgets_i->add_hypertext_link("github.com/oxiKKK/oxware/issues"))
-			{
-				CGenericUtil::the().open_link_inside_browser("https://github.com/oxiKKK/oxware/issues");
-			}
-
-			g_gui_widgets_i->add_text("Please, note that I develop this hack based on community suggestions and recommendations, so feel free to contact me about anything you want!", TEXTPROP_Wrapped);
-			g_gui_widgets_i->add_text("So that we can make together the best CS 1.6 cheat ever! 😊", TEXTPROP_Wrapped);
-			g_gui_widgets_i->add_text("You can always find me for example on discord. Links below.", TEXTPROP_Wrapped);
-
-			g_gui_widgets_i->add_padding({ 0.0f, sections_padding });
-			g_gui_widgets_i->add_separtor_with_text("Contact on the author");
-
-			if (g_gui_widgets_i->begin_columns("contact", 2))
-			{
-				g_gui_widgets_i->setup_column_fixed_width(90);
-				g_gui_widgets_i->goto_next_column();
-
-				g_gui_widgets_i->add_text("Discord");
-				g_gui_widgets_i->goto_next_column();
-				g_gui_widgets_i->add_text("__ox__");
-				g_gui_widgets_i->goto_next_column();
-
-				g_gui_widgets_i->add_text("Steam");
-				g_gui_widgets_i->goto_next_column();
-				if (g_gui_widgets_i->add_hypertext_link("steamcommunity.com/id/oxiKKK"))
-				{
-					CGenericUtil::the().open_link_inside_browser("https://steamcommunity.com/id/oxiKKK");
-				}
-				g_gui_widgets_i->goto_next_column();
-
-				g_gui_widgets_i->add_text("YouTube");
-				g_gui_widgets_i->goto_next_column();
-				if (g_gui_widgets_i->add_hypertext_link("www.youtube.com/@OX666"))
-				{
-					CGenericUtil::the().open_link_inside_browser("https://steamcommunity.com/id/oxiKKK");
-				}
-				g_gui_widgets_i->goto_next_column();
-
-				g_gui_widgets_i->add_text("GitHub");
-				g_gui_widgets_i->goto_next_column();
-				if (g_gui_widgets_i->add_hypertext_link("github.com/oxiKKK"))
-				{
-					CGenericUtil::the().open_link_inside_browser("https://github.com/oxiKKK");
-				}
-
-				g_gui_widgets_i->end_columns();
-			}
-
-			g_gui_widgets_i->add_padding({ 0.0f, 20.0f });
-
-			m_is_any_interactible_rendering_context_active = true;
-		},
-		[]() // on close
-		{
-			g_registry_i->write_int(REG_OXWARE, "already_shown_welcome_popup", 1);
-		});
+	static bool f = false;
+	if (!f)
+	{
+		g_texture_manager_i->initialize();
+		f = true;
+	}
 }
 
 void COxWareUI::instantiate_rendering_contexts()
@@ -517,98 +401,18 @@ void COxWareUI::unlock_interaction_on_all_contexts()
 		context->unlock_interaction();
 	}
 }
-void COxWareUI::render_popup()
+
+void COxWareUI::handle_popups_inputs()
 {
-	if (m_popup_close_requested)
+	static bool was_in_popup = false;
+	if (CUIWindowPopups::the().is_in_popup_dialog() && !was_in_popup)
 	{
-		m_popup_close_requested = false;
-		on_popup_close();
-		return;
+		lock_interaction_on_all_contexts();
+		was_in_popup = true;
 	}
-
-	static constexpr auto window_flags_bg =
-		ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav |
-		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoInputs;
-
-	g_gui_widgets_i->set_next_window_pos({}, ImGuiCond_Always);
-	g_gui_widgets_i->set_next_window_size(g_imgui_platform_layer_i->get_screen_size(), ImGuiCond_Always);
-
-	g_gui_widgets_i->push_stylevar(ImGuiStyleVar_WindowPadding, Vector2D());
-
-	g_gui_widgets_i->create_new_window(
-		"popup_background", window_flags_bg,
-		[this]()
-		{
-			g_gui_window_rendering_i->render_box(
-				g_gui_window_rendering_i->get_current_drawlist(),
-				{ 0, 0 },
-				g_imgui_platform_layer_i->get_screen_size(),
-				{ 0.0f, 0.0f, 0.0f, 0.5f });
-		});
-
-	g_gui_widgets_i->pop_stylevar();
-
-	g_gui_widgets_i->center_next_window_pos(ImGuiCond_Always);
-	g_gui_widgets_i->set_next_window_rounding(MenuStyle::rounding_factor, ImDrawFlags_RoundCornersTopRight | ImDrawFlags_RoundCornersBottomLeft);
-	g_gui_widgets_i->set_next_window_size(m_popup_window_size, ImGuiCond_Appearing);
-
-	g_gui_thememgr_i->push_color(GUICLR_ChildBackground, CColor());
-
-	int window_flags =
-		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav |
-		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar;
-
-	window_flags |= m_popup_window_flags;
-
-	g_gui_widgets_i->create_new_window(
-		"popup_window", window_flags, 
-		[this]()
-		{
-			if (!m_popup_window_title.empty())
-			{
-				auto title_font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_27px, FDC_Regular);
-				g_gui_widgets_i->add_text(m_popup_window_title, TEXTPROP_None, title_font);
-			}
-
-			g_gui_widgets_i->add_child(
-				"popup_window_child", 
-				Vector2D(-1, -1 - 20), true, ImGuiWindowFlags_None, 
-				[&]()
-				{
-					m_popup_callback();
-				});
-			
-			g_gui_widgets_i->add_spacing();
-
-			if (g_gui_widgets_i->begin_columns("popup_window_column", 2))
-			{
-				g_gui_widgets_i->setup_column_fixed_width(g_gui_widgets_i->get_current_window_size().x / 1.7f);
-				g_gui_widgets_i->goto_next_column();
-
-				// *empty*
-
-				g_gui_widgets_i->goto_next_column();
-
-				if (g_gui_widgets_i->add_button("OK", { -1.0f, 0.0f }, false, BUTTONFLAG_CenterLabel))
-				{
-					on_popup_close();
-				}
-
-				g_gui_widgets_i->end_columns();
-			}
-		});
-
-	g_gui_thememgr_i->pop_color();
-}
-
-void COxWareUI::on_popup_close()
-{
-	m_popup_callback = nullptr;
-
-	if (m_on_close_callback)
+	else if (!CUIWindowPopups::the().is_in_popup_dialog() && was_in_popup)
 	{
-		m_on_close_callback();
+		unlock_interaction_on_all_contexts();
+		was_in_popup = false;
 	}
-
-	unlock_interaction_on_all_contexts();
 }

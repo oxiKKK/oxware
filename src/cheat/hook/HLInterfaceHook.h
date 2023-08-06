@@ -48,9 +48,17 @@ public:
 	inline auto IFileSystem() const { return m_IFileSystem; }
 	inline auto IParticleMan() const { return m_IParticleMan; }
 
+	// steam
+	inline auto ISteamClient() const { return m_ISteamClient; }
+	inline auto ISteamFriends() const { return m_ISteamFriends; }
+	inline auto ISteamUtils() const { return m_ISteamUtils; }
+	inline auto ISteamUser() const { return m_ISteamUser; }
+
 private:
 	template<typename T>
 	bool install_single_hook(T** hook, const wchar_t* dll_name, const char* interface_name);
+
+	bool install_steam_interfaces();
 
 private:
 	hl::vgui2::ISurface* m_ISurface;
@@ -62,6 +70,12 @@ private:
 	hl::IClientVGUI* m_IClientVGUI;
 	hl::IFileSystem* m_IFileSystem;
 	hl::IParticleMan* m_IParticleMan;
+
+	// steam
+	hl::ISteamClient* m_ISteamClient;
+	hl::ISteamFriends* m_ISteamFriends;
+	hl::ISteamUtils* m_ISteamUtils;
+	hl::ISteamUser* m_ISteamUser;
 };
 
 template<typename T>

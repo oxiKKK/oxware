@@ -328,7 +328,7 @@ void CBaseInjector::update()
 	last_check_time = GetTickCount();
 }
 
-bool CBaseInjector::inject_to_target_process(const char* execuatable_name, const FilePath_t& dll_path)
+bool CBaseInjector::inject_to_target_process(const char* execuatable_name, const std::filesystem::path& dll_path)
 {
 	auto injector_by_type = create_injected_dll(execuatable_name, dll_path);
 
@@ -348,7 +348,7 @@ bool CBaseInjector::inject_to_target_process(const char* execuatable_name, const
 	return true;
 }
 
-void CBaseInjector::prepare_for_reinjection(const char* execuatable_name, const FilePath_t& dll_path)
+void CBaseInjector::prepare_for_reinjection(const char* execuatable_name, const std::filesystem::path& dll_path)
 {
 	CConsole::the().info("Client module requested its re-injection... preparing stuff...");
 
@@ -356,7 +356,7 @@ void CBaseInjector::prepare_for_reinjection(const char* execuatable_name, const 
 	m_should_reinject = true;
 }
 
-EModuleUnloadWaitResult CBaseInjector::hang_till_module_unloads(const FilePath_t& module_path, IInjectableModuleObject* module,
+EModuleUnloadWaitResult CBaseInjector::hang_till_module_unloads(const std::filesystem::path& module_path, IInjectableModuleObject* module,
 																std::chrono::high_resolution_clock::time_point wait_start)
 {
 	if (std::chrono::duration<float, std::ratio<1, 1>>(std::chrono::high_resolution_clock::now() - wait_start).count()

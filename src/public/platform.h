@@ -83,4 +83,7 @@
 #include <chrono>
 using namespace std::chrono_literals;
 
+// nlohmann json
+#include "json.h"
+
 #endif // PLATFORM_H

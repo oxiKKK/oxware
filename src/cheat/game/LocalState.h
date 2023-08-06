@@ -30,13 +30,6 @@
 #define LOCALPLAYERSTATE_H
 #pragma once
 
-enum EPlayerHull
-{
-	HULL_STANDING,
-	HULL_DUCKING,
-	HULL_POINT,
-};
-
 enum ESpectatingMode
 {
 	SPECT_NOT_SPECTATING,
@@ -118,6 +111,9 @@ public:
 	// true when specating and when in the spectator mode where 3d overview is visible
 	bool is_in_spectator_mapview();
 
+	double get_engine_frametime();
+	hl::CSteamID get_local_steamid();
+
 private:
 	hl::frame_t* m_current_frame = nullptr;
 
@@ -138,9 +134,15 @@ private:
 	Vector2D m_vieangle_delta;
 	Vector m_last_viewangles; // used to calc the delta
 
+	// set if alive, otherwise nullptr
 	CGenericPlayer* m_local_player;
 
 	bool m_in_messagemode = false;
+
+	double m_engine_frametime = 0.0;
+
+	// the m_nSteamID field inside player_info_t doesn't actually get set for local player.. heh
+	hl::CSteamID m_local_steamid;
 };
 
 #endif // LOCALPLAYERSTATE_H

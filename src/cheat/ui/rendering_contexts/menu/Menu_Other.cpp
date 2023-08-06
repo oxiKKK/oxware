@@ -193,41 +193,6 @@ void MenuChilden::Other::UI::contents()
 	if (g_gui_widgets_i->add_checkbox("Mono hinting", &mono_hinting)) g_gui_fontmgr_i->add_freetype_builder_flags(FreeTypeBuilderFlags_MonoHinting, mono_hinting);
 }
 
-void MenuChilden::Other::Debug::contents()
-{
-	CUIMenuWidgets::the().feature_enabled_section(
-		&debug,
-		[]()
-		{
-			CUIMenuWidgets::the().add_description_text("This feature is used for developement only. You have been warned.");
-
-			g_gui_widgets_i->begin_tab("debug_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
-
-			float tab_height = -1.0f;
-
-			g_gui_widgets_i->add_tab_item(
-				"Rendering", false,
-				{ -1.0f, tab_height },
-				[]()
-				{
-					CUIMenuWidgets::the().feature_enabled_section(
-					&debug_render_info,
-					[]()
-					{
-						CUIMenuWidgets::the().add_checkbox("Misc", &debug_render_info_misc);
-						g_gui_widgets_i->add_spacing();
-						g_gui_widgets_i->add_separtor_with_text("Movement");
-						g_gui_widgets_i->add_spacing();
-						CUIMenuWidgets::the().add_checkbox("Bhop", &debug_render_info_movement_bhop);
-						CUIMenuWidgets::the().add_checkbox("Strafe hack", &debug_render_info_movement_strafe);
-						CUIMenuWidgets::the().add_checkbox("Strafe helper", &debug_render_info_movement_strafe_helper);
-					});
-				});
-
-			g_gui_widgets_i->end_tab();
-		});
-}
-
 void MenuChilden::Other::Storage::contents()
 {
 	auto font = g_gui_fontmgr_i->get_font(FID_SegoeUI, FSZ_16px, FDC_Regular);
@@ -268,7 +233,7 @@ void MenuChilden::Other::Storage::contents()
 	{
 		g_filesystem_i->iterate_through_files(
 			cheat_directory / "log", false, 
-			[](const FilePath_t& dir)
+			[](const std::filesystem::path& dir)
 			{
 				if (g_filesystem_i->is_file(dir))
 				{
@@ -284,4 +249,40 @@ void MenuChilden::Other::Storage::contents()
 		g_gui_widgets_i->add_spacing();
 		CUIMenuWidgets::the().add_slider("Logfiles to keep", "%0.0f", var);
 	}
+}
+
+void MenuChilden::Other::Debug::contents()
+{
+	CUIMenuWidgets::the().feature_enabled_section(
+	&debug,
+	[]()
+	{
+		CUIMenuWidgets::the().add_description_text("This feature is used for developement only. You have been warned.");
+
+		g_gui_widgets_i->begin_tab("debug_tab", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll);
+
+		float tab_height = -1.0f;
+
+		g_gui_widgets_i->add_tab_item(
+			"Rendering", false,
+			{ -1.0f, tab_height },
+			[]()
+			{
+				CUIMenuWidgets::the().feature_enabled_section(
+				&debug_render_info,
+				[]()
+				{
+					CUIMenuWidgets::the().add_checkbox("Misc", &debug_render_info_misc);
+					g_gui_widgets_i->add_spacing();
+					g_gui_widgets_i->add_separtor_with_text("Movement");
+					g_gui_widgets_i->add_spacing();
+					CUIMenuWidgets::the().add_checkbox("Bhop", &debug_render_info_movement_bhop);
+					CUIMenuWidgets::the().add_checkbox("Strafe hack", &debug_render_info_movement_strafe);
+					CUIMenuWidgets::the().add_checkbox("Strafe helper", &debug_render_info_movement_strafe_helper);
+					CUIMenuWidgets::the().add_checkbox("Players", &debug_render_player_info);
+				});
+			});
+
+		g_gui_widgets_i->end_tab();
+	});
 }

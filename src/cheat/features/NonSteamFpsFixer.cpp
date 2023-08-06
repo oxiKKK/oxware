@@ -43,7 +43,7 @@ void CNonSteamFpsFixer::fix_fps()
 	}
 
 	static double frametime_remainder = 0.0;
-	double host_frametime = CGameUtil::the().get_engine_frametime();
+	double host_frametime = CLocalState::the().get_engine_frametime();
 	auto cl = CMemoryHookMgr::the().cl().get();
 
 	//

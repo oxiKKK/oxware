@@ -36,9 +36,6 @@
 #include <fstream>
 #include <functional>
 
-typedef std::filesystem::path	FilePath_t;
-typedef std::fstream			FileStream_t;
-
 enum class ECopyOptions
 {
 	none = 0, 
@@ -56,30 +53,30 @@ public:
 	// File system operations
 	//
 
-	virtual bool is_directory(const FilePath_t& path) = 0;
-	virtual bool is_file(const FilePath_t& path) = 0;
-	virtual bool do_exist(const FilePath_t& path) = 0;
+	virtual bool is_directory(const std::filesystem::path& path) = 0;
+	virtual bool is_file(const std::filesystem::path& path) = 0;
+	virtual bool do_exist(const std::filesystem::path& path) = 0;
 
-	virtual uintmax_t file_size(const FilePath_t& path) = 0;
-	virtual uintmax_t directory_size(const FilePath_t& path) = 0;
+	virtual uintmax_t file_size(const std::filesystem::path& path) = 0;
+	virtual uintmax_t directory_size(const std::filesystem::path& path) = 0;
 
-	virtual bool copy(const FilePath_t& from, const FilePath_t& to, ECopyOptions options = ECopyOptions::none) = 0;
-	virtual bool rename(const FilePath_t& from, const FilePath_t& to) = 0;
-	virtual bool move(const FilePath_t& from, const FilePath_t& to) = 0;
-	virtual bool replace(const FilePath_t& what, const FilePath_t& with) = 0;
-	virtual bool remove(const FilePath_t& path) = 0;
-	virtual bool remove_all(const FilePath_t& directory) = 0;
-	virtual bool create_file(const FilePath_t& path) = 0;
-	virtual bool create_directory(const FilePath_t& path) = 0;
+	virtual bool copy(const std::filesystem::path& from, const std::filesystem::path& to, ECopyOptions options = ECopyOptions::none) = 0;
+	virtual bool rename(const std::filesystem::path& from, const std::filesystem::path& to) = 0;
+	virtual bool move(const std::filesystem::path& from, const std::filesystem::path& to) = 0;
+	virtual bool replace(const std::filesystem::path& what, const std::filesystem::path& with) = 0;
+	virtual bool remove(const std::filesystem::path& path) = 0;
+	virtual bool remove_all(const std::filesystem::path& directory) = 0;
+	virtual bool create_file(const std::filesystem::path& path) = 0;
+	virtual bool create_directory(const std::filesystem::path& path) = 0;
 
-	virtual void iterate_through_files(const FilePath_t& directory, bool recursive, const std::function<void(const FilePath_t& file)>& callback) = 0;
+	virtual void iterate_through_files(const std::filesystem::path& directory, bool recursive, const std::function<void(const std::filesystem::path& file)>& callback) = 0;
 
-	virtual FilePath_t locate_halflife_dir() = 0;
-	virtual FilePath_t path_relative_to_hl_dir(const FilePath_t& relative_path = "") = 0;
-	virtual FilePath_t get_loader_exe_filepath(const FilePath_t& relative_path = "") = 0;
-	virtual FilePath_t get_appdata_path(const FilePath_t& relative_path = "") = 0;
-	virtual FilePath_t get_relative_to_appdata(const FilePath_t& full_path) = 0;
-	virtual FilePath_t get_relative_to_appdata_ex(const FilePath_t& additional_path, const FilePath_t& full_path) = 0;
+	virtual std::filesystem::path locate_halflife_dir() = 0;
+	virtual std::filesystem::path path_relative_to_hl_dir(const std::filesystem::path& relative_path = "") = 0;
+	virtual std::filesystem::path get_loader_exe_filepath(const std::filesystem::path& relative_path = "") = 0;
+	virtual std::filesystem::path get_appdata_path(const std::filesystem::path& relative_path = "") = 0;
+	virtual std::filesystem::path get_relative_to_appdata(const std::filesystem::path& full_path) = 0;
+	virtual std::filesystem::path get_relative_to_appdata_ex(const std::filesystem::path& additional_path, const std::filesystem::path& full_path) = 0;
 
 	virtual std::error_code get_last_error() const = 0;
 };

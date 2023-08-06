@@ -26,25 +26,32 @@
 *	IN THE SOFTWARE.
 */
 
-#include "assets/compressed_font_data.h"
+#ifndef THEMEEDITOR_H
+#define THEMEEDITOR_H
+#pragma once
 
-std::vector<BaseFontContainer_t> g_static_fonts;
-
-void add_font_to_static_container(BaseFontContainer_t* basefont)
+class CUIThemeEditor
 {
-	g_static_fonts.push_back(*basefont);
-}
+public:
+	DECL_BASIC_CLASS(CUIThemeEditor);
 
-// ProggyClean monospace
-ProggyCleanFontContainer_t g_ProggyCleanFontContainer(
-	"proggyclean",
-	{ g_proggyclean_compressed_size, g_proggyclean_compressed_data },
-	{},
-	{});
+public:
+	void render_ui();
 
-// SegoeUI
-SegoeUIFontContainer_t g_SegoeUIFontContainer(
-	"segoeui",
-	{ g_segoeui_compressed_size, g_segoeui_compressed_data },
-	{ g_segoeuib_compressed_size, g_segoeuib_compressed_data },
-	{ g_segoeuil_compressed_size, g_segoeuil_compressed_data });
+private:
+	void search_for_configs();
+
+	void render_color_palette();
+	void render_file_list();
+	void render_built_in_list();
+	void render_actions();
+
+	void actions_export_current_theme_as();
+	void actions_open_config_dir();
+
+	std::vector<std::filesystem::path> m_theme_cfgs;
+
+	static UIStatusWidget m_status_widget;
+};
+
+#endif // THEMEEDITOR_H

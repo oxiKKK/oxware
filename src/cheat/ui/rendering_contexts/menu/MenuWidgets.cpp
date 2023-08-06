@@ -48,7 +48,7 @@ bool CUIMenuWidgets::add_checkbox_with_color(const std::string& label, VarBoolea
 
 	float value = (float)toggle_var->get_value();
 	float c[4] = { color.r, color.g, color.b, color.a };
-	bool ret = g_gui_widgets_i->add_checkbox_with_color(label, &value, c, alpha ? ImGuiColorEditFlags_AlphaBar : 0);
+	bool ret = g_gui_widgets_i->add_checkbox_with_color(label, &value, c, false, alpha ? ImGuiColorEditFlags_AlphaBar : 0);
 
 	toggle_var->set_value((int)value);
 	colors_var->set_value(CColor(c[0], c[1], c[2], c[3]));
@@ -123,7 +123,7 @@ bool CUIMenuWidgets::add_color_edit(const std::string& label, VarColor* colors_v
 {
 	auto color = colors_var->get_value();
 	float c[4] = { color.r, color.g, color.b, color.a };
-	bool ret = g_gui_widgets_i->add_color_edit(label, c);
+	bool ret = g_gui_widgets_i->add_color_edit(label, c, false);
 
 	colors_var->set_value(CColor(c[0], c[1], c[2], c[3]));
 

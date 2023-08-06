@@ -177,6 +177,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="color_translation.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="GLFWApp.cpp" />
     <ClCompile Include="GUIFontManager.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="..\public\BaseVariable.h" />
     <ClInclude Include="..\public\Console.h" />
     <ClInclude Include="..\public\interface.h" />
+    <ClInclude Include="color_translation.h" />
     <ClInclude Include="ImGUILayerGLFW.h" />
     <ClInclude Include="ImGUILayerWin32.h" />
     <ClInclude Include="precompiled.h" />

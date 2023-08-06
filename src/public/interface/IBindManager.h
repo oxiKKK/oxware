@@ -148,8 +148,8 @@ class IBindManager
 public:
 	virtual void initialize() = 0;
 
-	virtual void create_binds_from_json(const nlohmann::json& json) = 0;
-	virtual void export_binds_to_json(nlohmann::json& json) = 0;
+	virtual void create_binds_from_json(const nh::json& json) = 0;
+	virtual void export_binds_to_json(nh::json& json) = 0;
 
 	virtual void add_bind(int virtual_key, const std::string& command_sequence, EBindFlags flags = BINDFLAG_None, bool silent = false) = 0;
 	virtual void add_bind(const std::string& key_name, const std::string& command_sequence, EBindFlags flags = BINDFLAG_None, bool silent = false) = 0;

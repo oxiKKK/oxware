@@ -76,6 +76,7 @@ void MenuChilden::Screen::ESP::contents()
 			{
 				CUIMenuWidgets::the().add_checkbox("Enable ##player", &esp_player_enable);
 				CUIMenuWidgets::the().add_checkbox("Show name", &esp_player_name);
+				CUIMenuWidgets::the().add_checkbox("Details", &esp_player_details);
 			});
 
 		g_gui_widgets_i->add_tab_item(

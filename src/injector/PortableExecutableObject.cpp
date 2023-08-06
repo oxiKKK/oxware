@@ -32,7 +32,7 @@
 
 #include "precompiled.h"
 
-bool CPortableExecutableObject::create(const FilePath_t& dll_path)
+bool CPortableExecutableObject::create(const std::filesystem::path& dll_path)
 {
 	m_dll_path = dll_path;
 	

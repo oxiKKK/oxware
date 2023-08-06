@@ -52,7 +52,7 @@ bool CImGUILayerWin32::initialize()
 	g_gui_fontmgr_i->initialize();
 
 	ImGui::StyleColorsDark();
-	g_gui_thememgr_i->initialize();
+	g_gui_thememgr_i->initialize_imgui();
 
 	// Setup Platform/Renderer backends
 	if (!ImGui_ImplWin32_Init(as_hwnd()))

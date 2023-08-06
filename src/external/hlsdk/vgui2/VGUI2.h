@@ -55,11 +55,6 @@ namespace vgui2
 	typedef unsigned long HFont;
 	const HFont INVALID_FONT = 0; // the value of an invalid font handle
 
-	/*
-	*	Represents an invalid handle
-	*	Code originally used NULL, which isn't intended to be used with non-pointer types
-	*	Use this with with non-pointer types (e.g. vgui2::VPANEL etc) -Enko
-	*/
 	#define NULL_HANDLE 0
 }
 

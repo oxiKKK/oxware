@@ -85,8 +85,8 @@ public:
 	virtual void register_module(EOutputModule which) = 0;
 	virtual void unregister_module(EOutputModule which) = 0;
 
-	virtual FilePath_t get_logfile_path() = 0;
-	virtual FilePath_t get_logfile_path_fancy() = 0; // with %appdata% instead of the actual directory
+	virtual std::filesystem::path get_logfile_path() = 0;
+	virtual std::filesystem::path get_logfile_path_fancy() = 0; // with %appdata% instead of the actual directory
 
 	virtual void enable_tooltip(bool enable) = 0;
 

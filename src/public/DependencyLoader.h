@@ -76,7 +76,7 @@ public:
 
 	std::string get_name_utf8() const;
 
-	bool load_and_initialize(ELoadType type, const FilePath_t& module_path, const std::wstring& module_name);
+	bool load_and_initialize(ELoadType type, const std::filesystem::path& module_path, const std::wstring& module_name);
 	void unload();
 
 	bool is_dll_loaded() const;
@@ -91,7 +91,7 @@ private:
 	GetInterfaceInstanceFn find_getinterfaceinstance_func();
 
 private:
-	FilePath_t m_filepath = {}; // path to the module
+	std::filesystem::path m_filepath = {}; // path to the module
 	std::wstring m_name = L"none";
 
 	// NOTE that if the module unexpectedly unloads, this points to invalid memory!
@@ -112,7 +112,7 @@ public:
 	DECL_BASIC_CLASS(CDependencyLoader);
 
 public:
-	bool load_and_initialize_module(ELoadType type, const FilePath_t& module_path, const std::wstring& module_name,
+	bool load_and_initialize_module(ELoadType type, const std::filesystem::path& module_path, const std::wstring& module_name,
 									std::function<bool(const LoadableModuleObject& mod)> extended_init_callback = nullptr);
 	void unload_all();
 

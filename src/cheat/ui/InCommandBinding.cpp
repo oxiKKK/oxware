@@ -176,19 +176,6 @@ void CUIInCommandKeyBinding::render_interactible_list()
 
 	g_gui_widgets_i->pop_stylevar();
 	g_gui_widgets_i->pop_stylevar();
-
-#if 0
-	if (g_gui_widgets_i->add_floating_button("?", last_cursor_pos, { window_size.x - 23.0f - button_size.x - 3.0f - button_size.x, 30.0f },
-											 button_size, false, BUTTONFLAG_CenterLabel))
-	{
-		COxWareUI::the().schedule_popup(
-			"InCommands help", { 450, 400 },
-			[]()
-			{
-				g_gui_widgets_i->add_separtor_with_text("What is it");
-			});
-	}
-#endif
 }
 
 void CUIInCommandKeyBinding::add_keyscan_button(BaseInCommand* in_cmd, const Vector2D& size)

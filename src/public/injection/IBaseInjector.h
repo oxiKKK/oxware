@@ -66,11 +66,11 @@ public:
 
 	virtual void destroy() = 0;
 
-	virtual bool inject_to_target_process(const char* execuatable_name, const FilePath_t& dll_path) = 0;
+	virtual bool inject_to_target_process(const char* execuatable_name, const std::filesystem::path& dll_path) = 0;
 
 	virtual void update() = 0;
 
-	virtual IInjectableModuleObject* get_injected_dll(const FilePath_t& dll_path) = 0;
+	virtual IInjectableModuleObject* get_injected_dll(const std::filesystem::path& dll_path) = 0;
 
 	inline auto get_injection_technique() const { return m_technique; };
 
@@ -250,11 +250,11 @@ public:
 
 	inline bool is_successfully_injected() const { return m_successfully_injected; }
 
-	inline const FilePath_t& get_dll_filepath() const { return m_dll_filepath; }
+	inline const std::filesystem::path& get_dll_filepath() const { return m_dll_filepath; }
 	inline const std::string& get_dll_exe_name() const { return m_exe_name; }
 
 protected:
-	FilePath_t m_dll_filepath;
+	std::filesystem::path m_dll_filepath;
 	std::string m_exe_name;
 
 	HANDLE m_target_process_handle = NULL;

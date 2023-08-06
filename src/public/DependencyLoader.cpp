@@ -43,7 +43,7 @@ std::string LoadableModuleObject::get_name_utf8() const
 	return CStringTools::the().utf16_to_utf8(m_name);
 }
 
-bool LoadableModuleObject::load_and_initialize(ELoadType type, const FilePath_t& module_path, const std::wstring& module_name)
+bool LoadableModuleObject::load_and_initialize(ELoadType type, const std::filesystem::path& module_path, const std::wstring& module_name)
 {
 	m_name = module_name;
 	m_filepath = module_path;
@@ -233,7 +233,7 @@ GetInterfaceInstanceFn LoadableModuleObject::find_getinterfaceinstance_func()
 }
 
 // Load the module and call its entry point
-bool CDependencyLoader::load_and_initialize_module(ELoadType type, const FilePath_t& module_path, const std::wstring& module_name,
+bool CDependencyLoader::load_and_initialize_module(ELoadType type, const std::filesystem::path& module_path, const std::wstring& module_name,
 												   std::function<bool(const LoadableModuleObject& mod)> extended_init_callback)
 {
 	LoadableModuleObject mod;

@@ -41,11 +41,17 @@ public:
 	static const Vector2D	menu_rect_size_max;
 
 	static const float		tab_select_width;
+	static const Vector2D	tab_select_pos;
 
 	static const float		top_region_size_h;
 
 	// menu contents paddings
 	static const float		menu_contents_padding;
+
+	// menu tab sections
+	static const Vector2D 	tab_section_button_size;
+	static const Vector2D 	tab_section_button_padding;
+	static const Vector2D 	tab_section_button_inner_padding;
 
 	// bottom portion of the menu
 	static const float		bottom_reserved_rect_h;
@@ -68,9 +74,6 @@ public:
 	static const float		search_dialog_padding_width;
 	static const float		search_dialog_spacing_right;
 
-	static const Vector2D	tab_section_button_size;
-	static const Vector2D	tab_section_button_padding;
-
 	// children headers
 	static const float		childhdr_text_padding_x;
 	static const float		childhdr_text_padding_y;
@@ -79,8 +82,7 @@ public:
 
 	// utility functions to calculate child size based on height. Width is a constant.
 	static Vector2D			calc_child_size(float height);
-	static Vector2D			calc_child_size_2x(float height);
-	static Vector2D			calc_child_size_4x(float height);
+	static Vector2D			calc_child_size_n(float n, float height);
 
 	static float			get_child_width_w_padding();
 };

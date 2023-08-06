@@ -185,6 +185,7 @@ In order to fully build everything, all you need to do is just hit **ctrl + shif
 - Instantaneous cheat unload (either via loader or cheat menu)
 - Injection using manual mapping 🗺
 - Custom UI (modified version of imgui)
+- Theme manager
 - Key binding
 - Configuration files ⚙
 

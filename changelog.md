@@ -177,6 +177,7 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 
 - Improvements to cheat UI
 - Added SID changer.
+- Added theme manager.
 
 ## Bugfixes
 

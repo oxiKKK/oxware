@@ -181,4 +181,4 @@ Sorry for the wait, I've been busy with IRL stuff. 🙄😪
 
 ## Bugfixes
 
-- 
+- Fixed a bug with RtlRemoveInvertedFunctionTable.

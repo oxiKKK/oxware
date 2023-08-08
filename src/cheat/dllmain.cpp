@@ -78,7 +78,5 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	}
 #endif
 
-	// TODO: Implement also removing exception function table RtlRemoveInvertedFunctionTable.
-
 	return TRUE;
 }

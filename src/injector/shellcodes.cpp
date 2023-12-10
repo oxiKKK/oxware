@@ -1,28 +1,28 @@
 /*
 *	OXWARE developed by oxiKKK
 *	Copyright (c) 2023
-* 
-*	This program is licensed under the MIT license. By downloading, copying, 
+*
+*	This program is licensed under the MIT license. By downloading, copying,
 *	installing or using this software you agree to this license.
 *
 *	License Agreement
 *
-*	Permission is hereby granted, free of charge, to any person obtaining a 
-*	copy of this software and associated documentation files (the "Software"), 
-*	to deal in the Software without restriction, including without limitation 
-*	the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-*	and/or sell copies of the Software, and to permit persons to whom the 
+*	Permission is hereby granted, free of charge, to any person obtaining a
+*	copy of this software and associated documentation files (the "Software"),
+*	to deal in the Software without restriction, including without limitation
+*	the rights to use, copy, modify, merge, publish, distribute, sublicense,
+*	and/or sell copies of the Software, and to permit persons to whom the
 *	Software is furnished to do so, subject to the following conditions:
 *
-*	The above copyright notice and this permission notice shall be included 
-*	in all copies or substantial portions of the Software. 
+*	The above copyright notice and this permission notice shall be included
+*	in all copies or substantial portions of the Software.
 *
-*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 *	IN THE SOFTWARE.
 */
 
@@ -121,8 +121,9 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CLoadLibrareredDll::shellcode_routine(lo
 	{
 		auto exports_directory = (PIMAGE_EXPORT_DIRECTORY)((uint8_t*)base + op->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
 
-		auto function_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)base + exports_directory->AddressOfFunctions);
-		auto name_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)base + exports_directory->AddressOfNames);
+		// NOTE: yes, these are DWORDs, even on x64
+		auto function_table_base = reinterpret_cast<uint32_t*>((uint8_t*)base + exports_directory->AddressOfFunctions);
+		auto name_table_base = reinterpret_cast<uint32_t*>((uint8_t*)base + exports_directory->AddressOfNames);
 		auto ordinal_table_base = reinterpret_cast<uint16_t*>((uint8_t*)base + exports_directory->AddressOfNameOrdinals);
 
 		// search for some procs we want to have
@@ -250,8 +251,9 @@ DISABLE_SAFEBUFFERS HINSTANCE CManualMappedDllCurrentProcess::shellcode_routine(
 	{
 		auto exports_directory = (PIMAGE_EXPORT_DIRECTORY)((uint8_t*)m_allocation_block_ptr + op->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
 
-		auto function_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)m_allocation_block_ptr + exports_directory->AddressOfFunctions);
-		auto name_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)m_allocation_block_ptr + exports_directory->AddressOfNames);
+		// NOTE: yes, these are DWORDs, even on x64
+		auto function_table_base = reinterpret_cast<uint32_t*>((uint8_t*)m_allocation_block_ptr + exports_directory->AddressOfFunctions);
+		auto name_table_base = reinterpret_cast<uint32_t*>((uint8_t*)m_allocation_block_ptr + exports_directory->AddressOfNames);
 		auto ordinal_table_base = reinterpret_cast<uint16_t*>((uint8_t*)m_allocation_block_ptr + exports_directory->AddressOfNameOrdinals);
 
 		// search for some procs we want to have
@@ -261,12 +263,12 @@ DISABLE_SAFEBUFFERS HINSTANCE CManualMappedDllCurrentProcess::shellcode_routine(
 			if (!_stricmp(export_procname, EXPOSEMODULE_PROCNAME))
 			{
 				m_pfnExposeModuleFn = reinterpret_cast<ExposeModuleFn>((uint8_t*)m_allocation_block_ptr + function_table_base[ordinal_table_base[i]]);
-//				OutputDebugStringA("Found ExposeModuleFn");
+				//				OutputDebugStringA("Found ExposeModuleFn");
 			}
 			else if (!_stricmp(export_procname, INTERFACEINSTANCEGETTER_PROCNAME))
 			{
 				m_pfnGetInterfaceInstanceFn = reinterpret_cast<GetInterfaceInstanceFn>((uint8_t*)m_allocation_block_ptr + function_table_base[ordinal_table_base[i]]);
-//				OutputDebugStringA("Found GetInterfaceInstanceFn");
+				//				OutputDebugStringA("Found GetInterfaceInstanceFn");
 			}
 			else if (!_stricmp(export_procname, PRE_DLL_LOAD_PROCNAME))
 			{
@@ -322,7 +324,7 @@ DISABLE_SAFEBUFFERS HINSTANCE CManualMappedDllCurrentProcess::shellcode_routine(
 			return NULL;
 		}
 	}
-	
+
 
 	//
 	// call the generic initialization routine that gets called normally. (_DllMainCRTStartup(), usually)
@@ -414,8 +416,9 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 	{
 		auto exports_directory = (PIMAGE_EXPORT_DIRECTORY)((uint8_t*)base + op->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
 
-		auto function_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)base + exports_directory->AddressOfFunctions);
-		auto name_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)base + exports_directory->AddressOfNames);
+		// NOTE: yes, these are DWORDs, even on x64
+		auto function_table_base = reinterpret_cast<uint32_t*> ((uint8_t*)base + exports_directory->AddressOfFunctions);
+		auto name_table_base = reinterpret_cast<uint32_t*>((uint8_t*)base + exports_directory->AddressOfNames);
 		auto ordinal_table_base = reinterpret_cast<uint16_t*>((uint8_t*)base + exports_directory->AddressOfNameOrdinals);
 
 		// search for some procs we want to have
@@ -472,7 +475,7 @@ DISABLE_SAFEBUFFERS HINSTANCE __stdcall CManualMappedDll::shellcode_routine(manu
 	//
 
 	context->pfnOutputDebugStringA(context->debug_messages[4]);
-	
+
 	// byte pattern for RtlInsertInvertedFunctionTable inside ntdll.
 	auto BPattern_RtlIIFT = &context->byte_patterns[BPattern_RtlIIFT_Idx];
 

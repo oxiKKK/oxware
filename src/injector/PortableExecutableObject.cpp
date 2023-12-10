@@ -1,28 +1,28 @@
 /*
 *	OXWARE developed by oxiKKK
 *	Copyright (c) 2023
-* 
-*	This program is licensed under the MIT license. By downloading, copying, 
+*
+*	This program is licensed under the MIT license. By downloading, copying,
 *	installing or using this software you agree to this license.
 *
 *	License Agreement
 *
-*	Permission is hereby granted, free of charge, to any person obtaining a 
-*	copy of this software and associated documentation files (the "Software"), 
-*	to deal in the Software without restriction, including without limitation 
-*	the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-*	and/or sell copies of the Software, and to permit persons to whom the 
+*	Permission is hereby granted, free of charge, to any person obtaining a
+*	copy of this software and associated documentation files (the "Software"),
+*	to deal in the Software without restriction, including without limitation
+*	the rights to use, copy, modify, merge, publish, distribute, sublicense,
+*	and/or sell copies of the Software, and to permit persons to whom the
 *	Software is furnished to do so, subject to the following conditions:
 *
-*	The above copyright notice and this permission notice shall be included 
-*	in all copies or substantial portions of the Software. 
+*	The above copyright notice and this permission notice shall be included
+*	in all copies or substantial portions of the Software.
 *
-*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 *	IN THE SOFTWARE.
 */
 
@@ -35,7 +35,7 @@
 bool CPortableExecutableObject::create(const std::filesystem::path& dll_path)
 {
 	m_dll_path = dll_path;
-	
+
 	if (!m_dll_contents.create(dll_path, (uintptr_t)std::filesystem::file_size(dll_path)))
 	{
 		CConsole::the().error("Failed to create ByteBuffer object on DLL.");
@@ -84,8 +84,9 @@ bool CPortableExecutableObject::find_export(const char* name)
 	if (!exports_directory)
 		return false;
 
-	auto function_table_base = m_dll_contents.get_at<uintptr_t>(offset_relative_to_a_section(exports_directory->AddressOfFunctions));
-	auto name_table_base = m_dll_contents.get_at<uintptr_t>(offset_relative_to_a_section(exports_directory->AddressOfNames));
+	// NOTE: yes, these are DWORDs, even on x64
+	auto function_table_base = m_dll_contents.get_at<uint32_t>(offset_relative_to_a_section(exports_directory->AddressOfFunctions));
+	auto name_table_base = m_dll_contents.get_at<uint32_t>(offset_relative_to_a_section(exports_directory->AddressOfNames));
 	auto ordinal_table_base = m_dll_contents.get_at<uint16_t>(offset_relative_to_a_section(exports_directory->AddressOfNameOrdinals));
 
 	for (size_t i = 0; i < exports_directory->NumberOfNames; i++)
@@ -103,7 +104,7 @@ bool CPortableExecutableObject::find_export(const char* name)
 uintptr_t CPortableExecutableObject::offset_relative_to_a_section(uintptr_t rva)
 {
 	assert(m_dos);
-	
+
 	auto section = IMAGE_FIRST_SECTION(m_nt_hdrs);
 
 	for (size_t i = 0; i < m_file_hdr->NumberOfSections; i++)

@@ -1,28 +1,28 @@
 /*
 *	OXWARE developed by oxiKKK
 *	Copyright (c) 2023
-* 
-*	This program is licensed under the MIT license. By downloading, copying, 
+*
+*	This program is licensed under the MIT license. By downloading, copying,
 *	installing or using this software you agree to this license.
 *
 *	License Agreement
 *
-*	Permission is hereby granted, free of charge, to any person obtaining a 
-*	copy of this software and associated documentation files (the "Software"), 
-*	to deal in the Software without restriction, including without limitation 
-*	the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-*	and/or sell copies of the Software, and to permit persons to whom the 
+*	Permission is hereby granted, free of charge, to any person obtaining a
+*	copy of this software and associated documentation files (the "Software"),
+*	to deal in the Software without restriction, including without limitation
+*	the rights to use, copy, modify, merge, publish, distribute, sublicense,
+*	and/or sell copies of the Software, and to permit persons to whom the
 *	Software is furnished to do so, subject to the following conditions:
 *
-*	The above copyright notice and this permission notice shall be included 
-*	in all copies or substantial portions of the Software. 
+*	The above copyright notice and this permission notice shall be included
+*	in all copies or substantial portions of the Software.
 *
-*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+*	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+*	THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+*	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 *	IN THE SOFTWARE.
 */
 
@@ -170,7 +170,7 @@ private:
 		}
 		return nullptr;
 	}
-	
+
 	inline manualmapped_module_information_t* find_manualmapped_module(uintptr_t library_base_address)
 	{
 		for (auto& m : m_mapped_info)
@@ -289,7 +289,7 @@ void CLibraryLoader::initialize()
 	{
 		// This feature of 'adding DLL load search directories' doesn't exist in windows 7 and older versions at all.
 		CConsole::the().warning("LoadLibrary: The 'SetDefaultDllDirectories' could not be found! You may have trouble loading dlls!");
-	}	
+	}
 
 	CConsole::the().info("LoadLibrary initialized.");
 
@@ -657,7 +657,7 @@ bool CLibraryLoader::add_directory_to_search_list(const wchar_t* absolute_direct
 
 	if (success)
 	{
-		CConsole::the().info("LoadLibrary: Successfully added directory {} to the DLL search list.", 
+		CConsole::the().info("LoadLibrary: Successfully added directory {} to the DLL search list.",
 							 CStringTools::the().utf16_to_utf8(absolute_directory));
 	}
 	else
@@ -755,8 +755,9 @@ void CLibraryLoader::for_each_exported_name(uintptr_t library_base_addr,
 		if (!exports_directory)
 			return;
 
-		auto function_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)library_base_addr + exports_directory->AddressOfFunctions);
-		auto name_table_base = reinterpret_cast<uintptr_t*>((uint8_t*)library_base_addr + exports_directory->AddressOfNames);
+		// NOTE: yes, these are DWORDs, even on x64
+		auto function_table_base = reinterpret_cast<uint32_t*>((uint8_t*)library_base_addr + exports_directory->AddressOfFunctions);
+		auto name_table_base = reinterpret_cast<uint32_t*>((uint8_t*)library_base_addr + exports_directory->AddressOfNames);
 		auto ordinal_table_base = reinterpret_cast<uint16_t*>((uint8_t*)library_base_addr + exports_directory->AddressOfNameOrdinals);
 
 		for (size_t i = 0; i < exports_directory->NumberOfNames; i++)
